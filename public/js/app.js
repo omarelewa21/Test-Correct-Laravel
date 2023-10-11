@@ -6785,6 +6785,7 @@ document.addEventListener("alpine:init", function () {
       resolvingTitle: true,
       index: 1,
       mode: mode,
+      attachmentLoading: false,
       init: function init() {
         var _this8 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
@@ -6826,6 +6827,9 @@ document.addEventListener("alpine:init", function () {
         var parent = this.$root.parentElement;
         if (parent === null) return;
         this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
+      },
+      dispatchAttachmentLoading: function dispatchAttachmentLoading() {
+        window.dispatchEvent(new CustomEvent("attachment-preview-loading"));
       }
     };
   });
@@ -7964,20 +7968,16 @@ document.addEventListener("alpine:init", function () {
         this.value = target.firstElementChild.dataset.id;
         this.$root.dataset.hasValue = this.value !== null;
         if (oldValue !== this.value) {
-          if ([null, 'null'].includes(this.$root.dataset.toggleValue)) {
-            this.$dispatch("multi-slider-toggle-value-updated", {
-              value: target.firstElementChild.dataset.id,
-              firstTick: oldValue === null
-            });
-            return;
-          }
-          ;
           /* dispatch with a static (question score) value, not value/key of button-option, only works with true/false  */
           this.$dispatch("slider-toggle-value-updated", {
             value: this.$root.dataset.toggleValue,
             state: parseInt(this.value) === 1 ? "on" : "off",
             firstTick: oldValue === null,
             identifier: this.identifier
+          });
+          this.$dispatch("multi-slider-toggle-value-updated", {
+            value: target.firstElementChild.dataset.id,
+            firstTick: oldValue === null
           });
         }
       },
@@ -8033,7 +8033,7 @@ document.addEventListener("alpine:init", function () {
         var sourceCount = Object.entries(sources).length;
         var widthDividableBySourceCount = Math.round(containerWidth / sourceCount) * sourceCount;
         if (!isNaN(widthDividableBySourceCount) && widthDividableBySourceCount > 0) {
-          this.$root.style.width = widthDividableBySourceCount + "px";
+          this.$root.style.width = widthDividableBySourceCount + 'px';
         }
       }
     };
@@ -8252,9 +8252,9 @@ document.addEventListener("alpine:init", function () {
       init: function init() {
         var _this32 = this;
         this.id = this.containerId + "-" + key;
-        this.$watch("expanded", function (value) {
+        this.$watch('expanded', function (value) {
           setTimeout(function () {
-            _this32.$el.querySelector("[block-body]").style.overflow = value ? "visible" : "hidden";
+            _this32.$el.querySelector('[block-body]').style.overflow = value ? 'visible' : 'hidden';
           }, 100);
         });
       },
@@ -8397,7 +8397,7 @@ document.addEventListener("alpine:init", function () {
       },
       setInitialFocusInput: function setInitialFocusInput() {
         var _this35 = this;
-        var name = "" != this.activeOverlay ? this.activeOverlay : this.openTab;
+        var name = '' != this.activeOverlay ? this.activeOverlay : this.openTab;
         var finder = "[data-focus-tab = '".concat(name, "']");
         setTimeout(function () {
           var _this35$$root$querySe;
@@ -8411,15 +8411,15 @@ document.addEventListener("alpine:init", function () {
         if ("" != this.hasErrors) {
           var errorCode = this.hasErrors[0];
           switch (errorCode) {
-            case "invalid_test_code":
-            case "no_test_found_with_code":
-              errorCode = "invalid_test_code";
+            case 'invalid_test_code':
+            case 'no_test_found_with_code':
+              errorCode = 'invalid_test_code';
               break;
           }
-          if (document.activeElement.type === "password") {
+          if (document.activeElement.type === 'password') {
             //Do not focus on other fields when password is focused to prevent users typing password in the wrong field
             //only works when the form is submitted by enter key, else focus is on the login button
-            errorCode = "password";
+            errorCode = 'password';
           }
           finder = "[data-focus-tab-error = '".concat(name, "-").concat(errorCode, "']");
         }
@@ -8456,7 +8456,6 @@ document.addEventListener("alpine:init", function () {
             score: _this37.score
           });
         });
-        this.bindKeyboardShortCuts();
       },
       toggleCount: function toggleCount() {
         return document.querySelectorAll(".student-answer .slider-button-container:not(.disabled)").length;
@@ -8500,9 +8499,7 @@ document.addEventListener("alpine:init", function () {
         this.$store.assessment.currentScore = this.score;
       },
       dispatchNewScoreToSlider: function dispatchNewScoreToSlider() {
-        var scoreSliderContainer = document.querySelector(".score-slider-container");
-        if (!scoreSliderContainer) return;
-        scoreSliderContainer.dispatchEvent(new CustomEvent("new-score", {
+        document.querySelector(".score-slider-container").dispatchEvent(new CustomEvent("new-score", {
           detail: {
             score: this.score
           }
@@ -8532,48 +8529,6 @@ document.addEventListener("alpine:init", function () {
             score: _this39.score
           });
         });
-      },
-      bindKeyboardShortCuts: function bindKeyboardShortCuts() {
-        // During assessment, clicking:
-        // - A will go to previous answer
-        // - D will go to next answer
-        // - S will go to previous question
-        // - W will go to next question
-
-        document.addEventListener('DOMContentLoaded', function (event) {
-          // disable tab key for all elements when in assessment mode because this corrupts the right tab drawer;
-          // document.querySelectorAll('textarea').forEach(element => element.tabIndex = -1);
-          // document.querySelectorAll('input').forEach(element => element.tabIndex = -1);
-
-          // Map each key to the corresponding button's selid
-          var keyToSelIdMap = {
-            'a': 'btn_loadAnswer_previous',
-            'd': 'btn_loadAnswer_next',
-            's': 'btn_loadQuestion_previous',
-            'w': 'btn_loadQuestion_next'
-          };
-
-          // Add a keyup event listener to the document
-          document.addEventListener('keyup', function (event) {
-            // If the target is an input or textarea, do nothing
-            if (event.target.tagName.toLowerCase() === 'input' && !event.target.classList.contains('js-allow-for-wasd-navigation') || event.target.tagName.toLowerCase() === 'textarea') {
-              return;
-            }
-            // Check if the event.target is a ckEditor
-            if (event.target.classList.contains('ck')) {
-              return;
-            }
-            var id = keyToSelIdMap[event.key.toLowerCase()];
-
-            // If a mapping exists, "click" the corresponding button
-            if (id) {
-              var button = document.getElementById(id);
-              if (button) {
-                button.click();
-              }
-            }
-          });
-        });
       }
     };
   });
@@ -8595,7 +8550,7 @@ document.addEventListener("alpine:init", function () {
                   _context8.next = 2;
                   break;
                 }
-                return _context8.abrupt("return", _this40.$store.answerFeedback.openConfirmationModal(_this40.$root, "first"));
+                return _context8.abrupt("return", _this40.$store.answerFeedback.openConfirmationModal(_this40.$root, 'first'));
               case 2:
                 _context8.next = 4;
                 return _this40.updateCurrent(_this40.firstValue, "first");
@@ -8616,7 +8571,7 @@ document.addEventListener("alpine:init", function () {
                   _context9.next = 2;
                   break;
                 }
-                return _context9.abrupt("return", _this41.$store.answerFeedback.openConfirmationModal(_this41.$root, "last"));
+                return _context9.abrupt("return", _this41.$store.answerFeedback.openConfirmationModal(_this41.$root, 'last'));
               case 2:
                 _context9.next = 4;
                 return _this41.updateCurrent(_this41.lastValue, "last");
@@ -8643,7 +8598,7 @@ document.addEventListener("alpine:init", function () {
                   _context10.next = 4;
                   break;
                 }
-                return _context10.abrupt("return", _this42.$store.answerFeedback.openConfirmationModal(_this42.$root, "next"));
+                return _context10.abrupt("return", _this42.$store.answerFeedback.openConfirmationModal(_this42.$root, 'next'));
               case 4:
                 _context10.next = 6;
                 return _this42.updateCurrent(_this42.current + 1, "incr");
@@ -8670,7 +8625,7 @@ document.addEventListener("alpine:init", function () {
                   _context11.next = 4;
                   break;
                 }
-                return _context11.abrupt("return", _this43.$store.answerFeedback.openConfirmationModal(_this43.$root, "previous"));
+                return _context11.abrupt("return", _this43.$store.answerFeedback.openConfirmationModal(_this43.$root, 'previous'));
               case 4:
                 _context11.next = 6;
                 return _this43.updateCurrent(_this43.current - 1, "decr");
@@ -8784,14 +8739,14 @@ document.addEventListener("alpine:init", function () {
         this.tab(this.tabs[0]);
         this.$watch("collapse", function (value) {
           _this48.$store.coLearningStudent.drawerCollapsed = value;
-          window.dispatchEvent(new CustomEvent("drawer-collapse", {
+          window.dispatchEvent(new CustomEvent('drawer-collapse', {
             detail: value
           }));
           document.documentElement.style.setProperty("--active-sidebar-width", value ? "var(--collapsed-sidebar-width)" : "var(--sidebar-width)");
         });
       },
       getSlideElementByIndex: function getSlideElementByIndex(index) {
-        return this.$root.closest(".drawer").querySelector(".slide-" + index);
+        return this.$root.closest('.drawer').querySelector(".slide-" + index);
       },
       tab: function tab(index) {
         var _arguments2 = arguments,
@@ -8856,7 +8811,7 @@ document.addEventListener("alpine:init", function () {
             while (1) switch (_context14.prev = _context14.next) {
               case 0:
                 _this50.container = (_this50$$root$querySe = _this50.$root.querySelector("#slide-container")) !== null && _this50$$root$querySe !== void 0 ? _this50$$root$querySe : _this50.$root.closest("#slide-container");
-                commentCard = document.querySelector("[data-uuid=\"" + answerFeedbackUuid + "\"].answer-feedback-card");
+                commentCard = document.querySelector('[data-uuid="' + answerFeedbackUuid + '"].answer-feedback-card');
                 slide = _this50.getSlideElementByIndex(2);
                 cardTop = commentCard.offsetTop;
                 if (!(slide.offsetHeight <= _this50.container.offsetHeight)) {
@@ -8887,7 +8842,7 @@ document.addEventListener("alpine:init", function () {
                   _context16.next = 2;
                   break;
                 }
-                return _context16.abrupt("return", _this51.$store.answerFeedback.openConfirmationModal(_this51.$root, "next"));
+                return _context16.abrupt("return", _this51.$store.answerFeedback.openConfirmationModal(_this51.$root, 'next'));
               case 2:
                 if (!_this51.needsToPerformActionsStill()) {
                   _context16.next = 6;
@@ -8931,7 +8886,7 @@ document.addEventListener("alpine:init", function () {
                   _context18.next = 2;
                   break;
                 }
-                return _context18.abrupt("return", _this52.$store.answerFeedback.openConfirmationModal(_this52.$root, "previous"));
+                return _context18.abrupt("return", _this52.$store.answerFeedback.openConfirmationModal(_this52.$root, 'previous'));
               case 2:
                 _this52.tab(1);
                 _context18.next = 5;
@@ -9006,12 +8961,11 @@ document.addEventListener("alpine:init", function () {
     };
   });
 
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, coLearning, focusInput, continuousSlider, minScore) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, coLearning, focusInput, continuousSlider) {
     return {
       score: score,
       model: model,
       maxScore: maxScore,
-      minScore: minScore,
       timeOut: null,
       halfPoints: halfPoints,
       disabled: disabled,
@@ -9036,10 +8990,10 @@ document.addEventListener("alpine:init", function () {
         if (this.score > this.maxScore) {
           this.score = this.maxScore;
         }
-        if (this.score < this.minScore) {
-          this.score = this.minScore;
+        if (this.score < 0) {
+          this.score = 0;
         }
-        var el = this.$root.querySelector(".score-slider-input");
+        var el = document.querySelector(".score-slider-input");
         var offsetFromCenter = -40;
         offsetFromCenter += this.score / this.maxScore * 80;
         el.style.setProperty("--slider-thumb-offset", "calc(".concat(offsetFromCenter, "% + 1px)"));
@@ -9059,9 +9013,6 @@ document.addEventListener("alpine:init", function () {
         this.$dispatch("slider-score-updated", {
           score: this.score
         });
-        if (this.$root.classList.contains("untouched")) {
-          this.$root.classList.remove("untouched");
-        }
       },
       noChangeEventFallback: function noChangeEventFallback() {
         if (this.score === null) {
@@ -9070,8 +9021,7 @@ document.addEventListener("alpine:init", function () {
         }
       },
       init: function init() {
-        var _this55 = this,
-          _this$$root$dataset;
+        var _this55 = this;
         if (coLearning) {
           Livewire.hook("message.received", function (message, component) {
             var _message$updateQueue$;
@@ -9098,8 +9048,8 @@ document.addEventListener("alpine:init", function () {
           if (value >= _this55.maxScore) {
             _this55.score = value = _this55.maxScore;
           }
-          if (value <= _this55.minScore) {
-            _this55.score = value = _this55.minScore;
+          if (value <= 0) {
+            _this55.score = value = 0;
           }
           _this55.score = value = _this55.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
           _this55.updateContinuousSlider();
@@ -9114,20 +9064,6 @@ document.addEventListener("alpine:init", function () {
           this.halfTotal = this.hasMaxDecimalScoreWithHalfPoint();
           this.bars = this.maxScore / 0.5;
         }
-        if (this.usedSliders && (_this$$root$dataset = this.$root.dataset) !== null && _this$$root$dataset !== void 0 && _this$$root$dataset.sliderKey) {
-          var _this$$root$dataset2;
-          if (this.usedSliders.contains((_this$$root$dataset2 = this.$root.dataset) === null || _this$$root$dataset2 === void 0 ? void 0 : _this$$root$dataset2.sliderKey) && this.$root.classList.contains("untouched")) {
-            this.$root.classList.remove("untouched");
-          }
-        }
-        this.$nextTick(function () {
-          var rangeInput = _this55.$root.querySelector("input[type=\"range\"]");
-          var left = (rangeInput === null || rangeInput === void 0 ? void 0 : rangeInput.offsetWidth) / 2;
-          if (_this55.continuousSlider) {
-            left = left - 2;
-          }
-          rangeInput === null || rangeInput === void 0 ? void 0 : rangeInput.style.setProperty("--moz-left-zero", "-".concat(left, "px"));
-        });
       },
       markInputElementsWithError: function markInputElementsWithError() {
         if (this.disabled) return;
@@ -9149,8 +9085,7 @@ document.addEventListener("alpine:init", function () {
       sliderPillClasses: function sliderPillClasses(value) {
         var score = this.halfTotal || this.halfPoints ? this.score * 2 : this.score;
         var first = (value / 2 + "").split(".")[1] === "5";
-        var classes = first ? "first" : "second";
-        return value <= score ? classes += " highlight" : classes;
+        return value <= score ? "bg-primary border-primary highlight ".concat(first ? "first" : "second") : "border-bluegrey opacity-100 ".concat(first ? "first" : "second");
       },
       hasMaxDecimalScoreWithHalfPoint: function hasMaxDecimalScoreWithHalfPoint() {
         return isFloat(this.maxScore);
@@ -9367,7 +9302,7 @@ document.addEventListener("alpine:init", function () {
                   _context19.next = 2;
                   break;
                 }
-                return _context19.abrupt("return", _this61.$store.answerFeedback.openConfirmationModal(_this61.$root, "loadQuestion", number));
+                return _context19.abrupt("return", _this61.$store.answerFeedback.openConfirmationModal(_this61.$root, 'loadQuestion', number));
               case 2:
                 _this61.$dispatch("answer-feedback-drawer-tab-update", {
                   tab: 1
@@ -9437,17 +9372,24 @@ document.addEventListener("alpine:init", function () {
             while (1) switch (_context23.prev = _context23.next) {
               case 0:
                 _this63.$store.answerFeedback.resetEditingComment();
-                _this63.dropdownOpened = questionType === "OpenQuestion" ? "given-feedback" : "add-feedback";
+                console.log('init answer feedback');
+                _this63.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
+                if (!(questionType !== 'OpenQuestion')) {
+                  _context23.next = 5;
+                  break;
+                }
+                return _context23.abrupt("return");
+              case 5:
                 _this63.setFocusTracking();
-                document.addEventListener("comment-color-updated", /*#__PURE__*/function () {
+                document.addEventListener('comment-color-updated', /*#__PURE__*/function () {
                   var _ref4 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee21(event) {
                     var styleTagElement, colorWithOpacity, color;
                     return _regeneratorRuntime().wrap(function _callee21$(_context21) {
                       while (1) switch (_context21.prev = _context21.next) {
                         case 0:
-                          styleTagElement = document.querySelector("#temporaryCommentMarkerStyles");
+                          styleTagElement = document.querySelector('#temporaryCommentMarkerStyles');
                           colorWithOpacity = event.detail.color;
-                          color = colorWithOpacity.replace("0.4", "1");
+                          color = colorWithOpacity.replace('0.4', '1');
                           styleTagElement.innerHTML = "p .ck-comment-marker[data-comment=\"".concat(event.detail.threadId, "\"]{\n") + "                            --ck-color-comment-marker: ".concat(colorWithOpacity, " !important;\n") + /* opacity .4 */"                            --ck-color-comment-marker-border: ".concat(color, " !important;\n") + /* opacity 1.0 */"                            --ck-color-comment-marker-active: ".concat(colorWithOpacity, " !important;\n") + /* opacity .4 */"                        }";
                         case 4:
                         case "end":
@@ -9459,27 +9401,27 @@ document.addEventListener("alpine:init", function () {
                     return _ref4.apply(this, arguments);
                   };
                 }());
-                document.addEventListener("comment-emoji-updated", /*#__PURE__*/function () {
+                document.addEventListener('comment-emoji-updated', /*#__PURE__*/function () {
                   var _ref5 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee22(event) {
                     var ckeditorIconWrapper, cardIconWrapper;
                     return _regeneratorRuntime().wrap(function _callee22$(_context22) {
                       while (1) switch (_context22.prev = _context22.next) {
                         case 0:
-                          ckeditorIconWrapper = document.querySelector("#icon-" + event.detail.threadId);
-                          cardIconWrapper = document.querySelector("[data-uuid=\"" + event.detail.uuid + "\"].answer-feedback-card-icon");
+                          ckeditorIconWrapper = document.querySelector('#icon-' + event.detail.threadId);
+                          cardIconWrapper = document.querySelector('[data-uuid="' + event.detail.uuid + '"].answer-feedback-card-icon');
                           if (ckeditorIconWrapper) _this63.addOrReplaceIconByName(ckeditorIconWrapper, event.detail.iconName);
                           if (!cardIconWrapper) {
                             _context22.next = 8;
                             break;
                           }
                           _this63.addOrReplaceIconByName(cardIconWrapper, event.detail.iconName, true);
-                          if (!(event.detail.iconName === null || event.detail.iconName === "" || event.detail.iconName === undefined)) {
+                          if (!(event.detail.iconName === null || event.detail.iconName === '' || event.detail.iconName === undefined)) {
                             _context22.next = 7;
                             break;
                           }
                           return _context22.abrupt("return");
                         case 7:
-                          cardIconWrapper.querySelector("span").style = "";
+                          cardIconWrapper.querySelector('span').style = '';
                         case 8:
                         case "end":
                           return _context22.stop();
@@ -9490,20 +9432,20 @@ document.addEventListener("alpine:init", function () {
                     return _ref5.apply(this, arguments);
                   };
                 }());
-                window.addEventListener("new-comment-color-updated", function (event) {
+                window.addEventListener('new-comment-color-updated', function (event) {
                   var _event$detail;
                   return _this63.updateNewCommentMarkerStyles(event === null || event === void 0 ? void 0 : (_event$detail = event.detail) === null || _event$detail === void 0 ? void 0 : _event$detail.color);
                 });
-                document.addEventListener("mousedown", function (event) {
+                document.addEventListener('mousedown', function (event) {
                   _this63.resetCommentColorPickerFocusState(event);
                   _this63.resetCommentEmojiPickerFocusState(event);
                   if (_this63.activeComment === null) {
                     return;
                   }
                   //check for click outside 1. comment markers, 2. comment marker icons, 3. comment cards.
-                  if (event.srcElement.closest(":is(.ck-comment-marker, .answer-feedback-comment-icon, .given-feedback-container)")) {
-                    var element = event.srcElement.closest(".ck-comment-marker");
-                    if (element instanceof Element && window.getComputedStyle(element).backgroundColor === "rgba(0, 0, 0, 0)") {
+                  if (event.srcElement.closest(':is(.ck-comment-marker, .answer-feedback-comment-icon, .given-feedback-container)')) {
+                    var element = event.srcElement.closest('.ck-comment-marker');
+                    if (element instanceof Element && window.getComputedStyle(element).backgroundColor === 'rgba(0, 0, 0, 0)') {
                       //ignore click on inactive comment marker
                       _this63.clearActiveComment();
                     }
@@ -9512,7 +9454,7 @@ document.addEventListener("alpine:init", function () {
                   _this63.clearActiveComment();
                 });
                 _this63.preventOpeningModalFromBreakingDrawer();
-              case 8:
+              case 11:
               case "end":
                 return _context23.stop();
             }
@@ -9520,43 +9462,43 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       resetCommentColorPickerFocusState: function resetCommentColorPickerFocusState(event) {
-        if (event.srcElement.closest(".comment-color-picker")) {
+        if (event.srcElement.closest('.comment-color-picker')) {
           return;
         }
-        var commentColorPickerCKEditorElement = document.querySelector(".comment-color-picker[ckEditorElement].picker-focussed");
+        var commentColorPickerCKEditorElement = document.querySelector('.comment-color-picker[ckEditorElement].picker-focussed');
         if (commentColorPickerCKEditorElement) {
-          commentColorPickerCKEditorElement.classList.remove("picker-focussed");
+          commentColorPickerCKEditorElement.classList.remove('picker-focussed');
         }
       },
       resetCommentEmojiPickerFocusState: function resetCommentEmojiPickerFocusState(event) {
-        if (event.srcElement.closest(".comment-emoji-picker")) {
+        if (event.srcElement.closest('.comment-emoji-picker')) {
           return;
         }
-        var commentEmojiPickerCKEditorElement = document.querySelector(".comment-emoji-picker[ckEditorElement].picker-focussed");
+        var commentEmojiPickerCKEditorElement = document.querySelector('.comment-emoji-picker[ckEditorElement].picker-focussed');
         if (commentEmojiPickerCKEditorElement) {
-          commentEmojiPickerCKEditorElement.classList.remove("picker-focussed");
+          commentEmojiPickerCKEditorElement.classList.remove('picker-focussed');
         }
       },
       updateCommentThread: function updateCommentThread(element) {
         var _this64 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee24() {
           var _answerFeedbackCardEl, _answerFeedbackCardEl2, _answerFeedbackCardEl3, _answerFeedbackCardEl4;
-          var answerFeedbackCardElement, answerFeedbackUuid, comment_color, comment_emoji, answerFeedbackEditor, answerFeedbackData, commentStyles, commentMarkerStyles;
+          var answerFeedbackCardElement, answerFeedbackUuid, comment_color, comment_emoji, answerFeedbackEditor, answerFeedbackData, commentStyles;
           return _regeneratorRuntime().wrap(function _callee24$(_context24) {
             while (1) switch (_context24.prev = _context24.next) {
               case 0:
-                answerFeedbackCardElement = element.closest(".answer-feedback-card");
+                answerFeedbackCardElement = element.closest('.answer-feedback-card');
                 answerFeedbackUuid = answerFeedbackCardElement.dataset.uuid;
-                comment_color = (_answerFeedbackCardEl = answerFeedbackCardElement.querySelector(".comment-color-picker input:checked")) === null || _answerFeedbackCardEl === void 0 ? void 0 : (_answerFeedbackCardEl2 = _answerFeedbackCardEl.dataset) === null || _answerFeedbackCardEl2 === void 0 ? void 0 : _answerFeedbackCardEl2.color;
-                comment_emoji = (_answerFeedbackCardEl3 = answerFeedbackCardElement.querySelector(".comment-emoji-picker input:checked")) === null || _answerFeedbackCardEl3 === void 0 ? void 0 : (_answerFeedbackCardEl4 = _answerFeedbackCardEl3.dataset) === null || _answerFeedbackCardEl4 === void 0 ? void 0 : _answerFeedbackCardEl4.emoji;
-                answerFeedbackEditor = ClassicEditors["update-" + answerFeedbackUuid];
+                comment_color = (_answerFeedbackCardEl = answerFeedbackCardElement.querySelector('.comment-color-picker input:checked')) === null || _answerFeedbackCardEl === void 0 ? void 0 : (_answerFeedbackCardEl2 = _answerFeedbackCardEl.dataset) === null || _answerFeedbackCardEl2 === void 0 ? void 0 : _answerFeedbackCardEl2.color;
+                comment_emoji = (_answerFeedbackCardEl3 = answerFeedbackCardElement.querySelector('.comment-emoji-picker input:checked')) === null || _answerFeedbackCardEl3 === void 0 ? void 0 : (_answerFeedbackCardEl4 = _answerFeedbackCardEl3.dataset) === null || _answerFeedbackCardEl4 === void 0 ? void 0 : _answerFeedbackCardEl4.emoji;
+                answerFeedbackEditor = ClassicEditors['update-' + answerFeedbackUuid];
                 answerFeedbackData = answerFeedbackEditor.getData();
                 _context24.next = 8;
                 return answerFeedbackEditor.destroy();
               case 8:
                 _this64.cancelEditingComment(answerFeedbackCardElement.dataset.threadId);
                 _context24.next = 11;
-                return _this64.$wire.call("updateExistingComment", {
+                return _this64.$wire.call('updateExistingComment', {
                   uuid: answerFeedbackUuid,
                   message: answerFeedbackData,
                   comment_emoji: comment_emoji,
@@ -9564,9 +9506,8 @@ document.addEventListener("alpine:init", function () {
                 });
               case 11:
                 commentStyles = _context24.sent;
-                commentMarkerStyles = document.querySelector('#commentMarkerStyles');
-                if (commentMarkerStyles) commentMarkerStyles.innerHTML = commentStyles;
-              case 14:
+                document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
+              case 13:
               case "end":
                 return _context24.stop();
             }
@@ -9584,21 +9525,21 @@ document.addEventListener("alpine:init", function () {
                 //somehow the editor id sometimes shows an old cached value, so we set it again here
                 _this65.answerEditorId = _this65.$el.dataset.answerEditorId;
                 _this65.feedbackEditorId = _this65.$el.dataset.feedbackEditorId;
-                addCommentElement = _this65.$el.closest(".answer-feedback-add-comment");
-                comment_color = (_addCommentElement$qu = addCommentElement.querySelector(".comment-color-picker input:checked")) === null || _addCommentElement$qu === void 0 ? void 0 : (_addCommentElement$qu2 = _addCommentElement$qu.dataset) === null || _addCommentElement$qu2 === void 0 ? void 0 : _addCommentElement$qu2.color;
-                comment_emoji = (_addCommentElement$qu3 = addCommentElement.querySelector(".comment-emoji-picker input:checked")) === null || _addCommentElement$qu3 === void 0 ? void 0 : (_addCommentElement$qu4 = _addCommentElement$qu3.dataset) === null || _addCommentElement$qu4 === void 0 ? void 0 : _addCommentElement$qu4.emoji;
-                comment_iconName = (_addCommentElement$qu5 = addCommentElement.querySelector(".comment-emoji-picker input:checked")) === null || _addCommentElement$qu5 === void 0 ? void 0 : (_addCommentElement$qu6 = _addCommentElement$qu5.dataset) === null || _addCommentElement$qu6 === void 0 ? void 0 : _addCommentElement$qu6.iconname;
+                addCommentElement = _this65.$el.closest('.answer-feedback-add-comment');
+                comment_color = (_addCommentElement$qu = addCommentElement.querySelector('.comment-color-picker input:checked')) === null || _addCommentElement$qu === void 0 ? void 0 : (_addCommentElement$qu2 = _addCommentElement$qu.dataset) === null || _addCommentElement$qu2 === void 0 ? void 0 : _addCommentElement$qu2.color;
+                comment_emoji = (_addCommentElement$qu3 = addCommentElement.querySelector('.comment-emoji-picker input:checked')) === null || _addCommentElement$qu3 === void 0 ? void 0 : (_addCommentElement$qu4 = _addCommentElement$qu3.dataset) === null || _addCommentElement$qu4 === void 0 ? void 0 : _addCommentElement$qu4.emoji;
+                comment_iconName = (_addCommentElement$qu5 = addCommentElement.querySelector('.comment-emoji-picker input:checked')) === null || _addCommentElement$qu5 === void 0 ? void 0 : (_addCommentElement$qu6 = _addCommentElement$qu5.dataset) === null || _addCommentElement$qu6 === void 0 ? void 0 : _addCommentElement$qu6.iconname;
                 answerEditor = ClassicEditors[_this65.answerEditorId];
                 feedbackEditor = ClassicEditors[_this65.feedbackEditorId];
-                comment = feedbackEditor.getData() || "<p></p>";
-                answerEditor === null || answerEditor === void 0 ? void 0 : answerEditor.focus();
+                comment = feedbackEditor.getData() || '<p></p>';
+                answerEditor.focus();
                 _this65.$nextTick( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee25() {
-                  var feedback, newCommentThread, updatedAnswerText, commentStyles, commentMarkerStyles, intervalCount, interval, checkedRadioInput;
+                  var feedback, newCommentThread, updatedAnswerText, commentStyles, intervalCount, interval;
                   return _regeneratorRuntime().wrap(function _callee25$(_context25) {
                     while (1) switch (_context25.prev = _context25.next) {
                       case 0:
-                        if (!(answerEditor && answerEditor.plugins.get("CommentsRepository").activeCommentThread)) {
-                          _context25.next = 21;
+                        if (!answerEditor.plugins.get('CommentsRepository').activeCommentThread) {
+                          _context25.next = 20;
                           break;
                         }
                         _context25.next = 3;
@@ -9606,11 +9547,11 @@ document.addEventListener("alpine:init", function () {
                       case 3:
                         feedback = _context25.sent;
                         _context25.next = 6;
-                        return answerEditor.execute("addCommentThread", {
+                        return answerEditor.execute('addCommentThread', {
                           threadId: feedback.threadId
                         });
                       case 6:
-                        newCommentThread = answerEditor.plugins.get("CommentsRepository").getCommentThreads().filter(function (thread) {
+                        newCommentThread = answerEditor.plugins.get('CommentsRepository').getCommentThreads().filter(function (thread) {
                           return thread.id == feedback.threadId;
                         })[0];
                         newCommentThread.addComment({
@@ -9620,6 +9561,7 @@ document.addEventListener("alpine:init", function () {
                           authorId: _this65.userId
                         });
                         updatedAnswerText = answerEditor.getData(); // updatedAnswerText = updatedAnswerText.replaceAll('&nbsp;', '');
+                        // console.log(updatedAnswerText)
                         _context25.next = 11;
                         return _this65.$wire.saveNewComment({
                           uuid: feedback.uuid,
@@ -9636,31 +9578,30 @@ document.addEventListener("alpine:init", function () {
                           iconName: comment_iconName
                         });
                       case 14:
-                        commentMarkerStyles = document.querySelector("#commentMarkerStyles");
-                        if (commentMarkerStyles) commentMarkerStyles.innerHTML = commentStyles;
+                        document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
                         _this65.hasFeedback = true;
-                        _this65.$dispatch("answer-feedback-show-comments");
+                        _this65.$dispatch('answer-feedback-show-comments');
                         _this65.scrollToCommentCard(feedback.uuid);
                         setTimeout(function () {
-                          ClassicEditors[_this65.feedbackEditorId].setData("<p></p>");
+                          ClassicEditors[_this65.feedbackEditorId].setData('<p></p>');
                         }, 300);
                         return _context25.abrupt("return");
-                      case 21:
-                        _context25.next = 23;
+                      case 20:
+                        _context25.next = 22;
                         return _this65.$wire.createNewComment({
                           message: comment,
                           comment_color: null,
                           //no comment color when its a general ticket.
                           comment_emoji: comment_emoji
                         }, false);
-                      case 23:
+                      case 22:
                         feedback = _context25.sent;
                         _this65.hasFeedback = true;
-                        _this65.$dispatch("answer-feedback-show-comments");
+                        _this65.$dispatch('answer-feedback-show-comments');
                         intervalCount = 0;
                         interval = setInterval(function () {
                           intervalCount++;
-                          _this65.$dispatch("answer-feedback-show-comments");
+                          _this65.$dispatch('answer-feedback-show-comments');
                           if (intervalCount > 2) {
                             _this65.scrollToCommentCard(feedback.uuid);
                           }
@@ -9669,12 +9610,8 @@ document.addEventListener("alpine:init", function () {
                             return;
                           }
                         }, 400);
-                        feedbackEditor.setData("<p></p>");
-                        checkedRadioInput = document.querySelector('.answer-feedback-add-comment .emoji-picker-radio input:checked');
-                        if (checkedRadioInput) {
-                          checkedRadioInput.checked = false;
-                        }
-                      case 31:
+                        feedbackEditor.setData('<p></p>');
+                      case 28:
                       case "end":
                         return _context25.stop();
                     }
@@ -9705,7 +9642,7 @@ document.addEventListener("alpine:init", function () {
                 return _context27.abrupt("return");
               case 5:
                 answerEditor = ClassicEditors[_this66.answerEditorId];
-                commentsRepository = answerEditor.plugins.get("CommentsRepository");
+                commentsRepository = answerEditor.plugins.get('CommentsRepository');
                 thread = commentsRepository.getCommentThread(threadId);
                 _context27.next = 10;
                 return _this66.$wire.deleteCommentThread(threadId, feedbackId);
@@ -9716,7 +9653,7 @@ document.addEventListener("alpine:init", function () {
                   break;
                 }
                 //delete icon positioned over the ckeditor
-                deletedThreadIcon = document.querySelector(".answer-feedback-comment-icons #icon-" + threadId);
+                deletedThreadIcon = document.querySelector('.answer-feedback-comment-icons #icon-' + threadId);
                 if (deletedThreadIcon) {
                   deletedThreadIcon.remove();
                 }
@@ -9728,7 +9665,7 @@ document.addEventListener("alpine:init", function () {
                 _this66.setEditingComment(null);
                 return _context27.abrupt("return");
               case 20:
-                console.error("failed to delete answer feedback");
+                console.error('failed to delete answer feedback');
               case 21:
               case "end":
                 return _context27.stop();
@@ -9738,9 +9675,9 @@ document.addEventListener("alpine:init", function () {
       },
       initCommentIcons: function initCommentIcons(commentThreads) {
         var _this67 = this;
-        var answerFeedbackFilter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "all";
+        var answerFeedbackFilter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'all';
         var filteredCommentThreads = commentThreads.filter(function (thread) {
-          return answerFeedbackFilter === "current_user" && thread.currentUser || answerFeedbackFilter === "students" && thread.role === "student" || answerFeedbackFilter === "teacher" && thread.role === "teacher" || answerFeedbackFilter === "all";
+          return answerFeedbackFilter === 'current_user' && thread.currentUser || answerFeedbackFilter === 'students' && thread.role === 'student' || answerFeedbackFilter === 'teacher' && thread.role === 'teacher' || answerFeedbackFilter === 'all';
         });
         filteredCommentThreads.forEach(function (thread) {
           _this67.createCommentIcon(thread);
@@ -9751,17 +9688,17 @@ document.addEventListener("alpine:init", function () {
       },
       createCommentTagsEventListener: function createCommentTagsEventListener(enabledCommentThreads) {
         var _this68 = this;
-        var commentEditorContainer = document.querySelector(".answer-feedback-comment-icons").parentElement;
+        var commentEditorContainer = document.querySelector('.answer-feedback-comment-icons').parentElement;
         var hoveringCommentThread = null;
 
         //remove previous event listeners, if any
         if (this.commentTagsEventListeners) {
-          commentEditorContainer.removeEventListener("click", this.commentTagsEventListeners["click"]);
-          commentEditorContainer.removeEventListener("mouseover", this.commentTagsEventListeners["mouseover"]);
+          commentEditorContainer.removeEventListener('click', this.commentTagsEventListeners['click']);
+          commentEditorContainer.removeEventListener('mouseover', this.commentTagsEventListeners['mouseover']);
         }
         this.commentTagsEventListeners = [];
-        this.commentTagsEventListeners["click"] = function (event) {
-          var targetCommentElement = event.target.closest("[data-comment], [data-threadid]");
+        this.commentTagsEventListeners['click'] = function (event) {
+          var targetCommentElement = event.target.closest('[data-comment], [data-threadid]');
           if (!targetCommentElement) return;
           var clickedEnabledCommentThread = enabledCommentThreads.filter(function (thread) {
             return thread.threadId === (targetCommentElement.dataset.comment || targetCommentElement.dataset.threadid);
@@ -9769,8 +9706,8 @@ document.addEventListener("alpine:init", function () {
           if (!clickedEnabledCommentThread) return;
           _this68.setActiveComment(clickedEnabledCommentThread.threadId, clickedEnabledCommentThread.uuid);
         };
-        this.commentTagsEventListeners["mouseover"] = function (event) {
-          var targetCommentElement = event.target.closest("[data-comment], [data-threadid]");
+        this.commentTagsEventListeners['mouseover'] = function (event) {
+          var targetCommentElement = event.target.closest('[data-comment], [data-threadid]');
           var targetCommentThreadId = (targetCommentElement === null || targetCommentElement === void 0 ? void 0 : targetCommentElement.dataset.comment) || (targetCommentElement === null || targetCommentElement === void 0 ? void 0 : targetCommentElement.dataset.threadid) || false;
           var previousHoveringCommentThread = hoveringCommentThread;
           hoveringCommentThread = enabledCommentThreads.filter(function (thread) {
@@ -9786,12 +9723,12 @@ document.addEventListener("alpine:init", function () {
           }
           _this68.setHoveringComment(hoveringCommentThread.threadId, hoveringCommentThread.uuid);
         };
-        commentEditorContainer.addEventListener("click", this.commentTagsEventListeners["click"]);
-        commentEditorContainer.addEventListener("mouseover", this.commentTagsEventListeners["mouseover"]);
+        commentEditorContainer.addEventListener('click', this.commentTagsEventListeners['click']);
+        commentEditorContainer.addEventListener('mouseover', this.commentTagsEventListeners['mouseover']);
       },
       repositionAnswerFeedbackIcons: function repositionAnswerFeedbackIcons() {
         var _this69 = this;
-        var answerFeedbackCommentIcons = document.querySelectorAll(".answer-feedback-comment-icon");
+        var answerFeedbackCommentIcons = document.querySelectorAll('.answer-feedback-comment-icon');
         answerFeedbackCommentIcons.forEach(function (iconWrapper) {
           var threadId = iconWrapper.dataset.threadid;
           var threadUuid = iconWrapper.dataset.uuid;
@@ -9801,50 +9738,50 @@ document.addEventListener("alpine:init", function () {
       setIconPositionForThread: function setIconPositionForThread(iconWrapper, threadId, answerFeedbackUuid) {
         var commentMarkers = document.querySelectorAll("[data-comment='" + threadId + "']");
         if (commentMarkers.length === 0) {
-          iconWrapper.style.display = "none";
+          iconWrapper.style.display = 'none';
           return;
         }
         var lastCommentMarker = commentMarkers[commentMarkers.length - 1];
-        iconWrapper.style.top = lastCommentMarker.offsetTop - 15 /* adjust icon alignment */ + lastCommentMarker.offsetHeight - 24 /* adjust to last line of marker */ + "px";
+        iconWrapper.style.top = lastCommentMarker.offsetTop - 15 /* adjust icon alignment */ + lastCommentMarker.offsetHeight - 24 /* adjust to last line of marker */ + 'px';
         var lastCommentMarkerClientRects = lastCommentMarker.getClientRects();
         var lastCommentMarkerParentClientRects = lastCommentMarker.offsetParent.getClientRects();
         var lastCommentMarkerLineClientRight = lastCommentMarkerClientRects[lastCommentMarkerClientRects.length - 1].right;
         var lastCommentMarkerLineParentClientLeft = lastCommentMarkerParentClientRects[lastCommentMarkerParentClientRects.length - 1].left;
         var lastCommentMarkerLineOffsetLeft = lastCommentMarkerLineClientRight - lastCommentMarkerLineParentClientLeft;
-        iconWrapper.style.left = lastCommentMarkerLineOffsetLeft - 5 + "px";
+        iconWrapper.style.left = lastCommentMarkerLineOffsetLeft - 5 + 'px';
       },
       initCommentIcon: function initCommentIcon(iconWrapper, thread) {
         var _this70 = this;
         setTimeout(function () {
           _this70.setIconPositionForThread(iconWrapper, thread.threadId, thread.uuid);
-          iconWrapper.setAttribute("data-uuid", thread.uuid);
-          iconWrapper.setAttribute("data-threadId", thread.threadId);
+          iconWrapper.setAttribute('data-uuid', thread.uuid);
+          iconWrapper.setAttribute('data-threadId', thread.threadId);
           _this70.addOrReplaceIconByName(iconWrapper, thread.iconName);
         }, 200);
       },
       createCommentIcon: function createCommentIcon(thread) {
-        var commentIconsContainer = document.querySelector(".answer-feedback-comment-icons");
+        var commentIconsContainer = document.querySelector('.answer-feedback-comment-icons');
         var iconId = "icon-" + thread.threadId;
-        var iconWrapper = document.createElement("div");
-        iconWrapper.classList.add("absolute");
-        iconWrapper.classList.add("z-10");
-        iconWrapper.classList.add("cursor-pointer");
-        iconWrapper.classList.add("answer-feedback-comment-icon");
+        var iconWrapper = document.createElement('div');
+        iconWrapper.classList.add('absolute');
+        iconWrapper.classList.add('z-10');
+        iconWrapper.classList.add('cursor-pointer');
+        iconWrapper.classList.add('answer-feedback-comment-icon');
         iconWrapper.id = iconId;
         commentIconsContainer.appendChild(iconWrapper);
         this.initCommentIcon(iconWrapper, thread);
       },
       addOrReplaceIconByName: function addOrReplaceIconByName(el, iconName) {
         var isFeedbackCardIcon = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-        el.innerHTML = "";
+        el.innerHTML = '';
         var iconTemplate = null;
-        if (iconName === null || iconName === "" || iconName === undefined) {
+        if (iconName === null || iconName === '' || iconName === undefined) {
           if (isFeedbackCardIcon) {
             return;
           }
-          iconTemplate = document.querySelector("#default-icon");
+          iconTemplate = document.querySelector('#default-icon');
         } else {
-          iconTemplate = document.querySelector("#" + iconName.replace("icon.", ""));
+          iconTemplate = document.querySelector('#' + iconName.replace('icon.', ''));
         }
         el.appendChild(document.importNode(iconTemplate.content, true));
       },
@@ -9863,75 +9800,71 @@ document.addEventListener("alpine:init", function () {
         var originalIconName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
         var originalColor = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
         //reset temporary styling
-        var temporaryStyleTag = document.querySelector("#temporaryCommentMarkerStyles");
-        if (temporaryStyleTag) temporaryStyleTag.innerHTML = '';
+        document.querySelector('#temporaryCommentMarkerStyles').innerHTML = '';
         this.setEditingComment(null);
 
         //reset radio buttons
         if (originalColor) {
-          document.querySelector("[data-uuid=\"" + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-color-picker [data-color=\"".concat(originalColor, "\"]")).checked = true;
+          document.querySelector('[data-uuid="' + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-color-picker [data-color=\"".concat(originalColor, "\"]")).checked = true;
         }
         if (originalIconName === false) return; /* false is unset, but null is a valid value */
 
-        if (originalIconName === null || originalIconName === "") {
-          var emojiPicker = document.querySelector("[data-uuid=\"" + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-emoji-picker input:checked");
+        if (originalIconName === null || originalIconName === '') {
+          var emojiPicker = document.querySelector('[data-uuid="' + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-emoji-picker input:checked");
           if (emojiPicker) emojiPicker.checked = false;
         } else {
-          document.querySelector("[data-uuid=\"" + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-emoji-picker [data-iconName=\"".concat(originalIconName, "\"]")).checked = true;
+          document.querySelector('[data-uuid="' + AnswerFeedbackUuid + "\"].answer-feedback-card .comment-emoji-picker [data-iconName=\"".concat(originalIconName, "\"]")).checked = true;
         }
 
         //reset icon to the original if originalIconName is given (null is also valid)
-        var ckeditorIconWrapper = document.querySelector("#icon-" + threadId);
-        var cardIconWrapper = document.querySelector("[data-uuid=\"" + AnswerFeedbackUuid + "\"].answer-feedback-card-icon");
+        var ckeditorIconWrapper = document.querySelector('#icon-' + threadId);
+        var cardIconWrapper = document.querySelector('[data-uuid="' + AnswerFeedbackUuid + '"].answer-feedback-card-icon');
         if (ckeditorIconWrapper) this.addOrReplaceIconByName(ckeditorIconWrapper, originalIconName);
         if (cardIconWrapper) {
-          if (originalIconName === null || originalIconName === "") {
-            cardIconWrapper.innerHTML = "";
+          if (originalIconName === null || originalIconName === '') {
+            cardIconWrapper.innerHTML = '';
             return;
           }
           this.addOrReplaceIconByName(cardIconWrapper, originalIconName);
-          cardIconWrapper.querySelector("span").style = "";
+          cardIconWrapper.querySelector('span').style = '';
         }
       },
       updateNewCommentMarkerStyles: function updateNewCommentMarkerStyles(color) {
         var styleTag = document.querySelector('#addFeedbackMarkerStyles');
-        if (!styleTag) {
-          return;
-        }
-        var colorCode = "rgba(var(--primary-rgb), 0.4)";
+        var colorCode = 'rgba(var(--primary-rgb), 0.4)';
         if (color) {
           colorCode = color;
         }
-        styleTag.innerHTML = "\n" + "        :root {\n" + "            --active-comment-color: " + colorCode + "; /* default color, overwrite when color picker is used */\n" + "            --ck-color-comment-marker-active: var(--active-comment-color);\n" + "        }\n" + "    span.ck-comment-marker[data-comment=\"new-comment-thread\"]{\n" + "            --active-comment-color: " + colorCode + "; /* default color, overwrite when color picker is used */\n" + "            --ck-color-comment-marker: var(--active-comment-color);\n" + "            --ck-color-comment-marker-active: var(--active-comment-color);\n" + "            cursor: pointer !important;\n" + "        }";
+        styleTag.innerHTML = '\n' + '        :root {\n' + '            --active-comment-color: ' + colorCode + '; /* default color, overwrite when color picker is used */\n' + '            --ck-color-comment-marker-active: var(--active-comment-color);\n' + '        }\n' + '    span.ck-comment-marker[data-comment="new-comment-thread"]{\n' + '            --active-comment-color: ' + colorCode + '; /* default color, overwrite when color picker is used */\n' + '            --ck-color-comment-marker: var(--active-comment-color);\n' + '            --ck-color-comment-marker-active: var(--active-comment-color);\n' + '            cursor: pointer !important;\n' + '        }';
       },
       setHoveringCommentMarkerStyle: function setHoveringCommentMarkerStyle() {
         var removeStyling = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-        var styleTag = document.querySelector("#hoveringCommentMarkerStyle");
+        var styleTag = document.querySelector('#hoveringCommentMarkerStyle');
         if (!styleTag) {
           return;
         }
         if (removeStyling || this.hoveringComment.threadId === null) {
-          styleTag.innerHTML = "";
+          styleTag.innerHTML = '';
           return;
         }
-        styleTag.innerHTML = "" + "span.ck-comment-marker[data-comment=\"" + this.hoveringComment.threadId + "\"] { color: var(--teacher-primary); }" + "div[data-threadid=\"" + this.hoveringComment.threadId + "\"] svg { color: var(--teacher-primary); }";
+        styleTag.innerHTML = '' + 'span.ck-comment-marker[data-comment="' + this.hoveringComment.threadId + '"] { color: var(--teacher-primary); }' + 'div[data-threadid="' + this.hoveringComment.threadId + '"] svg { color: var(--teacher-primary); }';
       },
       setActiveCommentMarkerStyle: function setActiveCommentMarkerStyle() {
         var _this$activeComment, _this$activeComment2, _this$activeComment3, _this$activeComment4, _this$activeComment5;
         var removeStyling = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-        var styleTag = document.querySelector("#activeCommentMarkerStyle");
+        var styleTag = document.querySelector('#activeCommentMarkerStyle');
         if (!styleTag) {
           return;
         }
         if (removeStyling || ((_this$activeComment = this.activeComment) === null || _this$activeComment === void 0 ? void 0 : _this$activeComment.threadId) === null) {
-          styleTag.innerHTML = "";
+          styleTag.innerHTML = '';
           return;
         }
-        styleTag.innerHTML = "" + "span.ck-comment-marker[data-comment=\"" + ((_this$activeComment2 = this.activeComment) === null || _this$activeComment2 === void 0 ? void 0 : _this$activeComment2.threadId) + "\"] { " + "   border: 1px solid var(--ck-color-comment-marker-border) !important; " + "} " + "span.ck-comment-marker[data-comment=\"" + ((_this$activeComment3 = this.activeComment) === null || _this$activeComment3 === void 0 ? void 0 : _this$activeComment3.threadId) + "\"].ck-math-widget { " + "   border: 1px solid transparent !important; " + "} " + "span.ck-comment-marker[data-comment=\"" + ((_this$activeComment4 = this.activeComment) === null || _this$activeComment4 === void 0 ? void 0 : _this$activeComment4.threadId) + "\"] img { " + "   border: 1px solid var(--ck-color-comment-marker-border) !important; " + "} " + "div.answer-feedback-comment-icon[data-threadid=\"" + ((_this$activeComment5 = this.activeComment) === null || _this$activeComment5 === void 0 ? void 0 : _this$activeComment5.threadId) + "\"] { " + "   z-index: 11 " + "} ";
+        styleTag.innerHTML = '' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment2 = this.activeComment) === null || _this$activeComment2 === void 0 ? void 0 : _this$activeComment2.threadId) + '"] { ' + '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' + '} ' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment3 = this.activeComment) === null || _this$activeComment3 === void 0 ? void 0 : _this$activeComment3.threadId) + '"].ck-math-widget { ' + '   border: 1px solid transparent !important; ' + '} ' + 'span.ck-comment-marker[data-comment="' + ((_this$activeComment4 = this.activeComment) === null || _this$activeComment4 === void 0 ? void 0 : _this$activeComment4.threadId) + '"] img { ' + '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' + '} ' + 'div.answer-feedback-comment-icon[data-threadid="' + ((_this$activeComment5 = this.activeComment) === null || _this$activeComment5 === void 0 ? void 0 : _this$activeComment5.threadId) + '"] { ' + '   z-index: 11 ' + '} ';
       },
       setActiveComment: function setActiveComment(threadId, answerFeedbackUuid) {
         var _this71 = this;
-        this.$dispatch("answer-feedback-show-comments");
+        this.$dispatch('answer-feedback-show-comments');
         setTimeout(function () {
           if (_this71.$store.answerFeedback.feedbackBeingEdited()) {
             /* when editing, no other comment can be activated */
@@ -9953,22 +9886,20 @@ document.addEventListener("alpine:init", function () {
         this.setActiveCommentMarkerStyle(true);
       },
       setFocusTracking: function setFocusTracking() {
+        var _this72 = this;
         if (viewOnly) {
-          return;
-        }
-        var answerEditor = ClassicEditors[this.answerEditorId];
-        var feedbackEditor = ClassicEditors[this.feedbackEditorId];
-        if (!answerEditor || !feedbackEditor) {
           return;
         }
         setTimeout(function () {
           try {
+            var answerEditor = ClassicEditors[_this72.answerEditorId];
+            var feedbackEditor = ClassicEditors[_this72.feedbackEditorId];
             answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
-            feedbackEditor.ui.focusTracker.add(answerEditor.sourceElement.parentElement.querySelector(".ck.ck-content"));
+            feedbackEditor.ui.focusTracker.add(answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
           } catch (exception) {
             // ignore focusTracker error when trying to add element that is already registered
             // there is no way to preventively check if the element is already registered
-            if (!exception.message.contains("focustracker-add-element-already-exist")) {
+            if (!exception.message.contains('focustracker-add-element-already-exist')) {
               throw exception;
             }
           }
@@ -9981,38 +9912,36 @@ document.addEventListener("alpine:init", function () {
         return ClassicEditors[this.feedbackEditorId];
       },
       createFocusableButtons: function createFocusableButtons() {
-        var _this72 = this;
+        var _this73 = this;
         setTimeout(function () {
           try {
-            var buttonWrapper = document.querySelector("#saveNewFeedbackButtonWrapper");
+            var answerEditor = ClassicEditors[_this73.answerEditorId];
+            var buttonWrapper = document.querySelector('#saveNewFeedbackButtonWrapper');
             if (buttonWrapper.children.length > 0) {
               return;
             }
 
             //text cancel button:
-            var textCancelButton = new window.CkEditorButtonView(new window.CkEditorLocale("nl"));
+            var textCancelButton = new window.CkEditorButtonView(new window.CkEditorLocale('nl'));
             textCancelButton.set({
               label: buttonWrapper.dataset.cancelTranslation,
-              classList: "text-button button-sm",
-              eventName: "cancel"
+              classList: 'text-button button-sm',
+              eventName: 'cancel'
             });
             textCancelButton.render();
+            answerEditor.ui.focusTracker.add(textCancelButton.element);
             buttonWrapper.appendChild(textCancelButton.element);
 
             //CTA save button:
-            var saveButtonCta = new window.CkEditorButtonView(new window.CkEditorLocale("nl"));
+            var saveButtonCta = new window.CkEditorButtonView(new window.CkEditorLocale('nl'));
             saveButtonCta.set({
               label: buttonWrapper.dataset.saveTranslation,
-              classList: "cta-button button-gradient button-sm",
-              eventName: "save"
+              classList: 'cta-button button-gradient button-sm',
+              eventName: 'save'
             });
             saveButtonCta.render();
+            answerEditor.ui.focusTracker.add(saveButtonCta.element);
             buttonWrapper.appendChild(saveButtonCta.element);
-            var answerEditor = ClassicEditors[_this72.answerEditorId];
-            if (answerEditor) {
-              answerEditor.ui.focusTracker.add(textCancelButton.element);
-              answerEditor.ui.focusTracker.add(saveButtonCta.element);
-            }
           } catch (exception) {
             //
           }
@@ -10020,94 +9949,83 @@ document.addEventListener("alpine:init", function () {
       },
       createCommentColorRadioButton: function createCommentColorRadioButton(el, rgb, colorName, checked) {
         var answerEditor = ClassicEditors[this.answerEditorId];
-        var radiobutton = new window.CkEditorRadioWithColorView(new window.CkEditorLocale("nl"));
+        var radiobutton = new window.CkEditorRadioWithColorView(new window.CkEditorLocale('nl'));
         radiobutton.set({
-          rgb: rgb.replace("rgba(", "").replace(",0.4)", ""),
+          rgb: rgb.replace('rgba(', '').replace(',0.4)', ''),
           colorName: colorName
         });
         radiobutton.render();
         answerEditor.ui.focusTracker.add(radiobutton.element);
         el.appendChild(radiobutton.element);
-        radiobutton.element.querySelector("input").checked = checked;
+        radiobutton.element.querySelector('input').checked = checked;
       },
       createCommentIconRadioButton: function createCommentIconRadioButton(el, iconName, emojiValue, checked) {
-        var radiobutton = new window.CkEditorRadioWithIconView(new window.CkEditorLocale("nl"));
+        var answerEditor = ClassicEditors[this.answerEditorId];
+        var radiobutton = new window.CkEditorRadioWithIconView(new window.CkEditorLocale('nl'));
         radiobutton.set({
           iconName: iconName,
           emojiValue: emojiValue
         });
         radiobutton.render();
-        var answerEditor = ClassicEditors[this.answerEditorId];
-        if (answerEditor) {
-          answerEditor.ui.focusTracker.add(radiobutton.element);
-        }
+        answerEditor.ui.focusTracker.add(radiobutton.element);
         el.appendChild(radiobutton.element);
-        radiobutton.element.querySelector("span").appendChild(document.importNode(el.querySelector("template").content, true));
+        radiobutton.element.querySelector('span').appendChild(document.importNode(el.querySelector('template').content, true));
       },
       setEditingComment: function setEditingComment(AnswerFeedbackUuid) {
-        var _this73 = this;
+        var _this74 = this;
         this.activeComment = null;
         this.$store.answerFeedback.setEditingComment(AnswerFeedbackUuid !== null && AnswerFeedbackUuid !== void 0 ? AnswerFeedbackUuid : null);
         setTimeout(function () {
-          _this73.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
+          _this74.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
         }, 500);
       },
       toggleFeedbackAccordion: function toggleFeedbackAccordion(name) {
         var _arguments3 = arguments,
-          _this74 = this;
+          _this75 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee28() {
-          var forceOpenAccordion, addFeedbackAccordion, givenFeedbackAccordion;
+          var forceOpenAccordion;
           return _regeneratorRuntime().wrap(function _callee28$(_context28) {
             while (1) switch (_context28.prev = _context28.next) {
               case 0:
                 forceOpenAccordion = _arguments3.length > 1 && _arguments3[1] !== undefined ? _arguments3[1] : false;
-                addFeedbackAccordion = document.querySelector('.answer-feedback-add-comment button');
-                givenFeedbackAccordion = document.querySelector('.answer-feedback-given-comments button');
-                if (!_this74.$store.answerFeedback.newFeedbackBeingCreated()) {
-                  _context28.next = 6;
+                if (!_this75.$store.answerFeedback.newFeedbackBeingCreated()) {
+                  _context28.next = 4;
                   break;
                 }
-                _this74.dropdownOpened = "add-feedback";
+                _this75.dropdownOpened = 'add-feedback';
                 return _context28.abrupt("return");
-              case 6:
+              case 4:
                 ;
-                if (!_this74.$store.answerFeedback.feedbackBeingEdited()) {
-                  _context28.next = 10;
+                if (!_this75.$store.answerFeedback.feedbackBeingEdited()) {
+                  _context28.next = 8;
                   break;
                 }
-                _this74.dropdownOpened = "given-feedback";
+                _this75.dropdownOpened = 'given-feedback';
                 return _context28.abrupt("return");
-              case 10:
+              case 8:
                 ;
-                if (!(givenFeedbackAccordion.disabled && name === "given-feedback")) {
-                  _context28.next = 14;
+                if (!(_this75.dropdownOpened === name && !forceOpenAccordion)) {
+                  _context28.next = 12;
                   break;
                 }
-                _this74.dropdownOpened = null;
+                _this75.dropdownOpened = null;
                 return _context28.abrupt("return");
-              case 14:
-                if (!(_this74.dropdownOpened === name && !forceOpenAccordion)) {
-                  _context28.next = 17;
-                  break;
-                }
-                _this74.dropdownOpened = null;
-                return _context28.abrupt("return");
-              case 17:
-                if (questionType === "OpenQuestion" && name === "add-feedback") {
+              case 12:
+                if (questionType === 'OpenQuestion' && name === 'add-feedback') {
                   try {
-                    _this74.setFocusTracking();
+                    _this75.setFocusTracking();
                   } catch (e) {
                     //
                   }
                 }
-                _this74.dropdownOpened = name;
-                _context28.next = 21;
-                return _this74.$nextTick();
-              case 21:
+                _this75.dropdownOpened = name;
+                _context28.next = 16;
+                return _this75.$nextTick();
+              case 16:
                 setTimeout(function () {
-                  _this74.fixSlideHeightByIndex(2);
+                  _this75.fixSlideHeightByIndex(2);
                 }, 293);
-              case 22:
+              case 17:
               case "end":
                 return _context28.stop();
             }
@@ -10117,34 +10035,34 @@ document.addEventListener("alpine:init", function () {
       resetAddNewAnswerFeedback: function resetAddNewAnswerFeedback() {
         var cancelAddingNewComment = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
         //find default/blue color picker and enable it.
-        var defaultColorPicker = document.querySelector(".answer-feedback-add-comment .comment-color-picker [data-color=\"blue\"]");
+        var defaultColorPicker = document.querySelector('.answer-feedback-add-comment .comment-color-picker [data-color="blue"]');
         if (defaultColorPicker !== null) {
           defaultColorPicker.checked = true;
         }
 
         //find checked emoji picker, uncheck
-        var checkedEmojiPicker = document.querySelector(".answer-feedback-add-comment .comment-emoji-picker input:checked");
+        var checkedEmojiPicker = document.querySelector('.answer-feedback-add-comment .comment-emoji-picker input:checked');
         if (checkedEmojiPicker !== null) {
           checkedEmojiPicker.checked = false;
         }
 
         //answerFeedbackeditor reset text
         var answerEditor = ClassicEditors[this.feedbackEditorId];
-        answerEditor.setData("<p></p>");
+        answerEditor.setData('<p></p>');
         this.updateNewCommentMarkerStyles(null);
         if (cancelAddingNewComment) {
-          window.dispatchEvent(new CustomEvent("answer-feedback-show-comments"));
+          window.dispatchEvent(new CustomEvent('answer-feedback-show-comments'));
         }
       },
       preventOpeningModalFromBreakingDrawer: function preventOpeningModalFromBreakingDrawer() {
         var observer = new MutationObserver(function (mutations) {
           mutations.forEach(function (mutation) {
-            if (mutation.attributeName == "class" && mutation.target.classList.contains("overflow-y-hidden")) {
-              mutation.target.classList.remove("overflow-y-hidden");
+            if (mutation.attributeName == "class" && mutation.target.classList.contains('overflow-y-hidden')) {
+              mutation.target.classList.remove('overflow-y-hidden');
             }
           });
         });
-        observer.observe(document.querySelector("body"), {
+        observer.observe(document.querySelector('body'), {
           attributes: true
         });
       }
@@ -10153,18 +10071,18 @@ document.addEventListener("alpine:init", function () {
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("coLearningStudent", function () {
     return {
       goToPreviousAnswerRating: function goToPreviousAnswerRating() {
-        var _this75 = this;
+        var _this76 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee29() {
           return _regeneratorRuntime().wrap(function _callee29$(_context29) {
             while (1) switch (_context29.prev = _context29.next) {
               case 0:
-                if (!_this75.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                if (!_this76.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                   _context29.next = 2;
                   break;
                 }
-                return _context29.abrupt("return", _this75.$store.answerFeedback.openConfirmationModal(_this75.$root, "goToPreviousAnswerRating"));
+                return _context29.abrupt("return", _this76.$store.answerFeedback.openConfirmationModal(_this76.$root, 'goToPreviousAnswerRating'));
               case 2:
-                _this75.$wire.goToPreviousAnswerRating();
+                _this76.$wire.goToPreviousAnswerRating();
               case 3:
               case "end":
                 return _context29.stop();
@@ -10173,18 +10091,18 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       goToNextAnswerRating: function goToNextAnswerRating() {
-        var _this76 = this;
+        var _this77 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee30() {
           return _regeneratorRuntime().wrap(function _callee30$(_context30) {
             while (1) switch (_context30.prev = _context30.next) {
               case 0:
-                if (!_this76.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                if (!_this77.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                   _context30.next = 2;
                   break;
                 }
-                return _context30.abrupt("return", _this76.$store.answerFeedback.openConfirmationModal(_this76.$root, "goToNextAnswerRating"));
+                return _context30.abrupt("return", _this77.$store.answerFeedback.openConfirmationModal(_this77.$root, 'goToNextAnswerRating'));
               case 2:
-                _this76.$wire.goToNextAnswerRating();
+                _this77.$wire.goToNextAnswerRating();
               case 3:
               case "end":
                 return _context30.stop();
@@ -10192,73 +10110,25 @@ document.addEventListener("alpine:init", function () {
           }, _callee30);
         }))();
       },
-      goToPreviousQuestion: function goToPreviousQuestion() {
-        var _this77 = this;
+      goToFinishedCoLearningPage: function goToFinishedCoLearningPage() {
+        var _this78 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee31() {
           return _regeneratorRuntime().wrap(function _callee31$(_context31) {
             while (1) switch (_context31.prev = _context31.next) {
               case 0:
-                if (!_this77.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                if (!_this78.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
                   _context31.next = 2;
                   break;
                 }
-                return _context31.abrupt("return", _this77.$store.answerFeedback.openConfirmationModal(_this77.$root, 'goToPreviousQuestion'));
+                return _context31.abrupt("return", _this78.$store.answerFeedback.openConfirmationModal(_this78.$root, 'goToFinishedCoLearningPage'));
               case 2:
-                _this77.$wire.goToPreviousQuestion();
+                _this78.$wire.goToFinishedCoLearningPage();
               case 3:
               case "end":
                 return _context31.stop();
             }
           }, _callee31);
         }))();
-      },
-      goToNextQuestion: function goToNextQuestion() {
-        var _this78 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee32() {
-          return _regeneratorRuntime().wrap(function _callee32$(_context32) {
-            while (1) switch (_context32.prev = _context32.next) {
-              case 0:
-                if (!_this78.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                  _context32.next = 2;
-                  break;
-                }
-                return _context32.abrupt("return", _this78.$store.answerFeedback.openConfirmationModal(_this78.$root, 'goToNextQuestion'));
-              case 2:
-                _this78.$wire.goToNextQuestion();
-              case 3:
-              case "end":
-                return _context32.stop();
-            }
-          }, _callee32);
-        }))();
-      },
-      goToFinishedCoLearningPage: function goToFinishedCoLearningPage() {
-        var _this79 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee33() {
-          return _regeneratorRuntime().wrap(function _callee33$(_context33) {
-            while (1) switch (_context33.prev = _context33.next) {
-              case 0:
-                if (!_this79.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                  _context33.next = 2;
-                  break;
-                }
-                return _context33.abrupt("return", _this79.$store.answerFeedback.openConfirmationModal(_this79.$root, "goToFinishedCoLearningPage"));
-              case 2:
-                _this79.$wire.goToFinishedCoLearningPage();
-              case 3:
-              case "end":
-                return _context33.stop();
-            }
-          }, _callee33);
-        }))();
-      },
-      toggleTicked: function toggleTicked(event) {
-        this.updateLivewireComponent(event);
-      },
-      updateLivewireComponent: function updateLivewireComponent(event) {
-        if (event.hasOwnProperty("identifier")) {
-          this.$wire.toggleValueUpdated(event.identifier, event.state, event.value);
-        }
       }
     };
   });
@@ -10270,7 +10140,7 @@ document.addEventListener("alpine:init", function () {
         this.setHeightToAspectRatio(this.$el);
       },
       setHeightToAspectRatio: function setHeightToAspectRatio(element) {
-        var _this80 = this;
+        var _this79 = this;
         var aspectRatioWidth = 940;
         var aspectRatioHeight = 500;
         var aspectRatio = aspectRatioHeight / aspectRatioWidth;
@@ -10283,7 +10153,7 @@ document.addEventListener("alpine:init", function () {
         if (newHeight <= 0) {
           if (this.currentTry <= this.maxTries) {
             setTimeout(function () {
-              return _this80.setHeightToAspectRatio(element);
+              return _this79.setHeightToAspectRatio(element);
             }, 50);
             this.currentTry++;
           }
@@ -10316,16 +10186,16 @@ document.addEventListener("alpine:init", function () {
       maxWords: maxWords,
       wordContainer: null,
       init: function init() {
-        var _this81 = this;
+        var _this80 = this;
         this.$nextTick(function () {
-          _this81.editor = ClassicEditors[editorId];
-          _this81.wordContainer = _this81.$root.querySelector(".ck-word-count__words");
-          _this81.wordContainer.style.display = "flex";
-          _this81.wordContainer.parentElement.style.display = "flex";
-          _this81.addMaxWordsToWordCounter(_this81.maxWords);
+          _this80.editor = ClassicEditors[editorId];
+          _this80.wordContainer = _this80.$root.querySelector(".ck-word-count__words");
+          _this80.wordContainer.style.display = "flex";
+          _this80.wordContainer.parentElement.style.display = "flex";
+          _this80.addMaxWordsToWordCounter(_this80.maxWords);
         });
         this.$watch("maxWords", function (value) {
-          _this81.addMaxWordsToWordCounter(value);
+          _this80.addMaxWordsToWordCounter(value);
         });
       },
       addMaxWordsToWordCounter: function addMaxWordsToWordCounter(value) {
@@ -10340,15 +10210,16 @@ document.addEventListener("alpine:init", function () {
       },
       addSelectedWordCounter: function addSelectedWordCounter(eventDetails) {
         var _this$$root$querySele3;
-        var text = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "Geselecteerde woorden";
+        var text = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'Geselecteerde woorden';
         if (eventDetails.editorId !== this.editor.sourceElement.id) return;
         var spanId = "selected-word-span";
         (_this$$root$querySele3 = this.$root.querySelector("#".concat(spanId))) === null || _this$$root$querySele3 === void 0 ? void 0 : _this$$root$querySele3.remove();
         if (eventDetails.wordCount === 0) return;
         var element = document.createElement("strong");
         element.id = spanId;
+        element.classList.add("ml-4");
         element.innerHTML = "".concat(text, ": ").concat(eventDetails.wordCount);
-        this.$root.querySelector("#selected-word-count-".concat(eventDetails.editorId)).append(element);
+        this.wordContainer.parentNode.append(element);
       }
     };
   });
@@ -10356,15 +10227,15 @@ document.addEventListener("alpine:init", function () {
     return {
       editorId: editorId,
       init: function init() {
-        var _this82 = this;
+        var _this81 = this;
         this.editor = ClassicEditors[this.editorId];
         this.$watch("showMe", function (value) {
           if (!value) return;
-          _this82.$nextTick(function () {
-            if (!_this82.getEditor()) return;
-            if (!_this82.getEditor().ui.focusTracker.isFocused) {
+          _this81.$nextTick(function () {
+            if (!_this81.getEditor()) return;
+            if (!_this81.getEditor().ui.focusTracker.isFocused) {
               setTimeout(function () {
-                _this82.setFocus(_this82.getEditor());
+                _this81.setFocus(_this81.getEditor());
               }, 300);
             }
           });
@@ -10380,7 +10251,7 @@ document.addEventListener("alpine:init", function () {
         return ClassicEditors[this.editorId];
       },
       syncEditorData: function syncEditorData() {
-        if (!this.getEditor() || this.getEditor().getData() === "") return;
+        if (!this.getEditor() || this.getEditor().getData() === '') return;
         this.$wire.sync("answer", this.getEditor().getData());
       }
     };
@@ -10397,18 +10268,18 @@ document.addEventListener("alpine:init", function () {
       reinitializedTimeoutData: reinitializedTimeoutData,
       timer: null,
       init: function init() {
-        var _this83 = this;
+        var _this82 = this;
         this.$watch("showMe", function (value) {
           if (value) {
-            _this83.$dispatch("visible-component", {
-              el: _this83.$el
+            _this82.$dispatch("visible-component", {
+              el: _this82.$el
             });
-            _this83.$dispatch("reinitialize-editor-editor-" + _this83.questionId);
+            _this82.$dispatch("reinitialize-editor-editor-" + _this82.questionId);
           }
         });
-        if (this.reinitializedTimeoutData && this.reinitializedTimeoutData.hasOwnProperty("timeLeft")) {
+        if (this.reinitializedTimeoutData && this.reinitializedTimeoutData.hasOwnProperty('timeLeft')) {
           this.$nextTick(function () {
-            _this83.startTimeout(_this83.reinitializedTimeoutData);
+            _this82.startTimeout(_this82.reinitializedTimeoutData);
           });
         }
       },
@@ -10418,21 +10289,21 @@ document.addEventListener("alpine:init", function () {
       },
       refreshQuestion: function refreshQuestion(eventData) {
         if (eventData.indexOf(this.number) !== -1) {
-          this.$wire.set("closed", true);
+          this.$wire.set('closed', true);
         }
       },
       closeThisQuestion: function closeThisQuestion(eventData) {
         if (!this.showMe) return;
-        this.$wire.set("showCloseQuestionModal", true);
-        this.$wire.set("nextQuestion", eventData);
+        this.$wire.set('showCloseQuestionModal', true);
+        this.$wire.set('nextQuestion', eventData);
       },
       closeThisGroup: function closeThisGroup(eventData) {
         if (!this.showMe) return;
-        this.$wire.set("showCloseGroupModal", true);
-        this.$wire.set("nextQuestion", eventData);
+        this.$wire.set('showCloseGroupModal', true);
+        this.$wire.set('nextQuestion', eventData);
       },
       startTimeout: function startTimeout(eventData) {
-        var _this84 = this;
+        var _this83 = this;
         if (this.progressBar) return;
         this.progressBar = true;
         this.startTime = eventData.timeout;
@@ -10444,11 +10315,11 @@ document.addEventListener("alpine:init", function () {
         }
         if (!this.timer) {
           this.timer = setInterval(function () {
-            _this84.progress -= 1;
-            if (_this84.progress === 0) {
-              _this84.showMe ? _this84.$wire.closeQuestion(_this84.number + 1) : _this84.$wire.closeQuestion();
-              clearInterval(_this84.timer);
-              _this84.progressBar = false;
+            _this83.progress -= 1;
+            if (_this83.progress === 0) {
+              _this83.showMe ? _this83.$wire.closeQuestion(_this83.number + 1) : _this83.$wire.closeQuestion();
+              clearInterval(_this83.timer);
+              _this83.progressBar = false;
             }
           }, 1000);
         }
@@ -10473,14 +10344,14 @@ document.addEventListener("alpine:init", function () {
       pillContainer: null,
       searchFocussed: false,
       init: function init() {
-        var _this85 = this;
+        var _this84 = this;
         this.pillContainer = document.querySelector("#".concat(containerId));
         this.$watch("query", function (value) {
-          return _this85.search(value);
+          return _this84.search(value);
         });
         this.$watch("multiSelectOpen", function (value) {
-          if (value) _this85.handleDropdownLocation();
-          if (!value) _this85.query = "";
+          if (value) _this84.handleDropdownLocation();
+          if (!value) _this84.query = "";
         });
         this.registerSelectedItemsOnComponent();
       },
@@ -10488,15 +10359,15 @@ document.addEventListener("alpine:init", function () {
         this.openSubs = this.toggle(this.openSubs, uuid);
       },
       parentClick: function parentClick(element, parent) {
-        var _this86 = this;
+        var _this85 = this;
         var checked = !this.checkedParents.includes(parent.value);
         element.querySelector("input[type=\"checkbox\"]").checked = checked;
         this.checkedParents = this.toggle(this.checkedParents, parent.value);
         parent.children.filter(function (child) {
           return child.disabled !== true;
         }).forEach(function (child) {
-          _this86[checked ? "childAdd" : "childRemove"](child);
-          checked ? _this86.checkAndDisableBrothersFromOtherMothers(child) : _this86.uncheckAndEnableBrothersFromOtherMothers(child);
+          _this85[checked ? "childAdd" : "childRemove"](child);
+          checked ? _this85.checkAndDisableBrothersFromOtherMothers(child) : _this85.uncheckAndEnableBrothersFromOtherMothers(child);
         });
         this.$root.querySelectorAll("[data-parent-id=\"".concat(parent.value, "\"][data-disabled=\"false\"] input[type=\"checkbox\"]")).forEach(function (child) {
           return child.checked = checked;
@@ -10563,13 +10434,13 @@ document.addEventListener("alpine:init", function () {
         // return result < parent.children.length;
       },
       checkedChildrenCount: function checkedChildrenCount(parent) {
-        var _this87 = this;
+        var _this86 = this;
         return parent.children.filter(function (child) {
-          return _this87.checkedChildrenContains(child);
+          return _this86.checkedChildrenContains(child);
         }).length;
       },
       search: function search(value) {
-        var _this88 = this;
+        var _this87 = this;
         if (value.length === 0) {
           this.searchEmpty = false;
           this.showAllOptions();
@@ -10579,7 +10450,7 @@ document.addEventListener("alpine:init", function () {
         var results = this.searchParentsAndChildsLabels(value);
         this.searchEmpty = results.length === 0;
         results.forEach(function (item) {
-          return _this88.showOption(item);
+          return _this87.showOption(item);
         });
       },
       showOption: function showOption(identifier) {
@@ -10649,9 +10520,9 @@ document.addEventListener("alpine:init", function () {
         this[toggleFunction](this.$root.querySelector("[data-id=\"".concat(event.item.value, "\"][data-parent-id=\"").concat(event.item.customProperties.parentId, "\"]")), event.item);
       },
       handleActiveFilters: function handleActiveFilters() {
-        var _this89 = this;
+        var _this88 = this;
         var currentPillIds = Array.from(this.pillContainer.childNodes).map(function (pill) {
-          if (!_this89.isParent(pill.item)) {
+          if (!_this88.isParent(pill.item)) {
             return pill.item.value + pill.item.customProperties.parentId;
           }
           return pill.item.value;
@@ -10665,13 +10536,13 @@ document.addEventListener("alpine:init", function () {
         this.options.flatMap(function (parent) {
           return [parent].concat(_toConsumableArray(parent.children));
         }).filter(function (item) {
-          if (_this89.isParent(item)) return _this89.checkedParents.includes(item.value);
-          if (_this89.checkedParents.includes(item.customProperties.parentId)) {
+          if (_this88.isParent(item)) return _this88.checkedParents.includes(item.value);
+          if (_this88.checkedParents.includes(item.customProperties.parentId)) {
             pillIdsToRemove.push(item.value + item.customProperties.parentId);
           }
-          return !_this89.checkedParents.includes(item.customProperties.parentId) && _this89.checkedChildrenContains(item);
+          return !_this88.checkedParents.includes(item.customProperties.parentId) && _this88.checkedChildrenContains(item);
         }).forEach(function (item) {
-          return _this89.createFilterPill(item);
+          return _this88.createFilterPill(item);
         });
         var that = this;
         pillIdsToRemove.forEach(function (uuid) {
@@ -10698,7 +10569,7 @@ document.addEventListener("alpine:init", function () {
         }
       },
       registerSelectedItemsOnComponent: function registerSelectedItemsOnComponent() {
-        var _this90 = this;
+        var _this89 = this;
         var checkedChildValues = this.options.flatMap(function (parent) {
           return _toConsumableArray(parent.children);
         }).filter(function (item) {
@@ -10707,10 +10578,10 @@ document.addEventListener("alpine:init", function () {
         });
         this.$nextTick(function () {
           checkedChildValues.forEach(function (item) {
-            _this90.childClick(_this90.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"]")), item);
+            _this89.childClick(_this89.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"]")), item);
           });
-          _this90.registerParentsBasedOnDisabledChildren();
-          _this90.handleActiveFilters();
+          _this89.registerParentsBasedOnDisabledChildren();
+          _this89.handleActiveFilters();
         });
       },
       syncInput: function syncInput() {
@@ -10727,24 +10598,24 @@ document.addEventListener("alpine:init", function () {
         });
       },
       checkAndDisableBrothersFromOtherMothers: function checkAndDisableBrothersFromOtherMothers(child) {
+        var _this90 = this;
+        this.options.flatMap(function (parents) {
+          return _toConsumableArray(parents.children);
+        }).filter(function (item) {
+          return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
+        }).forEach(function (item) {
+          _this90.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = true;
+          item.disabled = true;
+        });
+      },
+      uncheckAndEnableBrothersFromOtherMothers: function uncheckAndEnableBrothersFromOtherMothers(child) {
         var _this91 = this;
         this.options.flatMap(function (parents) {
           return _toConsumableArray(parents.children);
         }).filter(function (item) {
           return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
         }).forEach(function (item) {
-          _this91.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = true;
-          item.disabled = true;
-        });
-      },
-      uncheckAndEnableBrothersFromOtherMothers: function uncheckAndEnableBrothersFromOtherMothers(child) {
-        var _this92 = this;
-        this.options.flatMap(function (parents) {
-          return _toConsumableArray(parents.children);
-        }).filter(function (item) {
-          return item.value === child.value && item.customProperties.parentId !== child.customProperties.parentId;
-        }).forEach(function (item) {
-          _this92.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = false;
+          _this91.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"] input[type=\"checkbox\"]")).checked = false;
           item.disabled = false;
         });
       },
@@ -10753,15 +10624,15 @@ document.addEventListener("alpine:init", function () {
         return !((_item$customPropertie3 = item.customProperties) !== null && _item$customPropertie3 !== void 0 && _item$customPropertie3.parent) === false;
       },
       registerParentsBasedOnDisabledChildren: function registerParentsBasedOnDisabledChildren() {
-        var _this93 = this;
+        var _this92 = this;
         this.options.forEach(function (item) {
           var enabledChildren = item.children.filter(function (child) {
             return child.disabled !== true;
           }).length;
           if (enabledChildren === 0) return;
-          var enabled = _this93.checkedChildrenCount(item) === enabledChildren;
-          _this93.checkedParents = _this93[enabled ? "add" : "remove"](_this93.checkedParents, item.value);
-          _this93.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = enabled;
+          var enabled = _this92.checkedChildrenCount(item) === enabledChildren;
+          _this92.checkedParents = _this92[enabled ? "add" : "remove"](_this92.checkedParents, item.value);
+          _this92.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.value, "\"] input[type=\"checkbox\"]")).checked = enabled;
         });
       },
       parentDisabled: function parentDisabled(parent) {
@@ -10792,11 +10663,11 @@ document.addEventListener("alpine:init", function () {
       selectedText: null
     }, selectFunctions), {}, {
       init: function init() {
-        var _this94 = this;
+        var _this93 = this;
         this.selectedText = this.$root.querySelector("span.selected").dataset.selectText;
         this.setActiveStartingValue();
         this.$watch("singleSelectOpen", function (value) {
-          if (value) _this94.handleDropdownLocation();
+          if (value) _this93.handleDropdownLocation();
         });
       },
       get value() {
@@ -10852,132 +10723,132 @@ document.addEventListener("alpine:init", function () {
       }
     });
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("questionBank", function (openTab, inGroup, inTestBankContext) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('questionBank', function (openTab, inGroup, inTestBankContext) {
     return {
       questionBankOpenTab: openTab,
       inGroup: inGroup,
       groupDetail: null,
       bodyVisibility: true,
       inTestBankContext: inTestBankContext,
-      maxHeight: "calc(100vh - var(--header-height))",
+      maxHeight: 'calc(100vh - var(--header-height))',
       init: function init() {
-        var _this95 = this;
-        this.groupDetail = this.$el.querySelector("#groupdetail");
-        this.$watch("showBank", function (value) {
-          if (value === "questions") {
-            _this95.$wire.loadSharedFilters();
+        var _this94 = this;
+        this.groupDetail = this.$el.querySelector('#groupdetail');
+        this.$watch('showBank', function (value) {
+          if (value === 'questions') {
+            _this94.$wire.loadSharedFilters();
           }
         });
-        this.$watch("$store.questionBank.inGroup", function (value) {
-          _this95.inGroup = value;
+        this.$watch('$store.questionBank.inGroup', function (value) {
+          _this94.inGroup = value;
         });
-        this.$watch("$store.questionBank.active", function (value) {
+        this.$watch('$store.questionBank.active', function (value) {
           if (value) {
-            _this95.$wire.setAddedQuestionIdsArray();
+            _this94.$wire.setAddedQuestionIdsArray();
           } else {
-            _this95.closeGroupDetailQb();
+            _this94.closeGroupDetailQb();
           }
         });
         this.showGroupDetailsQb = /*#__PURE__*/function () {
-          var _ref7 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee34(groupQuestionUuid) {
+          var _ref7 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee32(groupQuestionUuid) {
             var inTest,
               readyForSlide,
-              _args34 = arguments;
-            return _regeneratorRuntime().wrap(function _callee34$(_context34) {
-              while (1) switch (_context34.prev = _context34.next) {
+              _args32 = arguments;
+            return _regeneratorRuntime().wrap(function _callee32$(_context32) {
+              while (1) switch (_context32.prev = _context32.next) {
                 case 0:
-                  inTest = _args34.length > 1 && _args34[1] !== undefined ? _args34[1] : false;
-                  _context34.next = 3;
-                  return _this95.$wire.showGroupDetails(groupQuestionUuid, inTest);
+                  inTest = _args32.length > 1 && _args32[1] !== undefined ? _args32[1] : false;
+                  _context32.next = 3;
+                  return _this94.$wire.showGroupDetails(groupQuestionUuid, inTest);
                 case 3:
-                  readyForSlide = _context34.sent;
+                  readyForSlide = _context32.sent;
                   if (readyForSlide) {
-                    if (_this95.inTestBankContext) {
-                      _this95.$refs["tab-container"].style.display = "none";
-                      _this95.$refs["main-container"].style.height = "100vh";
+                    if (_this94.inTestBankContext) {
+                      _this94.$refs['tab-container'].style.display = 'none';
+                      _this94.$refs['main-container'].style.height = '100vh';
                     } else {
-                      _this95.maxHeight = _this95.groupDetail.offsetHeight + "px";
+                      _this94.maxHeight = _this94.groupDetail.offsetHeight + 'px';
                     }
-                    _this95.groupDetail.style.left = 0;
-                    _this95.$refs["main-container"].scrollTo({
+                    _this94.groupDetail.style.left = 0;
+                    _this94.$refs['main-container'].scrollTo({
                       top: 0,
-                      behavior: "smooth"
+                      behavior: 'smooth'
                     });
-                    _this95.$el.scrollTo({
+                    _this94.$el.scrollTo({
                       top: 0,
-                      behavior: "smooth"
+                      behavior: 'smooth'
                     });
-                    _this95.$nextTick(function () {
+                    _this94.$nextTick(function () {
                       setTimeout(function () {
-                        _this95.bodyVisibility = false;
-                        if (_this95.inTestBankContext) {
-                          _this95.groupDetail.style.position = "relative";
+                        _this94.bodyVisibility = false;
+                        if (_this94.inTestBankContext) {
+                          _this94.groupDetail.style.position = 'relative';
                         } else {
-                          handleVerticalScroll(_this95.$el.closest(".slide-container"));
+                          handleVerticalScroll(_this94.$el.closest('.slide-container'));
                         }
                       }, 500);
                     });
                   }
                 case 5:
                 case "end":
-                  return _context34.stop();
+                  return _context32.stop();
               }
-            }, _callee34);
+            }, _callee32);
           }));
           return function (_x4) {
             return _ref7.apply(this, arguments);
           };
         }();
         this.closeGroupDetailQb = function () {
-          if (!_this95.bodyVisibility) {
-            _this95.bodyVisibility = true;
-            _this95.maxHeight = "calc(100vh - var(--header-height))";
-            _this95.groupDetail.style.left = "100%";
-            if (_this95.inTestBankContext) {
-              _this95.groupDetail.style.position = "absolute";
-              _this95.$refs["tab-container"].style.display = "block";
+          if (!_this94.bodyVisibility) {
+            _this94.bodyVisibility = true;
+            _this94.maxHeight = 'calc(100vh - var(--header-height))';
+            _this94.groupDetail.style.left = '100%';
+            if (_this94.inTestBankContext) {
+              _this94.groupDetail.style.position = 'absolute';
+              _this94.$refs['tab-container'].style.display = 'block';
             }
-            _this95.$nextTick(function () {
-              _this95.$wire.clearGroupDetails();
+            _this94.$nextTick(function () {
+              _this94.$wire.clearGroupDetails();
               setTimeout(function () {
-                if (!_this95.inTestBankContext) {
-                  handleVerticalScroll(_this95.$el.closest(".slide-container"));
+                if (!_this94.inTestBankContext) {
+                  handleVerticalScroll(_this94.$el.closest('.slide-container'));
                 }
               }, 250);
             });
           }
         };
         this.addQuestionToTest = /*#__PURE__*/function () {
-          var _ref8 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee35(button, questionUuid) {
+          var _ref8 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee33(button, questionUuid) {
             var showQuestionBankAddConfirmation,
               enableButton,
-              _args35 = arguments;
-            return _regeneratorRuntime().wrap(function _callee35$(_context35) {
-              while (1) switch (_context35.prev = _context35.next) {
+              _args33 = arguments;
+            return _regeneratorRuntime().wrap(function _callee33$(_context33) {
+              while (1) switch (_context33.prev = _context33.next) {
                 case 0:
-                  showQuestionBankAddConfirmation = _args35.length > 2 && _args35[2] !== undefined ? _args35[2] : false;
+                  showQuestionBankAddConfirmation = _args33.length > 2 && _args33[2] !== undefined ? _args33[2] : false;
                   if (!showQuestionBankAddConfirmation) {
-                    _context35.next = 3;
+                    _context33.next = 3;
                     break;
                   }
-                  return _context35.abrupt("return", _this95.$wire.emit("openModal", "teacher.add-sub-question-confirmation-modal", {
+                  return _context33.abrupt("return", _this94.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {
                     questionUuid: questionUuid
                   }));
                 case 3:
                   button.disabled = true;
-                  _context35.next = 6;
-                  return _this95.$wire.handleCheckboxClick(questionUuid);
+                  _context33.next = 6;
+                  return _this94.$wire.handleCheckboxClick(questionUuid);
                 case 6:
-                  enableButton = _context35.sent;
+                  enableButton = _context33.sent;
                   if (enableButton) {
                     button.disabled = false;
                   }
-                  return _context35.abrupt("return", true);
+                  return _context33.abrupt("return", true);
                 case 9:
                 case "end":
-                  return _context35.stop();
+                  return _context33.stop();
               }
-            }, _callee35);
+            }, _callee33);
           }));
           return function (_x5, _x6) {
             return _ref8.apply(this, arguments);
@@ -10986,224 +10857,156 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("testTakePage", function (openTab, inGroup, inTestBankContext) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("constructionDrawer", function (emptyStateActive, showBank) {
     return {
-      testCodePopup: false,
-      urlCopied: false,
-      urlCopiedTimeout: null,
+      loadingOverlay: false,
+      collapse: false,
+      backdrop: false,
+      emptyStateActive: emptyStateActive,
+      showBank: showBank,
       init: function init() {
-        var _this96 = this;
-        this.$watch("urlCopied", function (value) {
-          if (value) {
-            clearTimeout(_this96.urlCopiedTimeout);
-            setTimeout(function () {
-              return _this96.urlCopied = false;
-            }, 2000);
+        var _this95 = this;
+        this.collapse = window.innerWidth < 1000;
+        if (this.emptyStateActive) {
+          this.$store.cms.emptyState = true;
+          this.backdrop = true;
+        }
+        this.$watch("emptyStateActive", function (value) {
+          _this95.backdrop = value;
+          _this95.$store.cms.emptyState = value;
+        });
+      },
+      handleBackdrop: function handleBackdrop() {
+        if (this.backdrop) {
+          this.$root.dataset.closedWithBackdrop = "true";
+          this.backdrop = !this.backdrop;
+        } else {
+          if (this.$root.dataset.closedWithBackdrop === "true") {
+            this.backdrop = true;
           }
+        }
+      },
+      handleLoading: function handleLoading() {
+        this.loadingOverlay = this.$store.cms.loading;
+      },
+      handleSliderClick: function handleSliderClick(event) {
+        var _this96 = this;
+        if (!event.target.classList.contains("slider-option")) {
+          return;
+        }
+        document.querySelectorAll(".option-menu-active").forEach(function (el) {
+          return _this96.$dispatch(el.getAttribute("context") + "-context-menu-close");
+        });
+        this.$nextTick(function () {
+          return _this96.showBank = event.target.firstElementChild.dataset.id;
         });
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("participantDetailPopup", function () {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("constructionBody", function (loading, empty, dirty, questionEditorId, answerEditorId) {
     return {
-      participantPopupOpen: false,
-      button: null,
-      openPopup: function openPopup(event) {
-        var _this97 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee36() {
-          return _regeneratorRuntime().wrap(function _callee36$(_context36) {
-            while (1) switch (_context36.prev = _context36.next) {
-              case 0:
-                if (!_this97.participantPopupOpen) {
-                  _context36.next = 3;
-                  break;
-                }
-                _context36.next = 3;
-                return _this97.closePopup(event);
-              case 3:
-                _this97.button = event.element;
-                _this97.button.dataset.open = "true";
-                _context36.next = 7;
-                return _this97.$wire.openPopup(event.participant);
-              case 7:
-                _this97.participantPopupOpen = true;
-                _this97.$nextTick(function () {
-                  _this97.$root.style.left = _this97.getLeft();
-                  _this97.$root.style.top = _this97.getTop();
-                });
-              case 9:
-              case "end":
-                return _context36.stop();
-            }
-          }, _callee36);
-        }))();
-      },
-      closePopup: function closePopup() {
-        var _this98 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee37() {
-          return _regeneratorRuntime().wrap(function _callee37$(_context37) {
-            while (1) switch (_context37.prev = _context37.next) {
-              case 0:
-                _this98.participantPopupOpen = false;
-                _context37.next = 3;
-                return _this98.$wire.closePopup();
-              case 3:
-                _this98.button.dataset.open = "false";
-              case 4:
-              case "end":
-                return _context37.stop();
-            }
-          }, _callee37);
-        }))();
-      },
-      handleScroll: function handleScroll() {
-        if (!this.participantPopupOpen) return;
-        this.$root.style.top = this.getTop();
-      },
-      getTop: function getTop() {
-        return this.button.getBoundingClientRect().top - this.$root.offsetHeight - 8 + "px";
-      },
-      getLeft: function getLeft() {
-        return this.button.getBoundingClientRect().left + this.button.getBoundingClientRect().width / 2 - this.$root.offsetWidth / 2 + "px";
-      }
-    };
-  });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("testTakeAttainmentAnalysis", function (columns) {
-    return {
-      attainmentOpen: [],
-      studentData: [],
-      columns: columns,
-      totalWidth: null,
-      loadingData: [],
+      loading: loading,
+      empty: empty,
+      dirty: dirty,
+      loadTimeout: null,
+      questionEditorId: questionEditorId,
+      answerEditorId: answerEditorId,
       init: function init() {
-        this.fixPvalueContainerWidth();
-      },
-      fixPvalueContainerWidth: function fixPvalueContainerWidth() {
-        var _document$querySelect,
-          _this99 = this;
-        this.totalWidth = (_document$querySelect = document.querySelector(".pvalue-questions")) === null || _document$querySelect === void 0 ? void 0 : _document$querySelect.getBoundingClientRect().width;
-        this.$root.querySelectorAll(".pvalue-container").forEach(function (el) {
-          el.style.width = _this99.totalWidth + "px";
+        var _this97 = this;
+        this.$store.cms.processing = empty;
+        this.$watch("$store.cms.loading", function (value) {
+          return _this97.loadingTimeout(value);
+        });
+        this.$watch("loading", function (value) {
+          return _this97.loadingTimeout(value);
+        });
+        this.$watch("dirty", function (value) {
+          return _this97.$store.cms.dirty = value;
         });
       },
-      openRow: function openRow(attainment) {
-        var _this100 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee38() {
-          return _regeneratorRuntime().wrap(function _callee38$(_context38) {
-            while (1) switch (_context38.prev = _context38.next) {
-              case 0:
-                if (!_this100.loadingData.includes(attainment)) {
-                  _context38.next = 2;
-                  break;
-                }
-                return _context38.abrupt("return");
-              case 2:
-                if (_this100.studentData[attainment]) {
-                  _context38.next = 8;
-                  break;
-                }
-                _this100.loadingData.push(attainment);
-                _context38.next = 6;
-                return _this100.$wire.attainmentStudents(attainment);
-              case 6:
-                _this100.studentData[attainment] = _context38.sent;
-                _this100.loadingData = _this100.loadingData.filter(function (key) {
-                  return key !== attainment;
-                });
-              case 8:
-                _this100.attainmentOpen.push(attainment);
-                _this100.$nextTick(function () {
-                  return _this100.fixPvalueContainerWidth();
-                });
-              case 10:
-              case "end":
-                return _context38.stop();
-            }
-          }, _callee38);
-        }))();
-      },
-      closeRow: function closeRow(attainment) {
-        this.attainmentOpen = this.attainmentOpen.filter(function (key) {
-          return key !== attainment;
+      handleQuestionChange: function handleQuestionChange(evt) {
+        // this.$store.cms.loading = true;
+        // this.loading = true;
+        // this.$wire.set("loading", true);
+        if (typeof evt !== "undefined") this.empty = false;
+        this.removeDrawingLegacy();
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
         });
+        this.$store.cms.dirty = false;
       },
-      toggleRow: function toggleRow(attainment) {
-        var _this101 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee39() {
-          return _regeneratorRuntime().wrap(function _callee39$(_context39) {
-            while (1) switch (_context39.prev = _context39.next) {
-              case 0:
-                if (!_this101.attainmentOpen.includes(attainment)) {
-                  _context39.next = 3;
-                  break;
-                }
-                _this101.closeRow(attainment);
-                return _context39.abrupt("return");
-              case 3:
-                _context39.next = 5;
-                return _this101.openRow(attainment);
-              case 5:
-              case "end":
-                return _context39.stop();
-            }
-          }, _callee39);
-        }))();
+      loadingTimeout: function loadingTimeout(value) {
+        var _this98 = this;
+        /*if (value !== true)*/return;
+        this.loadTimeout = setTimeout(function () {
+          _this98.$store.cms.loading = false;
+          _this98.$store.cms.processing = false;
+          _this98.$wire.set("loading", false);
+          clearTimeout(_this98.loadTimeout);
+        }, 500);
       },
-      styles: function styles(pValue, multiplier) {
-        return {
-          "width": this.barWidth(multiplier),
-          "backgroundColor": this.backgroundColor(pValue)
-        };
+      removeDrawingLegacy: function removeDrawingLegacy() {
+        var _this$$root$querySele4;
+        (_this$$root$querySele4 = this.$root.querySelector("#drawing-question-tool-container")) === null || _this$$root$querySele4 === void 0 ? void 0 : _this$$root$querySele4.remove();
       },
-      barWidth: function barWidth(multiplier) {
-        return this.totalWidth / this.columns.length * multiplier + "px";
+      changeEditorWscLanguage: function changeEditorWscLanguage(lang) {
+        if (document.getElementById(this.questionEditorId)) {
+          WebspellcheckerTlc.lang(ClassicEditors[this.questionEditorId], lang);
+        }
+        if (document.getElementById(this.answerEditorId)) {
+          WebspellcheckerTlc.lang(ClassicEditors[this.answerEditorId], lang);
+        }
       },
-      backgroundColor: function backgroundColor(pValue) {
-        if (pValue * 100 < 55) return "var(--all-red)";
-        if (pValue * 100 < 65) return "var(--student)";
-        return "var(--cta-primary)";
+      forceSyncEditors: function forceSyncEditors() {
+        if (document.getElementById(this.questionEditorId)) {
+          this.$wire.sync("question.question", ClassicEditors[this.questionEditorId].getData());
+        }
+        if (document.getElementById(this.answerEditorId)) {
+          this.$wire.sync("question.answer", ClassicEditors[this.answerEditorId].getData());
+        }
       },
-      isLastStudentInRow: function isLastStudentInRow(student, attainment) {
-        var _this$studentData$att, _this$studentData$att2;
-        var index = (_this$studentData$att = this.studentData[attainment]) === null || _this$studentData$att === void 0 ? void 0 : _this$studentData$att.findIndex(function (s) {
-          return s.uuid === student.uuid;
-        });
-        return ((_this$studentData$att2 = this.studentData[attainment]) === null || _this$studentData$att2 === void 0 ? void 0 : _this$studentData$att2.length) === index + 1;
+      isLoading: function isLoading() {
+        return this.$store.cms.loading || this.$store.cms.emptyState;
       },
-      resetAnalysis: function resetAnalysis() {
-        this.attainmentOpen = [];
-        this.studentData = [];
-        this.loadingData = [];
+      isProcessing: function isProcessing() {
+        return this.$store.cms.processing;
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("pdfDownload", function (translation, links) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("constructionDirector", function () {
     return {
-      value: null,
-      waitingScreenHtml: PdfDownload.waitingScreenHtml(translation),
-      links: links,
-      select: function select(option) {
-        this.value = option;
+      init: function init() {
+        this.$store.cms.loading = false;
       },
-      selected: function selected(option) {
-        return option === this.value;
+      get drawer() {
+        return this.getLivewireComponent('cms-drawer');
       },
-      export_pdf: function export_pdf() {
-        if (!this.value) {
-          $wire.set('displayValueRequiredMessage', true);
-          return;
-        }
-        return this.export_now(this.links[this.value]);
+      get constructor() {
+        return this.getLivewireComponent('cms');
       },
-      export_now: function export_now(url) {
-        var isSafari = navigator.userAgent.indexOf('Safari') > -1 && navigator.userAgent.indexOf('Chrome') <= -1;
-        if (isSafari) {
-          window.open(url);
-          return;
-        }
-        var windowReference = window.open();
-        windowReference.document.write(this.waitingScreenHtml);
-        windowReference.location = url;
+      openQuestion: function openQuestion(questionProperties) {
+        var _this99 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee34() {
+          return _regeneratorRuntime().wrap(function _callee34$(_context34) {
+            while (1) switch (_context34.prev = _context34.next) {
+              case 0:
+                _this99.$dispatch('store-current-question');
+                _this99.$store.cms.scrollPos = document.querySelector('.drawer').scrollTop;
+                _this99.$store.cms.loading = true;
+                _context34.next = 5;
+                return _this99.constructor.showQuestion(questionProperties);
+              case 5:
+                _this99.$store.cms.loading = false;
+              case 6:
+              case "end":
+                return _context34.stop();
+            }
+          }, _callee34);
+        }))();
+      },
+      getLivewireComponent: function getLivewireComponent(attribute) {
+        return Livewire.find(document.querySelector("[".concat(attribute, "]")).getAttribute('wire:id'));
       }
     };
   });
@@ -11213,7 +11016,7 @@ document.addEventListener("alpine:init", function () {
     f(window, el._x_dataStack[0]);
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("cms", {
-    loading: false,
+    loading: true,
     processing: false,
     dirty: false,
     scrollPos: 0,
@@ -11252,8 +11055,7 @@ document.addEventListener("alpine:init", function () {
       }
       return this.drawerCollapsed;
     }
-  });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("answerFeedback", {
+  }), alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("answerFeedback", {
     editingComment: null,
     creatingNewComment: false,
     navigationRoot: null,
@@ -11297,30 +11099,30 @@ document.addEventListener("alpine:init", function () {
       this.navigationRoot = navigatorRootElement;
       this.navigationMethod = methodName;
       this.navigationArgs = methodArgs;
-      Livewire.emit("openModal", "modal.confirm-still-editing-comment-modal", {
-        "creatingNewComment": this.creatingNewComment
+      Livewire.emit('openModal', 'modal.confirm-still-editing-comment-modal', {
+        'creatingNewComment': this.creatingNewComment
       });
     },
     continueAction: function continueAction() {
       this.editingComment = null;
-      this.navigationRoot.dispatchEvent(new CustomEvent("continue-navigation", {
+      this.navigationRoot.dispatchEvent(new CustomEvent('continue-navigation', {
         detail: {
           method: this.navigationMethod,
           args: [this.navigationArgs]
         }
       }));
-      Livewire.emit("closeModal");
+      Livewire.emit('closeModal');
     },
     cancelAction: function cancelAction() {
       this.navigationRoot = null;
       this.navigationMethod = null;
-      window.dispatchEvent(new CustomEvent("answer-feedback-drawer-tab-update", {
+      window.dispatchEvent(new CustomEvent('answer-feedback-drawer-tab-update', {
         detail: {
           tab: 2,
           uuid: this.editingComment
         }
       }));
-      Livewire.emit("closeModal");
+      Livewire.emit('closeModal');
     },
     resetEditingComment: function resetEditingComment() {
       this.setEditingComment(null);
@@ -12609,21 +12411,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   pixelsPerCentimeter: () => (/* binding */ pixelsPerCentimeter),
 /* harmony export */   resizableSvgShapes: () => (/* binding */ resizableSvgShapes),
 /* harmony export */   shapePropertiesAvailableToUser: () => (/* binding */ shapePropertiesAvailableToUser),
-/* harmony export */   shapeTypeWithRespectiveSvgClass: () => (/* binding */ shapeTypeWithRespectiveSvgClass),
 /* harmony export */   svgNS: () => (/* binding */ svgNS),
 /* harmony export */   validHtmlElementKeys: () => (/* binding */ validHtmlElementKeys),
 /* harmony export */   validSvgElementKeys: () => (/* binding */ validSvgElementKeys),
 /* harmony export */   zoomParams: () => (/* binding */ zoomParams)
 /* harmony export */ });
 var svgNS = "http://www.w3.org/2000/svg";
-var shapeTypeWithRespectiveSvgClass = {
-  rect: "Rectangle",
-  circle: "Circle",
-  line: "Line",
-  text: "Text",
-  image: "Image",
-  freehand: "Path"
-};
 var validSvgElementKeys = {
   global: ["style", "class", "id", "stroke", "stroke-width", "stroke-dasharray", "fill", "fill-opacity", "opacity", "marker-start", "marker-mid", "marker-end"],
   rect: ["x", "y", "width", "height", "rx", "ry", "pathLength"],
@@ -12636,10 +12429,10 @@ var validSvgElementKeys = {
 };
 var shapePropertiesAvailableToUser = {
   drag: [],
-  freehand: ["pen-freehand"],
-  rect: ["stroke-rect", "fill-rect"],
-  circle: ["stroke-circle", "fill-circle"],
-  line: ["pen-line", "endmarker-type"],
+  freehand: ["line"],
+  rect: ["edge", "fill"],
+  circle: ["edge", "fill"],
+  line: ["line", "endmarker-type"],
   text: ["opacity", "text-style"]
 };
 var validHtmlElementKeys = {
@@ -12802,7 +12595,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       });
       setCorrectZIndex();
       setCursorTypeAccordingToCurrentType();
-      updateAllOpacitySliderColor();
+      updateOpacitySliderColor();
       if (!this.isTeacher()) {
         Canvas.layers.question.lock();
         Canvas.layers.question.sidebar.style.display = "none";
@@ -12863,12 +12656,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     },
     currentToolIs: function currentToolIs(toolname) {
       return this.params.currentTool === toolname;
-    },
-    toolAndShapeOfSameType: function toolAndShapeOfSameType(shape) {
-      return this.getElementShapeType(shape) === this.params.currentTool;
-    },
-    getElementShapeType: function getElementShapeType(shape) {
-      return shape.id.split("-")[0];
     },
     isTeacher: function isTeacher() {
       return this.params.isTeacher;
@@ -13045,13 +12832,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
           Canvas.params.highlightedShape.svg.unhighlight();
           Canvas.params.highlightedShape = null;
         }
-      },
-      /**
-       * @param {*} g element 
-       * @returns object containing element svg (svgShape class) and its sidebar (Entry class)
-       */
-      getShapeDataObject: function getShapeDataObject(shape) {
-        return Canvas.layers[Canvas.layerID2Key(shape.parentElement.id)].shapes[shape.id];
       }
     };
     Obj.initCanvas();
@@ -13279,133 +13059,119 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     events: {
       "input": {
         callback: function callback() {
-          setSliderColor(UI.elemOpacityRange, UI.textColor.value);
           editShape('updateTextColor');
         }
       }
     }
   }, {
-    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="stroke-width"]')),
-    events: {
-      "input": {
-        callback: function callback(evt) {
-          return valueWithinBounds(evt.currentTarget) && editShape('updateStrokeWidth');
-        }
-      },
-      "blur": {
-        callback: function callback(evt) {
-          return toggleDisableButtonStates(evt.currentTarget, 'stroke-width');
-        }
-      }
-    }
-  }, {
-    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="decr-stroke-width"]')),
-    events: {
-      "click": {
-        callback: function callback(evt) {
-          var input = evt.currentTarget.parentElement.querySelector('input[type=number]');
-          input.stepDown();
-          toggleDisableButtonStates(evt.currentTarget, 'stroke-width');
-          editShape('updateStrokeWidth');
-        }
-      },
-      "focus": {
-        callback: function callback(evt) {
-          return evt.currentTarget.classList.add("active");
-        }
-      },
-      "blur": {
-        callback: function callback(evt) {
-          return evt.currentTarget.classList.remove("active");
-        }
-      }
-    }
-  }, {
-    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="incr-stroke-width"]')),
-    events: {
-      "click": {
-        callback: function callback(evt) {
-          var input = evt.currentTarget.parentElement.querySelector('input[type=number]');
-          input.stepUp();
-          toggleDisableButtonStates(evt.currentTarget, 'stroke-width');
-          editShape('updateStrokeWidth');
-        }
-      },
-      "focus": {
-        callback: function callback(evt) {
-          return evt.currentTarget.classList.add("active");
-        }
-      },
-      "blur": {
-        callback: function callback(evt) {
-          return evt.currentTarget.classList.remove("active");
-        }
-      }
-    }
-  }, {
-    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="stroke-color"]')),
+    element: UI.strokeWidth,
     events: {
       "input": {
         callback: function callback() {
-          return editShape('updateStrokeColor');
+          return valueWithinBounds(UI.strokeWidth) && editShape('updateStrokeWidth');
+        }
+      },
+      "blur": {
+        callback: function callback() {
+          toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
         }
       }
     }
   }, {
-    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="pen-width"]')),
+    element: UI.decrStroke,
+    events: {
+      "click": {
+        callback: function callback() {
+          UI.strokeWidth.stepDown();
+          toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
+          editShape('updateStrokeWidth');
+        }
+      },
+      "focus": {
+        callback: function callback() {
+          UI.strokeWidth.classList.add("active");
+        }
+      },
+      "blur": {
+        callback: function callback() {
+          UI.strokeWidth.classList.remove("active");
+        }
+      }
+    }
+  }, {
+    element: UI.incrStroke,
+    events: {
+      "click": {
+        callback: function callback() {
+          UI.strokeWidth.stepUp();
+          toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
+          editShape('updateStrokeWidth');
+        }
+      },
+      "focus": {
+        callback: function callback() {
+          UI.strokeWidth.classList.add("active");
+        }
+      },
+      "blur": {
+        callback: function callback() {
+          UI.strokeWidth.classList.remove("active");
+        }
+      }
+    }
+  }, {
+    element: UI.lineWidth,
     events: {
       "input": {
-        callback: function callback(evt) {
-          valueWithinBounds(evt.currentTarget) && editShape('updatePenWidth');
+        callback: function callback() {
+          valueWithinBounds(UI.lineWidth) && editShape('updateLineWidth');
         }
       },
       "blur": {
-        callback: function callback(evt) {
-          toggleDisableButtonStates(evt.currentTarget, 'pen-width');
+        callback: function callback() {
+          toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
         }
       }
     }
   }, {
-    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="decr-pen-width"]')),
+    element: UI.decrLineWidth,
     events: {
       "click": {
-        callback: function callback(evt) {
-          var input = evt.currentTarget.parentElement.querySelector('input[type=number]');
-          input.stepDown();
-          toggleDisableButtonStates(evt.currentTarget, 'pen-width');
-          editShape('updatePenWidth');
+        callback: function callback() {
+          UI.lineWidth.stepDown();
+          toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+          editShape('updateLineWidth');
         }
       },
       "focus": {
-        callback: function callback(evt) {
-          evt.currentTarget.classList.add("active");
+        callback: function callback() {
+          UI.lineWidth.classList.add("active");
         }
       },
       "blur": {
-        callback: function callback(evt) {
-          evt.currentTarget.classList.remove("active");
+        callback: function callback() {
+          UI.lineWidth.classList.remove("active");
         }
       }
     }
   }, {
-    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="incr-pen-width"]')),
+    element: UI.incrLineWidth,
     events: {
       "click": {
-        callback: function callback(evt) {
-          var input = evt.currentTarget.parentElement.querySelector('input[type=number]');
-          input.stepUp();
-          toggleDisableButtonStates(evt.currentTarget, 'pen-width');
-          editShape('updatePenWidth');
+        callback: function callback() {
+          UI.lineWidth.stepUp();
+          toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
+          editShape('updateLineWidth');
         }
       },
       "focus": {
-        callback: function callback(evt) {
-          evt.currentTarget.classList.add("active");
+        callback: function callback() {
+          UI.lineWidth.classList.add("active");
         }
       },
       "blur": {
-        callback: function callback(evt) {
-          evt.currentTarget.classList.remove("active");
+        callback: function callback() {
+          UI.lineWidth.classList.remove("active");
         }
       }
     }
@@ -13466,55 +13232,64 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       }
     }
   }, {
-    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="fill-color"]')),
+    element: UI.fillColor,
     events: {
       "input": {
-        callback: function callback(evt) {
-          updateOpacitySliderColor(evt.currentTarget, 'fill');
+        callback: function callback() {
+          updateOpacitySliderColor();
           editShape('updateFillColor');
         }
       }
     }
   }, {
-    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="fill-opacity-number"]')),
+    element: UI.fillOpacityNumber,
     events: {
       "input": {
-        callback: function callback(evt) {
-          if (valueWithinBounds(evt.currentTarget)) {
-            updateFillOpacityRangeInput(evt.currentTarget, 'fill');
+        callback: function callback() {
+          if (valueWithinBounds(UI.elemOpacityNumber)) {
+            updateFillOpacityRangeInput();
             editShape('updateOpacity');
           }
         }
       }
     }
   }, {
-    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="fill-opacity-range"]')),
+    element: UI.fillOpacityRange,
     events: {
       "input": {
-        callback: function callback(evt) {
-          if (valueWithinBounds(evt.currentTarget)) {
-            updateFillOpacityNumberInput(evt.currentTarget, 'fill');
+        callback: function callback() {
+          if (valueWithinBounds(UI.fillOpacityRange)) {
+            updateFillOpacityNumberInput();
             editShape('updateOpacity');
           }
         }
       },
       "focus": {
-        callback: function callback(evt) {
-          evt.currentTarget.classList.add("active");
+        callback: function callback() {
+          UI.fillOpacityNumber.classList.add("active");
         }
       },
       "blur": {
-        callback: function callback(evt) {
-          evt.currentTarget.classList.remove("active");
+        callback: function callback() {
+          UI.fillOpacityNumber.classList.remove("active");
         }
       }
     }
   }, {
-    elements: _toConsumableArray(rootElement.querySelectorAll('[id*="pen-color"]')),
+    element: UI.strokeColor,
     events: {
       "input": {
         callback: function callback() {
-          return editShape('updatePenColor');
+          return editShape('updateStrokeColor');
+        }
+      }
+    }
+  }, {
+    element: UI.lineColor,
+    events: {
+      "input": {
+        callback: function callback() {
+          return editShape('updateLineColor');
         }
       }
     }
@@ -14056,7 +13831,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             }
             return _context.abrupt("return");
           case 2:
-            prepareShapesForSubmission();
             b64Strings = encodeSvgLayersAsBase64Strings();
             grid = Canvas.layers.grid.params.hidden ? "0.00" : drawingApp.params.gridSize.toString();
             panGroupSize = getPanGroupSize();
@@ -14069,13 +13843,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             _context.t3 = b64Strings.grid;
             _context.t4 = grid;
             _context.t5 = panGroupSize;
-            _context.next = 17;
+            _context.next = 16;
             return getPNGQuestionPreviewStringFromSVG(panGroupSize);
-          case 17:
+          case 16:
             _context.t6 = _context.sent;
-            _context.next = 20;
+            _context.next = 19;
             return getPNGCorrectionModelStringFromSVG(panGroupSize);
-          case 20:
+          case 19:
             _context.t7 = _context.sent;
             _context.t8 = cleanedSvg.question;
             _context.t9 = cleanedSvg.answer;
@@ -14091,7 +13865,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
               cleaned_answer_svg: _context.t9
             };
             _context.t0.handleUpdateDrawingData.call(_context.t0, _context.t10);
-          case 25:
+          case 24:
           case "end":
             return _context.stop();
         }
@@ -14205,11 +13979,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     adjustViewboxProperties(svg, panGroupSize);
     return svg;
   }
-  function prepareShapesForSubmission() {
-    rootElement.querySelectorAll(".selected,.editing").forEach(function (element) {
-      element.classList.remove("selected", "editing");
-    });
-  }
   function addNunitoFontToSVG(svg) {
     var defsNode = svg.querySelector('defs', '');
     var style = document.createElement('style');
@@ -14291,10 +14060,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     var layerID = shapeGroup.parentElement.id;
     var layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
     if (!layerObject.props.id.includes(layerObject.Canvas.params.currentLayer)) return;
-    var selectedShape = rootElement.querySelector('.selected');
+    var selectedEl = rootElement.querySelector('.selected');
     var selectedSvgShape = evt.target.closest("g.shape");
-    if (selectedShape) removeSelectState(selectedShape);
-    if (selectedShape === selectedSvgShape) return;
+    if (selectedEl) removeSelectState(selectedEl);
+    if (selectedEl === selectedSvgShape) return;
     addSelectState(selectedSvgShape);
   }
   function removeSelectState(element) {
@@ -14417,7 +14186,60 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   }
   function determineMainElementAttributes(type) {
     var cursorPosition = Canvas.params.cursorPosition;
-    return _svgShape_js__WEBPACK_IMPORTED_MODULE_1__[_constants_js__WEBPACK_IMPORTED_MODULE_0__.shapeTypeWithRespectiveSvgClass[type]].getMainElementAttributes(cursorPosition, UI, drawingApp.params);
+    switch (type) {
+      case "rect":
+        return {
+          "x": cursorPosition.x,
+          "y": cursorPosition.y,
+          "width": 0,
+          "height": 0,
+          "fill": UI.fillOpacityNumber.value === 0 ? "none" : UI.fillColor.value,
+          "fill-opacity": parseFloat(UI.fillOpacityNumber.value / 100),
+          "stroke": UI.strokeColor.value,
+          "stroke-width": UI.strokeWidth.value,
+          "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
+        };
+      case "circle":
+        return {
+          "cx": cursorPosition.x,
+          "cy": cursorPosition.y,
+          "r": 0,
+          "fill": UI.fillOpacityNumber.value === 0 ? "none" : UI.fillColor.value,
+          "fill-opacity": parseFloat(UI.fillOpacityNumber.value / 100),
+          "stroke": UI.strokeColor.value,
+          "stroke-width": UI.strokeWidth.value,
+          "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
+        };
+      case "line":
+        return {
+          "x1": cursorPosition.x,
+          "y1": cursorPosition.y,
+          "x2": cursorPosition.x,
+          "y2": cursorPosition.y,
+          "marker-end": "url(#svg-".concat(drawingApp.params.endmarkerType, "-line)"),
+          "stroke": UI.lineColor.value,
+          "stroke-width": UI.lineWidth.value,
+          "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
+        };
+      case "freehand":
+        return {
+          "d": "M ".concat(cursorPosition.x, ",").concat(cursorPosition.y),
+          "fill": "none",
+          "stroke": UI.lineColor.value,
+          "stroke-width": UI.lineWidth.value,
+          "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
+        };
+      case "text":
+        return {
+          "x": cursorPosition.x,
+          "y": cursorPosition.y,
+          "fill": UI.textColor.value,
+          "stroke-width": 0,
+          "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
+          "style": "".concat(drawingApp.params.boldText ? "font-weight: bold;" : "", " font-size: ").concat(UI.textSize.value / 16, "rem")
+        };
+      default:
+    }
   }
   function makeNewSvgShapeWithSidebarEntry(type, props, parent, withHelperElements, withHighlightEvents) {
     var svgShape = makeNewSvgShape(type, props, Canvas.layers[parent].svg, withHelperElements, withHighlightEvents);
@@ -14678,13 +14500,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   function stopDraw(evt) {
     var newShape = Canvas.params.draw.newShape;
     newShape.svg.onDrawEnd(evt, Canvas.params.cursorPosition);
-    Canvas.params.draw.newShape = null;
-    if (!newShape.svg.meetsMinRequirements()) {
-      Canvas.deleteObject(newShape.sidebar);
-      --Canvas.params.draw.shapeCountForEachType[newShape.sidebar.type];
-      return;
-    }
     Canvas.params.highlightedShape = newShape;
+    Canvas.params.draw.newShape = null;
   }
   function stopDrag() {
     Canvas.params.drag.selectedSvgShape.onDragEnd();
@@ -14710,7 +14527,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     makeSelectedBtnActive(evt.currentTarget);
     enableSpecificPropSelectInputs();
     setCursorTypeAccordingToCurrentType();
-    unselectShapeIfNecessary();
     if (!drawingApp.currentToolIs("drag")) {
       drawingApp.warnings.whenAnyToolButDragSelected.show();
     }
@@ -14737,16 +14553,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       startOfSlice = 0;
     }
     return id.slice(startOfSlice, endOfSlice);
-  }
-  function unselectShapeIfNecessary() {
-    var selectedShape = rootElement.querySelector('.selected');
-    if (shouldUnselectShape(selectedShape)) {
-      var shapeDataObject = Canvas.getShapeDataObject(selectedShape);
-      shapeDataObject.sidebar.unselect();
-    }
-  }
-  function shouldUnselectShape(selectedShape) {
-    return selectedShape && !drawingApp.currentToolIs("drag") && !drawingApp.toolAndShapeOfSameType(selectedShape);
   }
   function processEndmarkerTypeChange(evt) {
     drawingApp.params.endmarkerType = determineNewEndmarkerType(evt);
@@ -14974,24 +14780,15 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   }
   function updateElemOpacityNumberInput() {
     UI.elemOpacityNumber.value = UI.elemOpacityRange.value;
-    setSliderColor(UI.elemOpacityRange, UI.textColor.value);
+    updateOpacitySliderColor();
   }
   function updateElemOpacityRangeInput() {
     UI.elemOpacityRange.value = UI.elemOpacityNumber.value;
-    setSliderColor(UI.elemOpacityRange, UI.textColor.value);
+    updateOpacitySliderColor();
   }
-  function updateAllOpacitySliderColor() {
-    rootElement.querySelectorAll('[id*="fill-color"]').forEach(function (elem) {
-      updateOpacitySliderColor(elem, 'fill');
-    });
-    setSliderColor(UI.elemOpacityRange, UI.textColor.value);
-  }
-  function updateOpacitySliderColor(elem, property) {
-    var propertGroup = elem.closest('.property-group');
-    var shape = getShapeFromElemId(propertGroup);
-    var slider = propertGroup.querySelector('input[type="range"]');
-    var sliderColor = propertGroup.querySelector("#".concat(property, "-color-").concat(shape)).value;
-    setSliderColor(slider, sliderColor);
+  function updateOpacitySliderColor() {
+    setSliderColor(UI.fillOpacityRange, UI.fillColor.value);
+    setSliderColor(UI.elemOpacityRange);
   }
 
   /**
@@ -15041,13 +14838,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       B = parseInt(color.substring(5, 7), 16);
     return "rgba(".concat(R, ", ").concat(G, ", ").concat(B, ", ").concat(parseFloat(A) / 100, ")");
   }
-  function updateFillOpacityNumberInput(elem, property) {
-    elem.previousElementSibling.value = elem.value;
-    updateOpacitySliderColor(elem, property);
+  function updateFillOpacityNumberInput() {
+    UI.fillOpacityNumber.value = UI.fillOpacityRange.value;
+    updateOpacitySliderColor();
   }
-  function updateFillOpacityRangeInput(elem, property) {
-    elem.nextElementSibling.value = elem.value;
-    updateOpacitySliderColor(elem, property);
+  function updateFillOpacityRangeInput() {
+    UI.fillOpacityRange.value = UI.fillOpacityNumber.value;
+    updateOpacitySliderColor();
   }
   function valueWithinBounds(inputElem) {
     var value = parseFloat(inputElem.value),
@@ -15196,20 +14993,6 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       incrButton: incrButton
     };
   }
-  function getShapeFromElemId(elem) {
-    var parts = elem.id.split("-");
-    return parts[parts.length - 1];
-  }
-  function getInputsAndButtonsForProperty(propertyGroup, property, shape) {
-    var input = propertyGroup.querySelector("#".concat(property, "-").concat(shape));
-    var decrButton = propertyGroup.querySelector("#decr-".concat(property, "-").concat(shape));
-    var incrButton = propertyGroup.querySelector("#incr-".concat(property, "-").concat(shape));
-    return {
-      input: input,
-      decrButton: decrButton,
-      incrButton: incrButton
-    };
-  }
   function disableButtonsWhenNecessary(UIElementString) {
     var _getButtonsForElement = getButtonsForElement(UIElementString),
       decrButton = _getButtonsForElement.decrButton,
@@ -15227,14 +15010,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
   function handleGridSizeButtonStates() {
     disableButtonsWhenNecessary('gridSize');
   }
-  function toggleDisableButtonStates(elem, property) {
-    var propertGroup = elem.closest('.property-group');
-    if (!propertGroup) return;
-    var shape = getShapeFromElemId(propertGroup);
-    var _getInputsAndButtonsF = getInputsAndButtonsForProperty(propertGroup, property, shape),
-      input = _getInputsAndButtonsF.input,
-      decrButton = _getInputsAndButtonsF.decrButton,
-      incrButton = _getInputsAndButtonsF.incrButton;
+  function toggleDisableButtonStates(input, decrButton, incrButton) {
     var _getBoundsForInputEle2 = getBoundsForInputElement(input),
       currentValue = _getBoundsForInputEle2.currentValue,
       min = _getBoundsForInputEle2.min,
@@ -15242,19 +15018,27 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     decrButton.disabled = currentValue === min;
     incrButton.disabled = currentValue === max;
   }
-  function checkIfShouldeditShape(selectedShape) {
-    return selectedShape && drawingApp.toolAndShapeOfSameType(selectedShape);
+  function checkIfShouldeditShape(selectedEl) {
+    return selectedEl && checkIfFocusedDataButtonIsSameAsSelectedElement(selectedEl);
+  }
+  function checkIfFocusedDataButtonIsSameAsSelectedElement(selectedEl) {
+    var currentDataButton = rootElement.querySelector('[data-button-group=tool].active');
+    if (!currentDataButton) return false;
+    var shapeType = selectedEl.id.split('-')[0];
+    return shapeType === currentDataButton.id.split('-')[1];
   }
   function editShape(functionName) {
-    var selectedShape = rootElement.querySelector('.editing');
-    if (!checkIfShouldeditShape(selectedShape)) return;
-    var selectedSvgShapeClass = Canvas.getShapeDataObject(selectedShape).svg;
+    var selectedEl = rootElement.querySelector('.editing');
+    if (!checkIfShouldeditShape(selectedEl)) return;
+    var layerObject = Canvas.layers[Canvas.layerID2Key(selectedEl.parentElement.id)];
+    var selectedSvgShapeClass = layerObject.shapes[selectedEl.id].svg;
     functionName in selectedSvgShapeClass && selectedSvgShapeClass[functionName]();
   }
   function ShouldEditTextOnClick() {
-    var selectedShape = rootElement.querySelector('.editing');
-    if (!checkIfShouldeditShape(selectedShape)) return;
-    return drawingApp.currentToolIs('text') && Canvas.params.editingTextInZone;
+    var selectedEl = rootElement.querySelector('.editing');
+    if (!checkIfShouldeditShape(selectedEl)) return;
+    var shapeType = selectedEl.id.split('-')[0];
+    return shapeType === 'text' && Canvas.params.editingTextInZone;
   }
   return {
     UI: UI,
@@ -15483,8 +15267,8 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
     _this.drawingApp.bindEventListeners(_this.eventListenerSettings, _assertThisInitialized(_this));
     _this.updateLockState();
     _this.updateHideState();
-    _this.customizeButtonsAccordingToType();
     _this.deleteModal = _this.root.querySelector('#delete-confirm');
+    _this.skipEntryContainerClick = false;
     return _this;
   }
   _createClass(Entry, [{
@@ -15550,8 +15334,8 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
         element: this.btns.edit,
         events: {
           "click": {
-            callback: function callback(evt) {
-              _this2.handleEditShape(evt);
+            callback: function callback() {
+              _this2.handleEditShape();
             }
           }
         }
@@ -15680,6 +15464,10 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
   }, {
     key: "handleClick",
     value: function handleClick(evt) {
+      if (this.skipEntryContainerClick) {
+        this.skipEntryContainerClick = false;
+        return;
+      }
       var selectedEl = this.getSelectedElement();
       if (selectedEl) this.unselect(selectedEl);
       if (selectedEl === this.entryContainer) return;
@@ -15699,12 +15487,10 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
   }, {
     key: "unselect",
     value: function unselect(element) {
-      var _element;
-      element = (_element = element) !== null && _element !== void 0 ? _element : this.getSelectedElement();
       var shapeId = element.id.substring(6);
       element.classList.remove('selected');
       element.closest('#canvas-sidebar-container').querySelector("#".concat(shapeId)).classList.remove('selected');
-      this.removeAnyEditingShapes();
+      this.removeEditingShape();
       document.activeElement.blur();
     }
   }, {
@@ -15741,19 +15527,22 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
     }
   }, {
     key: "handleEditShape",
-    value: function handleEditShape(evt) {
+    value: function handleEditShape() {
       var selectedEl = this.getSelectedElement();
       if (!selectedEl) return this.startEditingShape();
-      if (selectedEl === this.entryContainer && selectedEl.classList.contains('editing')) return;
-      this.unselect(selectedEl);
-      this.select();
+      if (selectedEl.classList.contains('editing')) {
+        this.removeEditingShape();
+        if (selectedEl === this.entryContainer) return;
+        this.unselect(selectedEl);
+        this.select();
+      }
+      this.skipEntryContainerClick = true;
       this.startEditingShape();
-      evt.stopPropagation();
     }
   }, {
     key: "startEditingShape",
     value: function startEditingShape() {
-      this.removeAnyEditingShapes();
+      this.removeEditingShape();
       this.entryContainer.classList.add('editing');
       this.svgShape.shapeGroup.element.classList.add('editing');
       this.showRelevantShapeMenu();
@@ -15765,8 +15554,8 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       this.svgShape.setInputValuesOnEdit();
     }
   }, {
-    key: "removeAnyEditingShapes",
-    value: function removeAnyEditingShapes() {
+    key: "removeEditingShape",
+    value: function removeEditingShape() {
       this.root.querySelectorAll('.editing').forEach(function (element) {
         element.classList.remove('editing');
       });
@@ -15812,15 +15601,6 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
     value: function showConfirmDelete() {
       this.drawingApp.params.deleteSubject = this;
       this.deleteModal.classList.toggle('open');
-    }
-  }, {
-    key: "customizeButtonsAccordingToType",
-    value: function customizeButtonsAccordingToType() {
-      if (this.type === "image") {
-        var editButton = this.btns.edit;
-        editButton.style.color = "grey";
-        editButton.disabled = true;
-      }
     }
   }]);
   return Entry;
@@ -17793,9 +17573,36 @@ var svgShape = /*#__PURE__*/function () {
       this.sidebarEntry.entryContainer.parentElement.querySelector('.explainer').style.display = 'inline-block';
     }
   }, {
-    key: "meetsMinRequirements",
-    value: function meetsMinRequirements() {
-      return true;
+    key: "updateFillColor",
+    value: function updateFillColor() {
+      this.mainElement.setAttribute("fill", this.UI.fillColor.value);
+    }
+  }, {
+    key: "updateOpacity",
+    value: function updateOpacity() {
+      var opacity = parseFloat(this.UI.fillOpacityNumber.value / 100);
+      this.mainElement.setAttribute("fill-opacity", opacity);
+    }
+  }, {
+    key: "updateStrokeColor",
+    value: function updateStrokeColor() {
+      this.mainElement.setAttribute("stroke", this.UI.strokeColor.value);
+    }
+  }, {
+    key: "updateLineColor",
+    value: function updateLineColor() {
+      this.mainElement.setAttribute("stroke", this.UI.lineColor.value);
+      if (this.type === 'line') this.updateMarkerColor();
+    }
+  }, {
+    key: "updateStrokeWidth",
+    value: function updateStrokeWidth() {
+      this.mainElement.setAttribute("stroke-width", this.UI.strokeWidth.value);
+    }
+  }, {
+    key: "updateLineWidth",
+    value: function updateLineWidth() {
+      this.mainElement.setAttribute("stroke-width", this.UI.lineWidth.value);
     }
   }]);
   return svgShape;
@@ -17830,7 +17637,7 @@ var Rectangle = /*#__PURE__*/function (_svgShape) {
     key: "setFillColorOnEdit",
     value: function setFillColorOnEdit() {
       var fillColor = this.mainElement.getAttribute("fill");
-      var input = this.UI.fillColorRect;
+      var input = this.UI.fillColor;
       input.value = fillColor;
       input.style.cssText = "background-color: ".concat(fillColor, "; color: ").concat(fillColor, ";");
     }
@@ -17838,64 +17645,21 @@ var Rectangle = /*#__PURE__*/function (_svgShape) {
     key: "setStrokeColorOnEdit",
     value: function setStrokeColorOnEdit() {
       var strokeColor = this.mainElement.getAttribute("stroke");
-      var input = this.UI.strokeColorRect;
+      var input = this.UI.strokeColor;
       input.value = strokeColor;
       input.style.cssText = "border-color: ".concat(strokeColor);
     }
   }, {
     key: "setOpacityInputValueOnEdit",
     value: function setOpacityInputValueOnEdit() {
-      var input = this.UI.fillOpacityNumberRect;
+      var input = this.UI.fillOpacityNumber;
       input.value = this.mainElement.getAttribute("fill-opacity") * 100;
       input.dispatchEvent(new Event('input'));
     }
   }, {
     key: "setStrokeWidthOnEdit",
     value: function setStrokeWidthOnEdit() {
-      this.UI.strokeWidthRect.value = this.mainElement.getAttribute("stroke-width");
-    }
-  }, {
-    key: "updateFillColor",
-    value: function updateFillColor() {
-      this.mainElement.setAttribute("fill", this.UI.fillColorRect.value);
-    }
-  }, {
-    key: "updateStrokeWidth",
-    value: function updateStrokeWidth() {
-      this.mainElement.setAttribute("stroke-width", this.UI.strokeWidthRect.value);
-    }
-  }, {
-    key: "updateOpacity",
-    value: function updateOpacity() {
-      var opacity = parseFloat(this.UI.fillOpacityNumberRect.value / 100);
-      this.mainElement.setAttribute("opacity", opacity);
-      this.mainElement.setAttribute("fill-opacity", opacity);
-    }
-  }, {
-    key: "updateStrokeColor",
-    value: function updateStrokeColor() {
-      this.mainElement.setAttribute("stroke", this.UI.strokeColorRect.value);
-    }
-  }, {
-    key: "meetsMinRequirements",
-    value: function meetsMinRequirements() {
-      var bbox = this.mainElement.getBoundingBox();
-      return bbox.width >= 8 && bbox.height >= 8;
-    }
-  }], [{
-    key: "getMainElementAttributes",
-    value: function getMainElementAttributes(cursorPosition, UI) {
-      return {
-        "x": cursorPosition.x,
-        "y": cursorPosition.y,
-        "width": 0,
-        "height": 0,
-        "fill": UI.fillOpacityNumberRect.value === 0 ? "none" : UI.fillColorRect.value,
-        "fill-opacity": parseFloat(UI.fillOpacityNumberRect.value / 100),
-        "stroke": UI.strokeColorRect.value,
-        "stroke-width": UI.strokeWidthRect.value,
-        "opacity": parseFloat(UI.fillOpacityNumberRect.value / 100)
-      };
+      this.UI.strokeWidth.value = this.mainElement.getAttribute("stroke-width");
     }
   }]);
   return Rectangle;
@@ -17930,7 +17694,7 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
     key: "setFillColorOnEdit",
     value: function setFillColorOnEdit() {
       var fillColor = this.mainElement.getAttribute("fill");
-      var input = this.UI.fillColorCircle;
+      var input = this.UI.fillColor;
       input.value = fillColor;
       input.style.cssText = "background-color: ".concat(fillColor, "; color: ").concat(fillColor, ";");
     }
@@ -17938,62 +17702,21 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
     key: "setStrokeColorOnEdit",
     value: function setStrokeColorOnEdit() {
       var strokeColor = this.mainElement.getAttribute("stroke");
-      var input = this.UI.strokeColorCircle;
+      var input = this.UI.strokeColor;
       input.value = strokeColor;
       input.style.cssText = "border-color: ".concat(strokeColor);
     }
   }, {
     key: "setOpacityInputValueOnEdit",
     value: function setOpacityInputValueOnEdit() {
-      var input = this.UI.fillOpacityNumberCircle;
+      var input = this.UI.fillOpacityNumber;
       input.value = this.mainElement.getAttribute("fill-opacity") * 100;
       input.dispatchEvent(new Event('input'));
     }
   }, {
     key: "setStrokeWidthOnEdit",
     value: function setStrokeWidthOnEdit() {
-      this.UI.strokeWidthCircle.value = this.mainElement.getAttribute("stroke-width");
-    }
-  }, {
-    key: "updateFillColor",
-    value: function updateFillColor() {
-      this.mainElement.setAttribute("fill", this.UI.fillColorCircle.value);
-    }
-  }, {
-    key: "updateStrokeWidth",
-    value: function updateStrokeWidth() {
-      this.mainElement.setAttribute("stroke-width", this.UI.strokeWidthCircle.value);
-    }
-  }, {
-    key: "updateOpacity",
-    value: function updateOpacity() {
-      var opacity = parseFloat(this.UI.fillOpacityNumberCircle.value / 100);
-      this.mainElement.setAttribute("opacity", opacity);
-      this.mainElement.setAttribute("fill-opacity", opacity);
-    }
-  }, {
-    key: "updateStrokeColor",
-    value: function updateStrokeColor() {
-      this.mainElement.setAttribute("stroke", this.UI.strokeColorCircle.value);
-    }
-  }, {
-    key: "meetsMinRequirements",
-    value: function meetsMinRequirements() {
-      return this.mainElement.getAttribute("r") >= 4;
-    }
-  }], [{
-    key: "getMainElementAttributes",
-    value: function getMainElementAttributes(cursorPosition, UI) {
-      return {
-        "cx": cursorPosition.x,
-        "cy": cursorPosition.y,
-        "r": 0,
-        "fill": UI.fillOpacityNumberCircle.value === 0 ? "none" : UI.fillColorCircle.value,
-        "fill-opacity": parseFloat(UI.fillOpacityNumberCircle.value / 100),
-        "stroke": UI.strokeColorCircle.value,
-        "stroke-width": UI.strokeWidthCircle.value,
-        "opacity": parseFloat(UI.fillOpacityNumberCircle.value / 100)
-      };
+      this.UI.strokeWidth.value = this.mainElement.getAttribute("stroke-width");
     }
   }]);
   return Circle;
@@ -18021,11 +17744,6 @@ var Line = /*#__PURE__*/function (_svgShape3) {
     return _this3;
   }
   _createClass(Line, [{
-    key: "editOwnMarkerForThisShape",
-    value: function editOwnMarkerForThisShape() {
-      this.makeOwnMarkerForThisShape(true);
-    }
-  }, {
     key: "makeOwnMarkerForThisShape",
     value: function makeOwnMarkerForThisShape() {
       var editing = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
@@ -18091,7 +17809,12 @@ var Line = /*#__PURE__*/function (_svgShape3) {
     value: function updateMarkerColor() {
       if (!this.marker) return;
       var propertyToChange = this.getPropertyToChange(this.getMarkerType());
-      this.marker.style[propertyToChange] = this.UI.penColorLine.value;
+      this.marker.style[propertyToChange] = this.UI.lineColor.value;
+    }
+  }, {
+    key: "editOwnMarkerForThisShape",
+    value: function editOwnMarkerForThisShape() {
+      this.makeOwnMarkerForThisShape(true);
     }
   }, {
     key: "setInputValuesOnEdit",
@@ -18104,14 +17827,14 @@ var Line = /*#__PURE__*/function (_svgShape3) {
     key: "setLineColorOnEdit",
     value: function setLineColorOnEdit() {
       var lineColor = this.mainElement.getAttribute("stroke");
-      var input = this.UI.penColorLine;
+      var input = this.UI.lineColor;
       input.value = lineColor;
       input.style.cssText = "background-color: ".concat(lineColor, "; color: ").concat(lineColor, ";");
     }
   }, {
     key: "setLineWidthOnEdit",
     value: function setLineWidthOnEdit() {
-      this.UI.penWidthLine.value = this.mainElement.getAttribute("stroke-width");
+      this.UI.lineWidth.value = this.mainElement.getAttribute("stroke-width");
     }
   }, {
     key: "setEndMarkerOnEdit",
@@ -18120,35 +17843,6 @@ var Line = /*#__PURE__*/function (_svgShape3) {
       var markerType = this.getMarkerType();
       (_this$root$querySelec = this.root.querySelector('.endmarker-type.active')) === null || _this$root$querySelec === void 0 ? void 0 : _this$root$querySelec.classList.remove('active');
       (_this$root$querySelec2 = this.root.querySelector(".endmarker-type#".concat(markerType))) === null || _this$root$querySelec2 === void 0 ? void 0 : _this$root$querySelec2.classList.add('active');
-    }
-  }, {
-    key: "updatePenWidth",
-    value: function updatePenWidth() {
-      this.mainElement.setAttribute("stroke-width", this.UI.penWidthLine.value);
-    }
-  }, {
-    key: "updatePenColor",
-    value: function updatePenColor() {
-      this.mainElement.setAttribute("stroke", this.UI.penColorLine.value);
-      this.updateMarkerColor();
-    }
-  }, {
-    key: "meetsMinRequirements",
-    value: function meetsMinRequirements() {
-      return this.mainElement.element.getTotalLength() >= 10;
-    }
-  }], [{
-    key: "getMainElementAttributes",
-    value: function getMainElementAttributes(cursorPosition, UI, params) {
-      return {
-        "x1": cursorPosition.x,
-        "y1": cursorPosition.y,
-        "x2": cursorPosition.x,
-        "y2": cursorPosition.y,
-        "marker-end": "url(#svg-".concat(params.endmarkerType, "-line)"),
-        "stroke": UI.penColorLine.value,
-        "stroke-width": UI.penWidthLine.value
-      };
     }
   }]);
   return Line;
@@ -18352,18 +18046,6 @@ var Text = /*#__PURE__*/function (_svgShape4) {
       input.value = this.mainElement.getAttribute("opacity") * 100;
       input.dispatchEvent(new Event('input'));
     }
-  }], [{
-    key: "getMainElementAttributes",
-    value: function getMainElementAttributes(cursorPosition, UI, params) {
-      return {
-        "x": cursorPosition.x,
-        "y": cursorPosition.y,
-        "fill": UI.textColor.value,
-        "stroke-width": 0,
-        "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
-        "style": "".concat(params.boldText ? "font-weight: bold;" : "", " font-size: ").concat(UI.textSize.value / 16, "rem")
-      };
-    }
   }]);
   return Text;
 }(svgShape);
@@ -18413,33 +18095,7 @@ var Path = /*#__PURE__*/function (_svgShape6) {
     _classCallCheck(this, Path);
     return _super6.call(this, shapeId, "path", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
   }
-  _createClass(Path, [{
-    key: "updatePenWidth",
-    value: function updatePenWidth() {
-      this.mainElement.setAttribute("stroke-width", this.UI.penWidthFreehand.value);
-    }
-  }, {
-    key: "updatePenColor",
-    value: function updatePenColor() {
-      this.mainElement.setAttribute("stroke", this.UI.penColorFreehand.value);
-    }
-  }, {
-    key: "meetsMinRequirements",
-    value: function meetsMinRequirements() {
-      return this.mainElement.element.getTotalLength() >= 10;
-    }
-  }], [{
-    key: "getMainElementAttributes",
-    value: function getMainElementAttributes(cursorPosition, UI) {
-      return {
-        "d": "M ".concat(cursorPosition.x, ",").concat(cursorPosition.y),
-        "fill": "none",
-        "stroke": UI.penColorFreehand.value,
-        "stroke-width": UI.penWidthFreehand.value
-      };
-    }
-  }]);
-  return Path;
+  return _createClass(Path);
 }(svgShape);
 var Grid = /*#__PURE__*/function (_Path) {
   _inherits(Grid, _Path);
@@ -18552,21 +18208,21 @@ var Freehand = /*#__PURE__*/function (_Path2) {
   _createClass(Freehand, [{
     key: "setInputValuesOnEdit",
     value: function setInputValuesOnEdit() {
-      this.setPathColorOnEdit();
-      this.setPathWidthOnEdit();
+      this.setLineColorOnEdit();
+      this.setLineWidthOnEdit();
     }
   }, {
-    key: "setPathColorOnEdit",
-    value: function setPathColorOnEdit() {
-      var pathColor = this.mainElement.getAttribute("stroke");
-      var input = this.UI.penColorFreehand;
-      input.value = pathColor;
-      input.style.cssText = "background-color: ".concat(pathColor, "; color: ").concat(pathColor, ";");
+    key: "setLineColorOnEdit",
+    value: function setLineColorOnEdit() {
+      var lineColor = this.mainElement.getAttribute("stroke");
+      var input = this.UI.lineColor;
+      input.value = lineColor;
+      input.style.cssText = "background-color: ".concat(lineColor, "; color: ").concat(lineColor, ";");
     }
   }, {
-    key: "setPathWidthOnEdit",
-    value: function setPathWidthOnEdit() {
-      this.UI.penWidthFreehand.value = this.mainElement.getAttribute("stroke-width");
+    key: "setLineWidthOnEdit",
+    value: function setLineWidthOnEdit() {
+      this.UI.lineWidth.value = this.mainElement.getAttribute("stroke-width");
     }
   }]);
   return Freehand;
@@ -18715,7 +18371,6 @@ function encode(input) {
 
 // public method for decoding
 function decode(input) {
-  if (!input) return "";
   var output = "";
   var chr1, chr2, chr3;
   var enc1, enc2, enc3, enc4;
@@ -18800,8 +18455,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var flatpickr_dist_l10n_nl_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(flatpickr_dist_l10n_nl_js__WEBPACK_IMPORTED_MODULE_1__);
 
 
-document.addEventListener("alpine:init", function () {
-  Alpine.data("flatpickr", function (wireModel, mode, locale, minDate, dateFormat, altFormat, enableTime) {
+document.addEventListener('alpine:init', function () {
+  Alpine.data('flatpickr', function (wireModel, mode, locale, minDate) {
     return {
       wireModel: wireModel,
       mode: mode,
@@ -18817,25 +18472,24 @@ document.addEventListener("alpine:init", function () {
           defaultDate: this.wireModel,
           // The displayed format is humanreadable, the used date is Y-m-d formatted;
           altInput: true,
-          altFormat: altFormat,
-          dateFormat: dateFormat,
-          enableTime: enableTime,
+          altFormat: "d-m-Y",
+          dateFormat: "Y-m-d",
           onChange: function onChange(date, dateString) {
-            _this.wireModel = _this.value = _this.mode == "range" ? dateString.split(" t/m ") : dateString; //split t/m or to
+            _this.wireModel = _this.value = _this.mode == 'range' ? dateString.split(' t/m ') : dateString; //split t/m or to
           },
 
           onOpen: function onOpen() {
             var _this$$root$parentEle;
-            (_this$$root$parentEle = _this.$root.parentElement.querySelector("label")) === null || _this$$root$parentEle === void 0 ? void 0 : _this$$root$parentEle.classList.add("text-primary", "bold");
+            (_this$$root$parentEle = _this.$root.parentElement.querySelector('label')) === null || _this$$root$parentEle === void 0 ? void 0 : _this$$root$parentEle.classList.add('text-primary', 'bold');
           },
           onClose: function onClose() {
             var _this$$root$parentEle2;
-            (_this$$root$parentEle2 = _this.$root.parentElement.querySelector("label")) === null || _this$$root$parentEle2 === void 0 ? void 0 : _this$$root$parentEle2.classList.remove("text-primary", "bold");
+            (_this$$root$parentEle2 = _this.$root.parentElement.querySelector('label')) === null || _this$$root$parentEle2 === void 0 ? void 0 : _this$$root$parentEle2.classList.remove('text-primary', 'bold');
           }
         });
       },
       clearPicker: function clearPicker() {
-        this.picker.setDate("", false);
+        this.picker.setDate('', false);
       }
     };
   });
@@ -19512,7 +19166,6 @@ window.RichTextEditor = {
             _context.next = 4;
             return this.createTeacherEditor(parameterBag, function (editor) {
               // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
-
               editor.editing.view.change(function (writer) {
                 writer.setStyle('height', '150px', editor.editing.view.document.getRoot());
               });
@@ -19944,9 +19597,6 @@ window.RichTextEditor = {
       }
       fireEventIfWordCountChanged(wordCount);
     });
-    editor.editing.view.document.on('blur', function () {
-      fireEventIfWordCountChanged();
-    });
   },
   getWproofreaderConfig: function getWproofreaderConfig() {
     var enableGrammar = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
@@ -19995,7 +19645,6 @@ window.RichTextEditor = {
               if (typeof resolveCallback === "function") {
                 resolveCallback(editor);
               }
-              // editor.ui.view.editableElement.tabIndex = -1;
             })["catch"](function (error) {
               console.error(error);
             }));
