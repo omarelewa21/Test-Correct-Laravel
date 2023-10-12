@@ -315,14 +315,12 @@
                                 </x-input.toggle-row-with-title>
                                 <div x-show="rtti" class="flex flex-col gap-2.5 mt-2.5">
                                     @foreach($this->rttiOptions as $value)
-                                        <label class="radio-custom">
-                                            <input wire:key="{{ $value }}"
-                                                   name="rtti"
-                                                   type="radio"
-                                                   wire:model.defer="question.rtti"
-                                                   value="{{ $value }}"/>
-                                            <span class="ml-2.5">{{ $value }}</span>
-                                        </label>
+                                        <x-input.radio :text-right="$value"
+                                                       :value="$value"
+                                                       name="rtti"
+                                                       wire:key="rtti-{{ $value }}"
+                                                       wire:model.defer="question.rtti"
+                                        />
                                     @endforeach
                                 </div>
                             </div>
@@ -335,14 +333,12 @@
                                 </x-input.toggle-row-with-title>
                                 <div x-show="bloom" class="flex flex-col gap-2.5 mt-2.5">
                                     @foreach($this->bloomOptions as $value => $translation)
-                                        <label class="radio-custom">
-                                            <input wire:key="{{ $value }}"
-                                                   name="bloom"
-                                                   type="radio"
-                                                   wire:model.defer="question.bloom"
-                                                   value="{{ $value }}"/>
-                                            <span class="ml-2.5">{{ $translation  }}</span>
-                                        </label>
+                                        <x-input.radio :text-right="$translation"
+                                                       :value="$value"
+                                                       name="bloom"
+                                                       wire:key="bloom-{{ $value }}"
+                                                       wire:model.defer="question.bloom"
+                                        />
                                     @endforeach
                                 </div>
                             </div>
@@ -355,14 +351,12 @@
                                 </x-input.toggle-row-with-title>
                                 <div x-show="miller" class="flex flex-col gap-2.5 mt-2.5">
                                     @foreach($this->millerOptions as $value => $translation)
-                                        <label class="radio-custom">
-                                            <input wire:key="{{ $value }}"
-                                                   name="miller"
-                                                   type="radio"
-                                                   wire:model.defer="question.miller"
-                                                   value="{{ $value }}"/>
-                                            <span class="ml-2.5">{{ $translation }}</span>
-                                        </label>
+                                        <x-input.radio :text-right="$translation"
+                                                       :value="$value"
+                                                       name="miller"
+                                                       wire:key="miller-{{ $value }}"
+                                                       wire:model.defer="question.miller"
+                                        />
                                     @endforeach
                                 </div>
                             </div>

@@ -39,8 +39,9 @@
             <div class="relation-question-grid | "
                  style="--relation-grid-cols: @js(count($this->cmsPropertyBag['words'][0]))">
                 <div class="grid-head">
-                    <span>main</span>
-{{--                    <x-input.radio />--}}
+                        <span>main</span>
+                    {{--                    <x-input.radio />--}}
+
                 </div>
                 <div class="grid-head">
                     <span>translation</span>

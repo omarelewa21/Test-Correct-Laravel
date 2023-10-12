@@ -22,6 +22,8 @@ use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Controllers\TestsController;
+use tcCore\Http\Enums\Taxonomy\Bloom;
+use tcCore\Http\Enums\Taxonomy\Miller;
 use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
 use tcCore\Http\Enums\WscLanguage;
 use tcCore\Http\Helpers\CakeRedirectHelper;
@@ -1444,21 +1446,9 @@ class Constructor extends TCComponent implements QuestionCms
     {
         $this->rttiOptions = ['R', 'T1', 'T2', 'I'];
 
-        $this->bloomOptions = [
-            "Onthouden"  => __('cms.Onthouden'),
-            "Begrijpen"  => __('cms.Begrijpen'),
-            "Toepassen"  => __('cms.Toepassen'),
-            "Analyseren" => __('cms.Analyseren'),
-            "Evalueren"  => __('cms.Evalueren'),
-            "Creëren"    => __('cms.Creëren')
-        ];
+        $this->bloomOptions = Bloom::translations();
 
-        $this->millerOptions = [
-            "Weten"      => __('cms.Weten'),
-            "Weten hoe"  => __('cms.Weten hoe'),
-            "Laten zien" => __('cms.Laten zien'),
-            "Doen"       => __('cms.Doen'),
-        ];
+        $this->millerOptions = Miller::translations();
     }
 
     private function handleDraftStatusOfTestForUpdate(CmsRequest $request): CmsRequest

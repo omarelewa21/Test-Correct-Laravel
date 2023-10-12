@@ -171,17 +171,14 @@
                         <span class="bold">RTTI {{ __('cms.methode') }}</span>
                     </x-input.toggle-row-with-title>
                     <div x-show="rtti" class="grid grid-cols-4 pt-2 gap-2.5">
-                        @foreach(['R'  , 'T1' , 'T2' , 'I'] as $value)
-                            <label class="radio-custom">
-                                <input wire:key="rtti-{{ $value }}"
-                                       name="rtti"
-                                       type="radio"
-                                       value="{{ $value }}"
-                                       disabled
-                                       @if($value === $question->rtti) checked @endif
-                                />
-                                <span class="ml-2">{{ $value }}</span>
-                            </label>
+                        @foreach(\tcCore\Http\Enums\Taxonomy\Rtti::values() as $value)
+                            <x-input.radio :text-right="$value"
+                                           :value="$value"
+                                           name="rtti"
+                                           wire:key="rtti-{{ $value }}"
+                                           :disabled="true"
+                                           :checked="$value === $question->rtti"
+                            />
                         @endforeach
                     </div>
                 </div>
@@ -194,17 +191,14 @@
                         <span class="bold">BLOOM {{ __('cms.methode') }}</span>
                     </x-input.toggle-row-with-title>
                     <div x-show="bloom" class="grid grid-cols-3 pt-2 gap-2.5">
-                        @foreach([ __('cms.Onthouden'), __('cms.Begrijpen'), __('cms.Toepassen'), __('cms.Analyseren'), __('cms.Evalueren'), __('cms.Creëren')] as $value)
-                            <label class="radio-custom">
-                                <input wire:key="bloom-{{ $value }}"
-                                       name="bloom"
-                                       type="radio"
-                                       value="{{ $value }}"
-                                       disabled
-                                       @if($value === $question->bloom) checked @endif
-                                />
-                                <span class="ml-2">{{ $value }}</span>
-                            </label>
+                        @foreach(\tcCore\Http\Enums\Taxonomy\Bloom::translations() as $value => $translation)
+                            <x-input.radio :text-right="$translation"
+                                           :value="$value"
+                                           name="bloom"
+                                           wire:key="bloom-{{ $value }}"
+                                           :disabled="true"
+                                           :checked="$value === $question->bloom"
+                            />
                         @endforeach
                     </div>
                 </div>
@@ -217,17 +211,14 @@
                         <span class="bold">Miller {{ __('cms.methode') }}</span>
                     </x-input.toggle-row-with-title>
                     <div x-show="miller" class="grid grid-cols-2 pt-2 gap-2.5">
-                        @foreach([ __('cms.Weten'), __('cms.Weten hoe'), __('cms.Laten zien'), __('cms.Doen'),] as $value)
-                            <label class="radio-custom">
-                                <input wire:key="miller-{{ $value }}"
-                                       name="miller"
-                                       type="radio"
-                                       value="{{ $value }}"
-                                       disabled
-                                       @if($value === $question->miller) checked @endif
-                                />
-                                <span class="ml-2">{{ __($value) }}</span>
-                            </label>
+                        @foreach(\tcCore\Http\Enums\Taxonomy\Miller::translations() as $value => $translation)
+                            <x-input.radio :text-right="$translation"
+                                           :value="$value"
+                                           name="miller"
+                                           wire:key="miller-{{ $value }}"
+                                           :disabled="true"
+                                           :checked="$value === $question->miller"
+                            />
                         @endforeach
                     </div>
                 </div>

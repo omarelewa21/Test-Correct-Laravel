@@ -1692,6 +1692,8 @@ button.button {
 .relation-question-grid .grid-divider {
     grid-column-start: 0;
     grid-column: span var(--relation-grid-cols) / span var(--relation-grid-cols);
+    height: 2px;
+    background-color: var(--system-base);
 }
 .relation-question-grid .grid-head {
     font-weight: bold;
