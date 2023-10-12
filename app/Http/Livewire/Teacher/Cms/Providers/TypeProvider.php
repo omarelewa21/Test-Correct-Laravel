@@ -59,18 +59,17 @@ abstract class TypeProvider implements CmsProvider
 
     public function preparePropertyBag()
     {
-        // foreach ($this->questionOptions as $key => $value) {
-        //     $this->instance->question[$key] = $value;
-        // }
         $featureSettings = UserFeatureSetting::getAll(Auth::user());
-        foreach ($this->questionOptions as $key => $value) {
-            if($key == 'max_words')
-            $this->instance->question['max_words'] = $featureSettings['max_words_default']   ? $featureSettings['max_words_default']   : null;
-            // elseif($key == 'spell_check_available' && !settings()->canUseCmsWscWriteDownToggle())
-            // $this->instance->question['spell_check_available'] = false;
-            else
-            $this->instance->question[$key] = $featureSettings[$key . '_default'] ? true : false;
-        }
+            foreach ($this->questionOptions as $key => $value) {    
+                if ($key == 'max_words')
+                    $this->instance->question['max_words'] = $featureSettings['max_words_default'] ?? null;
+                elseif($key == 'spell_check_available' && !settings()->canUseCmsWscWriteDownToggle())
+                    $this->instance->question['spell_check_available'] = false;
+                elseif(isset($featureSettings[$key. '_default']))
+                    $this->instance->question[$key] = $featureSettings[$key . '_default'] ? true : false;
+                else
+                    $this->instance->question[$key] = $value;
+            }
     }
 
     public function initializePropertyBag($q)

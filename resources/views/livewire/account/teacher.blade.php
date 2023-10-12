@@ -393,7 +393,6 @@
                 </div>
             </div>
 
-            {{-- My work  --}}
             <div class="flex flex-col w-full gap-4">
                 <h2 class="flex">@lang('account.Schrijf op')</h2>           
                 <div class="content-section relative p-10 grid grid-cols-1 lg:grid-cols-2 gap-x-6 w-full">
@@ -426,11 +425,10 @@
                     <div class="border-b lg:border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5 self-end">
                         <x-input.toggle wire:model="featureSettings.text_formatting_default" class="mr-2" />
                         <x-icon.font class="min-w-[1rem]" />
-                        <span class="bold">@lang('cms.text_formatting')</span>
+                        <span class="bold">@lang('text_formatting')</span>
                     </div>
                 </div>
             </div>
-            {{-- End My Work  --}}
 
             <div class="flex flex-col w-full gap-4">
                 <h2 class="flex">@lang('account.Afname')</h2>
