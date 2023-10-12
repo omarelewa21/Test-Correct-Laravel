@@ -73,7 +73,7 @@ class TestTake extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by', 'show_grades', 'returned_to_taken', 'discussing_question_id', 'assessed_at', 'assessment_type', 'assessing_question_id', 'allow_wsc', 'max_assessed_answer_index', 'show_correction_model', 'enable_spellcheck_colearning', 'assessing_answer_index', 'enable_comments_colearning', 'enable_answer_model_colearning','enable_question_text_colearning', 'review_active', 'results_published', 'enable_mr_chadd'];
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by', 'show_grades', 'returned_to_taken', 'discussing_question_id', 'assessed_at', 'assessment_type', 'assessing_question_id', 'allow_wsc', 'max_assessed_answer_index', 'show_correction_model', 'enable_spellcheck_colearning', 'assessing_answer_index', 'enable_comments_colearning', 'enable_answer_model_colearning', 'enable_question_text_colearning', 'review_active', 'results_published', 'enable_mr_chadd'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -132,7 +132,7 @@ class TestTake extends BaseModel
             $originalTestTakeStatus = TestTakeStatus::find($testTake->getOriginal('test_take_status_id'));
 
             // logging statuses if changed
-            if($testTake->isDirty('test_take_status_id')) {
+            if ($testTake->isDirty('test_take_status_id')) {
                 TestTakeStatusLog::create([
                     'test_take_id'        => $testTake->getKey(),
                     'test_take_status_id' => $testTake->test_take_status_id
@@ -328,13 +328,13 @@ class TestTake extends BaseModel
         });
 
         static::created(function (TestTake $testTake) {
-                if ($testTake->schoolClasses !== null) {
-                    $testTake->saveSchoolClassTestTakeParticipants();
-                    $testTake->dispatchNewTestTakePlannedEvent();
-                }
-                if ($testTake->notify_students && GlobalStateHelper::getInstance()->isQueueAllowed()) {
-                    Queue::later(300, new SendTestPlannedMail($testTake->getKey()));
-                }
+            if ($testTake->schoolClasses !== null) {
+                $testTake->saveSchoolClassTestTakeParticipants();
+                $testTake->dispatchNewTestTakePlannedEvent();
+            }
+            if ($testTake->notify_students && GlobalStateHelper::getInstance()->isQueueAllowed()) {
+                Queue::later(300, new SendTestPlannedMail($testTake->getKey()));
+            }
         });
 
         static::deleted(function (TestTake $testTake) {
@@ -499,7 +499,7 @@ class TestTake extends BaseModel
             ->get()
             ->pluck('uuid')
             ->each(function ($userUuid) {
-                AfterResponse::$performAction[] =  fn() => NewTestTakePlanned::dispatch($userUuid);
+                AfterResponse::$performAction[] = fn() => NewTestTakePlanned::dispatch($userUuid);
             });
     }
 
@@ -527,7 +527,10 @@ class TestTake extends BaseModel
             });
         } elseif (in_array('Teacher', $roles)) {
             $user = Auth::user();
-            $skipDefaults = $user->isValidExamCoordinator() && $this->hasRatedTestTakesFilter($filters);
+            $skipDefaults = $user->isValidExamCoordinator() && (
+                    $this->hasRatedTestTakesFilter($filters)
+                    || $this->hasPlannedTestTakesFilter($filters) // as per TCP-3479
+                );
             $query->when(!$skipDefaults, function ($query) use ($filters, $user) {
                 $query->accessForTeacher($user, $filters)
                     ->withoutDemoTeacherForUser($user)
@@ -889,9 +892,9 @@ class TestTake extends BaseModel
         $this->testParticipants()
             ->whereExists(function ($query) {
                 $query->select(DB::raw(1))
-                ->from('users')
-                ->whereColumn('users.id', 'test_participants.user_id')
-                ->where('users.guest', true);
+                    ->from('users')
+                    ->whereColumn('users.id', 'test_participants.user_id')
+                    ->where('users.guest', true);
             })
             ->update(['test_participants.available_for_guests' => true]);
     }
@@ -911,7 +914,7 @@ class TestTake extends BaseModel
         if ($this->wasChanged('show_results')) {
             AfterResponse::$performAction[] = fn() => TestTakeShowResultsChanged::dispatch($this->uuid);
 
-            $this->testParticipants->each(function($participant) {
+            $this->testParticipants->each(function ($participant) {
                 AfterResponse::$performAction[] = fn() => NewTestTakeReviewable::dispatch($participant->user()->value('uuid'));
             });
         }
@@ -1272,6 +1275,13 @@ class TestTake extends BaseModel
         return $filters['test_take_status_id'] == (string)TestTakeStatus::STATUS_RATED;
     }
 
+    private function hasPlannedTestTakesFilter($filters): bool
+    {
+        if (!isset($filters['test_take_status_id'])) return false;
+
+        return $filters['test_take_status_id'] == (string)TestTakeStatus::STATUS_PLANNED;
+    }
+
     private function hasParticipantsThatUserTeaches(User $user): bool
     {
         return TestParticipant::select('test_take_id')
@@ -1361,8 +1371,8 @@ class TestTake extends BaseModel
         return TemporaryLogin::buildValidOptionObject(
             'page',
             $this->isAssignmentType()
-            ? sprintf("test_takes/assignment_open_teacher/%s", $this->uuid)
-            : sprintf("test_takes/view/%s", $this->uuid)
+                ? sprintf("test_takes/assignment_open_teacher/%s", $this->uuid)
+                : sprintf("test_takes/view/%s", $this->uuid)
         );
     }
 
