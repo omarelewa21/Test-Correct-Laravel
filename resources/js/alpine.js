@@ -1588,7 +1588,7 @@ document.addEventListener("alpine:init", () => {
             this.value = target.firstElementChild.dataset.id;
 
             this.$root.dataset.hasValue = this.value !== null;
-            if (oldValue.toString() !== this.value.toString()) {
+            if (oldValue?.toString() !== this.value?.toString()) {
                 if([null, 'null'].includes(this.$root.dataset.toggleValue)) {
                     this.$dispatch("multi-slider-toggle-value-updated", {
                         value: target.firstElementChild.dataset.id,
