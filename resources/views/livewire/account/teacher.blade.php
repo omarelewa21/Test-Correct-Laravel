@@ -393,7 +393,7 @@
                 </div>
             </div>
 
-            {{-- My work  --}}
+
             <div class="flex flex-col w-full gap-4">
                 <h2 class="flex">@lang('account.Schrijf op')</h2>           
                 <div class="content-section relative p-10 grid grid-cols-1 lg:grid-cols-2 gap-x-6 w-full">
@@ -430,7 +430,7 @@
                     </div>
                 </div>
             </div>
-            {{-- End My Work  --}}
+            
 
             <div class="flex flex-col w-full gap-4">
                 <h2 class="flex">@lang('account.Afname')</h2>

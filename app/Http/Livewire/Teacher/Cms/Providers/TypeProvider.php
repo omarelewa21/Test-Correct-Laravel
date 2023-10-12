@@ -65,9 +65,9 @@ abstract class TypeProvider implements CmsProvider
         $featureSettings = UserFeatureSetting::getAll(Auth::user());
         foreach ($this->questionOptions as $key => $value) {
             if($key == 'max_words')
-            $this->instance->question['max_words'] = $featureSettings['max_words_default']   ? $featureSettings['max_words_default']   : null;
-            // elseif($key == 'spell_check_available' && !settings()->canUseCmsWscWriteDownToggle())
-            // $this->instance->question['spell_check_available'] = false;
+            $this->instance->question['max_words'] = $featureSettings['max_words_default'] ?? null;
+            elseif($key == 'spell_check_available' && !settings()->canUseCmsWscWriteDownToggle())
+            $this->instance->question['spell_check_available'] = false;
             else
             $this->instance->question[$key] = $featureSettings[$key . '_default'] ? true : false;
         }
