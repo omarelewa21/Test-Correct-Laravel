@@ -451,7 +451,14 @@ class TestTake extends BaseModel
     {
         return ($this->hasParticipantsThatUserTeaches($userToCheck) && $userToCheck->hasAccessToTest($this->test))
             || $this->isInvigilator($userToCheck)
-            || ($this->isScheduledByUser($userToCheck) || ($userToCheck->isValidExamCoordinator() && $this->school_location_id === $userToCheck->school_location_id))
+            || (
+                    $this->isScheduledByUser($userToCheck)
+                    ||
+                        ($userToCheck->isValidExamCoordinator()
+                            && $this->school_location_id === $userToCheck->school_location_id
+                            && (in_array($this->test_take_status_id, [(string)TestTakeStatus::STATUS_PLANNED, (string)TestTakeStatus::STATUS_RATED]))
+                        )
+            )
             || $this->isTakeOwner($userToCheck);
     }
 
