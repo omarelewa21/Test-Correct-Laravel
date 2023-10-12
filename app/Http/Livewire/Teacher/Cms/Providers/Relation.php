@@ -18,7 +18,7 @@ class Relation extends TypeProvider
         $this->instance->cmsPropertyBag['words'] = array_map(function ($value) {
             return [
                 'main' => $value,
-                'translation' => 'translation',
+                'translation' => 'translation translation',
                 'definition' => 'definition',
                 'synonym' => 'synonym',
                 'fredje' => '',

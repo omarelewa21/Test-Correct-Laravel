@@ -1,15 +1,15 @@
-<label @class(["radio-custom", $labelClasses])>
+<label @class(["radio-custom gap-2.5", $labelClasses, "disabled" => $disabled])>
     @if($textLeft)
-        <span class="ml-2.5">{{ $textLeft }}</span>
+        <span class="">{{ $textLeft }}</span>
     @endif
     <input type="radio"
            name="{{ $name }}"
            value="{{ $value }}"
-           @disabled($disabled)
+            @disabled($disabled)
             @checked($checked)
             {{ $attributes }}
     />
     @if($textRight)
-        <span class="ml-2.5">{{ $textRight }}</span>
+        <span class="">{{ $textRight }}</span>
     @endif
 </label>

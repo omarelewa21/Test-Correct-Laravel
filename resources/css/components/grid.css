@@ -8,14 +8,15 @@
     border: solid 1px;
     border-color: var(--card-tag-border-color);
     background-color: var(--card-tag-background-color);
-    color: var(--card-tag-text-color)!important;
+    color: var(--card-tag-text-color) !important;
     min-height: 26px;
 }
+
 .card-tag span {
-    color: var(--card-tag-text-color)!important;
+    color: var(--card-tag-text-color) !important;
     text-transform: uppercase;
     font-weight: bold;
-    font-size:10px;
+    font-size: 10px;
 }
 
 .card-tag.white {
@@ -30,22 +31,56 @@
     --card-tag-background-color: rgba(var(--mid-grey-rgb), .1);
 }
 
+.relation-question-grid-container {
+    position: relative;
+    overflow: auto;
+    width: 100%;
+    height: 820px;
+}
+
 .relation-question-grid {
     --total-max-width: 940px;
     --relation-grid-cols: 4;
 
-    width: var(--total-max-width);
     display: grid;
-    grid-template-rows: repeat(auto-fit, 1fr);
     grid-template-columns: repeat(var(--relation-grid-cols), minmax(140px, 240px));
+    grid-template-rows: repeat(auto-fill, 1fr);
+    gap: 1px; /* Adjust the gap as needed */
+
+    max-width: var(--total-max-width);
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding-inline: 1px;
 }
 
 .relation-question-grid .grid-divider {
-    grid-column-start: 0;
     grid-column: span var(--relation-grid-cols) / span var(--relation-grid-cols);
     height: 2px;
     background-color: var(--system-base);
+    margin-top: 14px;
+    width: calc(100% + 2px);
+    margin-left: -1px;
 }
+
 .relation-question-grid .grid-head {
     font-weight: bold;
+}
+
+.relation-question-grid .word-row div {
+    min-height: 40px;
+    font-size: 1rem;
+    outline: 1px solid var(--blue-grey);
+    transition: background-color 150ms ease-in-out, color 150ms ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 13px;
+    padding-right: 6px;
+}
+
+.relation-question-grid .word-row div:hover {
+    background-color: var(--blue-grey);
+    color: var(--primary)
 }

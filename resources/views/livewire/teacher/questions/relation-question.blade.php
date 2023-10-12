@@ -38,37 +38,69 @@
         <div class="relation-question-grid-container | ">
             <div class="relation-question-grid | "
                  style="--relation-grid-cols: @js(count($this->cmsPropertyBag['words'][0]))">
-                <div class="grid-head">
-                        <span>main</span>
-                    {{--                    <x-input.radio />--}}
+                <div class="grid-head-container contents">
+                    <div class="grid-head">
+                        <x-input.radio value="main"
+                                       name="relation-column"
+                                       text-left="main"
+                                       label-classes="bold gap-2 hover:text-primary"
+                        />
 
-                </div>
-                <div class="grid-head">
-                    <span>translation</span>
-{{--                    <x-input.radio />--}}
-                </div>
-                <div class="grid-head">
-                    <span>definition</span>
-{{--                    <x-input.radio />--}}
-                </div>
-                <div class="grid-head">
-                    <span>synonym</span>
-{{--                    <x-input.radio />--}}
-                </div>
-                <div class="grid-head">
-                    <span>synonym</span>
-{{--                    <x-input.radio />--}}
+                    </div>
+                    <div class="grid-head">
+                        <x-input.radio value="translation"
+                                       name="relation-column"
+                                       text-left="translation"
+                                       label-classes="bold gap-2 hover:text-primary"
+                        />
+                    </div>
+                    <div class="grid-head">
+                        <x-input.radio value="definition"
+                                       name="relation-column"
+                                       text-left="definition"
+                                       label-classes="bold gap-2 hover:text-primary"
+                        />
+                    </div>
+                    <div class="grid-head">
+                        <x-input.radio value="synonym"
+                                       name="relation-column"
+                                       text-left="synonym"
+                                       label-classes="bold gap-2 hover:text-primary"
+                        />
+                    </div>
+                    <div class="grid-head">
+                        <x-input.radio value="ditjes"
+                                       name="relation-column"
+                                       text-left="ditjes"
+                                       label-classes="bold gap-2 hover:text-primary"
+                        />
+                    </div>
                 </div>
 
                 <div class="grid-divider"></div>
 
                 @foreach($this->cmsPropertyBag['words'] as $word)
-                    <div class="contents">
-                        <div>{{ $word['main'] }}</div>
-                        <div>{{ $word['translation'] }}</div>
-                        <div>{{ $word['definition'] }}</div>
-                        <div>{{ $word['synonym'] }}</div>
-                        <div>{{ $word['synonym'] }}</div>
+                    <div class="word-row contents">
+                        <div>
+                            <span>{{ $word['main'] }}</span>
+                            <x-icon.checkmark-small class="text-white min-w-[13px]"/>
+                        </div>
+                        <div>
+                            <span>{{ $word['translation'] }}</span>
+                            <x-icon.checkmark-small class="text-white min-w-[13px]"/>
+                        </div>
+                        <div>
+                            <span>{{ $word['definition'] }}</span>
+                            <x-icon.checkmark-small class="text-white min-w-[13px]"/>
+                        </div>
+                        <div>
+                            <span>{{ $word['synonym'] }}</span>
+                            <x-icon.checkmark-small class="text-white min-w-[13px]"/>
+                        </div>
+                        <div>
+                            <span>{{ $word['synonym'] }}</span>
+                            <x-icon.checkmark-small class="text-white min-w-[13px]"/>
+                        </div>
                     </div>
                 @endforeach
             </div>
