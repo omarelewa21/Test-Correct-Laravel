@@ -188,7 +188,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
             ->layout('layouts.co-learning-teacher');
     }
 
-    public function startCoLearningSession($discussionType) : bool|Redirector
+    public function startCoLearningSession($discussionType): bool|Redirector
     {
         if (!in_array($discussionType, [self::DISCUSSION_TYPE_OPEN_ONLY, self::DISCUSSION_TYPE_ALL])) {
             throw new \Exception('Wrong discussion type');
@@ -219,7 +219,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
             $this->discussingQuestion = $this->testTake->discussingQuestion()->first();
         }
 
-        if(!settings()->allowNewCoLearningTeacher(auth()->user())) {
+        if (!settings()->allowNewCoLearningTeacher(auth()->user())) {
             return CakeRedirectHelper::redirectToCake('test_takes.discussion', $this->testTake->uuid);
         }
 
@@ -246,7 +246,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
 
         return TestTake::redirectToDetail(
             testTakeUuid: $this->testTake->uuid,
-            returnRoute : Str::replaceFirst(config('app.base_url'), '', Livewire::originalUrl()),
+            returnRoute: Str::replaceFirst(config('app.base_url'), '', Livewire::originalUrl()),
         );
     }
 
@@ -444,8 +444,8 @@ class CoLearning extends TCComponent implements CollapsableHeader
                 $testParticipant->uuid => [
                     'abnormalitiesStatus' => AbnormalitiesStatus::get(
                         testParticipantAbnormalities: $testParticipant->abnormalities,
-                        averageAbnormalitiesAmount  : $abnormalitiesAverage,
-                        enoughDataAvailable         : $answersRatedByTestParticipant >= 4,
+                        averageAbnormalitiesAmount: $abnormalitiesAverage,
+                        enoughDataAvailable: $answersRatedByTestParticipant >= 4,
                     )
                 ]
             ]);
@@ -564,7 +564,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
         $this->questionCount = $this->questionsOrderList->count('id');
 
         //filter questions that have 'discuss in class' on false
-        $this->questionsOrderList = $this->questionsOrderList->filter(fn($item) => (bool)$item['discuss'] );
+        $this->questionsOrderList = $this->questionsOrderList->filter(fn($item) => (bool)$item['discuss']);
 
         if ($this->testTake->discussion_type === self::DISCUSSION_TYPE_OPEN_ONLY) {
             $this->questionsOrderList = $this->questionsOrderList->filter(fn($item) => $item['question_type'] === 'OPEN'
@@ -631,7 +631,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
                 // [ 0 => [ 0 => 'answer', 1 => 'answer']]
                 return collect(
                     json_decode(
-                        json       : $this->activeAnswerRating->answer->json,
+                        json: $this->activeAnswerRating->answer->json,
                         associative: true
                     )
                 )->mapWithKeys(function ($answer, $tag) {
@@ -671,7 +671,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
         }
 
         $array = json_decode(
-            json       : $this->activeAnswerRating->answer->json,
+            json: $this->activeAnswerRating->answer->json,
             associative: true
         );
 
@@ -701,15 +701,16 @@ class CoLearning extends TCComponent implements CollapsableHeader
 
     private function redirectIfNotAllowed(): Redirector|null
     {
-        if (!in_array(
-            $this->testTake->test_take_status_id,
-            [
-                TestTakeStatus::STATUS_TAKEN,
-                TestTakeStatus::STATUS_DISCUSSING,
-                TestTakeStatus::STATUS_DISCUSSED,
-                TestTakeStatus::STATUS_RATED,
-            ]
-        )) {
+        if (!$this->testTake->isAllowedToView(auth()->user())
+            || !in_array(
+                $this->testTake->test_take_status_id,
+                [
+                    TestTakeStatus::STATUS_TAKEN,
+                    TestTakeStatus::STATUS_DISCUSSING,
+                    TestTakeStatus::STATUS_DISCUSSED,
+                    TestTakeStatus::STATUS_RATED,
+                ]
+            )) {
             return redirect()->route('teacher.test-takes', ['stage' => 'taken']);
         }
         return null;
@@ -747,7 +748,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
             ->delete();
     }
 
-    public function handleHeaderCollapse($args) : bool
+    public function handleHeaderCollapse($args): bool
     {
         return $this->startCoLearningSession($args['discussionType']);
     }
@@ -777,7 +778,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
         $this->testTake = $this->testTake->refresh();
         $this->testTake->testParticipants->load(['answers.answerRatings' => fn($query) => $query->where('type', 'STUDENT')]);
         $this->discussingQuestion = $this->testTake->discussingQuestion()->first();
-        if($this->discussingQuestion) {
+        if ($this->discussingQuestion) {
             $this->group = $this->discussingQuestion->getGroupQuestion($this->testTake);
         }
     }
