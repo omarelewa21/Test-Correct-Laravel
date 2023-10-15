@@ -242,9 +242,10 @@ Core = {
     /**
      * Waits an interval time before logging user out
      * @param {boolean} firstLoad
+     * @param {int} actionLogOut - default 0
      * @param {int} secondsBeforeTeacherLogout - default 15 min
      */
-    startUserLogoutInterval(firstLoad = false, secondsBeforeTeacherLogout = 15 * 60) {
+    startUserLogoutInterval(firstLoad = false, actionLogOut= 0 ,secondsBeforeTeacherLogout = 15 * 60) {
         let inactive = 0;
         document.addEventListener('mouseover', () => inactive = 0);
         document.addEventListener('keydown', () => inactive = 0);
@@ -252,7 +253,7 @@ Core = {
         let startInterval = () => {
             let userLogoutInterval = setInterval(()=> {
                 inactive++;
-                if (inactive >= secondsBeforeTeacherLogout) {
+                if (inactive >= secondsBeforeTeacherLogout && actionLogOut) {
                     clearInterval(userLogoutInterval);
                     Livewire.emit("openModal", "open-user-logout-warning-modal");
                 }
