@@ -1571,7 +1571,7 @@ document.addEventListener("alpine:init", () => {
             if (this.value === null) {
                 return;
             }
-            this.$el.querySelector(".group").firstElementChild.classList.add("text-primary");
+            this.$el.querySelector(".group").classList.add("active-slider-option");
 
             if (this.value !== "" && Object.keys(this.sources).includes(String(this.value))) {
                 this.activateButton(this.$el.querySelector("[data-id='" + this.value + "']").parentElement);
@@ -1615,14 +1615,14 @@ document.addEventListener("alpine:init", () => {
                 this.buttonPosition = target.offsetLeft + "px";
                 this.buttonWidth = target.offsetWidth + "px";
                 target.dataset.active = true;
-                target.firstElementChild.classList.add("text-primary");
+                target.classList.add("active-slider-option");
                 this.handle.classList.remove("hidden");
                 this.handle.classList.add("block");
             });
         },
         resetButtons(target) {
             Array.from(target.parentElement.children).forEach(button => {
-                button.firstElementChild.classList.remove("text-primary");
+                button.classList.remove("active-slider-option");
             });
         },
         setHandle() {

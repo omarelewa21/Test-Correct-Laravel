@@ -1020,7 +1020,7 @@ button.button {
 :is(.text-button, .text-button-white) {
     isolation: isolate;
     position: relative;
-    color: var(--system-base);
+    /*color: var(--system-base);*/
     font-weight: bold;
     width: -moz-fit-content;
     width: fit-content;
@@ -2617,12 +2617,29 @@ input[type=number] {
     color: var(--mid-grey);
 }
 
+/* HERE */
+
 .slider-button-container .slider-option span {
     transition: color 150ms ease-in-out;
 }
 
 .slider-button-container .slider-option {
     position: relative;
+}
+
+.slider-button-container .slider-option.active-slider-option {
+    color: var(--teacher-primary);
+}
+.slider-button-container.white-variant .slider-option.active-slider-option {
+    color: white;
+    background-color: rgba(249, 250, 255, 0.2);
+}
+
+.slider-button-container .slider-option:hover {
+    color: var(--teacher-primary);
+}
+.slider-button-container.white-variant .slider-option:hover {
+    color: white;
 }
 
 .slider-button-container .slider-option:after {
@@ -2640,6 +2657,29 @@ input[type=number] {
 .slider-button-container .slider-option:hover:after {
     border-color: var(--blue-grey);
 }
+
+.slider-button-container .slider-button-handle {
+    border: var(--teacher-primary) solid 2px;
+    border-radius: 0.5rem;
+}
+
+.slider-button-container {
+    color: var(--system-base);
+}
+
+.slider-button-container.white-variant {
+    color: white;
+}
+
+.slider-button-container.white-variant .slider-button-handle {
+    border: white solid 2px;
+}
+
+.slider-button-container.white-variant .slider-option {
+    background: transparent;
+}
+
+/* TILL HERE */
 
 .inline-feedback-modal div[selid="ckeditor"],
 .inline-feedback-modal div[selid="ckeditor"] > div {
@@ -7019,7 +7059,6 @@ input.datepicker {
 
 /* score slider hidden thumb */
 .score-slider-container :is(.score-slider-continuous-input, .score-slider-input).hide-thumb {
-    /*visibility: hidden ;*/
     --thumb-appearance: none;
     --thumb-width: 1.5rem;
     --thumb-height: 1.5rem;
@@ -7564,6 +7603,242 @@ input.datepicker {
     border-bottom-right-radius: 10px;
     top: 50%;
     transition: height 50ms ease
+}
+
+.set-up-colearning {
+    margin-right: 1.5rem;
+    margin-left: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: column;
+    height: 100%;
+}
+
+.set-up-colearning .set-up-colearning-panel,
+.set-up-colearning .set-up-colearning-panel > div,
+.set-up-colearning .set-up-subtitle,
+.set-up-colearning .set-up-navigation {
+    width: 100%;
+    max-width: 940px;
+}
+
+.set-up-colearning .set-up-colearning-panel {
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: calc(100% - 32px - 86px);
+    max-height: calc(100% - 32px - 86px); /* minus subtitle, minus navigation */
+}
+
+
+.set-up-colearning .set-up-colearning-panel > div {
+    border-radius: 10px;
+    background: white;
+    height: 100%;
+    overflow: scroll;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.set-up-colearning .set-up-colearning-panel .step-one-illustration {
+    width: 100%;
+    height: 360px;
+    min-height: 360px;
+    position: relative;
+    overflow: hidden;
+}
+
+.set-up-colearning .set-up-colearning-panel .step-one-illustration svg:nth-child(1) {
+    width: 940px;
+    position: absolute;
+    left: 50%;
+    top: 0px;
+    transform: translateX(-50%);
+    border-radius: 10px;
+}
+
+.set-up-colearning .set-up-colearning-panel .step-one-illustration svg:nth-child(2) {
+    position: absolute;
+    /*width: 940px;*/
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
+.set-up-colearning .set-up-colearning-panel .step-one-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.set-up-colearning .set-up-colearning-panel .step-one-options {
+    height: -moz-fit-content;
+    height: fit-content;
+    width: 475px;
+    display: flex;
+    flex-direction: column;
+    color: var(--system-base);
+}
+
+.set-up-colearning .set-up-navigation {
+    position: relative;
+    min-height: 86px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    padding-bottom: 12px;
+}
+
+.set-up-colearning .set-up-navigation .navigation-dots {
+    position: absolute;
+    left: 50%;
+    top: 1.5rem;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    align-items: center;
+}
+
+.set-up-colearning .set-up-navigation .navigation-dot-full {
+    height: 1.5rem;
+    width: 1.5rem;
+    border-radius: 9999px;
+    background-color: white;
+}
+.set-up-colearning .set-up-navigation .navigation-dot-open {
+    width: 16px;
+    height: 16px;
+    background-color: rgba(255, 255, 255, 0.4);
+    border-radius: 9999px;
+    border: 2px solid white;
+}
+
+.set-up-colearning .set-up-subtitle {
+    min-height: 86px;
+    align-items: center;
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    margin-right: 25px;
+    margin-left: 25px;
+}
+
+.set-up-colearning .set-up-shadow-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1rem;
+    box-shadow: 0 -3px 8px 0 rgba(4, 31, 116, 0.2);
+    background: white;
+    border-radius: 0 0 10px 10px;
+    z-index: 10;
+}
+
+.set-up-colearning .text-note {
+    text-align: center;
+    width: 100%;
+    margin-top: 2.5rem;
+    margin-bottom: 2.5rem;
+}
+
+
+.set-up-colearning .set-up-colearning-panel .step-two {
+    width: 100%;
+    color: var(--system-base);
+    margin-bottom: 16px;
+}
+
+.set-up-colearning .set-up-colearning-panel .step-two .co-learning-setup-grid {
+    grid-template-columns: 40px 50px minmax(106px, 120px) auto 60px;
+    display: grid;
+    position: relative;
+}
+
+.set-up-colearning .set-up-colearning-panel .step-two .co-learning-setup-grid.with-group-questions {
+    grid-template-columns: 40px 50px minmax(106px, 120px) 71px auto 60px;
+}
+
+.set-up-colearning .set-up-colearning-panel .step-two .co-learning-setup-grid .grid-title {
+    height: 45px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.set-up-colearning .set-up-colearning-panel .step-two .co-learning-setup-grid .grid-title:nth-child(1) {
+    grid-column: 1 / 2;
+    min-width: 1.5rem;
+}
+
+.set-up-colearning .set-up-colearning-panel .step-two .co-learning-setup-grid .grid-title:nth-child(2) {
+    grid-column: 2 / 3;
+    min-width: 2.125rem;
+}
+
+.set-up-colearning .set-up-colearning-panel .step-two .co-learning-setup-grid .grid-title:nth-child(3) {
+    grid-column: 3 / 4;
+    min-width: 1.875rem;
+}
+
+.set-up-colearning .set-up-colearning-panel .step-two .co-learning-setup-grid .grid-item {
+    transition: background-color 100ms ease-in-out;
+    z-index: 3;
+    white-space: nowrap;
+}
+
+.set-up-colearning .set-up-colearning-panel .step-two .co-learning-setup-grid .group-badge {
+    width: 30px;
+    height: 26px;
+    border-radius: 4px;
+    border: solid 1px var(--system-base);
+    background-color: rgba(4, 31, 116, 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.set-up-colearning .set-up-colearning-panel .step-two .co-learning-setup-grid .group-badge.group-badge-disabled {
+    border: solid 1px var(--mid-grey);
+    background-color: rgba(146, 157, 175, 0);
+}
+
+.set-up-colearning .set-up-colearning-panel .step-two .shadow-box {
+    border-radius: 10px;
+    width: 100%;
+    height: 60px;
+    position: absolute;
+    background-color: transparent;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.set-up-colearning .set-up-colearning-panel .step-two .shadow-box span {
+    background-color: rgba(var(--primary-rgb), 0.05);
+    position: absolute;
+    inset: 0;
+    z-index: 1
+}
+
+/* not really co-learning: */
+.indented-toggle-row {
+    margin-left: 66px !important;
+    width: calc(100% - 66px) !important;
+}
+
+.border-bottom-05-secondary {
+    border-bottom: 1px solid rgba(var(--system-secondary-rgb), 0.5);
 }
 @font-face {
     font-family: hl-icons;
@@ -11681,6 +11956,9 @@ video {
 .h-\[40px\]{
   height: 40px;
 }
+.h-\[45px\]{
+  height: 45px;
+}
 .h-\[45vw\]{
   height: 45vw;
 }
@@ -11710,6 +11988,9 @@ video {
 }
 .h-\[calc\(100\%\+4px\)\]{
   height: calc(100% + 4px);
+}
+.h-\[calc\(100vh-70px\)\]{
+  height: calc(100vh - 70px);
 }
 .h-\[calc\(100vh-var\(--header-height\)\)\]{
   height: calc(100vh - var(--header-height));
@@ -12003,6 +12284,9 @@ video {
 }
 .w-px{
   width: 1px;
+}
+.w-\[55px\]{
+  width: 55px;
 }
 .min-w-\[110px\]{
   min-width: 110px;
@@ -12681,6 +12965,9 @@ video {
 .self-center{
   align-self: center;
 }
+.justify-self-end{
+  justify-self: end;
+}
 .overflow-auto{
   overflow: auto;
 }
@@ -12973,9 +13260,6 @@ video {
 .border-white{
   --tw-border-opacity: 1;
   border-color: rgb(255 255 255 / var(--tw-border-opacity));
-}
-.border-b-white\/25{
-  border-bottom-color: rgb(255 255 255 / 0.25);
 }
 .border-l-student{
   --tw-border-opacity: 1;
@@ -13600,6 +13884,9 @@ video {
 }
 .text-\[14px\]{
   font-size: 14px;
+}
+.text-\[16px\]{
+  font-size: 16px;
 }
 .text-\[24px\]{
   font-size: 24px;

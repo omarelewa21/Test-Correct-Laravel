@@ -7949,7 +7949,7 @@ document.addEventListener("alpine:init", function () {
         if (this.value === null) {
           return;
         }
-        this.$el.querySelector(".group").firstElementChild.classList.add("text-primary");
+        this.$el.querySelector(".group").classList.add("active-slider-option");
         if (this.value !== "" && Object.keys(this.sources).includes(String(this.value))) {
           this.activateButton(this.$el.querySelector("[data-id='" + this.value + "']").parentElement);
         } else {
@@ -7991,14 +7991,14 @@ document.addEventListener("alpine:init", function () {
           _this27.buttonPosition = target.offsetLeft + "px";
           _this27.buttonWidth = target.offsetWidth + "px";
           target.dataset.active = true;
-          target.firstElementChild.classList.add("text-primary");
+          target.classList.add("active-slider-option");
           _this27.handle.classList.remove("hidden");
           _this27.handle.classList.add("block");
         });
       },
       resetButtons: function resetButtons(target) {
         Array.from(target.parentElement.children).forEach(function (button) {
-          button.firstElementChild.classList.remove("text-primary");
+          button.classList.remove("active-slider-option");
         });
       },
       setHandle: function setHandle() {
@@ -12222,7 +12222,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "662d128370816e2bbb66",
   cluster: "eu",
   forceTLS: true
 });

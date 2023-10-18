@@ -8,6 +8,7 @@
 'initialStatus' => null,
 'toggleValue' => null,
 'identifier' => null,
+'white' => false,
 ])
 <span wire:ignore
      {{ $attributes->except(['wire:model', 'class']) }}
@@ -27,6 +28,7 @@
            $attributes->get('class'),
            'slider-button-container block',
            'disabled' => $disabled,
+           'white-variant' => $white,
            ])
 >
     @if($label)
@@ -37,9 +39,9 @@
     <span class="relative block">
         <span :id="$id('slider-button')" @class(['flex', 'pointer-events-none' => $disabled])>
             @foreach($options as $id => $button)
-                <span style="width: {{$buttonWidth}}"
+                <span style="width: {{$buttonWidth}}; flex-shrink: 0;"
                      @class([
-                          'slider-option hover:text-primary group flex items-center justify-center h-10 bold border-t border-b first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg',
+                          'slider-option | group flex items-center justify-center h-10 bold border-t border-b first:border-l last:border-r first:rounded-l-lg last:rounded-r-lg',
                           'bg-off-white cursor-pointer border-bluegrey' => !$disabled,
                           'bg-white note hover:text-note border-lightGrey' => $disabled,
                         ])
@@ -61,7 +63,7 @@
         <span :id="$id('slider-button')+'-handle'"
              style="width: @js($buttonWidth);"
              :style="{left: buttonPosition, width: buttonWidth}"
-             class="border-2 rounded-lg border-primary absolute top-0 h-10 bottom-0 pointer-events-none slider-button-handle hidden"
+             class="slider-button-handle | absolute top-0 h-10 bottom-0 pointer-events-none  hidden"
         >
         </span>
     </span>

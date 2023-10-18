@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Question\QuestionGatherer;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Ramsey\Uuid\Uuid;
+use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\TaxonomyRepository;
 use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
 use tcCore\Traits\ModelAttributePurifyTrait;
@@ -933,7 +934,7 @@ class Test extends BaseModel
                     return [
                         'id' => $item->question->getKey(),
                         'question_type' => $item->question->canCheckAnswer() ? Question::TYPE_CLOSED : Question::TYPE_OPEN,
-                        'discuss'       => (!$testQuestion->question->isCarouselQuestion()) && $item->discuss,
+                        'discuss'       => (!$testQuestion->question->isCarouselQuestion()) && $item->discuss ? 1 : 0,
                     ];
                 });
             }
@@ -945,6 +946,54 @@ class Test extends BaseModel
                 'order_in_test' => ++$orderInTest,
                 'order_open_only' => $item['question_type'] === Question::TYPE_OPEN && (bool)$item['discuss'] ? ++$orderOpenOnly : null,
                 ...$item,
+            ]];
+        })->toArray();
+    }
+
+    public function getQuestionOrderListExpanded()
+    {
+        $coLearningIndex = 0; // filters out 'discuss === false' questions
+        $testIndex = 0;
+
+        $orderList = $this->testQuestions->sortBy('order')->flatMap(function ($testQuestion) {
+            if ($testQuestion->question->type === 'GroupQuestion') {
+                return $testQuestion->question->groupQuestionQuestions()->get()->map(function ($item) use ($testQuestion) {
+                    return [
+                        'question_id' => $item->question->getKey(),
+                        'question_uuid' => $item->question->uuid,
+//                        'discuss'       => (!$testQuestion->question->isCarouselQuestion()) && $item->discuss ? 1 : 0,
+                        'question_type' => $item->question->type,
+                        'question_type_name' => $item->question->type_name,
+                        'question_title' => $item->question->title,
+                        'group_question_id' => $testQuestion->question->getKey(),
+                        'carousel_question' => $testQuestion->question->isCarouselQuestion(),
+                    ];
+                });
+            }
+            return [[
+                'question_id' => $testQuestion->question->getKey(),
+                'question_uuid' => $testQuestion->question->uuid,
+                'question_type' => $testQuestion->question->type,
+                'question_type_name' => $testQuestion->question->type_name,
+                'question_title' => $testQuestion->question->title,
+                'group_question_id' => null,
+                'carousel_question' => false,
+//                'discuss' => $testQuestion->discuss,
+            ]];
+        });
+
+        $pValues = PValueRepository::getPValuesForQuestion($orderList->pluck('question_id')->toArray())
+                                   ->keyBy('question_id');
+
+        return $orderList->mapWithKeys(function ($item, $key) use (&$coLearningIndex, &$testIndex, &$pValues) {
+
+            return [$item['question_id'] => [
+                'colearning_index' => ($item['question_type'] !== 'InfoscreenQuestion' && !$item['carousel_question']) ? ++$coLearningIndex : null,
+                'test_index' => ++$testIndex,
+                ...$item,
+                'p_value' => ($item['question_type'] !== 'InfoscreenQuestion' && !$item['carousel_question'])
+                    ? $pValues->get($item['question_id'])?->p_value
+                    : null,
             ]];
         })->toArray();
     }

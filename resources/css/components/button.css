@@ -57,7 +57,7 @@ button.button {
 :is(.text-button, .text-button-white) {
     isolation: isolate;
     position: relative;
-    color: var(--system-base);
+    /*color: var(--system-base);*/
     font-weight: bold;
     width: fit-content;
     padding: 0;

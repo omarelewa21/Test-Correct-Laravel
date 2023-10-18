@@ -26,17 +26,21 @@ use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Middleware\AfterResponse;
 use tcCore\MatchingQuestion;
 use tcCore\MultipleChoiceQuestion;
+use tcCore\Question;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
+use tcCore\Traits\CanSetUpCoLearning;
 use tcCore\View\Components\CompletionQuestionConvertedHtml;
 
 class CoLearning extends TCComponent implements CollapsableHeader
 {
+    use CanSetUpCoLearning;
+
     const DISCUSSION_TYPE_ALL = 'ALL';
     const DISCUSSION_TYPE_OPEN_ONLY = 'OPEN_ONLY';
 
     //start screen properties
-    public ?bool $coLearningHasBeenStarted = true;
+    public bool $coLearningHasBeenStarted = true;
     public bool $headerCollapsed = false;
     public bool $coLearningRestart = false;
 
@@ -66,6 +70,9 @@ class CoLearning extends TCComponent implements CollapsableHeader
 
     //Question Navigation properties
     public $questionsOrderList;
+    //CoLearning Set-up properties
+    public $questionsSetUpOrderList;
+    public bool $testHasGroupQuestions;
 
     public int $firstQuestionId;
     public int $lastQuestionId;
@@ -75,8 +82,6 @@ class CoLearning extends TCComponent implements CollapsableHeader
     public int $questionIndex; //order all question types but excluding not discussed questions
     public int $questionIndexAsInTest; //order including not discussed questions
     public int $questionIndexOpenOnly; //order exclusing not discussed questions and non-open questions
-
-    public ?Collection $activeDrawingAnswerDimensions;
 
     protected $queryString = [
         'coLearningHasBeenStarted' => ['except' => true, 'as' => 'started']
@@ -148,6 +153,11 @@ class CoLearning extends TCComponent implements CollapsableHeader
         $this->redirectIfNotAllowed();
 
         $this->getStaticNavigationData();
+
+        if ($this->testTakeHasNotYetBeenStartedBefore() || !$this->coLearningHasBeenStarted) {
+            //todo the check uses discussion_type, but when selecting questions we dont need this property anymore
+            $this->getSetUpData();
+        }
 
         if ($this->testTakeIsBeingRestarted()) {
             $this->coLearningRestart = true;
@@ -321,8 +331,6 @@ class CoLearning extends TCComponent implements CollapsableHeader
         $this->activeAnswerText = null;
 
         $this->activeAnswerAnsweredStatus = null;
-
-        $this->activeDrawingAnswerDimensions = null;
     }
 
     /* end sidebar methods */
@@ -752,6 +760,15 @@ class CoLearning extends TCComponent implements CollapsableHeader
         return $this->startCoLearningSession($args['discussionType']);
     }
 
+    private function getExpandedQuestionList()
+    {
+        if(!isset($this->questionsSetUpOrderList)) {
+            $this->questionsSetUpOrderList = collect($this->testTake->test->getQuestionOrderListExpanded());
+        }
+
+        return $this->questionsSetUpOrderList;
+    }
+
     private function getQuestionList()
     {
         return collect($this->testTake->test->getQuestionOrderListWithDiscussionType());
@@ -798,4 +815,5 @@ class CoLearning extends TCComponent implements CollapsableHeader
         }
         return $this->discussingQuestion->converted_question_html;
     }
+
 }
