@@ -242,10 +242,9 @@ Core = {
     /**
      * Waits an interval time before logging user out
      * @param {boolean} firstLoad
-     * @param {int} actionLogoOut
      * @param {int} secondsBeforeTeacherLogout - default 15 min
      */
-    startUserLogoutInterval(firstLoad = false, actionLogoOut = 1 ,secondsBeforeTeacherLogout = 15 * 60  ) {
+    startUserLogoutInterval(firstLoad = false, secondsBeforeTeacherLogout = 15 * 60  ) {
         let inactive = 0;
         document.addEventListener('mouseover', () => inactive = 0);
         document.addEventListener('keydown', () => inactive = 0);
@@ -260,16 +259,10 @@ Core = {
             }, 1000);
         }
 
-        if (firstLoad) {
-            window.onload = () => {
-                if (actionLogoOut) {
-                    startInterval();
-                }
-            };
-        } else {
-            if (actionLogoOut) {
-                startInterval();
-            }
+        if(firstLoad){
+            window.onload = () => startInterval();
+        }else{
+            startInterval();
         }
     }
 }
