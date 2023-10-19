@@ -44,7 +44,7 @@ class PublishTestModal extends TCModalComponent
     private function handleErrorsInTest()
     {
         $test = Test::findByUuid($this->testUuid);
-        if(!Gate::allows('canViewTestDetails',[$this->test])){
+        if(!Gate::allows('canViewTestDetails',[$test])){
             $this->forceClose()->closeModal();
             return;
         }
