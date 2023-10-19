@@ -391,11 +391,11 @@
                         <span class="bold">@lang('cms.Halve puntenbeoordeling mogelijk')</span>
                     </div>
 
-                    <div class="col-span-2 w-full">
+                    <div class="lg:col-span-2 w-full">
                         <div class="flex flex-col w-full gap-4">
                             <h2 class="flex">@lang('account.Schrijf op')</h2>
                         </div>
-                        <div class="content-section relative p-10 grid grid-cols-1 lg:grid-cols-2 gap-x-6 w-full">
+                        <div class="content-section relative  sm:p-10  grid grid-cols-1 lg:grid-cols-2 gap-x-6 w-full">
                             @if(settings()->canUseCmsWscWriteDownToggle())
                             <div class="border-b lg:border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5 self-end">
                                 <x-input.toggle wire:model="featureSettings.spell_check_available_default" class="mr-2" />
