@@ -69,7 +69,7 @@
 <script>
     Alpine.start();
     Core.init();
-    @if (!is_null(Auth::user()) && Auth::user()->isA('teacher') && Auth::user()->sessionActionLogOut)
+    @if (!is_null(Auth::user()) && Auth::user()->isA('teacher') && Auth::user()->getUseAutoLogOutAttribute())
         Core.startUserLogoutInterval(true, @js(Auth::user()->sessionLength) )
     @endif
     window.processingRequest = false;
