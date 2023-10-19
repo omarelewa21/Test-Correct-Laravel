@@ -2,6 +2,9 @@
 
 namespace tcCore\Http\Livewire\Teacher\Cms\Providers;
 
+use tcCore\UserFeatureSetting;
+use Illuminate\Support\Facades\Auth;
+
 class Open extends TypeProvider
 {
     protected $questionOptions = [
@@ -14,6 +17,7 @@ class Open extends TypeProvider
 
     public function getTemplate(): string
     {
+        $this->SetExistingDefaultValue();
         return 'open-question';
     }
 
@@ -35,5 +39,18 @@ class Open extends TypeProvider
         if ($name == 'question.answer' && clean($this->instance->question['answer']) == clean($value)) {
             $this->instance->registerDirty = false;
         }
+    }
+
+    public function SetExistingDefaultValue()
+    {
+        $featureSettings = UserFeatureSetting::getAll(Auth::user());
+            foreach ($this->questionOptions as $key => $value) {    
+                if ($key == 'max_words')
+                    $this->instance->question['max_words'] = $featureSettings['max_words_default'] ?? null;
+                elseif($key == 'spell_check_available' && !settings()->canUseCmsWscWriteDownToggle())
+                    $this->instance->question['spell_check_available'] = false;
+                elseif(isset($featureSettings[$key. '_default']))
+                    $this->instance->question[$key] = $featureSettings[$key . '_default'] ? true : false;
+            }
     }
 }
