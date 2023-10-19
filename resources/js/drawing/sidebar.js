@@ -31,7 +31,6 @@ export class Entry extends sidebarComponent {
 
         this.btns = {
             delete: templateCopy.querySelector(".remove-btn"),
-            edit: templateCopy.querySelector(".edit-btn"),
             lock: templateCopy.querySelector(".lock-btn"),
             hide: templateCopy.querySelector(".hide-btn"),
             drag: templateCopy.querySelector(".drag-btn"),
@@ -112,16 +111,6 @@ export class Entry extends sidebarComponent {
                         },
                     },
                 },
-            },
-            {
-                element: this.btns.edit,
-                events: {
-                    "click": {
-                        callback: (evt) => {
-                            this.handleEditShape(evt);
-                        }
-                    }
-                }
             },
             {
                 element: this.btns.lock,
