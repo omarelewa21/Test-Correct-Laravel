@@ -11197,6 +11197,14 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("coLearningSetup", function () {
+    return {
+      init: function init() {},
+      toggleQuestionChecked: function toggleQuestionChecked(questionUuid) {
+        this.$wire.toggleQuestionChecked(questionUuid);
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref9) {
     var expression = _ref9.expression;
     var f = new Function("_", "$data", "_." + expression + " = $data;return;");

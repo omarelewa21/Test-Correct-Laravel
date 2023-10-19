@@ -760,15 +760,6 @@ class CoLearning extends TCComponent implements CollapsableHeader
         return $this->startCoLearningSession($args['discussionType']);
     }
 
-    private function getExpandedQuestionList()
-    {
-        if(!isset($this->questionsSetUpOrderList)) {
-            $this->questionsSetUpOrderList = collect($this->testTake->test->getQuestionOrderListExpanded());
-        }
-
-        return $this->questionsSetUpOrderList;
-    }
-
     private function getQuestionList()
     {
         return collect($this->testTake->test->getQuestionOrderListWithDiscussionType());

@@ -447,6 +447,16 @@ class TestTake extends BaseModel
         return $this->hasMany(AnswerRating::class, 'test_take_id');
     }
 
+    /**
+     * This relation is NOT ment to be used to get the test_questions,
+     * but to get the questions of the test_take that are being discussed.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function testTakeQuestions()
+    {
+        return $this->hasMany('tcCore\TestTakeQuestion', 'test_take_id');
+    }
+
     public function isAllowedToView(User $userToCheck)
     {
         return ($this->hasParticipantsThatUserTeaches($userToCheck) && $userToCheck->hasAccessToTest($this->test))

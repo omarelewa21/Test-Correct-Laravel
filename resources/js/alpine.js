@@ -4266,6 +4266,16 @@ document.addEventListener("alpine:init", () => {
             this.loadingData = [];
         }
     }));
+    Alpine.data("coLearningSetup", () => ({
+
+        init() {
+
+        },
+        toggleQuestionChecked(questionUuid) {
+            this.$wire.toggleQuestionChecked(questionUuid);
+        }
+
+    }));
 
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");

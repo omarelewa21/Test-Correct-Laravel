@@ -125,7 +125,7 @@
 @section('set-up-colearning')
     <div class="set-up-colearning">
         <div class="set-up-subtitle">
-            @if($this->step === 1)
+            @if($this->setupStep === 1)
                 <h3 class="text-center text-white">
                     @lang('co-learning.set-up-colearning-session')
                 </h3>
@@ -156,9 +156,9 @@
         </div>
 
 
-        <div class="set-up-colearning-panel">
+        <div class="set-up-colearning-panel" x-data="coLearningSetup()">
             <div>
-                @if($this->step === 1)
+                @if($this->setupStep === 1)
                     <div class="step-one-illustration">
                         <x-backgrounds.triangles-colored class="w-full"></x-backgrounds.triangles-colored>
                         <x-illustrations.better-learning-no-triangle-bg></x-illustrations.better-learning-no-triangle-bg>
@@ -256,8 +256,78 @@
 
                     <div class="step-two">
                         {{--start step two--}}
+                        <div @class([
+                                "co-learning-setup-grid px-10 !absolute w-full bg-white z-10",
+                                "with-group-questions" => $this->testHasGroupQuestions,
+                            ])>
+                            {{-- checkbox --}}
+                            <div class="grid-title w-6">&nbsp;</div>
+                            {{-- # nr --}}
+                            <div class="grid-title space-x-1">
+                                <x-button.text wire:click.stop="changeSetupQuestionsSorting('test_index')"
+                                               size="sm"
+                                        @class([
+                                            'group/button',
+                                            'rotate-svg-270' => $this->getDirectionOfSortField('test_index') === 'desc',
+                                            'rotate-svg-90' => $this->getDirectionOfSortField('test_index') !== 'desc',
+                                            'active' => !is_null($this->getDirectionOfSortField('test_index'))
+                                        ])
+                                >
+                                    <span>#</span>
+                                    <x-icon.chevron-small opacity="1"
+                                                          class="transform transition-all ease-in-out duration-100 group-hover/button:opacity-100 "
+                                    />
+                                </x-button.text>
+                            </div>
+                            {{-- Vraagtype --}}
+                            <div class="grid-title space-x-1">
+                                <x-button.text
+                                        wire:click.stop="changeSetupQuestionsSorting('question_type_name')"
+                                        size="sm"
+                                        @class([
+                                            'group/button',
+                                            'rotate-svg-270' => $this->getDirectionOfSortField('question_type_name') === 'desc',
+                                            'rotate-svg-90' => $this->getDirectionOfSortField('question_type_name') !== 'desc',
+                                            'active' => !is_null($this->getDirectionOfSortField('question_type_name'))
+                                        ])
+                                >
+                                    <span>@lang('test-take.Vraagtype')</span>
+                                    <x-icon.chevron-small opacity="1"
+                                                          class="transform transition-all ease-in-out duration-100 group-hover/button:opacity-100 "
+                                    />
+                                </x-button.text>
+                            </div>
+                            @if($this->testHasGroupQuestions)
+                                {{-- (optional) Group --}}
+                                <div class="grid-title justify-center w-[55px]">@lang('question.groupquestion')</div>
+                            @endif
+                            {{-- Voorbeeld --}}
+                            <div class="grid-title">@lang('cms.voorbeeld')</div>
+                            {{-- P waarde --}}
+                            <div class="grid-title text-right justify-self-end whitespace-nowrap overflow-visible space-x-1"
+                                 style="direction: rtl"
+                            >
+                                <x-button.text
+                                        class="group/button {{ $this->getDirectionOfSortField('p_value') === 'desc' ? 'rotate-svg-270' : 'rotate-svg-90'  }}"
+                                        wire:click.stop="changeSetupQuestionsSorting('p_value')"
+                                        size="sm"
+                                        @class([
+                                            'group/button',
+                                            'rotate-svg-270' => $this->getDirectionOfSortField('p_value') === 'desc',
+                                            'rotate-svg-90' => $this->getDirectionOfSortField('p_value') !== 'desc',
+                                            'active' => !is_null($this->getDirectionOfSortField('p_value'))
+                                        ])
+                                >
+                                    <x-icon.chevron-small opacity="1"
+                                                          class="transform transition-all ml-1 ease-in-out duration-100 group-hover/button:opacity-100 "
+                                    />
+                                    <span>@lang('cms.p-waarde')</span>
+                                </x-button.text>
+                            </div>
 
-                        <div class="flex flex-col w-full relative"
+                            <div class="col-span-6 h-[2px] bg-sysbase"></div>
+                        </div>
+                        <div class="flex flex-col w-full relative mt-[45px]"
                              x-data="{rowHover: null, shadow: null}"
                              x-init="
                                      shadow = $refs.shadowBox
@@ -266,6 +336,7 @@
                                             shadow.style.top = $root.querySelector(`[data-row='${value}'] .grid-item`)?.offsetTop + 'px'
                                         }
                                      })"
+                             wire:key="step2-{{ $this->setupCoLearningSortField .'-'. $this->setupCoLearningSortDirection }}"
                              wire:ignore.self
                         >
                             <div x-ref="shadowBox"
@@ -276,38 +347,11 @@
                                 <span></span>
                             </div>
 
+
                             <div @class([
                                 "co-learning-setup-grid mx-10",
                                 "with-group-questions" => $this->testHasGroupQuestions,
-                            ])                            >
-                                {{-- checkbox --}}
-                                <div class="grid-title w-6">&nbsp;</div>
-                                {{-- # nr --}}
-                                <div class="grid-title space-x-1">
-                                    <span>#</span>
-                                    <x-icon.chevron-small class="rotate-90" opacity="1"/>
-                                </div>
-                                {{-- Vraagtype --}}
-                                <div class="grid-title space-x-1">
-                                    <span>@lang('test-take.Vraagtype')</span>
-                                    <x-icon.chevron-small class="rotate-90" opacity="1"/>
-                                </div>
-                                @if($this->testHasGroupQuestions)
-                                    {{-- (optional) Group --}}
-                                    <div class="grid-title justify-center w-[55px]">@lang('question.groupquestion')</div>
-                                @endif
-                                {{-- Voorbeeld --}}
-                                <div class="grid-title">@lang('cms.voorbeeld')</div>
-                                {{-- P waarde --}}
-                                <div class="grid-title text-right justify-self-end whitespace-nowrap overflow-visible space-x-1"
-                                     style="direction: rtl"
-                                >
-                                    <x-icon.chevron-small class="rotate-90 ml-1" opacity="1"/>
-                                    <span>@lang('cms.p-waarde')</span>
-                                </div>
-
-                                <div class="col-span-6 h-[2px] bg-sysbase"></div>
-
+                            ])>
                                 @foreach($this->getSetupData() as $question)
                                     <div @class([
                                              "grid-row contents group/row cursor-default",
@@ -324,10 +368,18 @@
                                                   "checkbox-disabled" => false
                                               ])
                                         >
-                                            <x-input.checkbox
-                                                    :checked="false"
-                                                    :disabled="false/*$question->isType('infoscreen')*/"
-                                            />
+                                            @unless($question['discussed'])
+                                                @if($question['disabled'])
+                                                    <x-input.checkbox :disabled="true"
+                                                    />
+                                                @else
+                                                    <x-input.checkbox :checked="$question['checked']"
+                                                                      wire:click="toggleQuestionChecked('{{$question['question_uuid']}}', {{ (string)!$question['checked'] }})"
+                                                    />
+                                                @endif
+                                            @else
+                                                <x-icon.checkmark-circle width="24px" color="var(--cta-primary)"/>
+                                            @endif
                                         </div>
                                         {{-- # nr --}}
                                         <div class="grid-item flex items-center pr-4 h-15 rounded-l-10">
@@ -399,21 +451,21 @@
 
         <div @class([
             "set-up-navigation",
-            "justify-end" => $this->step === 1,
-            "justify-between" => $this->step === 2,
+            "justify-end" => $this->setupStep === 1,
+            "justify-between" => $this->setupStep === 2,
         ])>
 
 
-            @if($this->step === 1)
+            @if($this->setupStep === 1)
                 <x-button.text white="true"
-                               wire:click="nextStep()"
+                               wire:click="nextSetupStep()"
                 >
                     <span>@lang('auth.next_step')</span>
                     <x-icon.arrow/>
                 </x-button.text>
             @else
                 <x-button.text white="true"
-                               wire:click="previousStep()"
+                               wire:click="previousSetupStep()"
                                rotateIcon="180"
                 >
                     <x-icon.arrow/>
@@ -433,10 +485,10 @@
             @endif
 
 
-            <div @class(["navigation-dots", "flex-row-reverse" => $this->step === 2])> {{-- step 2: flex-row-reverse --}}
+            <div @class(["navigation-dots", "flex-row-reverse" => $this->setupStep === 2])> {{-- step 2: flex-row-reverse --}}
                 <div class="navigation-dot-full"></div>
                 <div class="navigation-dot-open"
-                     wire:click="{{$this->step === 1 ? 'nextStep' : 'previousStep' }}"
+                     wire:click="{{$this->setupStep === 1 ? 'nextSetupStep' : 'previousSetupStep' }}"
                 ></div>
             </div>
         </div>
