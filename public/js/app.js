@@ -15674,6 +15674,7 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
     value: function select() {
       this.entryContainer.classList.add('selected');
       this.svgShape.shapeGroup.element.classList.add('selected');
+      this.startEditingShape();
     }
   }, {
     key: "unselect",
@@ -17825,7 +17826,7 @@ var Rectangle = /*#__PURE__*/function (_svgShape) {
     key: "setOpacityInputValueOnEdit",
     value: function setOpacityInputValueOnEdit() {
       var input = this.UI.fillOpacityNumberRect;
-      input.value = this.mainElement.getAttribute("fill-opacity") * 100;
+      input.value = Math.round(this.mainElement.getAttribute("fill-opacity") * 100);
       input.dispatchEvent(new Event('input'));
     }
   }, {
@@ -17925,7 +17926,7 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
     key: "setOpacityInputValueOnEdit",
     value: function setOpacityInputValueOnEdit() {
       var input = this.UI.fillOpacityNumberCircle;
-      input.value = this.mainElement.getAttribute("fill-opacity") * 100;
+      input.value = Math.round(this.mainElement.getAttribute("fill-opacity") * 100);
       input.dispatchEvent(new Event('input'));
     }
   }, {
@@ -18328,7 +18329,7 @@ var Text = /*#__PURE__*/function (_svgShape4) {
     key: "setOpacityInputValueOnEdit",
     value: function setOpacityInputValueOnEdit() {
       var input = this.UI.elemOpacityNumber;
-      input.value = this.mainElement.getAttribute("opacity") * 100;
+      input.value = Math.round(this.mainElement.getAttribute("opacity") * 100);
       input.dispatchEvent(new Event('input'));
     }
   }], [{

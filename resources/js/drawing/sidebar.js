@@ -251,6 +251,7 @@ export class Entry extends sidebarComponent {
     select() {
         this.entryContainer.classList.add('selected');
         this.svgShape.shapeGroup.element.classList.add('selected');
+        this.startEditingShape();
     }
     unselect(element) {
         element = element ?? this.getSelectedElement();
