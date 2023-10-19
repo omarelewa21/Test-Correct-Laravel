@@ -14280,11 +14280,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     var layerID = shapeGroup.parentElement.id;
     var layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
     if (!layerObject.props.id.includes(layerObject.Canvas.params.currentLayer)) return;
-    var selectedShape = rootElement.querySelector('.selected');
-    var selectedSvgShape = evt.target.closest("g.shape");
-    if (selectedShape) removeSelectState(selectedShape);
-    if (selectedShape === selectedSvgShape) return;
-    addSelectState(selectedSvgShape);
+    layerObject.shapes[shapeGroup.id].sidebar.toggleShapeSelect();
   }
   function removeSelectState(element) {
     element.classList.remove('selected');
@@ -15506,8 +15502,8 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
             }
           },
           "click": {
-            callback: function callback(evt) {
-              _this2.handleClick(evt);
+            callback: function callback() {
+              _this2.toggleShapeSelect();
             }
           }
         }
@@ -15657,8 +15653,8 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       this.entryContainer.classList.remove("highlight");
     }
   }, {
-    key: "handleClick",
-    value: function handleClick(evt) {
+    key: "toggleShapeSelect",
+    value: function toggleShapeSelect() {
       var selectedEl = this.getSelectedElement();
       if (selectedEl) this.unselect(selectedEl);
       if (selectedEl === this.entryContainer) return;
@@ -15686,12 +15682,6 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       element.closest('#canvas-sidebar-container').querySelector("#".concat(shapeId)).classList.remove('selected');
       this.removeAnyEditingShapes();
       document.activeElement.blur();
-    }
-  }, {
-    key: "toggleSelect",
-    value: function toggleSelect() {
-      this.entryContainer.classList.toggle('selected');
-      this.svgShape.shapeGroup.element.classList.toggle('selected');
     }
   }, {
     key: "updateLockState",

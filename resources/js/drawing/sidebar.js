@@ -81,8 +81,8 @@ export class Entry extends sidebarComponent {
                         },
                     },
                     "click": {
-                        callback: (evt) => {
-                            this.handleClick(evt);
+                        callback: () => {
+                            this.toggleShapeSelect();
                         },
                     },
                 },
@@ -237,7 +237,7 @@ export class Entry extends sidebarComponent {
         this.entryContainer.classList.remove("highlight");
     }
 
-    handleClick(evt) {
+    toggleShapeSelect() {
         const selectedEl = this.getSelectedElement();
         if (selectedEl) this.unselect(selectedEl);
         if (selectedEl === this.entryContainer) return;
@@ -260,10 +260,6 @@ export class Entry extends sidebarComponent {
         element.closest('#canvas-sidebar-container').querySelector(`#${shapeId}`).classList.remove('selected');
         this.removeAnyEditingShapes();
         document.activeElement.blur();
-    }
-    toggleSelect() {
-        this.entryContainer.classList.toggle('selected');
-        this.svgShape.shapeGroup.element.classList.toggle('selected');
     }
 
     updateLockState() {
