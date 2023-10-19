@@ -16,12 +16,6 @@ class Open extends TypeProvider
         'max_words'             => null,
     ];
 
-    public function __construct(QuestionCms $instance)
-    {
-        parent::__construct($instance);
-        $this->preparePropertyBag();
-    }
-
     public function getTemplate(): string
     {
         return 'open-question';
@@ -57,7 +51,7 @@ class Open extends TypeProvider
             elseif ($key == 'spell_check_available' && !settings()->canUseCmsWscWriteDownToggle())
                 $this->instance->question['spell_check_available'] = false;
             elseif (isset($featureSettings[$key . '_default']))
-                $this->instance->question[$key] = $featureSettings[$key . '_default'] ? true : false;
+                $this->instance->question[$key] = (bool) $featureSettings[$key . '_default'];
             else
                 $this->instance->question[$key] = $value;
         }
