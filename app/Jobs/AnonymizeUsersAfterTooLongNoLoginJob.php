@@ -9,6 +9,8 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use tcCore\FeatureSetting;
+use tcCore\Message;
+use tcCore\MessageReceiver;
 use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\SearchFilter;
@@ -70,7 +72,10 @@ class AnonymizeUsersAfterTooLongNoLoginJob extends Job implements ShouldQueue
                 function ($join) {
                     $join->on('users.id', '=', 'login_logs_alias.user_id');
                 })
-                ->where('username', 'not like', '%test-correct.nl')
+                ->where(function($q){
+                    $q->where('username', 'not like', '%test-correct.nl')
+                    ->orWhere('guest',1); // also delete guest users after two years
+                })
                 ->where('username', 'not like', '%testcorrect.nl')
                 ->where(function ($q) use ($day) {
                     $q->where(function ($query) use ($day) {
@@ -111,7 +116,13 @@ class AnonymizeUsersAfterTooLongNoLoginJob extends Job implements ShouldQueue
 
                 // delete user feature setting
                 UserFeatureSetting::whereIn('user_id',$this->anonymisedUserIds)->forceDelete();
+
+                // delete all the messages for these users
+                Message::whereIn('user_id',$this->anonymisedUserIds)->forceDelete();
+                MessageReceiver::whereIn('user_id',$this->anonymisedUserIds)->forceDelete();
             }
+
+
             DB::commit();
         } catch (\Throwable $e){
             DB::rollback();
