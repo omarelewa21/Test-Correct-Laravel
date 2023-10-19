@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher\Cms\Providers;
 
 use tcCore\UserFeatureSetting;
 use Illuminate\Support\Facades\Auth;
+use tcCore\Http\Interfaces\QuestionCms;
 
 class Open extends TypeProvider
 {
@@ -15,9 +16,14 @@ class Open extends TypeProvider
         'max_words'             => null,
     ];
 
+    public function __construct(QuestionCms $instance)
+    {
+        parent::__construct($instance);
+        $this->SetExistingDefaultValue();
+    }
+    
     public function getTemplate(): string
     {
-        $this->SetExistingDefaultValue();
         return 'open-question';
     }
 
