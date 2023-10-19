@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher\TestTake;
 
+use Illuminate\Support\Facades\Gate;
 use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\RttiExportLog;
 use tcCore\Services\RttiExportService;
@@ -13,6 +14,10 @@ class RttiExportResponseModal extends TCModalComponent
 
     public function mount(\tcCore\TestTake $testTake)
     {
+        if(!Gate::allows('isAllowedToViewTestTake',[$testTake])){
+            $this->forceClose()->closeModal();
+            return;
+        }
         $this->testTake = $testTake;
     }
 

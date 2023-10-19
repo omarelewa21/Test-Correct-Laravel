@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Test;
@@ -36,6 +37,11 @@ class PdfDownloadModal extends TCModalComponent
             //$this->testTake->test_take_status_id >= 8; //only show if testTake discussed or Rated? or just if it has answers?
         } else {
             $this->test = Test::findByUuid($uuid);
+        }
+
+        if(!Gate::allows('canViewTestDetails',[$this->test])){
+            $this->forceClose()->closeModal();
+            return;
         }
 
         $this->testHasPdfAttachments = $this->test->hasPdfAttachments;

@@ -6,6 +6,7 @@ use Illuminate\Routing\Redirector;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
 use tcCore\AnswerRating;
@@ -144,6 +145,8 @@ class CoLearning extends TCComponent implements CollapsableHeader
         $this->testTakeUuid = $test_take->uuid;
 
         $this->setTestTake();
+
+        Gate::authorize('isAllowedToViewTestTake',[$this->testTake]);
 
         $this->redirectIfNotAllowed();
 
@@ -701,8 +704,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
 
     private function redirectIfNotAllowed(): Redirector|null
     {
-        if (!$this->testTake->isAllowedToView(auth()->user())
-            || !in_array(
+        if (!in_array(
                 $this->testTake->test_take_status_id,
                 [
                     TestTakeStatus::STATUS_TAKEN,
