@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use tcCore\Http\Controllers\FileManagementUsersController;
 use tcCore\Http\Helpers\CakeRedirectHelper;
@@ -27,6 +28,11 @@ class TestTakeWarningModal extends TCModalComponent
 
     public function mount(TestTake $testTake, $warnings)
     {
+        if(!Gate::allows('isAllowedToViewTestTake',[$testTake])){
+            $this->forceClose()->closeModal();
+            return;
+        }
+
         $this->testTake = $testTake;
         $this->displayWarnings = collect();
         $this->setWarningData($warnings);

@@ -44,6 +44,10 @@ class TestTakeEditModal extends TCModalComponent
 
     public function mount(TestTake $testTake)
     {
+        if(!$testTake->isAllowedToView(auth()->user())) {
+            $this->closeModal();
+        }
+
         $this->testTake = $testTake;
         $this->test = $testTake->test;
         $this->testName = $testTake->test->name;

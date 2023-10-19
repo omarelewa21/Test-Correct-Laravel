@@ -14,6 +14,7 @@ use tcCore\Http\Middleware\DuplicateLogin;
 use tcCore\Http\Middleware\DuplicateLoginLivewire;
 use tcCore\Http\Middleware\TestTakeForceTakenAwayCheck;
 use tcCore\Test;
+use tcCore\TestTake;
 use tcCore\User;
 
 class AppServiceProvider extends ServiceProvider
@@ -69,6 +70,8 @@ class AppServiceProvider extends ServiceProvider
 
     private function bootGates()
     {
+        Gate::define('isAllowedToViewTestTake',fn(User $user, TestTake $testTake) => $testTake->isAllowedToView($user));
+
         Gate::define('isAuthorOfTest', fn(User $user, Test $test) => $test->canEdit($user));
         Gate::define('canViewTestDetails', fn(User $user, Test $test) => $test->canViewTestDetails($user));
 
