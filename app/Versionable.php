@@ -17,6 +17,7 @@ abstract class Versionable extends BaseModel
     use UuidTrait;
 
     protected ?User $editingAuthor = null;
+    protected ?Versionable $updatedVersion = null;
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
@@ -141,16 +142,16 @@ abstract class Versionable extends BaseModel
 
     public function needsDuplication(): bool
     {
-        return $this->user->isNot($this->getEditingAuthor());
+        if ($this->user->isNot($this->getEditingAuthor())) {
+            return true;
+        }
+
+        return $this->isUsed();
     }
 
-    protected static function resolveVersionableInstance(Versionable $versionable): mixed
+    protected static function resolveVersionableInstance(Versionable $versionable)
     {
-        $instance = $versionable;
-        if ($versionable->needsDuplication()) {
-            $instance = $versionable->handleDuplication();
-        }
-        return $instance;
+        return $versionable->needsDuplication() ? $versionable->handleDuplication() : $versionable;
     }
 
     public function isOriginal(): bool
@@ -159,5 +160,24 @@ abstract class Versionable extends BaseModel
             ->where('original_id', $this->getKey())
             ->where('versionable_type', $this::class)
             ->exists();
+    }
+
+    public function setUpdatedVersion(?Versionable $updatedVersion): void
+    {
+        $this->updatedVersion = $updatedVersion;
+    }
+
+    public function edit(array $properties)
+    {
+        $this->fill($properties);
+        $this->save();
+
+        if ($this->updatedVersion) {
+            $update = $this->updatedVersion;
+            $this->updatedVersion = null;
+            return $update;
+        }
+
+        return $this;
     }
 }

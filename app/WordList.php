@@ -2,6 +2,7 @@
 
 namespace tcCore;
 
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\UnauthorizedException;
 use InvalidArgumentException;
@@ -28,9 +29,19 @@ class WordList extends Versionable
     {
         return $this->belongsToMany(Word::class, 'word_list_word')
             ->whereNull('words.word_id')
-            ->with('types')
+            ->with('associations')
             ->withPivot('version')
             ->withTimestamps();
+    }
+
+    public function questions(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            RelationQuestion::class,
+            RelationQuestionWord::class,
+            'word_list_id',
+            'relation_question_id',
+        )->distinct();
     }
 
     /* Word CRUD actions */
@@ -38,7 +49,8 @@ class WordList extends Versionable
      * Creates a new Word instance and adds it to the list
      * @param string $text
      * @param WordType $type
-     * @return void
+     * @param Word|null $subjectWord
+     * @return Word
      */
     public function createWord(string $text, WordType $type, ?Word $subjectWord = null): Word
     {
@@ -58,7 +70,7 @@ class WordList extends Versionable
     /**
      * Add existing Word to the WordList
      * @param Word $word
-     * @return void
+     * @return Word
      */
     public function addWord(Word $word): Word
     {
@@ -86,17 +98,14 @@ class WordList extends Versionable
             return null;
         }
 
-        $wordModel->edit($attributes);
-        return $wordModel;
+        return $wordModel->edit($attributes);
     }
 
     public function removeWord(Word $word): void
     {
-        if ($this->user->isNot($this->getEditingAuthor())) {
-            throw new UnauthorizedException('Cannot delete words from other peoples list!');
-        }
+        $list = static::resolveVersionableInstance($this);
 
-        $this->words()->detach($word);
+        $list->words()->detach($word);
 
         if ($word->isUnused()) {
             $word->delete();
@@ -121,12 +130,13 @@ class WordList extends Versionable
         $subjectWord = $this->createWord(...$subjectProposal);
         $words->each(fn($word) => $this->createWord($word['text'], $word['type'], $subjectWord));
 
-        return $subjectWord->load('associates');
+        return $subjectWord->load('associations');
     }
 
     public function syncRelationsFrom(Versionable $original)
     {
         $this->words()->sync($original->words->pluck('id'));
+
         return $this;
     }
 
@@ -153,13 +163,6 @@ class WordList extends Versionable
         return $wordList;
     }
 
-    public function edit(array $attributes): static
-    {
-        $this->fill($attributes);
-        $this->save();
-        return $this;
-    }
-
     public function remove(): void
     {
         $this->delete();
@@ -167,12 +170,16 @@ class WordList extends Versionable
 
     public function handleDuplication(): WordList
     {
-        return $this->replicateWithVersion($this->getEditingAuthor())->syncRelationsFrom($this);
+        $newList = $this->replicateWithVersion($this->getEditingAuthor())
+            ->syncRelationsFrom($this);
+        $this->setUpdatedVersion($newList);
+
+        return $newList;
     }
 
     public function isUsed(): bool
     {
-        return $this->words()->exists();
+        return $this->questions()->exists(); //$this->words()->exists();
     }
 
     public function isUnused(): bool
@@ -192,19 +199,85 @@ class WordList extends Versionable
     private function validateRowProposal(Collection $words): void
     {
         if ($words->duplicates('type')->isNotEmpty()) {
-            throw new InvalidArgumentException('Cannot create a row 2 words of the same type.');
+            throw new InvalidArgumentException('Cannot create a row with 2 words of the same type.');
         }
     }
 
-    public function addRow(Word $subjectWord)
+    public function addRow(Word $subjectWord): Word
     {
-        if ($subjectWord->type !== WordType::SUBJECT) {
+        if (!$subjectWord->isSubjectWord()) {
+            /* TODO: Should I figure out the subject word from this one, and add that instead? */
             throw new InvalidArgumentException('To add an existing row, insert the subject word.');
         }
 
-        $this->addWord($subjectWord);
-        $subjectWord->associates->each(fn($word) => $this->addWord($word));
+        $list = static::resolveVersionableInstance($this);
+
+        $subjectWord = $list->addWord($subjectWord);
+        $subjectWord->associations->each(function ($word) use ($list) {
+            if ($list->words->contains($word)) {
+                return true;
+            }
+            return $list->addWord($word);
+        });
 
         return $subjectWord;
+    }
+
+    public function hasNewVersion(): bool
+    {
+        return $this->versions()
+            ->get()
+            ->where('versionable_id', '>', $this->getKey())
+            ->isNotEmpty();
+    }
+
+    public function getDiff(): Collection
+    {
+        $this->loadMissing('words');
+        $updatedList = $this->getUpdatedListToDiffAgainst();
+
+        $diff = collect([
+            'updated' => collect(),
+            'created' => collect(),
+            'deleted' => collect(),
+        ]);
+
+//        $commonWords = $this->words->intersect($updatedList->words);
+        $updatedList->words
+            ->diff($this->words)
+            ->each(function ($word) use ($diff) {
+                $isNewWord = $this->words->where('id', $word->original_id)->isEmpty();
+                $category = $isNewWord ? 'created' : 'updated';
+                $diff->get($category)->push($word);
+            });
+
+        $diff['deleted'] = $this->words
+            ->diff($updatedList->words)
+            ->whereNotIn(
+                'id',
+                $diff->get('updated')->pluck('original_id')
+            );
+
+        return $diff;
+    }
+
+    private function getUpdatedListToDiffAgainst(): WordList
+    {
+        $updatedList = WordList::select('word_lists.*')
+            ->join('versions', 'versions.versionable_id', '=', 'word_lists.id')
+            ->where('versions.original_id', $this->getKey())
+            ->whereRaw('versions.original_id != versions.versionable_id')
+            ->with(['words', 'words.versions', 'rows'])
+            ->first();
+
+        $updatedList
+            ->words
+            ->each(function ($word) {
+                $word->original_id = $word->versions()
+                    ->where('original_id', '!=', $word->getKey())
+                    ->first()
+                    ->original_id;
+            });
+        return $updatedList;
     }
 }

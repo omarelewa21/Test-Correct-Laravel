@@ -183,20 +183,7 @@ class MatchingQuestion extends Question implements QuestionInterface
      */
     public function addAnswers($mainQuestion, $answers)
     {
-
         $question = $this;
-//        if ($this->isUsed($mainQuestion)) {
-//            $question = $this->duplicate([]);
-//            if ($question === false) {
-//                throw new QuestionException('Failed to duplicate question',422);
-//            }
-//            $mainQuestion->setAttribute('question_id', $question->getKey());
-//
-//            if (!$mainQuestion->save()) {
-//                throw new QuestionException('Failed to update test question',422);
-//            }
-//        }
-
         if (!QuestionAuthor::addAuthorToQuestion($question)) {
             throw new QuestionException('Failed to attach author to question', 422);
         }
@@ -235,23 +222,6 @@ class MatchingQuestion extends Question implements QuestionInterface
                         $this->addAnswer($detail, $question);
                     }
                 }
-//                $detail = collect($detail);
-//
-//                $matchingQuestionAnswer = new MatchingQuestionAnswer();
-//
-//                $matchingQuestionAnswer->fill($detail->only($matchingQuestionAnswer->getFillable())->toArray());
-//                if (!$matchingQuestionAnswer->save()) {
-//                    throw new QuestionException('Failed to create matching question answer', 500);
-//                }
-//                $matchingQuestionAnswerLink = new MatchingQuestionAnswerLink();
-//                $matchingQuestionAnswerLink->fill($detail->only($matchingQuestionAnswerLink->getFillable())->toArray());
-//                $matchingQuestionAnswerLink->setAttribute('matching_question_id', $question->getKey());
-//                $matchingQuestionAnswerLink->setAttribute('matching_question_answer_id', $matchingQuestionAnswer->getKey());
-//
-//                if(!$matchingQuestionAnswerLink->save()) {
-//                    throw new QuestionException('Failed to create matching question answer link',422);
-//                }
-//                $lastId = $matchingQuestionAnswer->getKey();
             }
         }
         return true;

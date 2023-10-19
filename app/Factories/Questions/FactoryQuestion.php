@@ -28,9 +28,9 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
     protected Collection $uploads;
     protected array $audioUploadOptions = [];
 
-    public static function create()
+    public static function create(): static
     {
-        $factory = new static;
+        $factory = new static();
 
         $factory->questionProperties = $factory->definition();
         $factory->videos = collect();
@@ -39,7 +39,7 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
         return $factory;
     }
 
-    public function setProperties(array $properties)
+    public function setProperties(array $properties): static
     {
         if (!$properties) {
             throw new \Exception("Adding open a properties array is required,\n without 'setProperties' the Question Factory uses default values");
@@ -50,7 +50,7 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
         return $this;
     }
 
-    public function addRandomAttainmentsBySubject()
+    public function addRandomAttainmentsBySubject(): static
     {
         if ($this->questionProperties['attainments'] == []) {
             $attainments = [];
@@ -84,7 +84,7 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
         return $this;
     }
 
-    public function addRandomTaxonomy($rtti = true, $miller = true, $bloom = true)
+    public function addRandomTaxonomy($rtti = true, $miller = true, $bloom = true): static
     {
         $taxonomy = [];
         if ($this->questionProperties['rtti'] == "" && $rtti) {
@@ -102,8 +102,10 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
         return $this;
     }
 
-    public function store()
+    public function store(): void
     {
+        $this->prepareForStore($this->testModel->author);
+
         $this->addRandomAttainmentsBySubject();
         $this->addRandomTaxonomy();
 
@@ -190,8 +192,8 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
             $this->doWhileLoggedIn(function () {
                 $this->videos->each(function ($video) {
                     $request = new  CreateAttachmentRequest([
-                        "type" => "video",
-                        "link" => $video['link'],
+                        "type"  => "video",
+                        "link"  => $video['link'],
                         'title' => 'Rickyboiii'
                     ]);
                     (new AttachmentsController)
@@ -290,10 +292,12 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
 
     public function storeSubQuestions()
     {
-        if (!$this->subQuestions) return;
+        if (!$this->subQuestions) {
+            return;
+        }
 
         $this->doWhileLoggedIn(function () {
-            $this->subQuestions->each(function($subQuestionFactory) {
+            $this->subQuestions->each(function ($subQuestionFactory) {
                 $factoryProperties = $subQuestionFactory->getQuestionProperties();
                 GroupQuestionQuestion::store($this->lastTestQuestion, $factoryProperties);
             });
@@ -307,9 +311,10 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
 
     public function handleAfterStoreActions()
     {
-        if($this->questionProperties['type'] === 'GroupQuestion') {
+        if ($this->questionProperties['type'] === 'GroupQuestion') {
             $this->storeSubQuestions();
         }
     }
 
+    protected function prepareForStore(User $user): void {}
 }

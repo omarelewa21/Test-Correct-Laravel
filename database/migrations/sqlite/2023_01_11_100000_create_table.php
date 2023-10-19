@@ -176,6 +176,8 @@ class CreateTable extends Migration
         $this->createWordLists();
         $this->createWords();
         $this->createWordListWord();
+        $this->createRelationQuestions();
+        $this->createRelationQuestionWord();
 
         (new \Database\Seeders\SqLiteSeeder())->run();
         //        Artisan::call('db:seed', ['--class' => 'SqLiteSeeder',]);
@@ -5619,7 +5621,7 @@ class CreateTable extends Migration
         });
     }
 
-    private function createWordListWord()
+    private function createWordListWord(): void
     {
         Schema::create('word_list_word', function (Blueprint $table) {
             $table->id();
@@ -5641,6 +5643,38 @@ class CreateTable extends Migration
 
             // Index to speed up look-ups
             $table->index(['word_list_id', 'word_id']);
+        });
+    }
+
+    private function createRelationQuestions(): void
+    {
+        Schema::create('relation_questions', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+            $table->softDeletes();
+            $table->efficientUuid('uuid')->index()->unique();
+
+            $table->boolean('shuffle')->default(false);
+            $table->integer('selection_count')->nullable();
+        });
+    }
+
+    private function createRelationQuestionWord(): void
+    {
+        Schema::create('relation_question_word', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->integer('word_id');
+            $table->integer('relation_question_id');
+            $table->integer('word_list_id');
+            $table->boolean('selected')->default(false);
+
+
+            $table->foreign('word_id')->references('id')->on('words');
+            $table->foreign('relation_question_id')->references('id')->on('relation_questions');
+            $table->foreign('word_list_id')->references('id')->on('word_lists');
         });
     }
 }

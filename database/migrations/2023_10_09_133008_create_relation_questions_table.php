@@ -12,6 +12,9 @@ return new class extends Migration {
             $table->timestamps();
             $table->softDeletes();
             $table->efficientUuid('uuid')->index()->unique();
+
+            $table->boolean('shuffle')->default(false);
+            $table->integer('selection_count')->nullable();
         });
 
     }

@@ -48,7 +48,7 @@ class VersionManager
     private static function retrieveCorrectVersionForUser(Versionable $versionable, User $user): Versionable
     {
         if ($versionable->user->is($user)) {
-            return $versionable;
+            return self::latestVersion($versionable);
         }
 
         if ($existingVersion = self::getExistingVersionForUser($versionable, $user)) {
@@ -61,4 +61,19 @@ class VersionManager
 
         return $versionable;
     }
+
+    private static function latestVersion(Versionable $versionable)
+    {
+        return $versionable::whereIn($versionable->getTable() . '.id', function ($query) use ($versionable) {
+            $query->selectRaw('MAX(versionable_id)')
+                ->from('versions')
+                ->where(function ($query) use ($versionable) {
+                    $query->where('original_id', $versionable->getKey())
+                        ->orWhere('versionable_id', $versionable->getKey());
+                })
+                ->where('versionable_type', $versionable::class)
+                ->where('user_id', $versionable->user_id);
+        })->first();
+    }
+
 }

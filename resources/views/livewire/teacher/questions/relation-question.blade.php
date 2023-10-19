@@ -15,16 +15,16 @@
         <div class="relation-question-toggles | ">
             <div class="border-b border-bluegrey flex w-full justify-between items-center h-[50px]">
                 <div class="flex items-center gap-2.5">
-                    <x-input.toggle class="mr-2" wire:model="question.random_per_student" />
+                    <x-input.toggle class="mr-2" wire:model="question.shuffle" />
                     <x-icon.shuffle />
                     <span class="bold">@lang('cms.Carrousel verdeling per student')</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <x-input.text class="text-center w-[3.375rem]"
                                   :only-integer="true"
-                                  wire:model.lazy="question.random_per_student_amount"
-                                  :disabled="!$this->question['random_per_student']"
-                                  :error="$this->getErrorBag()->has('random_per_student_amount')"
+                                  wire:model.lazy="question.selection_count"
+                                  :disabled="!$this->question['shuffle']"
+                                  :error="$this->getErrorBag()->has('selection_count')"
                     />
                     <x-tooltip>@lang('cms.relation_carousel_tooltip')</x-tooltip>
                 </div>

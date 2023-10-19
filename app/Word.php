@@ -27,10 +27,11 @@ class Word extends Versionable
 
     public function wordLists(): BelongsToMany
     {
-        return $this->belongsToMany(WordList::class, 'word_list_word');
+        return $this->belongsToMany(WordList::class, 'word_list_word')
+            ->withPivot('version');
     }
 
-    public function associates(): HasMany
+    public function associations(): HasMany
     {
         return $this->hasMany(Word::class, 'word_id');
     }
@@ -38,6 +39,16 @@ class Word extends Versionable
     public function subjectWord(): BelongsTo
     {
         return $this->belongsTo(Word::class, 'word_id');
+    }
+
+    public function questions(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            RelationQuestion::class,
+            RelationQuestionWord::class,
+            'word_id',
+            'relation_question_id',
+        );
     }
 
     public static function build(
@@ -50,6 +61,11 @@ class Word extends Versionable
         int      $schoolLocationId,
         ?int     $parentId = null,
     ) {
+        /* TODO: Force parentId if WordType != Subject? */
+        if ($type !== WordType::SUBJECT && !$parentId) {
+            /* Do we allow this? */
+        }
+
         $newWord = self::make([
             'text'                 => $text,
             'type'                 => $type,
@@ -66,13 +82,6 @@ class Word extends Versionable
         return $newWord;
     }
 
-    public function edit(array $properties): Word
-    {
-        $this->fill($properties);
-        $this->save();
-        return $this;
-    }
-
     public function syncRelationsFrom(Versionable $original): static
     {
         $this->wordLists()->sync($original->wordLists->pluck('id'));
@@ -83,6 +92,7 @@ class Word extends Versionable
     {
         $list = $this->getPivotListToSyncDuplicateWith();
         $newWord = $this->replicateWithVersion($this->getEditingAuthor());
+        $this->setUpdatedVersion($newWord);
 
         $list->words()->detach($this);
         $list->words()->attach($newWord);
@@ -100,11 +110,20 @@ class Word extends Versionable
 
     public function isUsed(): bool
     {
-        return $this->wordLists()->exists();
+        if($this->wordLists()->exists()) {
+            return true;
+        }
+
+        return $this->questions()->exists();
     }
 
     public function isUnused(): bool
     {
         return !$this->isUsed();
+    }
+
+    public function isSubjectWord(): bool
+    {
+        return $this->type === WordType::SUBJECT;
     }
 }

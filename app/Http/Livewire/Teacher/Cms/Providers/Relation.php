@@ -7,8 +7,8 @@ class Relation extends TypeProvider
     public $requiresAnswer = true;
     public $questionOptions = [
         'decimal_score' => true,
-        'random_per_student' => true,
-        'random_per_student_amount' => 5,
+        'shuffle' => true,
+        'selection_count' => 5,
     ];
 
     public function preparePropertyBag()

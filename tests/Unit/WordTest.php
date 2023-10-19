@@ -3,6 +3,8 @@
 namespace Tests\Unit;
 
 use Illuminate\Validation\UnauthorizedException;
+use tcCore\Factories\FactoryTest;
+use tcCore\Factories\Questions\FactoryQuestionRelation;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolWordLists;
 use tcCore\Http\Enums\WordType;
 use tcCore\Lib\Models\VersionManager;
@@ -186,10 +188,8 @@ class WordTest extends TestCase
     }
 
     /** @test */
-    public function cannot_remove_word_from_other_peoples_lists()
+    public function when_removing_a_word_from_someone_elses_list_a_duplicate_is_created()
     {
-        $this->expectException(UnauthorizedException::class);
-
         $wordList1 = $this->defaultWordList();
         $wordList1->createWord('Bicyclette', WordType::SUBJECT);
         $word = $wordList1->words()->first();
@@ -199,6 +199,12 @@ class WordTest extends TestCase
         VersionManager::getVersionable($wordList1, $this->teacherTwo)->removeWord($word);
 
         $this->assertEquals(1, $wordList1->words()->count());
+
+        $this->assertEquals(
+            0,
+            VersionManager::getVersionable($wordList1, $this->teacherTwo)->words()->count()
+        );
+
     }
 
     /** @test */
@@ -223,7 +229,13 @@ class WordTest extends TestCase
         $word = $wordList1->words()->first();
 
         VersionManager::getVersionable($wordList1, $this->teacherTwo)->addWord($word);
-
+        FactoryTest::create($this->teacherOne)
+            ->addQuestions([
+                FactoryQuestionRelation::create()->useLists([
+                    VersionManager::getVersionable($wordList1, $this->teacherTwo)
+                ])
+            ]);
+        ;
         VersionManager::getVersionable($wordList1, $this->teacherOne)->removeWord($word);
 
         $this->assertNotSoftDeleted($word);
@@ -242,9 +254,9 @@ class WordTest extends TestCase
         $wordList1->createWord('Vervoermiddel dat wordt aangedreven door trappen', WordType::DEFINITION, $mainWord);
         $wordList1->createWord('Tweewieler', WordType::SYNONYM, $mainWord);
 
-        $this->assertEquals(3, $mainWord->associates->count());
+        $this->assertEquals(3, $mainWord->associations->count());
 
-        $mainWord->associates->each(function ($type) use ($mainWord) {
+        $mainWord->associations->each(function ($type) use ($mainWord) {
             $this->assertEquals($type->subjectWord->text, $mainWord->text);
         });
     }

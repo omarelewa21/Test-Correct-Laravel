@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use ReflectionClassConstant;
 use tcCore\Http\Enums\Attributes\Description;
 use tcCore\Http\Enums\Attributes\Initial;
+use tcCore\Http\Enums\Attributes\Order;
 use tcCore\Http\Enums\Attributes\Type;
 
 trait WithAttributes
@@ -58,5 +59,14 @@ trait WithAttributes
             return null;
         }
         return $classAttributes[0]->newInstance();
+    }
+
+    public function getOrder()
+    {
+        $instance = self::getAttributeInstance($this, Order::class);
+        if (!$instance) {
+            return null;
+        }
+        return $instance->order;
     }
 }
