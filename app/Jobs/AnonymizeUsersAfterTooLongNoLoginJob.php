@@ -86,7 +86,7 @@ class AnonymizeUsersAfterTooLongNoLoginJob extends Job implements ShouldQueue
                 })->get()->each(function (User $user) {
                     $user->username = sprintf('%s-vervallenivm%ddagengeenlogin@test-correct.nl', $user->getKey(), $this->days);
                     $user->name_first = sprintf('%d', $this->days);
-                    $user->name = sprintf('dagen => vervallen');
+                    $user->name = sprintf('former teacher');
                     $user->time_dispensation = false;
                     $user->text2speech = false;
                     foreach ($this->fieldsToEmpty as $field) {
