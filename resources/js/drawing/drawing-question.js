@@ -1983,8 +1983,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             Canvas.deleteObject(newShape.sidebar);
             --Canvas.params.draw.shapeCountForEachType[newShape.sidebar.type];
             return;
-        } 
+        }
         Canvas.params.highlightedShape = newShape;
+        newShape.sidebar.toggleShapeSelect();
     }
 
     function stopDrag() {

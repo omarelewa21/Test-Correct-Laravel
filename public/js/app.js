@@ -14670,6 +14670,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       return;
     }
     Canvas.params.highlightedShape = newShape;
+    newShape.sidebar.toggleShapeSelect();
   }
   function stopDrag() {
     Canvas.params.drag.selectedSvgShape.onDragEnd();
