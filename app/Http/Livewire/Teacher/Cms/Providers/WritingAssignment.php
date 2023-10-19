@@ -4,9 +4,6 @@ namespace tcCore\Http\Livewire\Teacher\Cms\Providers;
 
 class WritingAssignment extends TypeProvider
 {
-    public $settingsGeneralPropertiesVisibility = [
-        'spellingCheckAvailableDuringAssessing' => true,
-    ];
     protected $questionOptions = [
         'spell_check_available' => true,
     ];

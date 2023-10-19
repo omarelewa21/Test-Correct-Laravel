@@ -1,56 +1,5 @@
 <div cms id="cms" class="flex flex-1"
-     x-data="{
-            loading: @js($loading),
-            empty: @js($this->emptyState),
-            dirty: @entangle('dirty'),
-            loadTimeout: null
-             }"
-     x-init="
-           handleQuestionChange = (evt) => {
-                $store.cms.loading = true;
-                loading = true;
-                $wire.set('loading', true);
-                if(typeof evt !== 'undefined') empty = false;
-                removeDrawingLegacy();
-                window.scrollTo({top: 0, behavior: 'smooth'});
-                $store.cms.dirty = false;
-           }
-
-           loadingTimeout = (value) => {
-                if (value === true) {
-                    loadTimeout = setTimeout(() => {
-                        $store.cms.loading = false;
-                        $store.cms.processing = false;
-                        $wire.set('loading', false);
-                        clearTimeout(loadTimeout);
-                    }, 1000)
-                }
-           }
-
-           $watch('$store.cms.loading', (value) => loadingTimeout(value));
-           $watch('loading', (value) => loadingTimeout(value));
-           $watch('dirty', (value) => $store.cms.dirty = value);
-
-           removeDrawingLegacy = () => {
-                $root.querySelector('#drawing-question-tool-container')?.remove();
-           }
-           changeEditorWscLanguage = (lang) => {
-                if (document.getElementById('{{ $this->questionEditorId }}')) {
-                    WebspellcheckerTlc.lang(ClassicEditors['{{ $this->questionEditorId }}'], lang);
-                }
-                if (document.getElementById('{{ $this->answerEditorId }}')) {
-                    WebspellcheckerTlc.lang(ClassicEditors['{{ $this->answerEditorId }}'], lang);
-                }
-           }
-           forceSyncEditors = () => {
-                if (document.getElementById('{{ $this->questionEditorId }}')) {
-                    $wire.sync('question.question', ClassicEditors['{{ $this->questionEditorId }}'].getData());
-                }
-                if (document.getElementById('{{ $this->answerEditorId }}')) {
-                    $wire.sync('question.answer', ClassicEditors['{{ $this->answerEditorId }}'].getData());
-                }
-           }
-           "
+     x-data="constructionBody(@js($this->loading), @js($this->emptyState), @entangle('dirty'), @js($this->questionEditorId), @js($this->answerEditorId))"
      x-cloak
      x-on:question-change.window="handleQuestionChange($event.detail)"
      x-on:show-empty.window="empty = !empty"
@@ -62,8 +11,8 @@
     <x-partials.header.cms-editor :testName="$testName" :questionCount="$this->amountOfQuestions"/>
     <div class="question-editor-content w-full relative"
          wire:key="container-{{ $this->uniqueQuestionKey }}"
-         style="opacity: 0; transition: opacity .3s ease-in"
-         :style="{'opacity': ($store.cms.loading || $store.cms.emptyState) ? 0 : ($store.cms.processing) ? 0 : 1}"
+         style="opacity: 0; transition: opacity 100ms ease-in-out"
+         :style="{'opacity': isLoading() ? 0 : (isProcessing() ? 0 : 1)}"
          x-ref="editorcontainer"
          wire:ignore.self
     >
@@ -151,6 +100,7 @@
                 @if($this->showQuestionScore())
                     <x-input.score wire:model.defer="question.score"
                                    wire:key="score-component-{{ $this->uniqueQuestionKey }}"
+                                   :disabled="$this->hasScoringDisabled()"
                     />
                 @endif
             </div>
@@ -183,37 +133,18 @@
                     </div>
                 @endif
             </div>
-            <div class="flex w-full space-x-6 mb-5 border-b border-secondary max-h-[50px]" selid="tabs">
-                <div :class="{'border-b-2 border-primary -mb-px primary' : openTab === 1}" selid="tab-question">
-                    <x-button.default
-                            style="color:inherit"
-                            @click="openTab = 1"
-                    >
-                        {{ __('cms.Opstellen') }}
-                    </x-button.default>
-                </div>
-                <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 2}"
-                     selid="tab-settings">
-                    <x-button.default
-                            style="color:inherit"
-                            @click="openTab = 2;"
-                    >
-                        {{ __('cms.Instellingen') }}
-                    </x-button.default>
-                </div>
-                @if($this->testQuestionId && $this->showStatistics())
-                    <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 3}"
-                         selid="tab-statistics">
-                        <x-button.default
-                                style="color:inherit"
-                                x-on:click="openTab = 3;"
-                        >
-                            {{ __('cms.Statistiek') }}
-                        </x-button.default>
-                    </div>
-                @endif
-            </div>
 
+            <x-menu.tab.container selid="tabs" max-width-class="" class="mb-[30px]">
+                <x-menu.tab.item :tab="1" menu="openTab" selid="tab-question">
+                    {{ __('cms.Opstellen') }}
+                </x-menu.tab.item>
+                <x-menu.tab.item :tab="2" menu="openTab" selid="tab-settings">
+                    {{ __('cms.Instellingen') }}
+                </x-menu.tab.item>
+                <x-menu.tab.item :tab="3" menu="openTab" selid="tab-statistics" :when="$this->testQuestionId && $this->showStatistics()">
+                    {{ __('cms.Statistiek') }}
+                </x-menu.tab.item>
+            </x-menu.tab.container>
 
             <div class="flex flex-col flex-1 pb-20 space-y-4 relative" x-show="openTab === 1"
                  x-transition:enter="transition duration-200"
@@ -231,7 +162,7 @@
                 @if($this->requiresAnswer())
                     <x-content-section>
                         <x-slot name="title">
-                            {{ __('cms.Antwoordmodel') }}
+                            {{ $this->answerSectionTitle() }}
                         </x-slot>
 
                         @yield('question-cms-answer')
@@ -269,7 +200,6 @@
                         @if($this->isSettingsGeneralPropertyVisible('closeable'))
                             <x-input.toggle-row-with-title wire:model="question.closeable"
                                                            :toolTip="__('cms.close_after_answer_tooltip_text')"
-                                                           class="{{ $this->isSettingsGeneralPropertyDisabled('closeable') ? 'text-disabled' : 'kaas' }}"
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('closeable')"
                             >
                                 <x-icon.locked></x-icon.locked>
@@ -280,7 +210,6 @@
                         @if($this->isSettingsGeneralPropertyVisible('addToDatabase'))
                             <x-input.toggle-row-with-title wire:model="question.add_to_database"
                                                            :toolTip="__('cms.make_public_tooltip_text')"
-                                                           class="{{ $this->isSettingsGeneralPropertyDisabled('addToDatabase') ? 'text-disabled' : '' }}"
                                                            :disabled="($question['add_to_database_disabled'] ?? false) || $this->isSettingsGeneralPropertyDisabled('addToDatabase')"
                                                            selid="open-source-switch"
                             >
@@ -291,7 +220,6 @@
 
                         @if($this->isSettingsGeneralPropertyVisible('maintainPosition'))
                             <x-input.toggle-row-with-title wire:model="question.maintain_position"
-                                                           class="{{ $this->isSettingsGeneralPropertyDisabled('maintainPosition') ? 'text-disabled' : '' }}"
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('maintainPosition')"
                                                            :toolTip="$this->isGroupQuestion() ? __('cms.dont_shuffle_question_group_tooltip_text') : ''"
 
@@ -303,7 +231,6 @@
 
                         @if($this->isSettingsGeneralPropertyVisible('discuss'))
                             <x-input.toggle-row-with-title wire:model="question.discuss"
-                                                           class="{{ $this->isSettingsGeneralPropertyDisabled('discuss') ? 'text-disabled' : '' }}"
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('discuss')"
                             >
                                 <x-icon.discuss class="flex "></x-icon.discuss>
@@ -315,41 +242,45 @@
                             <x-input.toggle-radio-row-with-title wire:model="question.note_type"
                                                                  value-on="TEXT"
                                                                  value-off="NONE"
-                                                                 class="{{ $this->isSettingsGeneralPropertyDisabled('allowNotes') ? 'text-disabled' : '' }}"
                                                                  :disabled="$this->isSettingsGeneralPropertyDisabled('allowNotes')"
                             >
                                 <x-icon.notepad/>
-                                <span class="bold"> {{ __('cms.Notities toestaan') }}</span>
+                                <span @class(["bold", "disabled" => $this->isSettingsGeneralPropertyVisible('allowNotes')])>
+                                    {{ __('cms.Notities toestaan') }}
+                                </span>
                             </x-input.toggle-radio-row-with-title>
                         @endif
 
                         @if($this->isSettingsGeneralPropertyVisible('decimalScore'))
                             <x-input.toggle-row-with-title wire:model="question.decimal_score"
-                                                           class="{{ $this->isSettingsGeneralPropertyDisabled('decimalOption') ? 'text-disabled' : '' }}"
-                                                           :disabled="$this->isSettingsGeneralPropertyDisabled('decimalOption')"
+                                                           :disabled="$this->isSettingsGeneralPropertyDisabled('decimalScore')"
                             >
                                 <x-icon.half-points/>
-                                <span class="bold @if($this->isSettingsGeneralPropertyDisabled('decimalOption')) disabled @endif"> {{ __('cms.Halve puntenbeoordeling mogelijk') }}</span>
+                                <span @class(["bold", "disabled" => $this->isSettingsGeneralPropertyDisabled('decimalScore')])>
+                                    {{ __('cms.Halve puntenbeoordeling mogelijk') }}
+                                </span>
                             </x-input.toggle-row-with-title>
                         @endif
 
                         @if($this->isSettingsGeneralPropertyVisible('autoCheckAnswer'))
                             <x-input.toggle-row-with-title wire:model="question.auto_check_answer"
-                                                           class="{{ $this->isSettingsGeneralPropertyDisabled('autoCheckAnswer') ? 'text-disabled' : '' }}"
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('autoCheckAnswer')"
                             >
                                 <x-icon.autocheck/>
-                                <span class="bold @if($this->isSettingsGeneralPropertyDisabled('autoCheckAnswer')) disabled @endif"> {{ __('cms.Automatisch nakijken') }}</span>
+                                <span @class(["bold", "disabled" => $this->isSettingsGeneralPropertyDisabled('autoCheckAnswer')])>
+                                    {{ __('cms.Automatisch nakijken') }}
+                                </span>
                             </x-input.toggle-row-with-title>
                         @endif
 
                         @if($this->isSettingsGeneralPropertyVisible('autoCheckAnswerCaseSensitive'))
                             <x-input.toggle-row-with-title wire:model="question.auto_check_answer_case_sensitive"
-                                                           class="{{ $this->isSettingsGeneralPropertyDisabled('autoCheckAnswerCaseSensitive') ? 'text-disabled' : '' }}"
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('autoCheckAnswerCaseSensitive')"
                             >
                                 <x-icon.case-sensitive/>
-                                <span class="bold @if($this->isSettingsGeneralPropertyDisabled('autoCheckAnswerCaseSensitive')) disabled @endif"> {{ __('cms.Hoofdletter gevoelig nakijken') }}</span>
+                                <span @class(["bold", "disabled" => $this->isSettingsGeneralPropertyDisabled('autoCheckAnswerCaseSensitive')])>
+                                    {{ __('cms.Hoofdletter gevoelig nakijken') }}
+                                </span>
                             </x-input.toggle-row-with-title>
                         @endif
 
@@ -384,14 +315,12 @@
                                 </x-input.toggle-row-with-title>
                                 <div x-show="rtti" class="flex flex-col gap-2.5 mt-2.5">
                                     @foreach($this->rttiOptions as $value)
-                                        <label class="radio-custom">
-                                            <input wire:key="{{ $value }}"
-                                                   name="rtti"
-                                                   type="radio"
-                                                   wire:model.defer="question.rtti"
-                                                   value="{{ $value }}"/>
-                                            <span class="ml-2.5">{{ $value }}</span>
-                                        </label>
+                                        <x-input.radio :text-right="$value"
+                                                       :value="$value"
+                                                       name="rtti"
+                                                       wire:key="rtti-{{ $value }}"
+                                                       wire:model.defer="question.rtti"
+                                        />
                                     @endforeach
                                 </div>
                             </div>
@@ -404,14 +333,12 @@
                                 </x-input.toggle-row-with-title>
                                 <div x-show="bloom" class="flex flex-col gap-2.5 mt-2.5">
                                     @foreach($this->bloomOptions as $value => $translation)
-                                        <label class="radio-custom">
-                                            <input wire:key="{{ $value }}"
-                                                   name="bloom"
-                                                   type="radio"
-                                                   wire:model.defer="question.bloom"
-                                                   value="{{ $value }}"/>
-                                            <span class="ml-2.5">{{ $translation  }}</span>
-                                        </label>
+                                        <x-input.radio :text-right="$translation"
+                                                       :value="$value"
+                                                       name="bloom"
+                                                       wire:key="bloom-{{ $value }}"
+                                                       wire:model.defer="question.bloom"
+                                        />
                                     @endforeach
                                 </div>
                             </div>
@@ -424,14 +351,12 @@
                                 </x-input.toggle-row-with-title>
                                 <div x-show="miller" class="flex flex-col gap-2.5 mt-2.5">
                                     @foreach($this->millerOptions as $value => $translation)
-                                        <label class="radio-custom">
-                                            <input wire:key="{{ $value }}"
-                                                   name="miller"
-                                                   type="radio"
-                                                   wire:model.defer="question.miller"
-                                                   value="{{ $value }}"/>
-                                            <span class="ml-2.5">{{ $translation }}</span>
-                                        </label>
+                                        <x-input.radio :text-right="$translation"
+                                                       :value="$value"
+                                                       name="miller"
+                                                       wire:key="miller-{{ $value }}"
+                                                       wire:model.defer="question.miller"
+                                        />
                                     @endforeach
                                 </div>
                             </div>

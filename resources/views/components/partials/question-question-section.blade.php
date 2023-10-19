@@ -46,13 +46,7 @@
     </x-slot>
 
     <x-slot name="title">
-        @if($this->obj instanceof \tcCore\Http\Livewire\Teacher\Cms\Providers\Group)
-            {{ __('cms.bijlagen') }}
-        @elseif($this->obj instanceof \tcCore\Http\Livewire\Teacher\Cms\Providers\InfoScreen)
-            {{ __('cms.Informatietekst') }}
-        @else
-            {{ __('cms.Vraagstelling') }}
-        @endif
+        {{ $this->questionSectionTitle() }}
     </x-slot>
     @yield('question-cms-question')
 </x-upload.section>

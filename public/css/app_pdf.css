@@ -6210,6 +6210,9 @@ video {
 .mb-\[110px\]{
   margin-bottom: 110px;
 }
+.mb-\[30px\]{
+  margin-bottom: 30px;
+}
 .mb-\[5px\]{
   margin-bottom: 5px;
 }
@@ -6329,6 +6332,9 @@ video {
 }
 .mt-px{
   margin-top: 1px;
+}
+.mb-3\.5{
+  margin-bottom: 0.875rem;
 }
 .box-border{
   box-sizing: border-box;
@@ -6910,6 +6916,9 @@ video {
 .min-w-min{
   min-width: -moz-min-content;
   min-width: min-content;
+}
+.min-w-\[13px\]{
+  min-width: 13px;
 }
 .max-w-0{
   max-width: 0rem;

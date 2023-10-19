@@ -239,4 +239,8 @@ return [
     'spell_check_available_tooltip'                                                          => 'Hiermee kunnen leerlingen tijdens hun toets gebruiken maken van spellingscontrole. Deze onderstreept alle woorden die niet correct zijn geschreven.',
     'Antwoord opties voor student'                                                           => 'Antwoord opties voor student',
     'resultaten'                                                                             => 'resultaten',
+    'Begeleidende tekst'                                                                     => 'Begeleidende tekst',
+    'Vraagstelling met antwoordmodel'                                                        => 'Vraagstelling met antwoordmodel',
+    'Carrousel verdeling per student'                                                        => 'Carrousel verdeling per student',
+    'relation_carousel_tooltip'                                                              => 'Met deze optie kun je iedere student een unieke toets geven uit onderstaande lijst. Je kunt aangeven hoeveel vragen iedere student krijgt.',
 ];

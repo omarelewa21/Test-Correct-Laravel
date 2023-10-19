@@ -152,7 +152,7 @@ return [
     'Wijzigen'                                                                               => 'Change',
     'Inplannen'                                                                              => 'Schedule',
     'Kopie maken'                                                                            => 'Create copy',
-    'Exporteren naar PDF'                                                                              => 'PDF',
+    'Exporteren naar PDF'                                                                    => 'PDF',
     'voorbeeld'                                                                              => 'Preview',
     'vraag'                                                                                  => ':count question|:count questions',
     'group-question-count'                                                                   => ':count group question|:count group questions',
@@ -240,4 +240,8 @@ return [
     'spell_check_available_tooltip'                                                          => 'This allows the students to use a spellchecker during their test. The spellchecker will automatically underline all words that are written incorrectly.',
     'Antwoord opties voor student'                                                           => 'Answer options for student',
     'resultaten'                                                                             => 'results',
+    'Begeleidende tekst'                                                                     => 'Accompanying text',
+    'Vraagstelling met antwoordmodel'                                                        => 'Question with answer model',
+    'Carrousel verdeling per student'                                                        => 'Distribute randomly among students',
+    'relation_carousel_tooltip'                                                              => 'With this option you can give each student a unique test filled from the list below. You can set how many questions will be given to the student.',
 ];
