@@ -52,14 +52,15 @@ class Open extends TypeProvider
     {
         $featureSettings = UserFeatureSetting::getAll(Auth::user());
         foreach ($this->questionOptions as $key => $value) {
-            if ($key == 'max_words')
-                $this->instance->question['max_words'] = $featureSettings['max_words_default'] ?? null;
-            elseif ($key == 'spell_check_available' && !settings()->canUseCmsWscWriteDownToggle())
+            if ($key == 'max_words') {
+                $this->instance->question['max_words'] = $featureSettings['max_words_default'] ?? $this->instance->question['max_words'];
+            } elseif ($key == 'spell_check_available' && !settings()->canUseCmsWscWriteDownToggle()) {
                 $this->instance->question['spell_check_available'] = false;
-            elseif (isset($featureSettings[$key . '_default']))
+            } elseif (isset($featureSettings[$key . '_default']) && !isset($featureSettings[$key])) {
                 $this->instance->question[$key] = $featureSettings[$key . '_default'] ? true : false;
-            else
+            } else {
                 $this->instance->question[$key] = $value;
+            }
         }
     }
 }
