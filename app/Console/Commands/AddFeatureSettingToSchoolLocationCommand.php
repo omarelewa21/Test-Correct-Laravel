@@ -17,6 +17,7 @@ class AddFeatureSettingToSchoolLocationCommand extends Command
         'allow_formidable',
         'allow_creathlon',
         'allow_olympiade',
+        'allow_olympiade_archive',
         'allow_thieme_meulenhoff',
         'allow_tm_biology',
         'allow_tm_geography',

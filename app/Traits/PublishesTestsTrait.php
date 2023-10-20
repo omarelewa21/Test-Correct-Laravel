@@ -48,6 +48,10 @@ trait PublishesTestsTrait
                 'abbreviation' => 'SBON',
                 'scope'        => 'published_olympiade',
             ],
+            config('custom.olympiade_archive_school_customercode')          => [
+                'abbreviation' => 'SBON',
+                'scope'        => 'published_olympiade_archive',
+            ],
             config('custom.thieme_meulenhoff_school_customercode')          => [
                 'abbreviation' => 'TM',
                 'scope'        => ThiemeMeulenhoffService::getPublishScope(),

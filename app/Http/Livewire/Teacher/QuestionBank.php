@@ -98,6 +98,7 @@ class QuestionBank extends TCComponent
             ->when($this->openTab === 'national', fn($filters) => $filters->merge(['source' => 'national']))
             ->when($this->openTab === 'creathlon', fn($filters) => $filters->merge(['source' => 'creathlon']))
             ->when($this->openTab === 'olympiade', fn($filters) => $filters->merge(['source' => 'olympiade']))
+            ->when($this->openTab === 'olympiade_archive', fn($filters) => $filters->merge(['source' => 'olympiade_archive']))
             ->when($this->openTab === 'thieme_meulenhoff', fn($filters) => $filters->merge(['source' => 'thieme_meulenhoff']))
             ->when($this->openTab === 'formidable', fn($filters) => $filters->merge(['source' => 'formidable']))
             ->when($needsIdSearch, function ($filters) {

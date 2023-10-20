@@ -21,7 +21,7 @@ use tcCore\SchoolLocation;
 use tcCore\Services\ContentSource\OlympiadeService;
 use tcCore\User;
 
-class FactoryScenarioSchoolOlympiade extends FactoryScenarioSchool
+class FactoryScenarioSchoolOlympiadeArchive extends FactoryScenarioSchool
 {
     public $schoolName;
     public $schoolLocationName;
@@ -40,21 +40,21 @@ class FactoryScenarioSchoolOlympiade extends FactoryScenarioSchool
     {
         parent::__construct();
 
-        $this->schoolName = 'Olympiade Contest content';
+        $this->schoolName = 'Olympiade content';
 
-        $this->schoolLocationName = 'Olympiade';
+        $this->schoolLocationName = 'Olympiade Archive';
 
-        $this->sectionName = 'Olympiade section';
+        $this->sectionName = 'Olympiade Archive section';
 
-        $this->schoolClassName = 'Olympiade school class';
+        $this->schoolClassName = 'Olympiade Archive school class';
 
-        $this->customer_code = config('custom.olympiade_school_customercode');
+        $this->customer_code = config('custom.olympiade_archive_school_customercode');
     }
 
     public static function create()
     {
         $factory = new static;
-        SchoolLocationCreator::createOlympiadeSchool($factory);
+        SchoolLocationCreator::createOlympiadeArchiveSchool($factory);
 
         SchoolLocationCreator::createSimpleSchoolWithOneTeacher($factory);
 
