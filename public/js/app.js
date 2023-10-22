@@ -17580,11 +17580,14 @@ var svgShape = /*#__PURE__*/function () {
   }, {
     key: "showCornerElements",
     value: function showCornerElements() {
-      if (this.elementBelongsToCurrentLayer() && this.drawingApp.currentToolIs('drag')) {
-        this.cornerElements.forEach(function (cornerElement) {
-          cornerElement.show();
-        });
-      }
+      this.shapeCanBeResized() && this.cornerElements.forEach(function (cornerElement) {
+        cornerElement.show();
+      });
+    }
+  }, {
+    key: "shapeCanBeResized",
+    value: function shapeCanBeResized() {
+      return this.shapeGroup.element.classList.contains('selected') || this.elementBelongsToCurrentLayer() && this.drawingApp.currentToolIs('drag');
     }
   }, {
     key: "hideHelperElements",

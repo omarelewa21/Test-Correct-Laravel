@@ -547,6 +547,10 @@
     cursor: var(--cursor-type-draggable);
 }
 
+#drawing-tool #svg-canvas g.draggable.selected {
+    cursor: var(--cursor-move-shape);
+}
+
 #drawing-tool #svg-canvas g.locked {
     cursor: var(--cursor-type-locked);
 }

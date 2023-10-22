@@ -187,13 +187,16 @@ class svgShape {
     }
 
     showCornerElements() {
-        if (this.elementBelongsToCurrentLayer() && this.drawingApp.currentToolIs('drag')) {
-            this.cornerElements.forEach((cornerElement) => {
-                cornerElement.show();
-            });
-        }
+        this.shapeCanBeResized() &&
+        this.cornerElements.forEach((cornerElement) => {
+            cornerElement.show();
+        });
     }
 
+    shapeCanBeResized() {
+        return this.shapeGroup.element.classList.contains('selected') ||
+            (this.elementBelongsToCurrentLayer() && this.drawingApp.currentToolIs('drag'))
+    }
 
     hideHelperElements() {
         this.hideBorderElement();
