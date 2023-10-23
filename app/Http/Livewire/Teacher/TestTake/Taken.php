@@ -405,7 +405,7 @@ class Taken extends TestTakeComponent
 
         $takenCount = $this->participantResults->where('testNotTaken', false)->count();
         return collect(TestTakeHelper::getAssessedQuestionCount($this->testTake))
-            ->where(fn($value) => $value === $takenCount)
+            ->where(fn($value) => $value >= $takenCount)
             ->count();
     }
 
