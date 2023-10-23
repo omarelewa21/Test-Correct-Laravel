@@ -354,6 +354,8 @@ class svgShape {
     meetsMinRequirements() {
         return true;
     }
+
+    setInputValuesOnEdit() {}
 }
 
 export class Rectangle extends svgShape {

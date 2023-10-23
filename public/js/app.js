@@ -17770,6 +17770,9 @@ var svgShape = /*#__PURE__*/function () {
     value: function meetsMinRequirements() {
       return true;
     }
+  }, {
+    key: "setInputValuesOnEdit",
+    value: function setInputValuesOnEdit() {}
   }]);
   return svgShape;
 }();
