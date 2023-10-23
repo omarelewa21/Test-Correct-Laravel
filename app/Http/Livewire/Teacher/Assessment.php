@@ -1410,7 +1410,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     private function dispatchScoreNotificationForQuestion(): void
     {
-        if ($this->currentQuestion->isDiscussionTypeOpen) {
+        if ($this->currentQuestion->isDiscussionTypeOpen || $this->currentQuestion->isType('Completion')) {
             return;
         }
         if ($this->scoreWarningDispatchedForQuestion) {
