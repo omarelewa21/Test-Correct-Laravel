@@ -7088,6 +7088,7 @@ input.datepicker {
     left: var(--thumb-left);
     top: var(--thumb-top);
     transform: translateX(var(--moz-left-zero));
+    visibility: hidden;
 }
 
 .score-slider-container :is(.score-slider-continuous-input, .score-slider-input).hide-thumb:not(.moving)::-moz-range-thumb:hover {
