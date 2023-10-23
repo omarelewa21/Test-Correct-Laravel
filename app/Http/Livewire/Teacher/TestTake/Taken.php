@@ -19,8 +19,6 @@ use tcCore\Http\Helpers\Normalize;
 use tcCore\Http\Helpers\TestTakeHelper;
 use tcCore\Http\Livewire\Teacher\TestTake\TestTake as TestTakeComponent;
 use tcCore\Lib\Answer\AnswerChecker;
-use tcCore\RttiExportLog;
-use tcCore\Services\RttiExportService;
 use tcCore\TestParticipant;
 use tcCore\TestTake as TestTakeModel;
 use tcCore\TestTakeStatus;
@@ -221,7 +219,7 @@ class Taken extends TestTakeComponent
 
     public function canPublishResults(): bool
     {
-        if (!$this->testTake->results_published) {
+        if ($this->needsToPublishResults()) {
             return true;
         }
         return $this->participantGradesChanged;
@@ -252,6 +250,30 @@ class Taken extends TestTakeComponent
     public function changeResultsParticipantOrder(): void
     {
         $this->resultsTabDirection = $this->resultsTabDirection === 'asc' ? 'desc' : 'asc';
+    }
+
+    public function needsToPublishResults(): bool
+    {
+        if (!$this->testTake->results_published) {
+            return true;
+        }
+        if ($this->testTake->results_published->gt($this->testTake->assessed_at)) {
+            return false;
+        }
+
+        return $this->participantResults->contains(function ($participant) {
+            return ((float)$participant->rating !== (float)$participant->definitiveRating);
+        });
+    }
+
+    public function testTakeHasNotFinishedDiscussing(): bool
+    {
+        return in_array($this->testTakeStatusId, [TestTakeStatus::STATUS_TAKEN, TestTakeStatus::STATUS_DISCUSSING]);
+    }
+
+    public function testTakeIsDiscussedButNotCompletelyAssessed(): bool
+    {
+        return $this->testTakeStatusId === TestTakeStatus::STATUS_DISCUSSED && !$this->assessmentDone;
     }
 
     /* Button actions */
@@ -324,6 +346,7 @@ class Taken extends TestTakeComponent
 
     public function publishResults(): void
     {
+        if(!$this->gradingStandard) return;
         $this->standardizeResults(
             standard    : GradingStandard::tryFrom($this->gradingStandard),
             gradingValue: $this->gradingValue,
@@ -350,28 +373,20 @@ class Taken extends TestTakeComponent
 
         $this->takenTestData = [
             'questionCount'      => $this->questionsOfTest->count(),
-            'discussedQuestions' => $this->discussedQuestions($this->questionsOfTest),
+            'discussedQuestions' => $this->discussedQuestions(),
             'assessedQuestions'  => $this->assessedQuestions(),
             'questionsToAssess'  => $this->questionsOfTest->count(),
             'maxScore'           => $this->questionsOfTest->sum('score')
         ];
     }
 
-    private function discussedQuestions(Collection $questions): int
+    private function discussedQuestions(): int
     {
-        $nonDiscussedQuestionCount = $this->questionsOfTest->count();
         if($this->testTake->test_take_status_id < 7) {
             return 0;
         }
-        return $this->questionsOfTest->count() - $nonDiscussedQuestionCount;
-//        $answerRatingQueryBuilder = AnswerRating::where('test_take_id',$this->testTake->getKey())->where('type',AnswerRating::TYPE_STUDENT)->whereNotNull('rating')->select('answer_id');
-//        return Answer::whereIn('id',$answerRatingQueryBuilder)->groupBy('question_id')->get(['id'])->count();
 
-//        $index = $questions->search(function ($question) use ($questions) {
-//            return $question->id === $questions->where('id', $this->testTake->discussing_question_id)
-//                    ->first()?->id;
-//        });
-//        return $index !== false ? $index + 1 : 0;
+        return TestTakeHelper::getDiscussedQuestionCount($this->testTake);
     }
 
     private function questionsToAssess(): int
@@ -384,45 +399,14 @@ class Taken extends TestTakeComponent
 
     private function assessedQuestions(): int
     {
-
-        if($this->testTake->test_take_status_id < 7){
+        if ($this->testTake->test_take_status_id < 7) {
             return 0;
         }
-        $takeNonDiscrepancyIntoAccount = UserFeatureSetting::getSetting(
-            user   : auth()->user(),
-            title  : UserFeatureSettingEnum::tryFrom('assessment_skip_no_discrepancy_answer'),
-            default: false
-        );
 
-        $nonAssessedQuestionCount = TestTakeHelper::nonAssessedDiscussedQuestionIdQueryBuilder($this->testTake,'assess',$takeNonDiscrepancyIntoAccount)->get(['question_id'])->count();
-
-        return $this->questionsOfTest->count() - $nonAssessedQuestionCount;
-
-//        $answerRatingQueryBuilder = AnswerRating::where('test_take_id',$this->testTake->getKey())->where('type','!=',AnswerRating::TYPE_STUDENT)->whereNotNull('rating')->select('answer_id');
-//        $testParticipantQueryBuilder = TestParticipant::where('test_take_id',$this->testTake->getKey())->where('test_take_status_id','>=',6)->select('id');
-//        $nonAssessedQuestionCount = Answer::whereIn('test_participant_id',$testParticipantQueryBuilder)->whereNotIn('id',$answerRatingQueryBuilder)->groupBy('question_id')->get(['question_id'])->count();
-//        return $this->questionsOfTest->count() - $nonAssessedQuestionCount;
-
-
-//        return Answer::select('answers.question_id')
-//            ->leftJoin(
-//                'test_participants',
-//                'test_participants.id',
-//                '=',
-//                'answers.test_participant_id'
-//            )
-//            ->where('test_participants.test_take_id', $this->testTake->getKey())
-//            ->whereNull('test_participants.deleted_at')
-//            ->whereExists(function ($query) {
-//                $query->select('answer_ratings.id')
-//                    ->from('answer_ratings')
-//                    ->whereRaw('answer_ratings.answer_id = answers.id')
-//                    ->where('answer_ratings.type', '!=', AnswerRating::TYPE_STUDENT)
-//                    ->whereNull('answer_ratings.deleted_at');
-//            })
-//            ->groupBy('answers.question_id')
-//            ->get()
-//            ->count();
+        $takenCount = $this->participantResults->where('testNotTaken', false)->count();
+        return collect(TestTakeHelper::getAssessedQuestionCount($this->testTake))
+            ->where(fn($value) => $value === $takenCount)
+            ->count();
     }
 
     private function createSystemRatingsWhenNecessary(): void
@@ -481,19 +465,7 @@ class Taken extends TestTakeComponent
 
     private function getScoreForParticipant(TestParticipant $participant): mixed
     {
-        return $participant->answers->sum(function ($answer) {
-            $rating = $answer->answerRatings
-                ->sortBy(function ($rating) {
-                    if ($rating->type === AnswerRating::TYPE_TEACHER) {
-                        return 1;
-                    }
-                    if ($rating->type === AnswerRating::TYPE_SYSTEM) {
-                        return 2;
-                    }
-                    return 3;
-                })->first();
-            return $rating?->rating;
-        });
+        return $participant->answers->sum(fn($answer) => $answer->calculateFinalRating());
     }
 
     private function getDiscrepanciesForParticipant(TestParticipant $participant)
@@ -505,11 +477,18 @@ class Taken extends TestTakeComponent
 
     private function getRatedQuestionsForParticipant(TestParticipant $participant): int
     {
-        return $participant->answers->sum(function ($answer) {
-            return (int)$answer->answerRatings
-                ->whereIn('type', [AnswerRating::TYPE_TEACHER, AnswerRating::TYPE_SYSTEM])
-                ->isNotEmpty();
-        });
+        return $participant->answers
+            ->sum(function ($answer) {
+                $givenRating = (int)$answer->answerRatings
+                    ->whereIn('type', [AnswerRating::TYPE_TEACHER, AnswerRating::TYPE_SYSTEM])
+                    ->isNotEmpty();
+
+                if ($givenRating) {
+                    return $givenRating;
+                }
+
+                return (int)($answer->hasCoLearningDiscrepancy() === false);
+            });
     }
 
     private function getAttainments(): Collection
@@ -736,7 +715,7 @@ class Taken extends TestTakeComponent
         $this->gradingStandard = str($standard->name)->lower()->value();
         $this->cesuurPercentage = $cesuurPercentage ? (float)$cesuurPercentage : null;
 
-        if (!$this->testTake->results_published) {
+        if (!$this->testTake->results_published || $this->testTake->results_published->lt($this->testTake->assessed_at)) {
             $this->standardizeResults(
                 $standard,
                 $this->gradingValue

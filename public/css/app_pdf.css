@@ -2194,7 +2194,7 @@ input[type=number] {
     --cursor-tools-default: crosshair;
     --cursor-move-shape: grab;
     --cursor-moving-shape: grabbing;
-    --cursor-freehand: url(/img/cursor-freehand.svg), crosshair;
+    --cursor-freehand: crosshair;
 
     /* Sidebar parameters */
     --open-sidebar-min-width: 14.5rem;

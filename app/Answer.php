@@ -47,7 +47,7 @@ class Answer extends BaseModel
     protected $hidden = [];
 
     protected $parentGroupQuestions;
-
+    protected ?bool $discrepancyInToggleData = null;
     public static function boot()
     {
         parent::boot();
@@ -290,40 +290,45 @@ class Answer extends BaseModel
 
     public function hasCoLearningDiscrepancy(): ?bool
     {
-        $ratings = $this->answerRatings->where('type', AnswerRating::TYPE_STUDENT)
-                                       ->whereNotNull('rating');
+        if (is_bool($this->discrepancyInToggleData)) {
+            return $this->discrepancyInToggleData;
+        }
+
+        $ratings = $this->answerRatings
+            ->where('type', AnswerRating::TYPE_STUDENT)
+            ->whereNotNull('rating');
 
         if ($ratings->count() < 2) {
             return null;
         }
 
         $answerToggleData = $ratings->map->json->filter();
-        if ($answerToggleData->count() > 1) {
-            $firstAnswerToggleData = $answerToggleData->shift();
+        if ($answerToggleData->count() <= 1) {
+            return $ratings
+                    ->keyBy('rating')
+                    ->count() !== 1;
+        }
 
-            $discrepancyInToggleData = (bool) $answerToggleData->first(callback: function ($subsequentAnwerToggleData) use (&$firstAnswerToggleData) {
+        $firstAnswerToggleData = $answerToggleData->shift();
+        $discrepancyInToggleData = (bool)$answerToggleData->first(
+            function ($subsequentAnswerToggleData) use (&$firstAnswerToggleData) {
                 //Check if the toggle data json arrays have the same keys
-                if(count(array_diff_key($firstAnswerToggleData, $subsequentAnwerToggleData)) !== 0
-                    || count(array_diff_key($subsequentAnwerToggleData, $firstAnswerToggleData)) !== 0) {
+                if (count(array_diff_key($firstAnswerToggleData, $subsequentAnswerToggleData)) !== 0
+                    || count(array_diff_key($subsequentAnswerToggleData, $firstAnswerToggleData)) !== 0) {
                     return true;
                 }
 
                 $carry = false;
                 //Check if the toggle data json arrays have the same values
-                foreach ($subsequentAnwerToggleData as $key => $value) {
+                foreach ($subsequentAnswerToggleData as $key => $value) {
                     $carry = ($firstAnswerToggleData[$key] !== $value) ? true : $carry;
                 }
 
                 return $carry;
-            });
+            }
+        );
 
-            $this->setAttribute('discrepancyInToggleData', $discrepancyInToggleData);
-
-            return $discrepancyInToggleData;
-        }
-
-        return $ratings
-                ->keyBy('rating')
-                ->count() !== 1;
+        $this->discrepancyInToggleData = $discrepancyInToggleData;
+        return $discrepancyInToggleData;
     }
 }
