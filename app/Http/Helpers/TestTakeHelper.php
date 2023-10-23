@@ -16,28 +16,35 @@ class TestTakeHelper
             ->value('question_count');
     }
 
-    public static function getAssessedQuestionCount(TestTake $testTake): int
+    public static function getAssessedQuestionCount(TestTake $testTake): array
     {
         $ratings = self::ratingsQuery($testTake)
             ->select(['answer_ratings.*', 'a.question_id'])
             ->with(['answer'])
             ->get();
 
+        $questionTally = [];
+
         $ratedQuestionIds = $ratings->where('type', '!=', AnswerRating::TYPE_STUDENT)
+            ->each(function ($rating) use (&$questionTally) {
+                $questionId = $rating->question_id;
+                $questionTally[$questionId] = ($questionTally[$questionId] ?? 0) + 1;
+            })
             ->pluck('question_id')
             ->unique();
 
-        $noDiscrepancyQuestionIds = $ratings
+        $ratings
             ->where('type', '=', AnswerRating::TYPE_STUDENT)
             ->whereNotIn('question_id', $ratedQuestionIds)
             ->groupBy('answer_id')
-            ->filter(
-                fn(Collection $answerGroup) => $answerGroup->first()?->answer->hasCoLearningDiscrepancy() === false
-            )
-            ->flatten()
-            ->pluck('question_id')
-            ->unique();
-        return $ratedQuestionIds->merge($noDiscrepancyQuestionIds)->count();
+            ->each(function (Collection $answerGroup) use (&$questionTally) {
+                if ($answerGroup->first()?->answer->hasCoLearningDiscrepancy() === false) {
+                    $questionId = $answerGroup->first()?->answer->question_id;
+                    $questionTally[$questionId] = ($questionTally[$questionId] ?? 0) + 1;
+                };
+            });
+
+        return $questionTally;
     }
 
     private static function ratingsQuery(TestTake $testTake)
