@@ -39,7 +39,7 @@ return [
     'number-of-tests-creathlon'         => '{0} Voor jouw vakken hebben wij nog onvoldoende kwalitatieve content beschikbaar|{1} :count toets gevonden|[2,*] :count toetsen gevonden',
     'number-of-tests-thieme_meulenhoff' => '{0} Voor jouw vakken hebben wij nog onvoldoende kwalitatieve content beschikbaar|{1} :count toets gevonden|[2,*] :count toetsen gevonden',
     'number-of-tests-olympiade'         => '{0} Voor jouw vakken hebben wij nog onvoldoende kwalitatieve content beschikbaar|{1} :count toets gevonden|[2,*] :count toetsen gevonden',
-    'number-of-tests-olympiade-archive' => '{0} Voor jouw vakken hebben wij nog onvoldoende kwalitatieve content beschikbaar|{1} :count toets gevonden|[2,*] :count toetsen gevonden',
+    'number-of-tests-olympiade_archive' => '{0} Voor jouw vakken hebben wij nog onvoldoende kwalitatieve content beschikbaar|{1} :count toets gevonden|[2,*] :count toetsen gevonden',
     'number-of-tests-formidable'        => '{0} Voor jouw vakken hebben wij nog onvoldoende kwalitatieve content beschikbaar|{1} :count toets gevonden|[2,*] :count toetsen gevonden',
     'cito-snelstart'                    => 'Cito Snelstart',
     'Persoonlijk'                       => 'Persoonlijk',
