@@ -48,7 +48,6 @@ export class Entry extends sidebarComponent {
         this.drawingApp.bindEventListeners(this.eventListenerSettings, this);
         this.updateLockState();
         this.updateHideState();
-        this.customizeButtonsAccordingToType();
 
         this.deleteModal = this.root.querySelector('#delete-confirm');
     }

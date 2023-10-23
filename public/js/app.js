@@ -15468,7 +15468,6 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
     _this.drawingApp.bindEventListeners(_this.eventListenerSettings, _assertThisInitialized(_this));
     _this.updateLockState();
     _this.updateHideState();
-    _this.customizeButtonsAccordingToType();
     _this.deleteModal = _this.root.querySelector('#delete-confirm');
     return _this;
   }
