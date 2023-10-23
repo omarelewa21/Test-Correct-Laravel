@@ -399,11 +399,10 @@ class Taken extends TestTakeComponent
 
     private function assessedQuestions(): int
     {
-        if($this->testTake->test_take_status_id < 7){
-            return 0;
-        }
-
-        return TestTakeHelper::getAssessedQuestionCount($this->testTake);
+        $takenCount = $this->participantResults->where('testNotTaken', false)->count();
+        return collect(TestTakeHelper::getAssessedQuestionCount($this->testTake))
+            ->where(fn($value) => $value >= $takenCount)
+            ->count();
     }
 
     private function createSystemRatingsWhenNecessary(): void
@@ -462,19 +461,7 @@ class Taken extends TestTakeComponent
 
     private function getScoreForParticipant(TestParticipant $participant): mixed
     {
-        return $participant->answers->sum(function ($answer) {
-            $rating = $answer->answerRatings
-                ->sortBy(function ($rating) {
-                    if ($rating->type === AnswerRating::TYPE_TEACHER) {
-                        return 1;
-                    }
-                    if ($rating->type === AnswerRating::TYPE_SYSTEM) {
-                        return 2;
-                    }
-                    return 3;
-                })->first();
-            return $rating?->rating;
-        });
+        return $participant->answers->sum(fn($answer) => $answer->calculateFinalRating());
     }
 
     private function getDiscrepanciesForParticipant(TestParticipant $participant)
@@ -486,11 +473,18 @@ class Taken extends TestTakeComponent
 
     private function getRatedQuestionsForParticipant(TestParticipant $participant): int
     {
-        return $participant->answers->sum(function ($answer) {
-            return (int)$answer->answerRatings
-                ->whereIn('type', [AnswerRating::TYPE_TEACHER, AnswerRating::TYPE_SYSTEM])
-                ->isNotEmpty();
-        });
+        return $participant->answers
+            ->sum(function ($answer) {
+                $givenRating = (int)$answer->answerRatings
+                    ->whereIn('type', [AnswerRating::TYPE_TEACHER, AnswerRating::TYPE_SYSTEM])
+                    ->isNotEmpty();
+
+                if ($givenRating) {
+                    return $givenRating;
+                }
+
+                return (int)($answer->hasCoLearningDiscrepancy() === false);
+            });
     }
 
     private function getAttainments(): Collection
