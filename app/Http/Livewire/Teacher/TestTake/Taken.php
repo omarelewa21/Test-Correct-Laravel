@@ -399,10 +399,6 @@ class Taken extends TestTakeComponent
 
     private function assessedQuestions(): int
     {
-        if ($this->testTake->test_take_status_id < 7) {
-            return 0;
-        }
-
         $takenCount = $this->participantResults->where('testNotTaken', false)->count();
         return collect(TestTakeHelper::getAssessedQuestionCount($this->testTake))
             ->where(fn($value) => $value >= $takenCount)

@@ -446,6 +446,15 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->showNewAssessmentNotification = false;
     }
 
+    public function finish()
+    {
+        if ($this->testTakeData->test_take_status_id < TestTakeStatus::STATUS_DISCUSSED) {
+            TestTake::whereUuid($this->testTakeUuid)
+                ->update(['test_take_status_id' => TestTakeStatus::STATUS_DISCUSSED]);
+        }
+
+        return $this->redirectBack();
+    }
 
     /* Private methods */
     protected function setTemplateVariables(): void
