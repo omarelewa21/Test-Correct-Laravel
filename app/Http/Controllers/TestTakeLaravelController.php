@@ -29,25 +29,29 @@ class TestTakeLaravelController extends Controller
             return redirect(BaseHelper::getLoginUrl());
         }
 
-        $current = $request->get('q') ?: '1';
+        $current = $request->get('q') ?: '1';   
 
         $data = self::getData($testParticipant, $testTake);
-  
-        $questionsInGroup = GroupQuestionQuestion::whereIn('question_id', $data->pluck('id')->toArray())
-        ->groupBy('group_question_id')
-        ->select('group_question_id', DB::raw('GROUP_CONCAT(question_id) as question_ids'))
-        ->pluck('question_ids', 'group_question_id')
-        ->map(function ($item) {
-            return explode(',', $item); 
-        })
-        ->toArray();
-
-        $groupQuestionsId = array_keys($questionsInGroup); 
+        
+        $groupedQuestions = [];
+        
+        foreach ($data as $question) {
+            $groupId = $question['belongs_to_groupquestion_id'];
+            $questionId = $question['id'];
+        
+            if (!empty($groupId)) {
+                if (!isset($groupedQuestions[$groupId])) {
+                    $groupedQuestions[$groupId] = [];
+                }
+                $groupedQuestions[$groupId][] = $questionId;
+            }
+        }
+       
+        $groupQuestionsId = array_keys($groupedQuestions); 
         $groupQuestions = GroupQuestion::whereIn('id', $groupQuestionsId)->get();
-
         
         $questionsNotInGroup = $data->where('is_subquestion', 0)->pluck('id')->toArray();
-    
+        
         
         $answers = $this->getAnswers($testTake, $data, $testParticipant);
 
@@ -58,7 +62,7 @@ class TestTakeLaravelController extends Controller
         $uuid = $testTake->uuid;
         // todo add check or failure when $current out of bounds $data;
         $styling = $this->getCustomStylingFromQuestions($data);
-        return view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling' , 'questionsInGroup' , 'questionsNotInGroup' , 'groupQuestions']));
+        return view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling' , 'groupedQuestions' , 'questionsNotInGroup' , 'groupQuestions']));
     }
 
 

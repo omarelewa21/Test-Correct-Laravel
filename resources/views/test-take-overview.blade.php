@@ -24,14 +24,14 @@
                 </style>
             @endpush
             @foreach($data as  $key => $testQuestion)
-                @foreach ($questionsInGroup as $groupQuestion)
+                @foreach ($groupedQuestions as $groupQuestion)
                     @if ($groupQuestion[0] == $testQuestion->id )
                         @foreach ($groupQuestions as $groupQuestionItem)
                             @if ($groupQuestionItem->id == $testQuestion->belongs_to_groupquestion_id)
                             <h6 wire:ignore class="inline-flex"> {{__('cms.group-question')}} : {{ $groupQuestionItem->name }}</h6>
                             <div class="flex flex-1 flex-col">
                                 <div class="flex flex-wrap">
-                                    <x-attachment.student-buttons-container :question="$testQuestion" :group="$groupQuestionItem" :blockAttachments="false"/>
+                                    <x-attachment.student-buttons-container :question="$testQuestion" :group="$groupQuestionItem" :blockAttachments="$this->blockAttachments" />
                                 </div>
                                 <div class="mb-5 questionContainer" questionHtml wire:ignore>{!! $groupQuestionItem->question->converted_question_html !!}</div>
                             </div>
@@ -118,13 +118,13 @@
                         </div>
                     @endif
                 </div>
-                @foreach ($questionsInGroup as $groupQuestion)
+                @foreach ($groupedQuestions as $groupQuestion)
                 @if (end($groupQuestion) == $testQuestion->id )
                     <hr style="background: var(--all-Base);">
                 @endif
                 @endforeach
                 @foreach ($questionsNotInGroup as $questionNotInGroup)
-                    @if ($questionNotInGroup == $testQuestion->id)
+                    @if ($questionNotInGroup === $testQuestion->id)
                         <hr style="background: var(--all-Base);">
                     @endif
                 @endforeach
