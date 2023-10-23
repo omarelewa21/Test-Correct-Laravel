@@ -1618,7 +1618,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         if (evt.touches?.length === 2) {
             return startPan(evt);
         }
-        if (drawingApp.params.currentTool === "drag") {
+        if (drawingApp.params.currentTool === "drag" || evt.target.closest(".shape")?.classList.contains("selected")) {
             if (evt.target.classList.contains("corner")) return startResize(evt);
             return startDrag(evt);
         }

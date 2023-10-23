@@ -14324,7 +14324,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
    * @param {Event} evt
    */
   function cursorStart(evt) {
-    var _evt$touches3;
+    var _evt$touches3, _evt$target$closest;
     evt.preventDefault();
     if (ShouldEditTextOnClick()) return;
     updateCursorPosition(evt);
@@ -14334,7 +14334,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     if (((_evt$touches3 = evt.touches) === null || _evt$touches3 === void 0 ? void 0 : _evt$touches3.length) === 2) {
       return startPan(evt);
     }
-    if (drawingApp.params.currentTool === "drag") {
+    if (drawingApp.params.currentTool === "drag" || (_evt$target$closest = evt.target.closest(".shape")) !== null && _evt$target$closest !== void 0 && _evt$target$closest.classList.contains("selected")) {
       if (evt.target.classList.contains("corner")) return startResize(evt);
       return startDrag(evt);
     }
