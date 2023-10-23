@@ -34,7 +34,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        FeatureSetting::where('settingable_type',SchoolLocation::class)->delete();
+        FeatureSetting::where('settingable_type',SchoolLocation::class)->where('title','allow_olympiade_archive')->delete();
 
         // make published_olympiade => published_olympiade_archive for both the tests and the questions
         Test::where('scope','published_olympiade_archive')->update(['scope' => 'published_olympiade']);
