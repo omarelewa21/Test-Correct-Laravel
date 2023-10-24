@@ -2149,6 +2149,7 @@ document.addEventListener("alpine:init", () => {
                     if (id) {
                         const button = document.getElementById(id);
                         if (button) {
+                            button.focus(); //make sure the previous lazy input has synced its value
                             button.click();
                         }
                     }
