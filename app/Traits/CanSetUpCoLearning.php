@@ -57,11 +57,14 @@ trait CanSetUpCoLearning
     public function toggleAllQuestionsChecked()
     {
         //todo set all questions to checked
+        dd($this->questionsSetUpOrderList);
     }
 
     public function toggleOpenQuestionsChecked()
     {
         //todo set all open questions to checked
+        dd($this->questionsSetUpOrderList);
+
     }
 
     public function toggleQuestionChecked($questionUuid)
