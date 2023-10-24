@@ -142,11 +142,11 @@ class CoLearning extends TCComponent implements CollapsableHeader
 
     public function mount(TestTake $test_take)
     {
+        Gate::authorize('isAllowedToViewTestTake',[$test_take, false, false ]);
+
         $this->testTakeUuid = $test_take->uuid;
 
         $this->setTestTake();
-
-        Gate::authorize('isAllowedToViewTestTake',[$this->testTake]);
 
         $this->redirectIfNotAllowed();
 
