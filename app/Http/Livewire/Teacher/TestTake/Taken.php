@@ -69,6 +69,12 @@ class Taken extends TestTakeComponent
             TestTakeModel::redirectToDetail($testTake->uuid);
         }
 
+        $asExamCoordinator = false;
+        if($testTake->test_take_status_id === TestTakeStatus::STATUS_RATED){
+            $asExamCoordinator = true;
+        }
+        Gate::authorize('isAllowedToViewTestTake',[$testTake, false, $asExamCoordinator ]);
+
         parent::mount($testTake);
         $this->createSystemRatingsWhenNecessary();
         $this->testTakeStatusId = $this->testTake->test_take_status_id;

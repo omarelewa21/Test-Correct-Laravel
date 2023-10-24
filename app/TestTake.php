@@ -447,14 +447,16 @@ class TestTake extends BaseModel
         return $this->hasMany(AnswerRating::class, 'test_take_id');
     }
 
-    public function isAllowedToView(User $userToCheck)
+    public function isAllowedToView(User $userToCheck, bool $asInvigilator = true, bool $asExamCoordinator = true)
     {
         return ($this->hasParticipantsThatUserTeaches($userToCheck) && $userToCheck->hasAccessToTest($this->test))
-            || $this->isInvigilator($userToCheck)
+            || ($asInvigilator && $this->isInvigilator($userToCheck))
             || (
-                    $this->isScheduledByUser($userToCheck)
+                    ($this->isScheduledByUser($userToCheck) && !$userToCheck->isValidExamCoordinator())
+                    || ($asExamCoordinator && $this->isScheduledByUser($userToCheck) && $userToCheck->isValidExamCoordinator())
                     ||
-                        ($userToCheck->isValidExamCoordinator()
+                        ($asExamCoordinator
+                            && $userToCheck->isValidExamCoordinator()
                             && $this->school_location_id === $userToCheck->school_location_id
                             && (in_array($this->test_take_status_id, [(string)TestTakeStatus::STATUS_PLANNED, (string)TestTakeStatus::STATUS_RATED]))
                         )
