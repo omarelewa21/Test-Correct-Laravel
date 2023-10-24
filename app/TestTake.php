@@ -1143,6 +1143,12 @@ class TestTake extends BaseModel
         $this->save();
     }
 
+    public function updateToRated(): void
+    {
+        $this->test_take_status_id = TestTakeStatus::STATUS_RATED;
+        $this->save();
+    }
+
     public static function isJoined($query, $table)
     {
         $joins = $query->getQuery()->joins;
