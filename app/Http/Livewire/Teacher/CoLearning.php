@@ -70,9 +70,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
 
     //Question Navigation properties
     public $questionsOrderList;
-    //CoLearning Set-up properties
-    public $questionsSetUpOrderList;
-    public bool $testHasGroupQuestions;
+
 
     public int $firstQuestionId;
     public int $lastQuestionId;
@@ -156,6 +154,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
 
         if ($this->testTakeHasNotYetBeenStartedBefore() || !$this->coLearningHasBeenStarted) {
             //todo the check uses discussion_type, but when selecting questions we dont need this property anymore
+
             $this->getSetUpData();
         }
 

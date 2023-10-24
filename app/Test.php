@@ -961,12 +961,13 @@ class Test extends BaseModel
                     return [
                         'question_id' => $item->question->getKey(),
                         'question_uuid' => $item->question->uuid,
-//                        'discuss'       => (!$testQuestion->question->isCarouselQuestion()) && $item->discuss ? 1 : 0,
                         'question_type' => $item->question->type,
                         'question_type_name' => $item->question->type_name,
                         'question_title' => $item->question->title,
                         'group_question_id' => $testQuestion->question->getKey(),
                         'carousel_question' => $testQuestion->question->isCarouselQuestion(),
+                        'open_question' => !$item->question->canCheckAnswer(),
+                        //                        'discuss'       => (!$testQuestion->question->isCarouselQuestion()) && $item->discuss ? 1 : 0,
                     ];
                 });
             }
@@ -978,6 +979,7 @@ class Test extends BaseModel
                 'question_title' => $testQuestion->question->title,
                 'group_question_id' => null,
                 'carousel_question' => false,
+                'open_question' => !$testQuestion->question->canCheckAnswer(),
 //                'discuss' => $testQuestion->discuss,
             ]];
         });

@@ -9,6 +9,7 @@
 'toggleValue' => null,
 'identifier' => null,
 'white' => false,
+'allowClickingCurrentValue' => false,
 ])
 <span wire:ignore
      {{ $attributes->except(['wire:model', 'class']) }}
@@ -45,7 +46,7 @@
                           'bg-off-white cursor-pointer border-bluegrey' => !$disabled,
                           'bg-white note hover:text-note border-lightGrey' => $disabled,
                         ])
-                     @if(!$disabled) @click="clickButton($el)" @endif
+                     @if(!$disabled) @click="clickButton($el, '{{$allowClickingCurrentValue}}')" @endif
                      data-active="false"
                 >
                     <span data-id="{{$id}}"

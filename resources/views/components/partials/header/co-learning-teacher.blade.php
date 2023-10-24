@@ -123,7 +123,7 @@
 @endsection
 
 @section('set-up-colearning')
-    <div class="set-up-colearning">
+    <div class="set-up-colearning" x-data="coLearningSetup()">
         <div class="set-up-subtitle">
             @if($this->setupStep === 1)
                 <h3 class="text-center text-white">
@@ -139,10 +139,13 @@
                 <h3 class="text-center text-white">
                     @lang ('co-learning.choose_questions_title')
                 </h3>
-                <div class="flex space-x-4 items-center">
+                <div class="flex space-x-4 items-center"
+                     x-on:multi-slider-toggle-value-updated.window=""
+                >
                     <x-button.slider initial-status="all"
                                      buttonWidth="auto"
                                      :white="true"
+                                     :allowClickingCurrentValue="true"
                                      :options="[ 'all' => ucfirst(__('co-learning.all_questions')), 'open' => __('co-learning.open_questions_only')]"
                     >
 
@@ -156,7 +159,7 @@
         </div>
 
 
-        <div class="set-up-colearning-panel" x-data="coLearningSetup()">
+        <div class="set-up-colearning-panel" >
             <div>
                 @if($this->setupStep === 1)
                     <div class="step-one-illustration">
@@ -336,7 +339,8 @@
                                             shadow.style.top = $root.querySelector(`[data-row='${value}'] .grid-item`)?.offsetTop + 'px'
                                         }
                                      })"
-                             wire:key="step2-{{ $this->setupCoLearningSortField .'-'. $this->setupCoLearningSortDirection }}"
+                             wire:key="{{ $this->setUpWireKey }}"
+{{--                             wire:key="step2-{{ $this->setupCoLearningSortField .'-'. $this->setupCoLearningSortDirection }}"--}}
                              wire:ignore.self
                         >
                             <div x-ref="shadowBox"

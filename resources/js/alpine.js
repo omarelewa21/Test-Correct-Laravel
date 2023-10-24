@@ -1580,7 +1580,7 @@ document.addEventListener("alpine:init", () => {
             }
             this.preventFractionalPixels();
         },
-        clickButton(target) {
+        clickButton(target, allowClickingCurrentValue = false) {
             this.activateButton(target);
             this.markInputElementsClean();
 
@@ -1588,7 +1588,7 @@ document.addEventListener("alpine:init", () => {
             this.value = target.firstElementChild.dataset.id;
 
             this.$root.dataset.hasValue = this.value !== null;
-            if (oldValue !== this.value) {
+            if (oldValue !== this.value || allowClickingCurrentValue) {
                 if([null, 'null'].includes(this.$root.dataset.toggleValue)) {
                     this.$dispatch("multi-slider-toggle-value-updated", {
                         value: target.firstElementChild.dataset.id,
@@ -1596,6 +1596,7 @@ document.addEventListener("alpine:init", () => {
                     });
                     return;
                 };
+
                 /* dispatch with a static (question score) value, not value/key of button-option, only works with true/false  */
                 this.$dispatch("slider-toggle-value-updated", {
                     value: this.$root.dataset.toggleValue,
@@ -4269,12 +4270,20 @@ document.addEventListener("alpine:init", () => {
     Alpine.data("coLearningSetup", () => ({
 
         init() {
-
+            window.addEventListener("multi-slider-toggle-value-updated", (event) => {
+                switch (event.detail.value) {
+                    case "open":
+                        this.$wire.updateQuestionsChecked("open");
+                        break;
+                    case "all":
+                        this.$wire.updateQuestionsChecked("all");
+                        break;
+                }
+            });
         },
         toggleQuestionChecked(questionUuid) {
             this.$wire.toggleQuestionChecked(questionUuid);
         }
-
     }));
 
     Alpine.directive("global", function(el, { expression }) {

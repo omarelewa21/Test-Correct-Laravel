@@ -7958,12 +7958,13 @@ document.addEventListener("alpine:init", function () {
         this.preventFractionalPixels();
       },
       clickButton: function clickButton(target) {
+        var allowClickingCurrentValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         this.activateButton(target);
         this.markInputElementsClean();
         var oldValue = this.value;
         this.value = target.firstElementChild.dataset.id;
         this.$root.dataset.hasValue = this.value !== null;
-        if (oldValue !== this.value) {
+        if (oldValue !== this.value || allowClickingCurrentValue) {
           if ([null, 'null'].includes(this.$root.dataset.toggleValue)) {
             this.$dispatch("multi-slider-toggle-value-updated", {
               value: target.firstElementChild.dataset.id,
@@ -7972,6 +7973,7 @@ document.addEventListener("alpine:init", function () {
             return;
           }
           ;
+
           /* dispatch with a static (question score) value, not value/key of button-option, only works with true/false  */
           this.$dispatch("slider-toggle-value-updated", {
             value: this.$root.dataset.toggleValue,
@@ -11199,7 +11201,19 @@ document.addEventListener("alpine:init", function () {
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("coLearningSetup", function () {
     return {
-      init: function init() {},
+      init: function init() {
+        var _this102 = this;
+        window.addEventListener("multi-slider-toggle-value-updated", function (event) {
+          switch (event.detail.value) {
+            case "open":
+              _this102.$wire.updateQuestionsChecked("open");
+              break;
+            case "all":
+              _this102.$wire.updateQuestionsChecked("all");
+              break;
+          }
+        });
+      },
       toggleQuestionChecked: function toggleQuestionChecked(questionUuid) {
         this.$wire.toggleQuestionChecked(questionUuid);
       }
