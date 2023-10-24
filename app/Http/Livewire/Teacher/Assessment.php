@@ -629,12 +629,13 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
         $maxIndex = $availableAnswers->keys()->last();
 
+        if($currentIndex < 0 || !$currentIndex) {
+            $currentIndex = 0;
+        }
         if($currentIndex > $maxIndex) {
             $currentIndex = $maxIndex;
         }
-        if($currentIndex < 0) {
-            $currentIndex = 0;
-        }
+
 
         $closestAvailableAnswer = $this->getClosestAvailableAnswer($action, $availableAnswers, $currentIndex);
 
