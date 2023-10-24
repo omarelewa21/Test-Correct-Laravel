@@ -97,7 +97,7 @@ class PdfDownloadModal extends TCModalComponent
     {
         $options = [
             'testopgavenpdf'  => [
-                'link'    => route('teacher.preview.test_attachments', ['test' => $this->test->uuid]),
+                'link'    => route('teacher.preview.test_pdf', ['test' => $this->test->uuid]),
                 'sticker' => 'test-export-questions',
                 'active'  => true,
                 'show'    => true,
@@ -121,7 +121,7 @@ class PdfDownloadModal extends TCModalComponent
                 'text'    => __('cms.toets_pdf_omschrijving'),
             ],
             'testattachments' => [
-                'link'    => route('teacher.preview.test_pdf', ['test' => $this->test->uuid]),
+                'link'    => route('teacher.preview.test_attachments', ['test' => $this->test->uuid]),
                 'sticker' => 'test-export-attachments',
                 'active'  => $this->test->attachments->isNotEmpty(),
                 'show'    => true,

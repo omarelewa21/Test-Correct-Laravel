@@ -426,8 +426,8 @@
 
                     @if($this->finalAnswerReached() && $this->assessedAllAnswers())
                         <x-button.cta size="sm"
-                                      wire:click="redirectBack"
-                                      wire:target="redirectBack,previous,next"
+                                      wire:click="finish"
+                                      wire:target="finish,redirectBack,previous,next"
                                       wire:loading.attr="disabled"
                                       wire:key="next-button-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue .'='.$this->assessedAllAnswers() }}"
                                       selid="assessment-footer-finish"
