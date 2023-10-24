@@ -361,6 +361,10 @@ class Taken extends TestTakeComponent
             $participant->definitiveRating = $participant->rating;
         });
 
+        if ($this->testTake->test_take_status_id !== TestTakeStatus::STATUS_RATED) {
+            $this->testTake->updateToRated();
+        }
+
         Session::put($this->resultSessionKey(), $this->participantResults);
         $this->participantGradesChanged = false;
     }
@@ -399,10 +403,7 @@ class Taken extends TestTakeComponent
 
     private function assessedQuestions(): int
     {
-        $takenCount = $this->participantResults->where('testNotTaken', false)->count();
-        return collect(TestTakeHelper::getAssessedQuestionCount($this->testTake))
-            ->where(fn($value) => $value >= $takenCount)
-            ->count();
+        return TestTakeHelper::getAssessedQuestionCount($this->testTake);
     }
 
     private function createSystemRatingsWhenNecessary(): void
