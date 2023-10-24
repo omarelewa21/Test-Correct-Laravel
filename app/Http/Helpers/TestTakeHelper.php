@@ -55,7 +55,10 @@ class TestTakeHelper
             ->get()
             ->mapWithKeys(fn($answer) => [$answer->question_id => $answer->required_ratings])
             ->each(function ($required, $questionId) use (&$questionTally) {
-                $questionTally[$questionId] = ['required' => $required, 'count' => $questionTally[$questionId]];
+                $questionTally[$questionId] = [
+                    'required' => $required,
+                    'count'    => $questionTally[$questionId] ?? 0
+                ];
             });
 
         return collect($questionTally)->where(fn($arr) => $arr['required'] === $arr['count'])->count();
