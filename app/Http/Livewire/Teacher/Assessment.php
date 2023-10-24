@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Session;
@@ -616,7 +617,36 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $availableAnswers = $this->getAvailableAnswersForCurrentStudent();
         $currentIndex = $availableAnswers->search(fn($item) => $item->question_id === $this->currentQuestion->id);
 
+        Bugsnag::leaveBreadcrumb(
+            'Retrieve question based on action',
+            [
+                'action' => $action,
+                'current_index' => $currentIndex,
+                'available_answers' => $availableAnswers->map->getKey()->toArray(),
+                'answers_count' => $availableAnswers->count(),
+            ]
+        );
+
+        $maxIndex = $availableAnswers->keys()->last();
+
+        if($currentIndex > $maxIndex) {
+            $currentIndex = $maxIndex;
+        }
+        if($currentIndex < 0) {
+            $currentIndex = 0;
+        }
+
         $closestAvailableAnswer = $this->getClosestAvailableAnswer($action, $availableAnswers, $currentIndex);
+
+        Bugsnag::leaveBreadcrumb(
+            'Retrieve question based on action',
+            [
+                'action' => $action,
+                'current_index' => $currentIndex,
+                'available_answers' => $availableAnswers->map->getKey()->toArray(),
+                'answers_count' => $availableAnswers->count(),
+                'closest_available_answer' => $closestAvailableAnswer?->getKey(),
+            ]);
 
         if (!$closestAvailableAnswer) {
             throw new AssessmentException(
@@ -627,6 +657,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
                 )
             );
         }
+
+        Bugsnag::clearBreadcrumbs();
 
         return $this->questions->where(
             'id',
