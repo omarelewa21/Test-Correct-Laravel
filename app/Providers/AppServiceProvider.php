@@ -70,7 +70,7 @@ class AppServiceProvider extends ServiceProvider
 
     private function bootGates()
     {
-        Gate::define('isAllowedToViewTestTake',fn(User $user, TestTake $testTake) => $testTake->isAllowedToView($user));
+        Gate::define('isAllowedToViewTestTake',fn(User $user, TestTake $testTake, $asInvigilator = true, $asExamCoordinator = true) => $testTake->isAllowedToView($user, $asInvigilator, $asExamCoordinator));
 
         Gate::define('isAuthorOfTest', fn(User $user, Test $test) => $test->canEdit($user));
         Gate::define('canViewTestDetails', fn(User $user, Test $test) => $test->canViewTestDetails($user));
