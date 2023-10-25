@@ -187,7 +187,7 @@ class Taken extends TestTakeComponent
                 'CO-Learning' => 'cta',
                 'Assessment'  => 'primary'
             ],
-            TestTakeStatus::STATUS_DISCUSSED => [
+            TestTakeStatus::STATUS_DISCUSSED  => [
                 'CO-Learning' => 'cta',
                 'Assessment'  => 'primary'
             ],
@@ -346,7 +346,9 @@ class Taken extends TestTakeComponent
 
     public function publishResults(): void
     {
-        if(!$this->gradingStandard) return;
+        if (!$this->gradingStandard) {
+            return;
+        }
         $this->standardizeResults(
             standard    : GradingStandard::tryFrom($this->gradingStandard),
             gradingValue: $this->gradingValue,
@@ -386,7 +388,7 @@ class Taken extends TestTakeComponent
 
     private function discussedQuestions(): int
     {
-        if($this->testTake->test_take_status_id < 7) {
+        if ($this->testTake->test_take_status_id < 7) {
             return 0;
         }
 
@@ -700,6 +702,8 @@ class Taken extends TestTakeComponent
 
     private function setStandardizationProperties(): void
     {
+        $this->calculateFinalRatingForParticipantsWhenNecessary();
+
         $this->gradingStandards = GradingStandard::casesWithDescription();
 
         if ($this->testTake->results_published) {
@@ -712,7 +716,10 @@ class Taken extends TestTakeComponent
         $this->gradingStandard = str($standard->name)->lower()->value();
         $this->cesuurPercentage = $cesuurPercentage ? (float)$cesuurPercentage : null;
 
-        if (!$this->testTake->results_published || $this->testTake->results_published->lt($this->testTake->assessed_at)) {
+
+        if (!$this->testTake->results_published || $this->testTake->results_published->lt(
+                $this->testTake->assessed_at
+            )) {
             $this->standardizeResults(
                 $standard,
                 $this->gradingValue
@@ -757,5 +764,20 @@ class Taken extends TestTakeComponent
         );
     }
 
+    private function calculateFinalRatingForParticipantsWhenNecessary(): void
+    {
+        $unratedAnswers = Answer::whereIn(
+            'test_participant_id',
+            TestParticipant::whereTestTakeId($this->testTake->getKey())->select('id')
+        )
+            ->whereNull('final_rating')
+            ->get();
 
+        if ($unratedAnswers->isNotEmpty()) {
+            $unratedAnswers->each(function ($answer) {
+                $answer->setAttribute('final_rating', $answer->calculateFinalRating());
+                $answer->save();
+            });
+        }
+    }
 }
