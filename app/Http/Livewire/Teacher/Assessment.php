@@ -1122,14 +1122,12 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         return $this->questions
             ->where('isDiscussionTypeOpen')
-            ->where(function ($question) {
-                return $this->answers
-                    ->where('question_id', $question->id)
-                    ->filter(function ($answer) {
-                        return $answer->hasDiscrepancy === false;
-                    })
-                    ->isEmpty();
-            })
+            ->whereIn(
+                'id',
+                $this->answers
+                    ->where('hasDiscrepancy', true)
+                    ->pluck('question_id')
+            )
             ->isNotEmpty();
     }
 
