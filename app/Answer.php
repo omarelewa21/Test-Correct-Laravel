@@ -118,6 +118,12 @@ class Answer extends BaseModel
         return $this->answerRatings->where('type', AnswerRating::TYPE_STUDENT);
     }
 
+    public function calculateAndSaveFinalRating()
+    {
+        $this->setAttribute('final_rating',$this->calculateFinalRating());
+        $this->save();
+
+    }
     public function calculateFinalRating() : ?float
     {
         $studentRatings = $this->getStudentAnswerRatings()->whereNotNull('rating');
