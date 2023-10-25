@@ -1132,7 +1132,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return $this->testTakeData->testParticipants
             ->load([
                 'answers:id,uuid,test_participant_id,question_id,json,order,final_rating,done,commented_answer',
-                'answers.answerRatings:id,answer_id,type,rating,advise,user_id',
+                'answers.answerRatings:id,answer_id,type,rating,advise,user_id,json',
                 'answers.answerRatings.user:id,name,name_first,name_suffix',
             ])
             ->flatMap(function ($participant) {
@@ -1182,14 +1182,12 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         return $this->questions
             ->where('isDiscussionTypeOpen')
-            ->where(function ($question) {
-                return $this->answers
-                    ->where('question_id', $question->id)
-                    ->filter(function ($answer) {
-                        return $answer->hasDiscrepancy === false;
-                    })
-                    ->isEmpty();
-            })
+            ->whereIn(
+                'id',
+                $this->answers
+                    ->where('hasDiscrepancy', true)
+                    ->pluck('question_id')
+            )
             ->isNotEmpty();
     }
 
