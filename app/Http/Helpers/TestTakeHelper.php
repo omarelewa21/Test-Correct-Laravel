@@ -61,7 +61,7 @@ class TestTakeHelper
                 ];
             });
 
-        return collect($questionTally)->where(fn($arr) => $arr['required'] === $arr['count'])->count();
+        return collect($questionTally)->where(fn($arr) => $arr['count'] >= $arr['required'])->count();
     }
 
     private static function ratingsQuery(TestTake $testTake)
