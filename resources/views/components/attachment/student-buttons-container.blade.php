@@ -1,8 +1,8 @@
 @props([
-    'questionAttachements' => false
+    'questionAttachmentsExist' => false
 ])
 
-@if($attachments->isNotEmpty() && !$questionAttachements)
+@if($attachments->isNotEmpty() && !$questionAttachmentsExist)
     @foreach($attachments as $attachment)
         <x-attachment.badge-view :attachment="$attachment"
                                  :title="$attachment->displayTitle"
@@ -14,7 +14,7 @@
                                  class="{{ !$loop->last && $attachment->groupDivider ? 'lead-divider' : '' }}"
         />
     @endforeach
-@elseif($questionAttachments->isNotEmpty() && $questionAttachements)
+@elseif($questionAttachments->isNotEmpty() && $questionAttachmentsExist)
     @foreach($questionAttachments as $attachment)
         <x-attachment.badge-view :attachment="$attachment"
                                  :title="$attachment->displayTitle"

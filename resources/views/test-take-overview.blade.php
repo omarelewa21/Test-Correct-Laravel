@@ -24,17 +24,14 @@
                 </style>
             @endpush
             @foreach($data as  $key => $testQuestion)
-                @foreach ($groupedQuestions as $groupQuestion)
-                    @if ($groupQuestion[0] == $testQuestion->id )
-                        @foreach ($groupQuestions as $groupQuestionItem)
-                            @if ($groupQuestionItem->id == $testQuestion->belongs_to_groupquestion_id)
-                            <h6 wire:ignore class="inline-flex"> {{__('cms.group-question')}} : {{ $groupQuestionItem->name }}</h6>
-                            <div class="flex flex-1 flex-col">
-                                <div class="flex flex-wrap">
-                                    <x-attachment.student-buttons-container :question="$testQuestion" :group="$groupQuestionItem" :blockAttachments="$this->blockAttachments" />
-                                </div>
-                                <div class="mb-5 questionContainer" questionHtml wire:ignore>{!! $groupQuestionItem->question->converted_question_html !!}</div>
-                            </div>
+                @foreach ($groupedQuestions as $groupedQuestion)
+                    @if ($groupedQuestion[0] == $testQuestion->id )
+                        @foreach ($groupQuestions as $groupQuestion)
+                            @if ($groupQuestion->id == $testQuestion->belongs_to_groupquestion_id)
+                                    <livewire:student-player.attachments-group-preview
+                                    :question="$testQuestion"
+                                    wire:key="'q-'.$testQuestion->uuid'q-'"
+                                    />
                             @endif
                         @endforeach
                     @endif
