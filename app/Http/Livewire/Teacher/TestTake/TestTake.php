@@ -215,7 +215,7 @@ abstract class TestTake extends TCComponent
                 [
                     [
                         'title' => __('test-take.Beschikbaar tot'),
-                        'data'  => $this->testTake->time_end->format('d-m-Y'),
+                        'data'  => $this->testTake->time_end?->format('d-m-Y') ?? '-',
                     ]
                 ]
 
