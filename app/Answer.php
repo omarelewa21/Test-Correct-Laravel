@@ -103,6 +103,12 @@ class Answer extends BaseModel
         return $this->hasMany('tcCore\PValue');
     }
 
+    public function calculateAndSaveFinalRating()
+    {
+        $this->setAttribute('final_rating',$this->calculateFinalRating());
+        $this->save();
+
+    }
     public function calculateFinalRating()
     {
         $scores = [];

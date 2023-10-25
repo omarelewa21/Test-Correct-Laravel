@@ -766,18 +766,10 @@ class Taken extends TestTakeComponent
 
     private function calculateFinalRatingForParticipantsWhenNecessary(): void
     {
-        $unratedAnswers = Answer::whereIn(
-            'test_participant_id',
-            TestParticipant::whereTestTakeId($this->testTake->getKey())->select('id')
-        )
+        Answer::whereIn('test_participant_id',$this->testTake->participants()->select('id'))
             ->whereNull('final_rating')
-            ->get();
-
-        if ($unratedAnswers->isNotEmpty()) {
-            $unratedAnswers->each(function ($answer) {
-                $answer->setAttribute('final_rating', $answer->calculateFinalRating());
-                $answer->save();
-            });
-        }
+            ->get()
+            ->each
+            ->calculateAndSaveFinalRating();
     }
 }
