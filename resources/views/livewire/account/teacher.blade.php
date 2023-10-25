@@ -392,40 +392,39 @@
                     </div>
 
                     <div class="lg:col-span-2 w-full">
-                        <div class="flex flex-col w-full gap-4">
-                            <h2 class="flex">@lang('account.Schrijf op')</h2>
-                        </div>
-                        <div class="content-section relative  sm:p-10  grid grid-cols-1 lg:grid-cols-2 gap-x-6 w-full">
+                        <h5 class="flex mb-3 mt-5">@lang('account.Schrijf op')</h5>
+                        <div class="relative grid grid-cols-1 lg:grid-cols-2 gap-x-6 w-full">
                             @if(settings()->canUseCmsWscWriteDownToggle())
-                            <div class="border-b lg:border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5 self-end">
-                                <x-input.toggle wire:model="featureSettings.spell_check_available_default" class="mr-2" />
-                                <x-icon.spellcheck class="min-w-[1rem]" />
-                            <span class="bold">@lang('cms.spell_check_available')</span>
-                            </div>
-                            
+                                <div class="border-b lg:border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5 self-end">
+                                    <x-input.toggle wire:model="featureSettings.spell_check_available_default"
+                                                    class="mr-2" />
+                                    <x-icon.spellcheck class="min-w-[1rem]" />
+                                    <span class="bold">@lang('cms.spell_check_available')</span>
+                                </div>
                             @endif
                             <div class="border-b lg:border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5 self-end">
                                 <x-input.toggle wire:model="featureSettings.mathml_functions_default" class="mr-2" />
                                 <x-icon.math-equation class="min-w-[1rem]" />
                                 <span class="bold">@lang('cms.mathml_functions')</span>
                             </div>
-                            <div class="flex justify-between lg:border-t items-center border-b border-bluegrey h-[50px]">
+                            <div class="flex justify-between items-center border-b border-bluegrey h-[50px]">
                                 <div class="flex gap-2 items-center">
-                                    <x-input.toggle wire:model="featureSettings.restrict_word_amount_default" class="mr-2" />
+                                    <x-input.toggle wire:model="featureSettings.restrict_word_amount_default"
+                                                    class="mr-2" />
                                     <x-icon.text-align-left class="min-w-[1rem]" />
                                     <span class="bold">@lang('cms.restrict_word_amount')</span>
                                 </div>
                                 <div class="flex gap-2 items-center">
                                     <x-input.text wire:model="featureSettings.max_words_default"
-                                                    class="text-center w-[3.375rem]"
-                                                    :only-integer="true"
+                                                  class="text-center w-[3.375rem]"
+                                                  :only-integer="true"
                                     />
                                 </div>
                             </div>
-                            <div class="border-b lg:border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5 self-end">
+                            <div class="border-b border-bluegrey flex w-full items-center h-[50px] gap-2.5 self-end">
                                 <x-input.toggle wire:model="featureSettings.text_formatting_default" class="mr-2" />
                                 <x-icon.font class="min-w-[1rem]" />
-                                <span class="bold">@lang('text_formatting')</span>
+                                <span class="bold">@lang('cms.text_formatting')</span>
                             </div>
                         </div>
                     </div>

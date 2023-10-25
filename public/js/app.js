@@ -11860,6 +11860,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/v4.js");
 /* harmony import */ var _CkEditor5CommentsIntegration__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./CkEditor5CommentsIntegration */ "./resources/js/CkEditor5CommentsIntegration.js");
+/* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 
 /**
@@ -11881,7 +11882,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "51d7221bf733999d7138",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });
@@ -11895,7 +11896,7 @@ FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MO
 
 _smoothscroll_polyfill__WEBPACK_IMPORTED_MODULE_2___default().polyfill();
 
-_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default().licenseKey("test-correct.nl-fd20379b-1da7f4b1");
+_AnyChart_anychart_base_min__WEBPACK_IMPORTED_MODULE_3___default().licenseKey(process.env.MIX_ANYCHART_LICENSE_KEY);
 
 window.uuidv4 = uuid__WEBPACK_IMPORTED_MODULE_4__["default"];
 
