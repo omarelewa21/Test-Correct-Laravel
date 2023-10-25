@@ -62,7 +62,7 @@
         <div class="flex flex-1 flex-col">
             @if(!$this->closed)
                 <div class="flex flex-wrap">
-                    <x-attachment.student-buttons-container :questionAttachements="true" :question="$question" :group="$this->group" :blockAttachments="$this->blockAttachments"/>
+                    <x-attachment.student-buttons-container :questionAttachmentsExist="true" :question="$question" :group="$this->group" :blockAttachments="$this->blockAttachments"/>
                 </div>
                 <div class="questionContainer">
                     {{ $slot }}
