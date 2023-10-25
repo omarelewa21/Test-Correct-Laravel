@@ -804,7 +804,25 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $question = $this->questions->discussionTypeFiltered($this->openOnly)->get(
             (int)$this->questionNavigationValue - 1
         );
+
+        if(!$question){ // fallback in case the question could not be found
+            if($this->questions->discussionTypeFiltered($this->openOnly)->count() === 0){
+                return false;
+            }
+
+            $question = $this->questions->discussionTypeFiltered($this->openOnly)->first();
+            $this->questionNavigationValue = 1;
+        }
         $participantId = $this->students->get((int)$this->answerNavigationValue - 1);
+
+        if(!$participantId){ // fallback in case the participant could not be found
+            if($this->students->count() === 0){
+                return false;
+            }
+            $participantId = $this->students->first();
+            $this->answerNavigationValue = 1;
+        }
+
         $answer = $this->answersWithDiscrepancyFilter()
             ->where('question_id', $question->id)
             ->where('test_participant_id', $participantId)
