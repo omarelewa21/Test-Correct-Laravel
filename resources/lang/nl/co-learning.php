@@ -76,4 +76,5 @@ return [
     'previous_step'                 => 'Stap terug',
     'choose_questions_title'        => 'Kies welke vragen je wilt behandelen',
     'questions_to_discuss'          => 'vragen te behandelen',
+    'present'                       => 'aanwezig',
 ];

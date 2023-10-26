@@ -174,7 +174,9 @@ class CoLearningHelper extends BaseHelper
             'testParticipants.answers:id,test_participant_id,uuid,done,question_id',
             'testParticipants.answers.answerRatings' => fn($query) => $query->where('type', 'STUDENT'),
             'testParticipants.answers.answerParentQuestions',
+            'testTakeQuestions',
         ]);
+
 
         // Set next question
         $newQuestionIdParents = QuestionGatherer::getNextQuestionId(
@@ -182,6 +184,7 @@ class CoLearningHelper extends BaseHelper
             $testTake->getDottedDiscussingQuestionIdWithOptionalGroupQuestionId($selfPacingTestParticipant),
             $testTake->isDiscussionTypeOpenOnly(),
             skipDoNotDiscuss: true,
+            testTakeId: $testTake->getKey(),
         );
 
         // If no next question present => quit;
@@ -229,7 +232,8 @@ class CoLearningHelper extends BaseHelper
                     $testTake->getAttribute('test_id'),
                     $newQuestionIdParents,
                     $testTake->isDiscussionTypeOpenOnly(),
-                    skipDoNotDiscuss: true
+                    skipDoNotDiscuss: true,
+                    testTakeId: $testTake->getKey(),
                 ) !== false),
 
         );

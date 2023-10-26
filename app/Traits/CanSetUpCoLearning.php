@@ -14,6 +14,8 @@ trait CanSetUpCoLearning
     public int $setupStep = 1;
     private int $setupMaxSteps = 2;
 
+    public string $setupQuestionSelector = 'all';
+
     public string $setUpWireKey;
 
     //sorting data step 2
@@ -24,8 +26,12 @@ trait CanSetUpCoLearning
     protected $questionsSetUpOrderList;
     public bool $testHasGroupQuestions;
 
+    protected $setupQuestionTotalCount;
+    protected $setupCheckedQuestionsCount;
+
     protected $queryStringCanSetUpCoLearning = [
         'setupStep' => ['except' => 1, 'as' => 'step'],
+        'setupQuestionSelector' => ['except' => 'all', 'as' => 'selector'],
     ];
 
     public function nextSetupStep()
@@ -73,6 +79,8 @@ trait CanSetUpCoLearning
 
     public function updateQuestionsChecked($questionTypeFilter = 'all')
     {
+        $this->setupQuestionSelector = $questionTypeFilter;
+
         $enabledQuestions = $this->getSetUpData()
             ->filter(fn($item) => !$item['disabled']);
 
@@ -200,14 +208,8 @@ trait CanSetUpCoLearning
     private function getSetUpData()
     {
 
-        //todo create combined data set to print view data:
-        // checked? => true/false               #from relation
-        // index => #                           #from questionList
-        // questionType => "OpenQuestion" etc.  #from questionList
-        // previewQuestionText => "..."         #from questionList
-        // PValue => 99%                        #from questionList
-
         $setupQuestionData = $this->getExpandedQuestionList();
+        $this->setupQuestionTotalCount = $setupQuestionData->count();
 
         $groupNumberIterator = 1;
         $groupNumbers = $setupQuestionData->unique('group_question_id')
@@ -229,6 +231,8 @@ trait CanSetUpCoLearning
         $this->testHasGroupQuestions = $setupQuestionData->filter(fn($item) => $item['group_question_id'] !== null)->count() > 0;
 
         $this->questionsSetUpOrderList = $setupQuestionData;
+
+        $this->setupCheckedQuestionsCount = $setupQuestionData->filter(fn($q) => $q['checked'])->count();
 
         $this->setTableWireKey();
 

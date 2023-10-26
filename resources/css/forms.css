@@ -674,8 +674,11 @@ input[type=number] {
     border-color: var(--primary);
 }
 
+.checkbox-container.disabled:active input ~ .checkmark,
 .checkbox-container.disabled:hover input ~ .checkmark {
     border-color: var(--blue-grey);
+    cursor: default;
+    background-color: rgba(var(--system-secondary-rgb), 0.5)
 }
 
 .checkbox-container:active input ~ .checkmark {

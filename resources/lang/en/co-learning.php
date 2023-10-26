@@ -76,4 +76,5 @@ return [
     'previous_step'                 => 'Step back',
     'choose_questions_title'        => 'Choose which questions to discuss',
     'questions_to_discuss'          => 'questions to discuss',
+    'present'                       => 'present',
 ];

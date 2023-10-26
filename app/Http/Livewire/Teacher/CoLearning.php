@@ -28,6 +28,7 @@ use tcCore\MatchingQuestion;
 use tcCore\MultipleChoiceQuestion;
 use tcCore\Question;
 use tcCore\TestTake;
+use tcCore\TestTakeQuestion;
 use tcCore\TestTakeStatus;
 use tcCore\Traits\CanSetUpCoLearning;
 use tcCore\View\Components\CompletionQuestionConvertedHtml;
@@ -197,11 +198,12 @@ class CoLearning extends TCComponent implements CollapsableHeader
             ->layout('layouts.co-learning-teacher');
     }
 
-    public function startCoLearningSession($discussionType) : bool|Redirector
+    public function startCoLearningSession($discussionType = self::DISCUSSION_TYPE_ALL) : bool|Redirector
     {
-        if (!in_array($discussionType, [self::DISCUSSION_TYPE_OPEN_ONLY, self::DISCUSSION_TYPE_ALL])) {
-            throw new \Exception('Wrong discussion type');
-        }
+        //todo remove all discussion type checks, we dont need them anymore
+//        if (!in_array($discussionType, [self::DISCUSSION_TYPE_OPEN_ONLY, self::DISCUSSION_TYPE_ALL])) {
+//            throw new \Exception('Wrong discussion type');
+//        }
 
         $testTakeUpdateData = [];
         $resetProgress = $discussionType != $this->testTake->discussion_type;
@@ -525,7 +527,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
             $this->testTake->getKey(),
             $this->discussingQuestion?->getKey(),
         );
-
+//dd($this->testParticipants);
         $this->testParticipants
             ->load([
                 'discussingAnswerRating:id,answer_id',
@@ -761,7 +763,20 @@ class CoLearning extends TCComponent implements CollapsableHeader
 
     private function getQuestionList()
     {
-        return collect($this->testTake->test->getQuestionOrderListWithDiscussionType());
+        $testTakeQuestions = TestTakeQuestion::whereTestTakeId($this->testTake->getKey())
+            ->get()
+            ->map(fn($item) => $item->question->getKey());
+
+        $orderList = collect($this->testTake->test->getQuestionOrderListWithDiscussionType());
+
+        //filters questions that are not checked at start screen
+        // recalculates order of questionList
+        $order = 1;
+        return $orderList->filter(fn($question) => $testTakeQuestions->contains($question['id']))
+        ->map(function ($question) use (&$order) {
+            $question['order'] = $order++;
+            return $question;
+        });
     }
 
     private function setTestTake()

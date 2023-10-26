@@ -53,11 +53,11 @@
                  wire:key="{{ now()->timestamp }}"
             >
                 <div x-ref="drawerContentHeadText1" class="flex">
-                    <span class="bold">aanwezig {{ $this->testParticipantCountActive }}</span>
+                    <span class="bold">@lang('co-learning.present') {{ $this->testParticipantCountActive }}</span>
                     <span>/{{ $this->testParticipantCount }}</span>
                 </div>
                 <div x-ref="drawerContentHeadText2" class="flex">
-                    <span class="bold">vraag {{ $this->openOnly ? $this->questionIndexOpenOnly : $this->questionIndex }}</span>
+                    <span class="bold">{{ strtolower(__('co-learning.question')) }} {{ $this->openOnly ? $this->questionIndexOpenOnly : $this->questionIndex }}</span>
                     <span>/{{  $this->questionCountFiltered }}</span>
                 </div>
             </div>

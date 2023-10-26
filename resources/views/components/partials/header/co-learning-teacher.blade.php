@@ -28,101 +28,15 @@
 @endsection
 
 @section('panels')
-
     {{-- TODO remove section? --}}
+@endsection
 
-    {{--    <div class="set-up-colearning">--}}
-    {{--        <div class="step-one-panel">--}}
-    {{--            <x-backgrounds.triangles-colored></x-backgrounds.triangles-colored>--}}
-
-    {{--        </div>--}}
-    {{--    </div>--}}
-    {{--    <x-backgrounds.triangles-colored></x-backgrounds.triangles-colored>--}}
-
-
-
-
-    {{-- old panels: --}}
-    {{--    <x-partials.header.panel @class([
-                    "co-learning-restart" => $this->coLearningRestart,
-                    "co-learning-previous-discussion-type" => !$this->openOnly,
-                    ])>
-            <x-slot:sticker>
-                <x-stickers.questions-all />
-            </x-slot:sticker>
-            <x-slot:title>{{  str(__('co-learning.all_questions'))->ucfirst() }}</x-slot:title>
-            <x-slot:subtitle>
-                <div>{{ __('co-learning.all_questions_text') }}</div>
-            </x-slot:subtitle>
-            <x-slot:button>
-                <x-button.cta size="md"
-                              x-on:click.prevent="handleHeaderCollapse({discussionType:'ALL'})">
-                    <span>
-                        @lang($this->coLearningRestart && !$this->openOnly ? 'auth.continue' : 'co-learning.start')
-                    </span>
-                    <x-icon.arrow />
-                </x-button.cta>
-            </x-slot:button>
-            <x-slot:additionalInfo>
-                @if($this->coLearningRestart)
-                    @if($this->openOnly)
-                        <div class="text-center text-[14px]">
-                            {!!  __('co-learning.restart_session') !!}
-                        </div>
-                    @else
-                        <div class="text-center text-[14px]">
-                            {!!  __('co-learning.current_session', [
-                            'index' => $this->questionIndex,
-                            'totalQuestions' => $this->questionCount,
-                            'date' => $this->testTake->updated_at->format('d/m/Y')
-                            ]) !!}
-                        </div>
-                    @endif
-                @endif
-            </x-slot:additionalInfo>
-        </x-partials.header.panel>
-
-        <x-partials.header.panel @class([
-                            "co-learning-restart" => $this->coLearningRestart,
-                            "co-learning-previous-discussion-type" => $this->openOnly,
-                            ])>
-            <x-slot:sticker>
-                <x-stickers.questions-open-only />
-            </x-slot:sticker>
-            <x-slot:title>{{ str(__('co-learning.open_questions_only'))->ucfirst() }}</x-slot:title>
-            <x-slot:subtitle>
-                <div>{{ __('co-learning.open_questions_text') }}</div>
-            </x-slot:subtitle>
-            <x-slot:button>
-                <x-button.cta size="md"
-                                  x-on:click.prevent="handleHeaderCollapse({discussionType:'OPEN_ONLY'})">
-                    <span>
-                        @lang($this->coLearningRestart && $this->openOnly ? 'auth.continue' : 'co-learning.start')
-                    </span>
-                    <x-icon.arrow />
-                </x-button.cta>
-            </x-slot:button>
-            <x-slot:additionalInfo>
-                @if($this->coLearningRestart)
-                    @if($this->openOnly)
-                        <div class="text-center text-[14px]">
-                            {!!  __('co-learning.current_session', [
-                            'index' => $this->questionIndexOpenOnly,
-                            'totalQuestions' => $this->questionCountFiltered,
-                            'date' => $this->testTake->updated_at->format('d/m/Y')
-                            ]) !!}
-                        </div>
-                    @else
-                        <div class="text-center text-[14px]">
-                            {!!  __('co-learning.restart_session') !!}
-                        </div>
-                    @endif
-                @endif
-            </x-slot:additionalInfo>
-        </x-partials.header.panel>--}}
+@section('additionalInfo')
+    {{-- Todo remove section?  --}}
 @endsection
 
 @section('set-up-colearning')
+    @unless($this->coLearningHasBeenStarted)
     <div class="set-up-colearning" x-data="coLearningSetup()">
         <div class="set-up-subtitle">
             @if($this->setupStep === 1)
@@ -142,7 +56,7 @@
                 <div class="flex space-x-4 items-center"
                      x-on:multi-slider-toggle-value-updated.window=""
                 >
-                    <x-button.slider initial-status="all"
+                    <x-button.slider initial-status="{{$this->setupQuestionSelector}}"
                                      buttonWidth="auto"
                                      :white="true"
                                      :allowClickingCurrentValue="true"
@@ -477,10 +391,10 @@
                 </x-button.text>
                 <div class="space-x-4">
                     <span class="text-[14px]">
-                        <b class="text-[16px]">999</b>/1 {{__('co-learning.questions_to_discuss')}}
+                        <b class="text-[16px]">{{ $this->setupCheckedQuestionsCount }}</b>/{{ $this->setupQuestionTotalCount }} {{__('co-learning.questions_to_discuss')}}
                     </span>
                     <x-button.cta
-                            x-on:click="handleCollapse()"
+                            x-on:click.prevent.stop="handleHeaderCollapse({'discussionType': 'all'})"
                     >
                         <span>@lang('co-learning.start')</span>
                     </x-button.cta>
@@ -497,9 +411,7 @@
             </div>
         </div>
     </div>
+    @endif
 @endsection
 
 
-@section('additionalInfo')
-    {{-- Todo remove section?  --}}
-@endsection

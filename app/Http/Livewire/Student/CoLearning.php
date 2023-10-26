@@ -28,6 +28,7 @@ use tcCore\InfoscreenQuestion;
 use tcCore\MatchingQuestion;
 use tcCore\Question;
 use tcCore\TestTake;
+use tcCore\TestTakeQuestion;
 use tcCore\TestTakeStatus;
 
 class CoLearning extends TCComponent
@@ -142,7 +143,18 @@ class CoLearning extends TCComponent
 
         $this->selfPacedNavigation = $this->testTake->enable_student_navigation_colearning;
         $this->discussingQuestionId = $this->getDiscussingQuestion()->getKey();
-        $this->questionOrderList = $this->testTake->test->getQuestionOrderListWithDiscussionType();
+
+
+        //todo filter questionOrderList by TestTakeQuestions
+        $orderList = $this->testTake->test->getQuestionOrderListWithDiscussionType();
+
+        $testTakeQuestions = TestTakeQuestion::whereTestTakeId($this->testTake->getKey())
+                    ->get()
+                    ->map(fn($item) => $item->question->getKey());
+        $this->questionOrderList = $orderList->filter(fn($question) => $testTakeQuestions->contains($question['id']));
+        //todo make sure above change does not break anything
+
+
         $this->questionOrderNumber = $this->questionOrderList[$this->discussingQuestionId]['order'];
         $this->questionOrderAsInTestNumber = $this->questionOrderList[$this->discussingQuestionId]['order_in_test'];
 
