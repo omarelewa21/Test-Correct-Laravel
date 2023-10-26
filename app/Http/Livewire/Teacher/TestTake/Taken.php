@@ -772,7 +772,7 @@ class Taken extends TestTakeComponent
 
     private function calculateFinalRatingForParticipantsWhenNecessary(): void
     {
-        Answer::whereIn('test_participant_id',$this->testTake->participants()->select('id'))
+        Answer::whereIn('test_participant_id', $this->testTake->testParticipants()->select('id'))
             ->whereNull('final_rating')
             ->get()
             ->each
