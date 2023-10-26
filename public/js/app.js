@@ -9159,7 +9159,13 @@ document.addEventListener("alpine:init", function () {
         return isFloat(this.maxScore);
       },
       handleInvalidNumberInput: function handleInvalidNumberInput() {
+        //chromium: (chromium transforms alphanumeric character to an empty string)
         if (this.$event.data === "") {
+          this.score = this.$store.scoreSlider.currentBackupScore;
+          return;
+        }
+        //firefox: (firefox passes the alphanumeric character)
+        if (isNaN(this.$event.data) && this.$event.data !== undefined) {
           this.score = this.$store.scoreSlider.currentBackupScore;
           return;
         }
