@@ -527,7 +527,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
             $this->testTake->getKey(),
             $this->discussingQuestion?->getKey(),
         );
-//dd($this->testParticipants);
+
         $this->testParticipants
             ->load([
                 'discussingAnswerRating:id,answer_id',
