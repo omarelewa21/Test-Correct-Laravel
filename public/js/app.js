@@ -9090,6 +9090,7 @@ document.addEventListener("alpine:init", function () {
             }
           });
         }
+        this.initInvalidNumberBackupScore();
         this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
         this.$watch("score", function (value, oldValue) {
           _this55.markInputElementsClean();
@@ -9156,6 +9157,16 @@ document.addEventListener("alpine:init", function () {
       },
       hasMaxDecimalScoreWithHalfPoint: function hasMaxDecimalScoreWithHalfPoint() {
         return isFloat(this.maxScore);
+      },
+      handleInvalidNumberInput: function handleInvalidNumberInput() {
+        if (this.$event.data === "") {
+          this.score = this.$store.scoreSlider.currentBackupScore;
+          return;
+        }
+        this.$store.scoreSlider.currentBackupScore = parseFloat(this.$event.target.value);
+      },
+      initInvalidNumberBackupScore: function initInvalidNumberBackupScore() {
+        this.$store.scoreSlider.currentBackupScore = this.score;
       }
     };
   });
@@ -11396,6 +11407,9 @@ document.addEventListener("alpine:init", function () {
       this.currentScore = score;
       this.toggleCount = toggleCount;
     }
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("scoreSlider", {
+    currentBackupScore: null
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("editorMaxWords", {});
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("coLearningStudent", {

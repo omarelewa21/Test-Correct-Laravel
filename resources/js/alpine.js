@@ -2462,6 +2462,7 @@ document.addEventListener("alpine:init", () => {
                     }
                 });
             }
+            this.initInvalidNumberBackupScore();
 
             this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
             this.$watch("score", (value, oldValue) => {
@@ -2534,6 +2535,16 @@ document.addEventListener("alpine:init", () => {
         },
         hasMaxDecimalScoreWithHalfPoint() {
             return isFloat(this.maxScore);
+        },
+        handleInvalidNumberInput() {
+            if(this.$event.data === "") {
+                this.score = this.$store.scoreSlider.currentBackupScore;
+                return;
+            }
+            this.$store.scoreSlider.currentBackupScore = parseFloat(this.$event.target.value);
+        },
+        initInvalidNumberBackupScore () {
+            this.$store.scoreSlider.currentBackupScore = this.score;
         }
     }));
 
@@ -4425,6 +4436,9 @@ document.addEventListener("alpine:init", () => {
             this.toggleCount = toggleCount;
         }
     });
+    Alpine.store("scoreSlider", {
+        currentBackupScore: null,
+    })
     Alpine.store("editorMaxWords", {});
     Alpine.store("coLearningStudent", {
         drawerCollapsed: null,
