@@ -7,7 +7,7 @@
        :step="halfPoints ? 0.5 : 1"
        x-ref="scoreInput"
        x-on:focusout="syncInput($el.value)"
-       x-on:input="setThumbOffset(document.querySelector('.score-slider-input'), score, maxScore)"
+       x-on:input="handleInvalidNumberInput(); setThumbOffset(document.querySelector('.score-slider-input'), score, maxScore)"
        @if($focusInput) autofocus @endif
        @disabled($disabled)
 >
