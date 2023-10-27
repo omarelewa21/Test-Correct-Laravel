@@ -12,10 +12,10 @@
 @endsection
 
 @section('collapsedLeft')
-    <div class="text-right text-[14px] mr-4">
-        {{ __('co-learning.questions_being_discussed') }}<br>
-        {{ $discussionTypeTranslation }}
-    </div>
+{{--    <div class="text-right text-[14px] mr-4">--}}
+{{--        {{ __('co-learning.questions_being_discussed') }}<br>--}}
+{{--        {{ $discussionTypeTranslation }}--}}
+{{--    </div>--}}
     <div class="flex items-center">
         <x-button.cta :disabled="!$atLastQuestion"
                       @class(['opacity-40' => !$atLastQuestion])
@@ -158,6 +158,7 @@
                                 ]) !!}
 
                                 {!!  __('co-learning.current_session', [
+                                'index' => $this->questionIndexOpenOnly,
                                 'index' => $this->questionIndexOpenOnly,
                                 'totalQuestions' => $this->questionCountFiltered,
                                 'date' => $this->testTake->updated_at->format('d/m/Y')

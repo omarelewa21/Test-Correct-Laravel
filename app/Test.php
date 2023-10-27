@@ -926,7 +926,6 @@ class Test extends BaseModel
     {
         $orderAllQuestion = 0;
         $orderInTest = 0;
-        $orderOpenOnly = 0;
 
         return $this->testQuestions->sortBy('order')->flatMap(function ($testQuestion) {
             if ($testQuestion->question->type === 'GroupQuestion') {
@@ -944,7 +943,6 @@ class Test extends BaseModel
             return [$item['id'] => [
                 'order' => (bool)$item['discuss'] ? ++$orderAllQuestion : null,
                 'order_in_test' => ++$orderInTest,
-                'order_open_only' => $item['question_type'] === Question::TYPE_OPEN && (bool)$item['discuss'] ? ++$orderOpenOnly : null,
                 ...$item,
             ]];
         })->toArray();

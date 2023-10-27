@@ -2,14 +2,14 @@
      @if($testTake->enable_comments_colearning && !$this->coLearningFinished)
      x-data="AnswerFeedback(
                 @js('ar-'. $this->answerRating->getKey()),
-                @js('feedback-editor-'. $this->questionFollowUpNumber .'-'. $this->answerFollowUpNumber),
+                @js('feedback-editor-'. $this->questionOrderNumber .'-'. $this->answerFollowUpNumber),
                 @js(auth()->user()->uuid),
                 @js($this->currentQuestion->type),
                 @js(false),
                 @js($this->hasFeedback)
              )"
      x-on:resize.window.debounce.50ms="repositionAnswerFeedbackIcons()"
-     wire:key="ar-{{ $this->answerRating->getKey() }}-fe-{{$this->questionFollowUpNumber .'-'. $this->answerFollowUpNumber}}"
+     wire:key="ar-{{ $this->answerRating->getKey() }}-fe-{{$this->questionOrderNumber .'-'. $this->answerFollowUpNumber}}"
      @endif
      x-on:slider-toggle-value-updated.window="toggleTicked($event.detail)"
 >
@@ -261,8 +261,7 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     <span><b class="bold">{{ __('co-learning.answer') }} {{ $this->answerFollowUpNumber }}</b>/{{ $this->numberOfAnswers }}</span>
-                    <span><b class="bold">{{ __('co-learning.question') }} {{$this->questionFollowUpNumber}}</b>/{{$this->numberOfQuestions}}</span>
-
+                    <span><b class="bold">{{ __('co-learning.question') }} {{$this->questionOrderNumber}}</b>/{{$this->numberOfQuestions}}</span>
                     {{--
                         - previous answer/question becomes a text button
                         - next answer/question is a primary button
@@ -351,7 +350,7 @@
                     <div class="flex w-full flex-col" x-show="dropdownOpened === 'add-feedback'"
                          x-collapse
                          wire:ignore
-                         x-init="createFocusableButtons(); $dispatch('reinitialize-editor-{{ 'feedback-editor-'. $this->questionFollowUpNumber .'-'. $this->answerFollowUpNumber }}')"
+                         x-init="createFocusableButtons(); $dispatch('reinitialize-editor-{{ 'feedback-editor-'. $this->questionOrderNumber .'-'. $this->answerFollowUpNumber }}')"
                     >
                         @if($testTake->discussingQuestion->isType('OpenQuestion'))
                         <x-input.comment-color-picker
@@ -375,12 +374,12 @@
                              x-on:click="$el.classList.add('editor-focussed')"
                         >
                             <label class="comment-feedback-editor-label flex"
-                                   x-on:click="ClassicEditors['feedback-editor-{{ $this->questionFollowUpNumber }}-{{ $this->answerFollowUpNumber }}'].focus()"
+                                   x-on:click="ClassicEditors['feedback-editor-{{ $this->questionOrderNumber }}-{{ $this->answerFollowUpNumber }}'].focus()"
                             >
                                 @lang('assessment.Feedback schrijven')
                             </label>
                             <x-input.rich-textarea type="create-answer-feedback"
-                                                   :editorId="'feedback-editor-'. $this->questionFollowUpNumber .'-'. $this->answerFollowUpNumber"
+                                                   :editorId="'feedback-editor-'. $this->questionOrderNumber .'-'. $this->answerFollowUpNumber"
                             />
                         </div>
 
@@ -391,7 +390,7 @@
                              data-save-translation="@lang('general.save')"
                              data-cancel-translation="@lang('modal.annuleren')"
                              data-answer-editor-id="{{ 'ar-'. $this->answerRating->getKey() }}"
-                             data-feedback-editor-id="{{ 'feedback-editor-'. $this->questionFollowUpNumber .'-'. $this->answerFollowUpNumber }}"
+                             data-feedback-editor-id="{{ 'feedback-editor-'. $this->questionOrderNumber .'-'. $this->answerFollowUpNumber }}"
                         > {{-- filled by javascript with Ckeditor view components, cancel and save button --}}
                         </div>
                     </div>

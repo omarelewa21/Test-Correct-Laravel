@@ -57,7 +57,7 @@
                     <span>/{{ $this->testParticipantCount }}</span>
                 </div>
                 <div x-ref="drawerContentHeadText2" class="flex">
-                    <span class="bold">{{ strtolower(__('co-learning.question')) }} {{ $this->openOnly ? $this->questionIndexOpenOnly : $this->questionIndex }}</span>
+                    <span class="bold">{{ strtolower(__('co-learning.question')) }} {{ $this->questionIndex }}</span>
                     <span>/{{  $this->questionCountFiltered }}</span>
                 </div>
             </div>

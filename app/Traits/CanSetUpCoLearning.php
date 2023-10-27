@@ -82,7 +82,8 @@ trait CanSetUpCoLearning
         $this->setupQuestionSelector = $questionTypeFilter;
 
         $enabledQuestions = $this->getSetUpData()
-            ->filter(fn($item) => !$item['disabled']);
+            ->filter(fn($item) => !$item['disabled'])
+            ->filter(fn($item) => !$item['discussed']); //do not update questions that are discussed or disabled
 
         $questionsCheckedList = $enabledQuestions
             ->when(value   : $questionTypeFilter === "open",

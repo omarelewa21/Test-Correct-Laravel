@@ -78,10 +78,9 @@ class CoLearning extends TCComponent
 
     public array $questionOrderList;
 
-    public int $numberOfQuestions;
-    public int $questionFollowUpNumber = 0; //with or without Closed questions
-    public int $questionOrderNumber; //with all questions (without not discussed questions)
-    public int $questionOrderAsInTestNumber; //with all questions types and also not discussed questions (like in test)
+    public int $numberOfQuestions; // filtered question list count
+    public int $questionOrderNumber; // filtered question list index
+    public int $questionOrderAsInTestNumber; // unfiltered question list index (like in test)
     public int $numberOfAnswers;
     public int $answerFollowUpNumber = 0;
 
@@ -98,7 +97,7 @@ class CoLearning extends TCComponent
      */
     public function getAtLastQuestionProperty(): bool
     {
-        return $this->numberOfQuestions === $this->questionFollowUpNumber;
+        return $this->numberOfQuestions === $this->questionOrderNumber;
     }
 
     public function allAnswerRatingsFullyRated(): bool
@@ -145,15 +144,7 @@ class CoLearning extends TCComponent
         $this->discussingQuestionId = $this->getDiscussingQuestion()->getKey();
 
 
-        //todo filter questionOrderList by TestTakeQuestions
-        $orderList = $this->testTake->test->getQuestionOrderListWithDiscussionType();
-
-        $testTakeQuestions = TestTakeQuestion::whereTestTakeId($this->testTake->getKey())
-                    ->get()
-                    ->map(fn($item) => $item->question->getKey());
-        $this->questionOrderList = $orderList->filter(fn($question) => $testTakeQuestions->contains($question['id']));
-        //todo make sure above change does not break anything
-
+        $this->questionOrderList = $this->getQuestionList()->toArray();
 
         $this->questionOrderNumber = $this->questionOrderList[$this->discussingQuestionId]['order'];
         $this->questionOrderAsInTestNumber = $this->questionOrderList[$this->discussingQuestionId]['order_in_test'];
@@ -176,6 +167,29 @@ class CoLearning extends TCComponent
         }
     }
 
+    private function getQuestionList()
+    {
+        $testTakeQuestions = TestTakeQuestion::whereTestTakeId($this->testTake->getKey())
+            ->get()
+            ->map(fn($item) => $item->question->getKey());
+
+        //todo cache testTake->test->getQuestionOrderListWithDiscussionType()
+        $orderList = collect($this->testTake->test->getQuestionOrderListWithDiscussionType());
+
+        if($testTakeQuestions->isEmpty()) {
+            return $orderList;
+        }
+
+        //filters questions that are not checked at start screen
+        // recalculates order of questionList
+        $order = 1;
+        return $orderList->filter(fn($question) => $testTakeQuestions->contains($question['id']))
+            ->map(function ($question) use (&$order) {
+                $question['order'] = $order++;
+                return $question;
+            });
+    }
+
     public function render()
     {
         if (is_null($this->answerRating) && (!$this->noAnswerRatingAvailableForCurrentScreen || !$this->coLearningFinished)) {
@@ -184,7 +198,7 @@ class CoLearning extends TCComponent
         }
         $this->waitForTeacherNotificationEnabled = $this->shouldShowWaitForTeacherNotification();
 
-        $this->uniqueKey = $this->answerRating?->getKey() ?? '' .'-'. $this->questionFollowUpNumber .'-'. $this->answerFollowUpNumber;
+        $this->uniqueKey = $this->answerRating?->getKey() ?? '' .'-'. $this->questionOrderNumber .'-'. $this->answerFollowUpNumber;
 
         return view('livewire.student.co-learning')
             ->layout('layouts.co-learning-student');
@@ -418,29 +432,11 @@ class CoLearning extends TCComponent
     private function getQuestionAndAnswerNavigationData(): void
     {
 
-        $testTakeQuestionsCollection = TestTakeLaravelController::getData(null, $this->testTake);
         $this->discussingQuestionId = $this->getDiscussingQuestion()->getKey();
 
         $this->questionOrderNumber = $this->questionOrderList[$this->discussingQuestionId]['order'];
         $this->questionOrderAsInTestNumber = $this->questionOrderList[$this->discussingQuestionId]['order_in_test'];
-        $this->numberOfQuestions = $testTakeQuestionsCollection->reduce(function ($carry, $question) {
-            if ($question->belongs_to_carousel) {
-                //carousel questions are not discussed during co-learning
-                return $carry;
-            }
-            if ($question->discuss === 0) {
-                return $carry;
-            }
-
-            if ($this->discussOpenQuestionsOnly && $question->canCheckAnswer()) { //question canCheckAnswer === 'Closed question'
-                return $carry;
-            }
-            $carry++;
-            if ($question->id == $this->discussingQuestionId) {
-                $this->questionFollowUpNumber = $carry;
-            }
-            return $carry;
-        }, 0);
+        $this->numberOfQuestions = count($this->questionOrderList);
 
         if ($this->noAnswerRatingAvailableForCurrentScreen) {
             $this->numberOfAnswers = 1;
