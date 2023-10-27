@@ -42,6 +42,7 @@ use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
 use tcCore\Http\Requests\Request;
 use tcCore\Http\Traits\WithQueryStringSyncing;
+use tcCore\Lib\CkEditorComments\User;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Question;
 use tcCore\TemporaryLogin;
@@ -1494,7 +1495,6 @@ class Constructor extends TCComponent implements QuestionCms
     private function featureSettingDefaults(): array
     {
         $featureSettings = UserFeatureSettingEnum::initialValues()->merge(UserFeatureSetting::getAll(Auth::user()));
-
         return [
             'add_to_database'   => $featureSettings[UserFeatureSettingEnum::QUESTION_PUBLICLY_AVAILABLE->value],
             'score'             => $featureSettings[UserFeatureSettingEnum::QUESTION_DEFAULT_POINTS->value],

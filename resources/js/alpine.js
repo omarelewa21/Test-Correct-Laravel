@@ -1588,7 +1588,7 @@ document.addEventListener("alpine:init", () => {
             this.value = target.firstElementChild.dataset.id;
 
             this.$root.dataset.hasValue = this.value !== null;
-            if (oldValue !== this.value) {
+            if (oldValue?.toString() !== this.value?.toString()) {
                 if([null, 'null'].includes(this.$root.dataset.toggleValue)) {
                     this.$dispatch("multi-slider-toggle-value-updated", {
                         value: target.firstElementChild.dataset.id,
@@ -2136,9 +2136,9 @@ document.addEventListener("alpine:init", () => {
                 // Add a keyup event listener to the document
                 document.addEventListener('keyup', (event) => {
                     // If the target is an input or textarea, do nothing
-                    // if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') {
-                    //     return;
-                    // }
+                    if ((event.target.tagName.toLowerCase() === 'input' && !event.target.classList.contains('js-allow-for-wasd-navigation')) || event.target.tagName.toLowerCase() === 'textarea') {
+                        return;
+                    }
                     // Check if the event.target is a ckEditor
                     if (event.target.classList.contains('ck')) {
                         return;
@@ -2149,6 +2149,7 @@ document.addEventListener("alpine:init", () => {
                     if (id) {
                         const button = document.getElementById(id);
                         if (button) {
+                            button.focus(); //make sure the previous lazy input has synced its value
                             button.click();
                         }
                     }
@@ -2406,42 +2407,15 @@ document.addEventListener("alpine:init", () => {
             return (value - min) / (max - min) * 100;
         },
         setThumbOffset() {
-
             if (continuousSlider) {
                 return;
             }
-
-            if (event && event.data) {
-                const keyToSelIdMap = {
-                    'a': 'btn_loadAnswer_previous',
-                    'd': 'btn_loadAnswer_next',
-                    's': 'btn_loadQuestion_previous',
-                    'w': 'btn_loadQuestion_next',
-                };
-
-                // Add a keyup event listener to the document
-
-
-                const id = keyToSelIdMap[event.data.toLowerCase()];
-                // If a mapping exists, "click" the corresponding button
-                if (id) {
-                    const button = document.getElementById(id);
-                    if (button) {
-                        button.click();
-                        return;
-                    }
-                }
-            }
-
-
-
             if (this.score > this.maxScore) {
                 this.score = this.maxScore;
             }
             if (this.score < this.minScore) {
                 this.score = this.minScore;
             }
-
 
             let el = this.$root.querySelector(".score-slider-input");
 
@@ -2488,6 +2462,7 @@ document.addEventListener("alpine:init", () => {
                     }
                 });
             }
+            this.initInvalidNumberBackupScore();
 
             this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
             this.$watch("score", (value, oldValue) => {
@@ -2560,6 +2535,23 @@ document.addEventListener("alpine:init", () => {
         },
         hasMaxDecimalScoreWithHalfPoint() {
             return isFloat(this.maxScore);
+        },
+        handleInvalidNumberInput() {
+            //chromium: (chromium transforms alphanumeric character to an empty string)
+            if(this.$event.data === "") {
+                this.score = this.$store.scoreSlider.currentBackupScore;
+                return;
+            }
+            //firefox: (firefox passes the alphanumeric character)
+            if(isNaN(this.$event.data) && this.$event.data !== undefined) {
+                this.score = this.$store.scoreSlider.currentBackupScore;
+                return;
+            }
+
+            this.$store.scoreSlider.currentBackupScore = parseFloat(this.$event.target.value);
+        },
+        initInvalidNumberBackupScore () {
+            this.$store.scoreSlider.currentBackupScore = this.score;
         }
     }));
 
@@ -4159,113 +4151,6 @@ document.addEventListener("alpine:init", () => {
         }
     }));
 
-    Alpine.data("testTakePage", (openTab, inGroup, inTestBankContext) => ({
-        testCodePopup: false,
-        urlCopied: false,
-        urlCopiedTimeout: null,
-        init() {
-            this.$watch("urlCopied", value => {
-                if (value) {
-                    clearTimeout(this.urlCopiedTimeout);
-                    setTimeout(() => this.urlCopied = false, 2000);
-                }
-            });
-        }
-    }));
-    Alpine.data("participantDetailPopup", () => ({
-        participantPopupOpen: false,
-        button: null,
-        async openPopup(event) {
-            if (this.participantPopupOpen) {
-                await this.closePopup(event);
-            }
-            this.button = event.element;
-            this.button.dataset.open = "true";
-
-            await this.$wire.openPopup(event.participant);
-            this.participantPopupOpen = true;
-
-            this.$nextTick(() => {
-                this.$root.style.left = this.getLeft();
-                this.$root.style.top = this.getTop();
-            });
-        },
-        async closePopup() {
-            this.participantPopupOpen = false;
-            await this.$wire.closePopup();
-            this.button.dataset.open = "false";
-        },
-        handleScroll() {
-            if (!this.participantPopupOpen) return;
-            this.$root.style.top = this.getTop();
-        },
-        getTop() {
-            return (this.button.getBoundingClientRect().top - this.$root.offsetHeight - 8) + "px";
-        },
-        getLeft() {
-            return ((this.button.getBoundingClientRect().left + (this.button.getBoundingClientRect().width / 2)) - (this.$root.offsetWidth / 2)) + "px";
-        }
-    }));
-    Alpine.data("testTakeAttainmentAnalysis", (columns) => ({
-        attainmentOpen: [],
-        studentData: [],
-        columns,
-        totalWidth: null,
-        loadingData: [],
-        init() {
-            this.fixPvalueContainerWidth();
-        },
-        fixPvalueContainerWidth() {
-            this.totalWidth = document.querySelector(".pvalue-questions")?.getBoundingClientRect().width;
-            this.$root.querySelectorAll(".pvalue-container").forEach((el) => {
-                el.style.width = this.totalWidth + "px";
-            });
-        },
-        async openRow(attainment) {
-            if (this.loadingData.includes(attainment)) return;
-            if (!this.studentData[attainment]) {
-                this.loadingData.push(attainment);
-                this.studentData[attainment] = await this.$wire.attainmentStudents(attainment);
-                this.loadingData = this.loadingData.filter(key => key !== attainment);
-            }
-
-            this.attainmentOpen.push(attainment);
-            this.$nextTick(() => this.fixPvalueContainerWidth());
-        },
-        closeRow(attainment) {
-            this.attainmentOpen = this.attainmentOpen.filter(key => key !== attainment);
-        },
-        async toggleRow(attainment) {
-            if (this.attainmentOpen.includes(attainment)) {
-                this.closeRow(attainment);
-                return;
-            }
-            await this.openRow(attainment);
-        },
-        styles(pValue, multiplier) {
-            return {
-                "width": this.barWidth(multiplier),
-                "backgroundColor": this.backgroundColor(pValue)
-            };
-        },
-        barWidth(multiplier) {
-            return (this.totalWidth / this.columns.length) * multiplier + "px";
-        },
-        backgroundColor(pValue) {
-            if ((pValue * 100) < 55) return "var(--all-red)";
-            if ((pValue * 100) < 65) return "var(--student)";
-            return "var(--cta-primary)";
-        },
-        isLastStudentInRow(student, attainment) {
-            const index = this.studentData[attainment]?.findIndex(s => s.uuid === student.uuid);
-            return this.studentData[attainment]?.length === index + 1;
-        },
-        resetAnalysis() {
-            this.attainmentOpen = [];
-            this.studentData = [];
-            this.loadingData = [];
-        }
-    }));
     Alpine.data("constructionDrawer", (emptyStateActive, showBank) => ({
         loadingOverlay: false,
         collapse: false,
@@ -4389,10 +4274,147 @@ document.addEventListener("alpine:init", () => {
         }
     }));
 
+    Alpine.data("testTakePage", (openTab, inGroup, inTestBankContext) => ({
+        testCodePopup: false,
+        urlCopied: false,
+        urlCopiedTimeout: null,
+        init() {
+            this.$watch("urlCopied", value => {
+                if (value) {
+                    clearTimeout(this.urlCopiedTimeout);
+                    setTimeout(() => this.urlCopied = false, 2000);
+                }
+            });
+        }
+    }));
+    Alpine.data("participantDetailPopup", () => ({
+        participantPopupOpen: false,
+        button: null,
+        async openPopup(event) {
+            if (this.participantPopupOpen) {
+                await this.closePopup(event);
+            }
+            this.button = event.element;
+            this.button.dataset.open = "true";
+
+            await this.$wire.openPopup(event.participant);
+            this.participantPopupOpen = true;
+
+            this.$nextTick(() => {
+                this.$root.style.left = this.getLeft();
+                this.$root.style.top = this.getTop();
+            });
+        },
+        async closePopup() {
+            this.participantPopupOpen = false;
+            await this.$wire.closePopup();
+            this.button.dataset.open = "false";
+        },
+        handleScroll() {
+            if (!this.participantPopupOpen) return;
+            this.$root.style.top = this.getTop();
+        },
+        getTop() {
+            return (this.button.getBoundingClientRect().top - this.$root.offsetHeight - 8) + "px";
+        },
+        getLeft() {
+            return ((this.button.getBoundingClientRect().left + (this.button.getBoundingClientRect().width / 2)) - (this.$root.offsetWidth / 2)) + "px";
+        }
+    }));
+    Alpine.data("testTakeAttainmentAnalysis", (columns) => ({
+        attainmentOpen: [],
+        studentData: [],
+        columns,
+        totalWidth: null,
+        loadingData: [],
+        init() {
+            this.fixPvalueContainerWidth();
+        },
+        fixPvalueContainerWidth() {
+            this.totalWidth = document.querySelector(".pvalue-questions")?.getBoundingClientRect().width;
+            this.$root.querySelectorAll(".pvalue-container").forEach((el) => {
+                el.style.width = this.totalWidth + "px";
+            });
+        },
+        async openRow(attainment) {
+            if (this.loadingData.includes(attainment)) return;
+            if (!this.studentData[attainment]) {
+                this.loadingData.push(attainment);
+                this.studentData[attainment] = await this.$wire.attainmentStudents(attainment);
+                this.loadingData = this.loadingData.filter(key => key !== attainment);
+            }
+
+            this.attainmentOpen.push(attainment);
+            this.$nextTick(() => this.fixPvalueContainerWidth());
+        },
+        closeRow(attainment) {
+            this.attainmentOpen = this.attainmentOpen.filter(key => key !== attainment);
+        },
+        async toggleRow(attainment) {
+            if (this.attainmentOpen.includes(attainment)) {
+                this.closeRow(attainment);
+                return;
+            }
+            await this.openRow(attainment);
+        },
+        styles(pValue, multiplier) {
+            return {
+                "width": this.barWidth(multiplier),
+                "backgroundColor": this.backgroundColor(pValue)
+            };
+        },
+        barWidth(multiplier) {
+            return (this.totalWidth / this.columns.length) * multiplier + "px";
+        },
+        backgroundColor(pValue) {
+            if ((pValue * 100) < 55) return "var(--all-red)";
+            if ((pValue * 100) < 65) return "var(--student)";
+            return "var(--cta-primary)";
+        },
+        isLastStudentInRow(student, attainment) {
+            const index = this.studentData[attainment]?.findIndex(s => s.uuid === student.uuid);
+            return this.studentData[attainment]?.length === index + 1;
+        },
+        resetAnalysis() {
+            this.attainmentOpen = [];
+            this.studentData = [];
+            this.loadingData = [];
+        }
+    }));
+    Alpine.data("pdfDownload", (translation, links) => ({
+        value : null,
+        waitingScreenHtml: PdfDownload.waitingScreenHtml(translation),
+        links,
+        select: function(option) {
+            this.value = option;
+        },
+        selected: function(option){
+            return option === this.value;
+        },
+        export_pdf: function (){
+            if(!this.value){
+                $wire.set('displayValueRequiredMessage', true);
+                return;
+            }
+            return this.export_now(this.links[this.value]);
+        },
+        export_now: function(url) {
+            var isSafari = navigator.userAgent.indexOf('Safari') > -1 && navigator.userAgent.indexOf('Chrome') <= -1
+            if(isSafari){
+                window.open(url);
+                return;
+            }
+            var windowReference = window.open();
+            windowReference.document.write(this.waitingScreenHtml);
+            windowReference.location = url;
+        },
+    }));
+
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");
         f(window, el._x_dataStack[0]);
     });
+
     Alpine.store("cms", {
         loading: true,
         processing: false,
@@ -4421,6 +4443,9 @@ document.addEventListener("alpine:init", () => {
             this.toggleCount = toggleCount;
         }
     });
+    Alpine.store("scoreSlider", {
+        currentBackupScore: null,
+    })
     Alpine.store("editorMaxWords", {});
     Alpine.store("coLearningStudent", {
         drawerCollapsed: null,
@@ -4430,8 +4455,8 @@ document.addEventListener("alpine:init", () => {
             }
             return this.drawerCollapsed;
         }
-    }),
-        Alpine.store("answerFeedback", {
+    });
+    Alpine.store("answerFeedback", {
             editingComment: null,
             creatingNewComment: false,
             navigationRoot: null,

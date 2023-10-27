@@ -14,8 +14,10 @@ use tcCore\TestTakeStatus;
 
 class Review extends TCComponent
 {
-    use WithPagination, WithStudentTestTakes, WithSorting;
-   
+    use WithPagination;
+    use WithSorting;
+    use WithStudentTestTakes;
+
     public $readyToLoad;
     public $paginateBy = 10;
 
@@ -39,7 +41,7 @@ class Review extends TCComponent
         ]);
     }
 
-    public function loadTestTakesToReview()
+    public function loadTestTakesToReview(): void
     {
         $this->readyToLoad = true;
     }

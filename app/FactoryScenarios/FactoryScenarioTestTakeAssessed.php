@@ -4,9 +4,9 @@ namespace tcCore\FactoryScenarios;
 
 use tcCore\Factories\FactoryTestTake;
 
-class FactoryScenarioTestTakeDiscussing extends FactoryScenarioTestTake
+class FactoryScenarioTestTakeAssessed extends FactoryScenarioTestTake
 {
-    const DEFAULT_TEST_NAME = "TestTake 'Discussing' with all question types";
+    const DEFAULT_TEST_NAME = "TestTake 'Rated' with all question types";
 
     protected function createFactoryTestTake()
     {
@@ -17,6 +17,7 @@ class FactoryScenarioTestTakeDiscussing extends FactoryScenarioTestTake
             ->setTestParticipantsTakingTest()
             ->fillTestParticipantsAnswers()
             ->setStatusTaken()
-            ->setStatusDiscussing();
+            ->setStatusDiscussing()
+            ->addTeacherAnswerRatings();
     }
 }

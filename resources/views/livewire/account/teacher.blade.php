@@ -390,6 +390,44 @@
                         <x-icon.half-points />
                         <span class="bold">@lang('cms.Halve puntenbeoordeling mogelijk')</span>
                     </div>
+
+                    <div class="lg:col-span-2 w-full">
+                        <h5 class="flex mb-3 mt-5">@lang('account.Schrijf op')</h5>
+                        <div class="relative grid grid-cols-1 lg:grid-cols-2 gap-x-6 w-full">
+                            @if(settings()->canUseCmsWscWriteDownToggle())
+                                <div class="border-b lg:border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5 self-end">
+                                    <x-input.toggle wire:model="featureSettings.spell_check_available_default"
+                                                    class="mr-2" />
+                                    <x-icon.spellcheck class="min-w-[1rem]" />
+                                    <span class="bold">@lang('cms.spell_check_available')</span>
+                                </div>
+                            @endif
+                            <div class="border-b lg:border-t border-bluegrey flex w-full items-center h-[50px] gap-2.5 self-end">
+                                <x-input.toggle wire:model="featureSettings.mathml_functions_default" class="mr-2" />
+                                <x-icon.math-equation class="min-w-[1rem]" />
+                                <span class="bold">@lang('cms.mathml_functions')</span>
+                            </div>
+                            <div class="flex justify-between items-center border-b border-bluegrey h-[50px]">
+                                <div class="flex gap-2 items-center">
+                                    <x-input.toggle wire:model="featureSettings.restrict_word_amount_default"
+                                                    class="mr-2" />
+                                    <x-icon.text-align-left class="min-w-[1rem]" />
+                                    <span class="bold">@lang('cms.restrict_word_amount')</span>
+                                </div>
+                                <div class="flex gap-2 items-center">
+                                    <x-input.text wire:model="featureSettings.max_words_default"
+                                                  class="text-center w-[3.375rem]"
+                                                  :only-integer="true"
+                                    />
+                                </div>
+                            </div>
+                            <div class="border-b border-bluegrey flex w-full items-center h-[50px] gap-2.5 self-end">
+                                <x-input.toggle wire:model="featureSettings.text_formatting_default" class="mr-2" />
+                                <x-icon.font class="min-w-[1rem]" />
+                                <span class="bold">@lang('cms.text_formatting')</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

@@ -154,33 +154,38 @@
                                           :unique-key="$this->questionNavigationValue.'-'.$this->answerNavigationValue"
             >
                 <x-slot:slideOneContent>
-                    @if($this->showCoLearningScoreToggle)
-                        <div class="colearning-answers | flex w-full items-center justify-between"
-                             title="@lang('assessment.score_assigned'): @js($this->coLearningScoredValue)"
-                             x-cloak
-                        >
-                            <x-input.toggle disabled checked/>
-                            <span class="bold text-base">@lang('assessment.Score uit CO-Learning')</span>
-                            <x-tooltip>@lang('assessment.colearning_score_tooltip')</x-tooltip>
-                        </div>
-                        <div @class([
-                                          'notification py-0 px-4 gap-6 flex items-center',
-                                          'warning' => !$this->currentAnswerCoLearningRatingsHasNoDiscrepancy(),
-                                          'info' => $this->currentAnswerCoLearningRatingsHasNoDiscrepancy(),
-                                          ])
-                        >
-                            <x-icon.co-learning class="min-w-[1rem]" />
-                            <span class="bold">@lang($this->getDiscrepancyTranslationKey())</span>
-                        </div>
-                    @endif
                     @if($this->showAutomaticallyScoredToggle)
                         <div class="auto-assessed | flex w-full items-center justify-between cursor-default"
                              title="@lang('assessment.score_assigned'): @js($this->automaticallyScoredValue)"
                              x-cloak
                         >
-                            <x-input.toggle disabled checked/>
-                            <span class="bold text-base">@lang('assessment.Automatisch nakijken')</span>
+                            <span class="flex items-center text-center gap-2">
+                                <x-input.toggle disabled checked/>
+                                <span class="bold text-base">@lang('assessment.Automatisch nakijken')</span>
+                            </span>
                             <x-tooltip>@lang('assessment.closed_question_checked_tooltip')</x-tooltip>
+                        </div>
+                    @endif
+                    @if($this->showCoLearningScoreToggle)
+                        <div class="space-y-2">
+                            <div class="colearning-answers | flex w-full items-center justify-between"
+                                 title="{{  $this->coLearningScoredValue ?  __('assessment.score_assigned').': ' . $this->coLearningScoredValue : __('assessment.no_score_assigned') }}"
+                                 x-cloak
+                            >
+                                <span class="flex items-center text-center gap-2">
+                                    <x-input.toggle disabled checked/>
+                                    <span class="bold text-base">@lang('assessment.Score uit CO-Learning')</span>
+                                </span>
+                                <x-tooltip>@lang('assessment.colearning_score_tooltip')</x-tooltip>
+                            </div>
+                            <x-notification-message
+                                    :type="$this->currentAnswerCoLearningRatingsHasNoDiscrepancy() ? 'info' : 'warning'"
+                            >
+                                <x-slot:title >
+                                    <x-icon.co-learning/>
+                                    <span>@lang($this->getDiscrepancyTranslationKey())</span>
+                                </x-slot:title>
+                            </x-notification-message>
                         </div>
                     @endif
                     @if($this->showScoreSlider)
@@ -374,12 +379,22 @@
                 </x-slot:slideTwoContent>
 
                 <x-slot:slideThreeContent>
+
                     <span class="flex ">@lang('assessment.CO-Learning scores')</span>
                     @if(!$this->currentAnswerCoLearningRatingsHasNoDiscrepancy())
-                        <div class="notification py-0 px-4 gap-6 flex items-center warning">
-                            <x-icon.co-learning/>
-                            <span class="bold">@lang('assessment.discrepancy')</span>
-                        </div>
+                        <x-notification-message type="warning"  stretched="false">
+                            <x-slot:title >
+                                <x-icon.co-learning/>
+                                <span>@lang('assessment.discrepancy')</span>
+                            </x-slot:title>
+                            @if($this->currentAnswerHasToggleDiscrepanciesInCoLearningRatings())
+                            <x-slot:message>
+                                <span>
+                                     @lang('assessment.toggle_discrepancy')
+                                </span>
+                            </x-slot:message>
+                            @endif
+                        </x-notification-message>
                     @endif
                     <div class="flex w-full flex-col gap-2">
                         @if($this->showCoLearningScoreToggle)
@@ -411,8 +426,8 @@
 
                     @if($this->finalAnswerReached() && $this->assessedAllAnswers())
                         <x-button.cta size="sm"
-                                      wire:click="redirectBack"
-                                      wire:target="redirectBack,previous,next"
+                                      wire:click="finish"
+                                      wire:target="finish,redirectBack,previous,next"
                                       wire:loading.attr="disabled"
                                       wire:key="next-button-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue .'='.$this->assessedAllAnswers() }}"
                                       selid="assessment-footer-finish"

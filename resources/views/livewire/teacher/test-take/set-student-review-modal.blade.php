@@ -6,8 +6,9 @@
         <div class="flex flex-col gap-2">
             <span>@lang('test-take.Van wanneer tot wanneer mogen studenten de toets inzien?')</span>
             <div class="flex gap-4">
-                <x-input.group class="flex flex-1"
-                               :label="sprintf('%s %s', __('test-take.Datum & tijd'), __('test-take.tot'))">
+                <x-input.group class="flex flex-1 {{ $errors->has('showResults') ? 'datepicker-error' : '' }}"
+                               :label="sprintf('%s %s', __('test-take.Datum & tijd'), __('test-take.tot'))"
+                >
                     <x-input.datepicker wire:model="showResults"
                                         locale="nl"
                                         minDate="today"
@@ -26,6 +27,12 @@
                     <span>@lang('account.Antwoordmodel tonen')</span>
                 </x-input.toggle-row-with-title>
             </div>
+
+            @foreach($errors->all() as $error)
+                <div class="notification error stretched">
+                    <div class="title">{{ $error }}</div>
+                </div>
+            @endforeach
         </div>
 
     </x-slot:content>

@@ -221,7 +221,7 @@ class Login extends TCComponent
         $testCodeHelper = new TestTakeCodeHelper();
 
         $testTakeCode = $testCodeHelper->getTestTakeCodeIfExists($this->testTakeCode);
-        if (!$testTakeCode || !$testTakeCode->testTake) {
+        if (!$testTakeCode || !$testTakeCode->testTake || $testTakeCode->testTake->time_start != Carbon::today()) {
             $this->errorKeys[] = 'no_test_found_with_code';
             return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
         }

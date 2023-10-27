@@ -118,22 +118,20 @@ class AnswerRating extends BaseModel
                     //this case continues with the code in the next case
                     $testParticipant = TestParticipant::whereUuid($value)->first();
 
-                    $testTakeId = $testParticipant->testTake->getKey();
-                    $questionId = $testParticipant->getAttribute('discussing_question_id');
+                    $testTake = $testParticipant->testTake;
+                    $discussingQuestion = $testParticipant->discussingQuestion;
                 case 'discussing_at_test_take_id':
                     //if the case above is executed, the variables $testTakeId and $questionId are already set, else set them here
-                    $testTakeId ??= TestTake::whereUuid($value)->first()->getKey();
-                    $questionId ??= TestTake::where('id', $testTakeId)->value('discussing_question_id');
+                    $testTake ??= TestTake::whereUuid($value)->first();
+                    $testTakeId = $testTake->getKey();
+                    $discussingQuestion ??= $testTake->discussingQuestion;
+                    $questionId = $discussingQuestion->getKey();
 
                     $query->where('test_take_id', '=', $testTakeId);
 
-                    $parentRows = DiscussingParentQuestion::where('test_take_id', $testTakeId)->orderBy('level')->get();
-                    $parents = null;
-                    foreach ($parentRows as $answerParentQuestion) {
-                        if ($parents !== null) {
-                            $parents .= '.';
-                        }
-                        $parents .= $answerParentQuestion->getAttribute('group_question_id');
+                    $groupQuestionId = $discussingQuestion->getGroupQuestionIdByTest($testTake->test->getKey());
+                    if($groupQuestionId !== null) {
+                        $groupQuestionId = (string)$groupQuestionId; //answerParents is also a string or null
                     }
 
                     $answers = Answer::whereIn('test_participant_id', function ($query) use ($testTakeId) {
@@ -151,8 +149,7 @@ class AnswerRating extends BaseModel
                             }
                             $answerParents .= $answerParentQuestion->getAttribute('group_question_id');
                         }
-
-                        if ($parents == $answerParents) {
+                        if ($groupQuestionId == $answerParents) {
                             $answerIds[] = $answer->getKey();
                         }
                     }

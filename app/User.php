@@ -2872,6 +2872,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return session('extensionTime', $minutes * 60);
     }
 
+    public function getUseAutoLogOutAttribute():int
+    {
+        return (bool)UserFeatureSetting::getSetting(
+            user   : $this,
+            title  : UserFeatureSettingEnum::ENABLE_AUTO_LOGOUT,
+            default: UserFeatureSettingEnum::ENABLE_AUTO_LOGOUT->initialValue(),
+        );
+    }
+
     public function getNormalizationSettings()
     {
         return collect([
