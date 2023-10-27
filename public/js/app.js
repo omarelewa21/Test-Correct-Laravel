@@ -6348,6 +6348,619 @@ var CommentsIntegration = /*#__PURE__*/function () {
 
 /***/ }),
 
+/***/ "./resources/js/Question/relation-question.js":
+/*!****************************************************!*\
+  !*** ./resources/js/Question/relation-question.js ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var alpinejs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! alpinejs */ "./node_modules/alpinejs/dist/module.esm.js");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_1__);
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, defineProperty = Object.defineProperty || function (obj, key, desc) { obj[key] = desc.value; }, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return defineProperty(generator, "_invoke", { value: makeInvokeMethod(innerFn, self, context) }), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; defineProperty(this, "_invoke", { value: function value(method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; } function maybeInvokeDelegate(delegate, context) { var methodName = context.method, method = delegate.iterator[methodName]; if (undefined === method) return context.delegate = null, "throw" === methodName && delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method) || "return" !== methodName && (context.method = "throw", context.arg = new TypeError("The iterator does not provide a '" + methodName + "' method")), ContinueSentinel; var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), defineProperty(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (val) { var object = Object(val), keys = []; for (var key in object) keys.push(key); return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+
+
+var ListValidator = /*#__PURE__*/function () {
+  function ListValidator(component) {
+    _classCallCheck(this, ListValidator);
+    _defineProperty(this, "component", null);
+    _defineProperty(this, "passed", true);
+    _defineProperty(this, "errors", {});
+    this.component = component;
+  }
+  _createClass(ListValidator, [{
+    key: "validate",
+    value: function validate() {
+      var _this = this;
+      var methods = ["requiredTypeAmount", "duplicateColumns", "wordsWithoutType", "columnWithoutWords", "requiredSubjectWord", "requiredWordsPerRow"];
+      methods.forEach(function (method) {
+        return _this[method]();
+      });
+      return this;
+    }
+  }, {
+    key: "failed",
+    value: function failed(rule) {
+      var perpetrators = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+      this.passed = false;
+      this.errors[rule] = perpetrators;
+    }
+  }, {
+    key: "countingRule",
+    value: function countingRule(name, ruleCallback) {
+      var errorTracker = [];
+      ruleCallback(errorTracker);
+      if (errorTracker.length === 0) {
+        return;
+      }
+      this.failed(name, errorTracker);
+    }
+  }, {
+    key: "requiredTypeAmount",
+    value: function requiredTypeAmount() {
+      if (this.component.getUsedColumnHeads().length >= 2) {
+        return;
+      }
+      this.failed("requiredTypeAmount");
+    }
+  }, {
+    key: "duplicateColumns",
+    value: function duplicateColumns() {
+      if (lodash__WEBPACK_IMPORTED_MODULE_1___default().uniq(this.component.getUsedColumnHeads()).length === this.component.getUsedColumnHeads().length) {
+        return;
+      }
+      var duplicates = lodash__WEBPACK_IMPORTED_MODULE_1___default().filter(this.component.getUsedColumnHeads(), function (value, index, iteratee) {
+        return lodash__WEBPACK_IMPORTED_MODULE_1___default().includes(iteratee, value, index + 1);
+      });
+      this.failed("duplicateColumns", duplicates);
+    }
+  }, {
+    key: "wordsWithoutType",
+    value: function wordsWithoutType() {
+      var _this2 = this;
+      var unusedColumnsIndexes = this.component.cols.map(function (col, index) {
+        if (col === null) {
+          return index;
+        }
+      }).filter(function (c) {
+        return c !== undefined;
+      });
+      var ruleCallback = function ruleCallback(errorTracker) {
+        _this2.component.rows.forEach(function (row, rowIndex) {
+          row.forEach(function (word, index) {
+            if (![null, ""].includes(word.text) && unusedColumnsIndexes.includes(index)) {
+              errorTracker.push([rowIndex, index]);
+            }
+          });
+        });
+      };
+      this.countingRule("wordsWithoutType", function (errorTracker) {
+        return ruleCallback(errorTracker);
+      });
+    }
+  }, {
+    key: "columnWithoutWords",
+    value: function columnWithoutWords() {
+      var _this3 = this;
+      var usedColumnsIndexes = this.component.cols.map(function (col, index) {
+        if (col !== null) {
+          return index;
+        }
+      }).filter(function (c) {
+        return c !== undefined;
+      });
+      var ruleCallback = function ruleCallback(errorTracker) {
+        _this3.component.rows.forEach(function (row) {
+          usedColumnsIndexes.forEach(function (columnIndex) {
+            if (!errorTracker.includes(columnIndex)) return;
+            if (![null, ""].includes(row[columnIndex].text)) {
+              errorTracker = errorTracker.filter(function (column) {
+                return column !== columnIndex;
+              });
+            }
+          });
+        });
+      };
+      this.countingRule("columnWithoutWords", function (errorTracker) {
+        return ruleCallback(errorTracker);
+      });
+    }
+  }, {
+    key: "requiredSubjectWord",
+    value: function requiredSubjectWord() {
+      var _this4 = this;
+      var subjectIndex = this.component.cols.findIndex(function (c) {
+        return c === "subject";
+      });
+      if (subjectIndex === -1) {
+        this.failed("requiredSubjectWord");
+      }
+      var ruleCallback = function ruleCallback(errorTracker) {
+        _this4.component.rows.forEach(function (row, rowIndex) {
+          var _row$subjectIndex;
+          if (_this4.component.wordsInRow(row) === 0) return;
+          if ([null, ""].includes((_row$subjectIndex = row[subjectIndex]) === null || _row$subjectIndex === void 0 ? void 0 : _row$subjectIndex.text)) {
+            errorTracker.push([rowIndex, subjectIndex]);
+          }
+        });
+      };
+      this.countingRule("requiredSubjectWord", function (errorTracker) {
+        return ruleCallback(errorTracker);
+      });
+    }
+  }, {
+    key: "requiredWordsPerRow",
+    value: function requiredWordsPerRow() {
+      var _this5 = this;
+      var ruleCallback = function ruleCallback(errorTracker) {
+        _this5.component.rows.forEach(function (row, rowIndex) {
+          if (_this5.component.wordsInRow(row) === 1) {
+            errorTracker.push(rowIndex);
+          }
+        });
+      };
+      this.countingRule("requiredWordsPerRow", function (errorTracker) {
+        return ruleCallback(errorTracker);
+      });
+    }
+  }]);
+  return ListValidator;
+}();
+document.addEventListener("alpine:init", function () {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("relationQuestionGrid", function () {
+    return {
+      rows: [],
+      selectedColumn: null,
+      disabledColumns: [],
+      updates: [],
+      updateTimer: false,
+      init: function init() {
+        var _this6 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+          return _regeneratorRuntime().wrap(function _callee$(_context) {
+            while (1) switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return _this6.$wire.retrieveWords();
+              case 2:
+                _this6.rows = _context.sent;
+                _this6.setDisabledColumns();
+                _this6.$wire.call("openCompileListsModal");
+              case 5:
+              case "end":
+                return _context.stop();
+            }
+          }, _callee);
+        }))();
+      },
+      selectColumn: function selectColumn(column) {
+        var _this7 = this;
+        this.selectedColumn = column;
+        this.loopRows().forEach(function (rowKey) {
+          var _word;
+          _this7.deselectColumns(_this7.rows[rowKey], rowKey);
+          var word = _this7.rows[rowKey][column];
+          if (((_word = word) === null || _word === void 0 ? void 0 : _word.text) === null) {
+            word = _this7.rows[rowKey]["subject"];
+          }
+          _this7.selectWord(rowKey, word);
+        });
+      },
+      selectWord: function selectWord(rowIndex, word) {
+        if (word.text === null || word.selected === true) return;
+        if (this.selectedColumn !== word.type) {
+          this.selectedColumn = null;
+        }
+        this.deselectColumns(this.rows[rowIndex], rowIndex);
+        this.addUpdate(rowIndex, word.word_id, true);
+        word.selected = true;
+      },
+      deselectColumns: function deselectColumns(row, index) {
+        var _this8 = this;
+        Object.keys(row).forEach(function (key) {
+          var word = row[key];
+          if (word.word_id && word.selected === true) {
+            _this8.addUpdate(index, row[key].word_id, false);
+            row[key].selected = false;
+          }
+        });
+      },
+      loopRows: function loopRows() {
+        return Object.keys(this.rows);
+      },
+      setDisabledColumns: function setDisabledColumns() {
+        var _this9 = this;
+        this.loopRows().reduce(function (count, key) {
+          var skipRow = [];
+          Object.keys(_this9.rows[key]).forEach(function (column) {
+            var word = _this9.rows[key][column];
+            if (skipRow.includes(key) || column === "subject" && word.text === null) {
+              skipRow.push(key);
+              return;
+            }
+            if (word.text === null && !_this9.disabledColumns.includes(column)) {
+              _this9.disabledColumns.push(column);
+            }
+          });
+        });
+      },
+      addUpdate: function addUpdate(row, word_id, selected) {
+        var _this10 = this;
+        var existing = this.updates.find(function (update) {
+          return update.row === parseInt(row) && update.word_id === word_id;
+        });
+        if (existing) {
+          existing.selected = selected;
+        } else {
+          this.updates.push({
+            row: parseInt(row),
+            word_id: word_id,
+            selected: selected
+          });
+        }
+        if (this.updateTimer) clearTimeout(this.updateTimer);
+        this.updateTimer = setTimeout(function () {
+          _this10.$wire.call("makeUpdates", _this10.updates);
+          _this10.updates = [];
+        }, 750);
+      },
+      getText: function getText(word, rowIndex) {
+        if ((word === null || word === void 0 ? void 0 : word.text) === null) {
+          return "";
+        }
+        return "r: ".concat(rowIndex, ", w: ").concat(word.word_id, "; ").concat(word.text);
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("compileList", function (list, columns) {
+    return {
+      expanded: true,
+      cols: [],
+      rows: [],
+      list: list,
+      wordCount: 0,
+      selectedWordCount: 0,
+      originalRows: [],
+      errorstate: false,
+      init: function init() {
+        var _this11 = this;
+        this.buildGrid();
+        this.countWords();
+        this.$nextTick(function () {
+          _this11.setGridSizeProperties();
+          _this11.selectUsedColumnHeads();
+          _this11.setEnabledRows();
+        });
+      },
+      buildGrid: function buildGrid() {
+        var _this12 = this;
+        for (var i = 0; i < 7; i++) {
+          var _this$getUsedTypes$i;
+          this.cols[i] = (_this$getUsedTypes$i = this.getUsedTypes()[i]) !== null && _this$getUsedTypes$i !== void 0 ? _this$getUsedTypes$i : null;
+        }
+        this.rows = this.list.wordRows.map(function (row) {
+          return _this12.buildRow(row);
+        });
+        if (this.rows.length < 10) {
+          var add = 10 - this.rows.length;
+          for (var _i = this.rows.length; _i < add; _i++) {
+            this.rows[_i] = this.buildRow([]);
+          }
+        }
+        this.addEmptyRowWhenLastIsFull();
+      },
+      setGridSizeProperties: function setGridSizeProperties() {
+        var _this$rows$length, _this$rows;
+        var gridContainer = this.$root.querySelector(".relation-question-grid-container");
+        var grid = this.$root.querySelector(".relation-question-grid");
+        var heading = 57;
+        var cell = 40;
+        var gap = 1;
+        var maxCellWidth = 240;
+        var rows = (_this$rows$length = (_this$rows = this.rows) === null || _this$rows === void 0 ? void 0 : _this$rows.length) !== null && _this$rows$length !== void 0 ? _this$rows$length : 10;
+        gridContainer.style.setProperty("--relation-question-height", "calc(".concat(heading, "px + calc(").concat(rows, " * ").concat(cell + gap, "px))"));
+        gridContainer.style.setProperty("--relation-question-total-max-width", "calc(".concat(this.cols.length, " * ").concat(maxCellWidth, "px)"));
+        grid.style.setProperty("--relation-grid-cols", this.cols.length);
+      },
+      toggleAll: function toggleAll(element) {
+        var _this13 = this;
+        var enabled = element.checked;
+        this.$root.querySelectorAll(".word-row .checkbox-container input").forEach(function (check, row) {
+          check.checked = enabled;
+          _this13.toggleRow(check, row);
+        });
+      },
+      toggleRow: function toggleRow(checkbox, row) {
+        var columnCheckbox = this.$root.querySelector(".head-checkmark .checkbox-container input");
+        var availableBoxes = Array.from(this.$root.querySelectorAll(".word-row .checkbox-container input"));
+        if (checkbox.checked === false) {
+          this.list.enabledRows = this.list.enabledRows.filter(function (value) {
+            return value !== row;
+          });
+          if (columnCheckbox.checked) {
+            columnCheckbox.checked = false;
+          }
+        }
+        if (checkbox.checked === true) {
+          if (!this.list.enabledRows.includes(row)) {
+            this.list.enabledRows.push(row);
+          }
+          var everythingChecked = availableBoxes.filter(function (check) {
+            return !check.checked;
+          }).length === 0;
+          if (columnCheckbox.checked === false && everythingChecked) {
+            columnCheckbox.checked = true;
+          }
+        }
+        this.countWords();
+      },
+      selectUsedColumnHeads: function selectUsedColumnHeads() {
+        var _this14 = this;
+        var usedCols = this.getUsedTypes();
+        var selectBoxes = this.$root.querySelectorAll(".single-select");
+        usedCols.forEach(function (usedCol, key) {
+          var index = _this14.cols.findIndex(function (col) {
+            return col === usedCol;
+          });
+          selectBoxes[index].querySelector(".option[data-value=\"".concat(usedCol, "\"]")).click();
+        });
+      },
+      getUsedTypes: function getUsedTypes() {
+        return lodash__WEBPACK_IMPORTED_MODULE_1___default().uniq(this.list.wordRows.flatMap(function (r) {
+          return Object.keys(r);
+        }));
+      },
+      getUsedColumnHeads: function getUsedColumnHeads() {
+        return this.cols.filter(function (c) {
+          return c !== null;
+        });
+      },
+      buildRow: function buildRow(row) {
+        var newRow = [];
+        for (var i = 0; i < this.cols.length; i++) {
+          var _row$this$cols$i;
+          newRow[i] = (_row$this$cols$i = row[this.cols[i]]) !== null && _row$this$cols$i !== void 0 ? _row$this$cols$i : {
+            text: null,
+            word_id: null,
+            word_list_id: this.list.id,
+            type: null
+          };
+        }
+        return newRow;
+      },
+      setEnabledRows: function setEnabledRows() {
+        var _this$list,
+          _this15 = this;
+        (_this$list = this.list) === null || _this$list === void 0 ? void 0 : _this$list.enabledRows.forEach(function (key) {
+          var input = _this15.$root.querySelector(".word-row.row-".concat(key, " .checkbox-container input"));
+          input.checked = true;
+          _this15.originalRows.push(key);
+          _this15.toggleRow(input, key);
+        });
+      },
+      countWords: function countWords() {
+        var _this16 = this;
+        var oldWordCount = this.wordCount;
+        var oldSelectedWordCount = this.selectedWordCount;
+        this.wordCount = 0;
+        this.selectedWordCount = 0;
+        this.rows.forEach(function (row, key) {
+          var rowCount = _this16.wordsInRow(row);
+          _this16.wordCount += rowCount;
+          if (_this16.$root.querySelector(".word-row.row-".concat(key, " .row-checkmark input:checked"))) {
+            _this16.selectedWordCount += rowCount;
+          }
+        });
+        this.wordCountChanges(oldWordCount, this.wordCount);
+        this.selectedWordCountChanges(oldSelectedWordCount, this.selectedWordCount);
+      },
+      wordsUpdated: function wordsUpdated(word, rowIndex, columnIndex) {
+        this.countWords();
+      },
+      placeCursor: function placeCursor(element) {
+        var _element$childNodes, _element$childNodes$l, _element$childNodes2;
+        if (!element.value) return;
+        var range = document.createRange();
+        var sel = window.getSelection();
+        range.setStart((_element$childNodes = element.childNodes[element.childNodes.length - 1]) !== null && _element$childNodes !== void 0 ? _element$childNodes : 0, (_element$childNodes$l = (_element$childNodes2 = element.childNodes[element.childNodes.length - 1]) === null || _element$childNodes2 === void 0 ? void 0 : _element$childNodes2.length) !== null && _element$childNodes$l !== void 0 ? _element$childNodes$l : 0);
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      },
+      move: function move(direction, currentElement) {
+        var _this$$root$querySele;
+        var row = parseInt(currentElement.dataset.rowValue);
+        var column = parseInt(currentElement.dataset.columnValue);
+        switch (direction) {
+          case "up":
+            row = row - 1;
+            break;
+          case "right":
+            column = column + 1;
+            break;
+          case "down":
+            row = row + 1;
+            break;
+          case "left":
+            column = column - 1;
+            break;
+        }
+        (_this$$root$querySele = this.$root.querySelector(locator(row, column))) === null || _this$$root$querySele === void 0 ? void 0 : _this$$root$querySele.focus();
+        function locator(newRow, newColumn) {
+          return ".word-row span[data-row-value=\"".concat(newRow, "\"][data-column-value=\"").concat(newColumn, "\"]");
+        }
+      },
+      addEmptyRowWhenLastIsFull: function addEmptyRowWhenLastIsFull() {
+        if (this.wordsInRow(this.rows[this.rows.length - 1]) > 0) {
+          this.rows[this.rows.length] = this.buildRow([]);
+        }
+      },
+      wordsInRow: function wordsInRow(row) {
+        return row.filter(function (item) {
+          return ![null, ""].includes(item.text);
+        }).length;
+      },
+      columnValueUpdated: function columnValueUpdated(headerIndex, value) {
+        if (typeof value === "string" && value === "") {
+          value = null;
+        }
+        this.cols[headerIndex] = value;
+        this.handleDisabledHeaders();
+      },
+      handleDisabledHeaders: function handleDisabledHeaders() {
+        var _this17 = this;
+        if (this.getUsedColumnHeads().length === Object.keys(columns).length) {
+          this.$root.querySelectorAll(".grid-head .single-select").forEach(function (select, index) {
+            if (_this17.cols[index] === null) {
+              select.dispatchEvent(new CustomEvent("disable-single-select", {
+                detail: {}
+              }));
+            }
+          });
+          return;
+        }
+        this.$root.querySelectorAll(".grid-head .single-select.disabled").forEach(function (select, index) {
+          select.dispatchEvent(new CustomEvent("enable-single-select", {
+            detail: {}
+          }));
+        });
+      },
+      validate: function validate() {
+        var validator = new ListValidator(this).validate();
+        this.errorstate = !validator.passed;
+        return validator;
+      },
+      getUpdatesForCompiling: function getUpdatesForCompiling() {
+        var _this18 = this;
+        return {
+          rows: this.rows.map(function (row, rowIndex) {
+            if (_this18.wordsInRow(row) === 0) {
+              return null;
+            }
+            return row.map(function (word, index) {
+              if (word.text === null && word.word_id === null) {
+                return null;
+              }
+              if (word.type !== _this18.cols[index]) {
+                word.type = _this18.cols[index];
+              }
+              if (word.word_list_id === null) {
+                word.word_list_id = _this18.list.id;
+              }
+              return word;
+            }).filter(Boolean);
+          }).filter(Boolean),
+          enabled: this.list.enabledRows
+        };
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("compileWordListContainer", function (wordLists) {
+    return {
+      wordLists: wordLists,
+      globalWordCount: 0,
+      globalSelectedWordCount: 0,
+      compiling: false,
+      blueprint: function blueprint() {
+        return {
+          name: "Woordenlijst ".concat(wordLists.length + 1),
+          id: "new-".concat(wordLists.length),
+          wordRows: [],
+          enabledRows: []
+        };
+      },
+      wordCountChanges: function wordCountChanges(old, newCount) {
+        this.globalWordCount = this.handleGlobalChanges(this.globalWordCount, old, newCount);
+      },
+      selectedWordCountChanges: function selectedWordCountChanges(old, newCount) {
+        this.globalSelectedWordCount = this.handleGlobalChanges(this.globalSelectedWordCount, old, newCount);
+      },
+      handleGlobalChanges: function handleGlobalChanges(property, old, newCount) {
+        property -= old;
+        property += newCount;
+        return property;
+      },
+      addWordList: function addWordList() {
+        this.wordLists.push(Object.assign({}, this.blueprint()));
+      },
+      compileLists: function compileLists() {
+        var _this19 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+          var listComponents, updates;
+          return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+            while (1) switch (_context2.prev = _context2.next) {
+              case 0:
+                _this19.compiling = true;
+                listComponents = Array.from(_this19.$root.querySelectorAll(".word-list")).map(function (element) {
+                  return element._x_dataStack[0];
+                });
+                if (!_this19.listsValidationFailed(listComponents)) {
+                  _context2.next = 4;
+                  break;
+                }
+                return _context2.abrupt("return");
+              case 4:
+                updates = [];
+                listComponents.forEach(function (component) {
+                  return updates[component.list.id] = component.getUpdatesForCompiling();
+                });
+                console.dir(updates);
+                _context2.next = 9;
+                return _this19.$wire.call("compile", updates);
+              case 9:
+                _this19.compiling = false;
+              case 10:
+              case "end":
+                return _context2.stop();
+            }
+          }, _callee2);
+        }))();
+      },
+      listsValidationFailed: function listsValidationFailed(components) {
+        var failedValidation = false;
+        components.forEach(function (component) {
+          var validator = component.validate();
+          if (!validator.passed) {
+            console.log(validator);
+            failedValidation = true;
+          }
+        });
+        if (failedValidation) {
+          console.log("validation failed");
+        }
+        return failedValidation;
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].bind("gridcell", function () {
+    var _ref;
+    return _ref = {
+      contenteditable: "plaintext-only"
+    }, _defineProperty(_ref, "@input", function input() {
+      this.$el._x_model.set(this.$el.textContent);
+      this.addEmptyRowWhenLastIsFull();
+    }), _defineProperty(_ref, "x-init", function xInit() {
+      var _this20 = this;
+      this.$nextTick(function () {
+        _this20.$el.textContent = _this20.$el._x_model.get();
+      });
+    }), _ref;
+  });
+});
+
+/***/ }),
+
 /***/ "./resources/js/alpine.js":
 /*!********************************!*\
   !*** ./resources/js/alpine.js ***!
@@ -7965,7 +8578,7 @@ document.addEventListener("alpine:init", function () {
         this.value = target.firstElementChild.dataset.id;
         this.$root.dataset.hasValue = this.value !== null;
         if ((oldValue === null || oldValue === void 0 ? void 0 : oldValue.toString()) !== ((_this$value = this.value) === null || _this$value === void 0 ? void 0 : _this$value.toString())) {
-          if ([null, 'null'].includes(this.$root.dataset.toggleValue)) {
+          if ([null, "null"].includes(this.$root.dataset.toggleValue)) {
             this.$dispatch("multi-slider-toggle-value-updated", {
               value: target.firstElementChild.dataset.id,
               firstTick: oldValue === null
@@ -8541,27 +9154,27 @@ document.addEventListener("alpine:init", function () {
         // - S will go to previous question
         // - W will go to next question
 
-        document.addEventListener('DOMContentLoaded', function (event) {
+        document.addEventListener("DOMContentLoaded", function (event) {
           // disable tab key for all elements when in assessment mode because this corrupts the right tab drawer;
           // document.querySelectorAll('textarea').forEach(element => element.tabIndex = -1);
           // document.querySelectorAll('input').forEach(element => element.tabIndex = -1);
 
           // Map each key to the corresponding button's selid
           var keyToSelIdMap = {
-            'a': 'btn_loadAnswer_previous',
-            'd': 'btn_loadAnswer_next',
-            's': 'btn_loadQuestion_previous',
-            'w': 'btn_loadQuestion_next'
+            "a": "btn_loadAnswer_previous",
+            "d": "btn_loadAnswer_next",
+            "s": "btn_loadQuestion_previous",
+            "w": "btn_loadQuestion_next"
           };
 
           // Add a keyup event listener to the document
-          document.addEventListener('keyup', function (event) {
+          document.addEventListener("keyup", function (event) {
             // If the target is an input or textarea, do nothing
-            if (event.target.tagName.toLowerCase() === 'input' && !event.target.classList.contains('js-allow-for-wasd-navigation') || event.target.tagName.toLowerCase() === 'textarea') {
+            if (event.target.tagName.toLowerCase() === "input" && !event.target.classList.contains("js-allow-for-wasd-navigation") || event.target.tagName.toLowerCase() === "textarea") {
               return;
             }
             // Check if the event.target is a ckEditor
-            if (event.target.classList.contains('ck')) {
+            if (event.target.classList.contains("ck")) {
               return;
             }
             var id = keyToSelIdMap[event.key.toLowerCase()];
@@ -9583,7 +10196,7 @@ document.addEventListener("alpine:init", function () {
                 });
               case 11:
                 commentStyles = _context24.sent;
-                commentMarkerStyles = document.querySelector('#commentMarkerStyles');
+                commentMarkerStyles = document.querySelector("#commentMarkerStyles");
                 if (commentMarkerStyles) commentMarkerStyles.innerHTML = commentStyles;
               case 14:
               case "end":
@@ -9689,7 +10302,7 @@ document.addEventListener("alpine:init", function () {
                           }
                         }, 400);
                         feedbackEditor.setData("<p></p>");
-                        checkedRadioInput = document.querySelector('.answer-feedback-add-comment .emoji-picker-radio input:checked');
+                        checkedRadioInput = document.querySelector(".answer-feedback-add-comment .emoji-picker-radio input:checked");
                         if (checkedRadioInput) {
                           checkedRadioInput.checked = false;
                         }
@@ -9883,7 +10496,7 @@ document.addEventListener("alpine:init", function () {
         var originalColor = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
         //reset temporary styling
         var temporaryStyleTag = document.querySelector("#temporaryCommentMarkerStyles");
-        if (temporaryStyleTag) temporaryStyleTag.innerHTML = '';
+        if (temporaryStyleTag) temporaryStyleTag.innerHTML = "";
         this.setEditingComment(null);
 
         //reset radio buttons
@@ -9913,7 +10526,7 @@ document.addEventListener("alpine:init", function () {
         }
       },
       updateNewCommentMarkerStyles: function updateNewCommentMarkerStyles(color) {
-        var styleTag = document.querySelector('#addFeedbackMarkerStyles');
+        var styleTag = document.querySelector("#addFeedbackMarkerStyles");
         if (!styleTag) {
           return;
         }
@@ -9982,7 +10595,7 @@ document.addEventListener("alpine:init", function () {
         }
         setTimeout(function () {
           try {
-            answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
+            answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector(".ck.ck-content"));
             feedbackEditor.ui.focusTracker.add(answerEditor.sourceElement.parentElement.querySelector(".ck.ck-content"));
           } catch (exception) {
             // ignore focusTracker error when trying to add element that is already registered
@@ -10080,8 +10693,8 @@ document.addEventListener("alpine:init", function () {
             while (1) switch (_context28.prev = _context28.next) {
               case 0:
                 forceOpenAccordion = _arguments3.length > 1 && _arguments3[1] !== undefined ? _arguments3[1] : false;
-                addFeedbackAccordion = document.querySelector('.answer-feedback-add-comment button');
-                givenFeedbackAccordion = document.querySelector('.answer-feedback-given-comments button');
+                addFeedbackAccordion = document.querySelector(".answer-feedback-add-comment button");
+                givenFeedbackAccordion = document.querySelector(".answer-feedback-given-comments button");
                 if (!_this74.$store.answerFeedback.newFeedbackBeingCreated()) {
                   _context28.next = 6;
                   break;
@@ -10221,7 +10834,7 @@ document.addEventListener("alpine:init", function () {
                   _context31.next = 2;
                   break;
                 }
-                return _context31.abrupt("return", _this77.$store.answerFeedback.openConfirmationModal(_this77.$root, 'goToPreviousQuestion'));
+                return _context31.abrupt("return", _this77.$store.answerFeedback.openConfirmationModal(_this77.$root, "goToPreviousQuestion"));
               case 2:
                 _this77.$wire.goToPreviousQuestion();
               case 3:
@@ -10241,7 +10854,7 @@ document.addEventListener("alpine:init", function () {
                   _context32.next = 2;
                   break;
                 }
-                return _context32.abrupt("return", _this78.$store.answerFeedback.openConfirmationModal(_this78.$root, 'goToNextQuestion'));
+                return _context32.abrupt("return", _this78.$store.answerFeedback.openConfirmationModal(_this78.$root, "goToNextQuestion"));
               case 2:
                 _this78.$wire.goToNextQuestion();
               case 3:
@@ -10803,12 +11416,14 @@ document.addEventListener("alpine:init", function () {
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("singleSelect", function (containerId) {
     var entangleValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+    var disabled = arguments.length > 2 ? arguments[2] : undefined;
     return _objectSpread(_objectSpread({
       containerId: containerId,
       entangleValue: entangleValue !== null && entangleValue !== void 0 ? entangleValue : null,
       baseValue: null,
       singleSelectOpen: false,
-      selectedText: null
+      selectedText: null,
+      singleSelectDisabled: disabled
     }, selectFunctions), {}, {
       init: function init() {
         var _this94 = this;
@@ -10838,7 +11453,7 @@ document.addEventListener("alpine:init", function () {
           label = element.dataset.label;
         this.closeDropdown();
         if (this.value === value) return;
-        this.value = value;
+        this.value = this.isPlaceholder(element) ? null : value;
         element.dispatchEvent(new Event("change", {
           bubbles: true
         }));
@@ -10868,6 +11483,15 @@ document.addEventListener("alpine:init", function () {
       },
       closeDropdown: function closeDropdown() {
         this.singleSelectOpen = false;
+      },
+      isPlaceholder: function isPlaceholder(element) {
+        return element.hasAttribute('placeholder');
+      },
+      disableDropdown: function disableDropdown() {
+        this.singleSelectDisabled = true;
+      },
+      enableDropdown: function enableDropdown() {
+        this.singleSelectDisabled = false;
       }
     });
   });
@@ -11086,7 +11710,8 @@ document.addEventListener("alpine:init", function () {
       },
       loadingTimeout: function loadingTimeout(value) {
         var _this99 = this;
-        /*if (value !== true)*/return;
+        /*if (value !== true)*/
+        return;
         this.loadTimeout = setTimeout(function () {
           _this99.$store.cms.loading = false;
           _this99.$store.cms.processing = false;
@@ -11128,10 +11753,10 @@ document.addEventListener("alpine:init", function () {
         this.$store.cms.loading = false;
       },
       get drawer() {
-        return this.getLivewireComponent('cms-drawer');
+        return this.getLivewireComponent("cms-drawer");
       },
       get constructor() {
-        return this.getLivewireComponent('cms');
+        return this.getLivewireComponent("cms");
       },
       openQuestion: function openQuestion(questionProperties) {
         var _this100 = this;
@@ -11139,8 +11764,8 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee36$(_context36) {
             while (1) switch (_context36.prev = _context36.next) {
               case 0:
-                _this100.$dispatch('store-current-question');
-                _this100.$store.cms.scrollPos = document.querySelector('.drawer').scrollTop;
+                _this100.$dispatch("store-current-question");
+                _this100.$store.cms.scrollPos = document.querySelector(".drawer").scrollTop;
                 _this100.$store.cms.loading = true;
                 _context36.next = 5;
                 return _this100.constructor.showQuestion(questionProperties);
@@ -11154,7 +11779,7 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       getLivewireComponent: function getLivewireComponent(attribute) {
-        return Livewire.find(document.querySelector("[".concat(attribute, "]")).getAttribute('wire:id'));
+        return Livewire.find(document.querySelector("[".concat(attribute, "]")).getAttribute("wire:id"));
       }
     };
   });
@@ -11362,13 +11987,13 @@ document.addEventListener("alpine:init", function () {
       },
       export_pdf: function export_pdf() {
         if (!this.value) {
-          $wire.set('displayValueRequiredMessage', true);
+          $wire.set("displayValueRequiredMessage", true);
           return;
         }
         return this.export_now(this.links[this.value]);
       },
       export_now: function export_now(url) {
-        var isSafari = navigator.userAgent.indexOf('Safari') > -1 && navigator.userAgent.indexOf('Chrome') <= -1;
+        var isSafari = navigator.userAgent.indexOf("Safari") > -1 && navigator.userAgent.indexOf("Chrome") <= -1;
         if (isSafari) {
           window.open(url);
           return;
@@ -11573,6 +12198,7 @@ __webpack_require__(/*! ./navigation-bar */ "./resources/js/navigation-bar.js");
 __webpack_require__(/*! ../../vendor/wire-elements/modal/resources/js/modal */ "./vendor/wire-elements/modal/resources/js/modal.js");
 __webpack_require__(/*! ./webspellchecker_tlc */ "./resources/js/webspellchecker_tlc.js");
 __webpack_require__(/*! ./pdf-download */ "./resources/js/pdf-download.js");
+__webpack_require__(/*! ./Question/relation-question */ "./resources/js/Question/relation-question.js");
 window.ClassicEditors = [];
 makeHeaderMenuActive = function makeHeaderMenuActive(elementId) {
   document.getElementById(elementId).classList.add('active');
@@ -12410,7 +13036,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "662d128370816e2bbb66",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });

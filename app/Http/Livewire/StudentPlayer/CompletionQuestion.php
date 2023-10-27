@@ -2,24 +2,13 @@
 
 namespace tcCore\Http\Livewire\StudentPlayer;
 
-use Exception;
-use Illuminate\Support\Facades\Blade;
-use tcCore\CompletionQuestionAnswer;
 use tcCore\Http\Helpers\BaseHelper;
-use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\Questions\WithCompletionConversion;
-use tcCore\Http\Traits\WithCloseable;
-use tcCore\View\Components\CompletionQuestionConvertedHtml;
 
-abstract class CompletionQuestion extends TCComponent
+abstract class CompletionQuestion extends StudentPlayerQuestion
 {
-    use withCloseable;
     use WithCompletionConversion;
 
-    public $question;
-    public $answer;
-    public $answers;
-    public $number;
     public $options;
     public $questionTextPartials;
     public $questionTextPartialFinal;

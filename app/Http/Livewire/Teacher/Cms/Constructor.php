@@ -35,6 +35,7 @@ use tcCore\Http\Livewire\Teacher\Cms\Providers\InfoScreen;
 use tcCore\Http\Livewire\Teacher\Cms\Providers\MultipleChoice;
 use tcCore\Http\Livewire\Teacher\Cms\Providers\Open;
 use tcCore\Http\Livewire\Teacher\Cms\Providers\Ranking;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\Relation;
 use tcCore\Http\Livewire\Teacher\Cms\Providers\TrueFalse;
 use tcCore\Http\Livewire\Teacher\Cms\Providers\TypeProvider;
 use tcCore\Http\Requests\CreateAttachmentRequest;
@@ -42,6 +43,7 @@ use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
 use tcCore\Http\Requests\Request;
 use tcCore\Http\Traits\WithQueryStringSyncing;
+use tcCore\Http\Traits\WithRelationQuestionAttributes;
 use tcCore\Lib\CkEditorComments\User;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Question;
@@ -55,6 +57,7 @@ class Constructor extends TCComponent implements QuestionCms
 {
     use WithFileUploads;
     use WithQueryStringSyncing;
+    use WithRelationQuestionAttributes;
 
     public $showSelectionOptionsModal = false;
 
@@ -339,6 +342,7 @@ class Constructor extends TCComponent implements QuestionCms
     {
         if (!$this->emptyState) {
             $this->obj = TypeFactory::create($this);
+            $this->obj->bootPropertyBag();
         }
     }
 

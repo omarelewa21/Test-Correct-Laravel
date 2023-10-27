@@ -77,7 +77,7 @@ class TestTakeLaravelController extends Controller
 
         return view('test-take', compact(['data', 'current', 'answers', 'nav', 'uuid', 'testParticipant', 'styling', 'allowMrChadd']));
     }
-
+    
     public function getAnswers($testTake, $testQuestions, $testParticipant): array
     {
         $result = [];

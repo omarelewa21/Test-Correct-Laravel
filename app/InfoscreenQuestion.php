@@ -75,5 +75,9 @@ class InfoscreenQuestion extends Question implements QuestionInterface {
         return 0;
     }
 
+    public function getStudentPlayerComponent($context = 'question'): string
+    {
+        return str(parent::getStudentPlayerComponent($context))->replace('infoscreen', 'info-screen');
+    }
 
 }

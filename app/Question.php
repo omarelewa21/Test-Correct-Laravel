@@ -2,6 +2,7 @@
 
 use Dyrynda\Database\Casts\EfficientUuid;
 use Exception;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -608,7 +609,7 @@ class Question extends MtiBaseModel
 
     public function isUsed($ignoreRelationTo)
     {
-        $uses = Question::withTrashed()->where('derived_question_id', $this->getKey())->count();
+        $uses = (new Question)->withTrashed()->where('derived_question_id', $this->getKey())->count();
 
         $testQuestions = TestQuestion::withTrashed()->where('question_id', $this->getKey());
 
@@ -1590,4 +1591,12 @@ class Question extends MtiBaseModel
                              ->where('group_question_questions.question_id', $this->getKey())
                              ->first() ?? false;
     }
+
+    public function getStudentPlayerComponent($context = 'question'): string
+    {
+        return str($this->type)
+            ->kebab()
+            ->prepend("student-player.$context.");
+    }
+
 }

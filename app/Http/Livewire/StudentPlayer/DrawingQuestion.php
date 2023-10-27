@@ -3,25 +3,11 @@
 namespace tcCore\Http\Livewire\StudentPlayer;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use tcCore\Answer;
-use tcCore\DrawingQuestion as DrawingQuestionModel;
 use tcCore\Http\Helpers\SvgHelper;
-use tcCore\Http\Livewire\TCComponent;
-use tcCore\Http\Traits\WithAttachments;
-use tcCore\Http\Traits\WithCloseable;
-use tcCore\Http\Traits\WithGroups;
-use tcCore\Http\Traits\WithNotepad;
 
-abstract class DrawingQuestion extends TCComponent
+abstract class DrawingQuestion extends StudentPlayerQuestion
 {
-    use withCloseable;
-
-    public $question;
-    public $number;
     public $drawingModalOpened = false;
-    public $answers;
-    public $answer;
     public $additionalText;
     public $playerInstance;
     public $backgroundImage;

@@ -140,13 +140,13 @@ abstract class Versionable extends BaseModel
         $this->editingAuthor = $editingAuthor;
     }
 
-    public function needsDuplication(): bool
+    public function needsDuplication($exclusions = null): bool
     {
         if ($this->user->isNot($this->getEditingAuthor())) {
             return true;
         }
 
-        return $this->isUsed();
+        return $this->isUsed($exclusions);
     }
 
     protected static function resolveVersionableInstance(Versionable $versionable)

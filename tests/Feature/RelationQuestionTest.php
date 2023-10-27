@@ -2,19 +2,22 @@
 
 namespace Feature;
 
-use Livewire\Livewire;
 use tcCore\Factories\FactoryTest;
 use tcCore\Factories\FactoryWord;
 use tcCore\Factories\FactoryWordList;
 use tcCore\Factories\Questions\FactoryQuestionRelation;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
-use tcCore\FactoryScenarios\FactoryScenarioTest;
+use tcCore\FactoryScenarios\FactoryScenarioTestTakePlanned;
+use tcCore\FactoryScenarios\FactoryScenarioTestTakeTakingTest;
 use tcCore\Http\Enums\WordType;
-use tcCore\Http\Livewire\Teacher\Cms\Constructor;
-use tcCore\Http\Livewire\Teacher\Cms\Providers\Relation;
+use tcCore\Http\Livewire\StudentPlayer\Question\RelationQuestion as RelationQuestionPlayerComponent;
+use tcCore\Http\Livewire\StudentPlayer\Overview\RelationQuestion as RelationQuestionOverviewComponent;
+use tcCore\Http\Livewire\StudentPlayer\Preview\RelationQuestion as RelationQuestionPreviewComponent;
 use tcCore\RelationQuestion;
 use tcCore\Test;
 use tcCore\TestQuestion;
+use tcCore\TestTake;
+use tcCore\TestTakeStatus;
 use tcCore\User;
 use tcCore\Word;
 use Tests\ScenarioLoader;
@@ -81,7 +84,7 @@ class RelationQuestionTest extends TestCase
         )->linkToSubjectWord($subjectWord)
             ->word;
 
-        $relationQuestion = $this->buildQuestionInTestWithWords($subjectWord);
+        [$test, $wordList, $relationQuestion] = $this->buildQuestionInTestWithWords($subjectWord);
 
         $word = $relationQuestion->wordsToAsk()->first();
         $this->assertEquals($word->text, $subjectWord->text);
@@ -103,7 +106,7 @@ class RelationQuestionTest extends TestCase
             ->linkToSubjectWord($subjectWord)
             ->word;
 
-        $relationQuestion = $this->buildQuestionInTestWithWords($subjectWord);
+        [$test, $wordList, $relationQuestion] = $this->buildQuestionInTestWithWords($subjectWord);
 
         $relationQuestion->selectColumn(WordType::DEFINITION);
         $word = $relationQuestion->wordsToAsk()->first();
@@ -118,18 +121,103 @@ class RelationQuestionTest extends TestCase
         $this->assertEquals($answerWord->text, $subjectWord->text);
     }
 
-    private function buildQuestionInTestWithWords(?Word $subjectWord): RelationQuestion
+    /** @test */
+    public function can_plan_test_with_relation_question()
+    {
+        [$test, $wordList, $relationQuestion] = $this->buildQuestionInTestWithWords();
+
+        $this->assertDatabaseEmpty(TestTake::class);
+
+        FactoryScenarioTestTakePlanned::createTestTake($this->teacherOne, test: $test);
+
+        $this->assertDatabaseCount(TestTake::class, 1);
+
+        $this->assertTrue(
+            TestTake::first()
+                ->test
+                ->testQuestions()
+                ->pluck('question_id')
+                ->contains($relationQuestion->getKey())
+        );
+    }
+
+    /** @test */
+    public function can_take_test_with_relation_question_as_student()
+    {
+        [$test, $wordList, $relationQuestion] = $this->buildQuestionInTestWithWords();
+
+        $testTake = FactoryScenarioTestTakeTakingTest::createTestTake($this->teacherOne, test: $test);
+        $testParticipant = $testTake->testParticipants()->first();
+        $s1 = ScenarioLoader::get('student1');
+        $this->assertEquals($s1->getKey(), $testParticipant->user_id);
+    }
+
+    /** @test */
+    public function can_have_correct_component_when_taking_test()
+    {
+        [$test, $wordList, $relationQuestion] = $this->buildQuestionInTestWithWords();
+
+        $testTake = FactoryScenarioTestTakeTakingTest::createTestTake($this->teacherOne, test: $test);
+        $testParticipant = $testTake->testParticipants()->first();
+        $testParticipant->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKING_TEST);
+        $testParticipant->save();
+
+        $this->actingAs($testParticipant->user);
+
+        $this->get(route('student.test-take-laravel', $testTake->uuid))
+            ->assertSeeLivewire(RelationQuestionPlayerComponent::class);
+    }
+
+    /** @test */
+    public function can_have_correct_component_when_looking_at_the_overview_of_the_test()
+    {
+        [$test, $wordList, $relationQuestion] = $this->buildQuestionInTestWithWords();
+
+        $testTake = FactoryScenarioTestTakeTakingTest::createTestTake($this->teacherOne, test: $test);
+        $testParticipant = $testTake->testParticipants()->first();
+        $testParticipant->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKING_TEST);
+        $testParticipant->save();
+
+        $this->actingAs($testParticipant->user);
+
+        $this->get(route('student.test-take-overview', $testTake->uuid))
+            ->assertSeeLivewire(RelationQuestionOverviewComponent::class);
+    }
+
+    /** @test */
+    public function can_have_correct_component_when_looking_at_the_teacher_preview_of_the_test()
+    {
+        [$test, $wordList, $relationQuestion] = $this->buildQuestionInTestWithWords();
+
+        $this->actingAs($this->teacherOne);
+
+        $this->get(route('teacher.test-preview', $test->uuid))
+            ->assertSeeLivewire(RelationQuestionPreviewComponent::class);
+    }
+    
+//    /** @test */
+//    public function can_()
+//    {
+//        [$test, $wordList, $relationQuestion] = $this->buildQuestionInTestWithWords();
+//
+//
+//    }
+
+    private function buildQuestionInTestWithWords(?Word $subjectWord = null): array
     {
         $wordList = FactoryWordList::create($this->teacherOne)
-            ->addRow([$subjectWord])
+            ->addRow($subjectWord ? [$subjectWord] : [])
             ->addRow()
             ->wordList;
         $test = FactoryTest::create($this->teacherOne)
             ->addQuestions([FactoryQuestionRelation::create()->useLists([$wordList])])
             ->getTestModel();
-        return RelationQuestion::whereIn(
+
+        $relationQuestion = RelationQuestion::whereIn(
             'id',
             TestQuestion::whereTestId($test->getKey())->select('question_id')
         )->first();
+
+        return [$test, $wordList, $relationQuestion];
     }
 }

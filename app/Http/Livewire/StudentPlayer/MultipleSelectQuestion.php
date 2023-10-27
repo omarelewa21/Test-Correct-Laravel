@@ -2,7 +2,6 @@
 
 namespace tcCore\Http\Livewire\StudentPlayer;
 
-use tcCore\Answer;
 
 abstract class MultipleSelectQuestion extends MultipleChoiceQuestion
 {

@@ -2,23 +2,11 @@
 
 namespace tcCore\Http\Livewire\StudentPlayer;
 
-use tcCore\Answer;
 use tcCore\Http\Helpers\BaseHelper;
-use tcCore\Http\Livewire\TCComponent;
-use tcCore\Http\Traits\WithAttachments;
-use tcCore\Http\Traits\WithCloseable;
-use tcCore\Http\Traits\WithGroups;
-use tcCore\Http\Traits\WithNotepad;
-use tcCore\TestTake;
 
-abstract class OpenQuestion extends TCComponent
+abstract class OpenQuestion extends StudentPlayerQuestion
 {
-    use withCloseable;
-
     public $answer = '';
-    public $question;
-    public $number;
-    public $answers;
     public $editorId;
     public bool $allowWsc = false;
 

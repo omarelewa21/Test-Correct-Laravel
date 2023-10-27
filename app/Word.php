@@ -110,7 +110,7 @@ class Word extends Versionable
 
     public function isUsed(): bool
     {
-        if($this->wordLists()->exists()) {
+        if ($this->wordLists()->where('word_lists.id', '!=', $this->pivot?->word_list_id)->exists()) {
             return true;
         }
 

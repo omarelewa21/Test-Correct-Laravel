@@ -1,7 +1,6 @@
-@php($js = \Illuminate\Support\Js::class)
 <x-modal.base-modal x-data="pdfDownload(
-            {{ $js::from($translation) }},
-            {{ $js::from($this->downloadLinks()) }}
+            {{ js($translation) }},
+            {{ js($this->downloadLinks()) }}
         )"
 >
     <x-slot name="title">

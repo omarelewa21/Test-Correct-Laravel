@@ -476,4 +476,45 @@ class WordListTest extends TestCase
         $this->assertEquals(2, VersionManager::getVersionable($wordList, $this->teacherOne)->words()->count());
         $this->assertEquals(2, VersionManager::getVersionable($wordList, $this->teacherTwo)->words()->count());
     }
+
+    /** @test */
+    public function can_get_a_diff_on_the_list_when_a_word_has_been_added_and_removed_and_modified_multiple_times()
+    {
+        $wordToDelete = $this->defaultWord(text: 'T1 word');
+        $wordToEdit = $this->defaultWord(text: 'T1 word 2');
+        $wordToAdd = $this->defaultWord(text: 'T2 word', user: $this->teacherTwo);
+        $wordToAdd2 = $this->defaultWord(text: 'T2 word 2', user: $this->teacherTwo);
+
+        $wordList = $this->defaultWordList();
+        $wordList->addWord($wordToDelete);
+        $wordList->addWord($wordToEdit);
+
+        VersionManager::getVersionable($wordList, $this->teacherTwo)->addWord($wordToAdd);
+        VersionManager::getVersionable($wordList, $this->teacherTwo)->addWord($wordToAdd2);
+        VersionManager::getVersionable($wordList, $this->teacherTwo)->removeWord($wordToDelete);
+        $editedWord = VersionManager::getVersionable($wordList, $this->teacherTwo)->editWord(
+            $wordToEdit,
+            ['text' => 'Verbetering!']
+        );
+        $editedWord2 = VersionManager::getVersionable($wordList, $this->teacherTwo)->editWord(
+            $wordToAdd2,
+            ['text' => 'Verbetering 2!']
+        );
+
+        $diff = VersionManager::getVersionable($wordList, $this->teacherOne)->getDiff();
+
+        $this->assertEquals(1, $diff->get('deleted')->count());
+        $this->assertEquals($wordToDelete->getKey(), $diff->get('deleted')->first()->getKey());
+
+        $this->assertEquals(2, $diff->get('created')->count());
+        $this->assertEquals($wordToAdd->getKey(), $diff->get('created')->first()->getKey());
+        $this->assertEquals($wordToAdd2->getKey(), $diff->get('created')->last()->getKey());
+        $this->assertEquals($editedWord2->getKey(), $wordToAdd2->getKey());
+
+        $this->assertEquals(1, $diff->get('updated')->count());
+        $this->assertEquals($editedWord->getKey(), $diff->get('updated')->first()->getKey());
+
+        $this->assertEquals(2, VersionManager::getVersionable($wordList, $this->teacherOne)->words()->count());
+        $this->assertEquals(3, VersionManager::getVersionable($wordList, $this->teacherTwo)->words()->count());
+    }
 }

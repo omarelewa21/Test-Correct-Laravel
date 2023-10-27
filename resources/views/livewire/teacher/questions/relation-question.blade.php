@@ -1,13 +1,14 @@
 @extends($preview ?? 'livewire.teacher.questions.cms-layout')
 @section('question-cms-question')
-    <x-input.rich-textarea
-            wire:model.debounce.1000ms="question.question"
-            editorId="{{ $questionEditorId }}"
-            type="cms"
-            lang="{{ $lang }}"
-            :allowWsc="$allowWsc"
-            :disabled="isset($preview)"
-    />
+    <x-input.textarea wire:model.debounce.1000ms="question.question"></x-input.textarea>
+    {{--    <x-input.rich-textarea--}}
+    {{--            wire:model.debounce.1000ms="question.question"--}}
+    {{--            editorId="{{ $questionEditorId }}"--}}
+    {{--            type="cms"--}}
+    {{--            lang="{{ $lang }}"--}}
+    {{--            :allowWsc="$allowWsc"--}}
+    {{--            :disabled="isset($preview)"--}}
+    {{--    />--}}
 @endsection
 
 @section('question-cms-answer')
@@ -36,22 +37,31 @@
                 zal de student het taalvak woord moeten antwoorden.</p>
         </div>
         <div class="relation-question-grid-container | ">
-            <div class="relation-question-grid | "
-                 style="--relation-grid-cols: @js(count($this->cmsPropertyBag['words'][0]))">
-                <div class="grid-head-container contents">
+            <div id="relation-question-grid"
+                 class="relation-question-grid | "
+                 style="--relation-grid-cols: @js(count(\tcCore\Http\Enums\WordType::cases()))"
+                 x-data="relationQuestionGrid"
+                 wire:ignore
+            >
+                <div class="grid-head-container contents"
+                     x-on:input="selectColumn($event.target.value)"
+                >
                     <div class="grid-head">
-                        <x-input.radio value="main"
+                        <x-input.radio value="subject"
                                        name="relation-column"
-                                       text-left="main"
+                                       text-left="subject"
                                        label-classes="bold gap-2 hover:text-primary"
+                                       x-bind:checked="selectedColumn === $el.value"
+                                       x-bind:disabled="disabledColumns.includes($el.value)"
                         />
-
                     </div>
                     <div class="grid-head">
                         <x-input.radio value="translation"
                                        name="relation-column"
                                        text-left="translation"
                                        label-classes="bold gap-2 hover:text-primary"
+                                       x-bind:checked="selectedColumn === $el.value"
+                                       x-bind:disabled="disabledColumns.includes($el.value)"
                         />
                     </div>
                     <div class="grid-head">
@@ -59,6 +69,8 @@
                                        name="relation-column"
                                        text-left="definition"
                                        label-classes="bold gap-2 hover:text-primary"
+                                       x-bind:checked="selectedColumn === $el.value"
+                                       x-bind:disabled="disabledColumns.includes($el.value)"
                         />
                     </div>
                     <div class="grid-head">
@@ -66,44 +78,43 @@
                                        name="relation-column"
                                        text-left="synonym"
                                        label-classes="bold gap-2 hover:text-primary"
-                        />
-                    </div>
-                    <div class="grid-head">
-                        <x-input.radio value="ditjes"
-                                       name="relation-column"
-                                       text-left="ditjes"
-                                       label-classes="bold gap-2 hover:text-primary"
+                                       x-bind:checked="selectedColumn === $el.value"
+                                       x-bind:disabled="disabledColumns.includes($el.value)"
                         />
                     </div>
                 </div>
 
-                <div class="grid-divider"></div>
+                <template x-for="(row, rowIndex) in rows">
+                    <div class="word-row contents" wire:key="">
 
-                @foreach($this->cmsPropertyBag['words'] as $word)
-                    <div class="word-row contents">
-                        <div>
-                            <span>{{ $word['main'] }}</span>
-                            <x-icon.checkmark-small class="text-white min-w-[13px]"/>
-                        </div>
-                        <div>
-                            <span>{{ $word['translation'] }}</span>
-                            <x-icon.checkmark-small class="text-white min-w-[13px]"/>
-                        </div>
-                        <div>
-                            <span>{{ $word['definition'] }}</span>
-                            <x-icon.checkmark-small class="text-white min-w-[13px]"/>
-                        </div>
-                        <div>
-                            <span>{{ $word['synonym'] }}</span>
-                            <x-icon.checkmark-small class="text-white min-w-[13px]"/>
-                        </div>
-                        <div>
-                            <span>{{ $word['synonym'] }}</span>
-                            <x-icon.checkmark-small class="text-white min-w-[13px]"/>
-                        </div>
+                        <template x-for="(word, wordType) in row">
+                            <div x-bind:class="{'selected': word.selected, 'empty': !word.word_id}"
+                                 x-on:click="selectWord(rowIndex, word)"
+                            >
+                                <span x-text="getText(word, rowIndex)"></span>
+                                <x-icon.checkmark-small class="text-white min-w-[13px]" />
+                            </div>
+                        </template>
+
                     </div>
-                @endforeach
+                </template>
             </div>
+            <div class="relation-grid-sticky-pseudo"></div>
+        </div>
+
+        <div class="flex flex-col w-full note items-center justify-center text-center">
+            <span class="text-sm mt-2">{{ $this->cmsPropertyBag['word_count'] }} @lang('cms.woorden')</span>
+
+            <x-button.primary class="w-full mt-4 mb-2"
+                              wire:click="openCompileListsModal"
+            >
+                <x-icon.edit />
+                <span>@lang('cms.Woorden opstellen')</span>
+            </x-button.primary>
+
+            <span class="text-sm">@lang('cms.Stel de woorden op voor het vraagmodel uit de woordenbank, woordenlijstenbank of upload een bestand.')</span>
         </div>
     </div>
 @endsection
+
+{{-- Syncing met skiprender naar de backend? En dan volledig JS based zodat t niet laggy wordt?--}}

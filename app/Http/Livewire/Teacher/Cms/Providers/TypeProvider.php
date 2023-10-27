@@ -57,6 +57,12 @@ abstract class TypeProvider implements CmsProvider
         );
     }
 
+    public function preparePropertyBag()
+    {
+        foreach ($this->questionOptions as $key => $value) {
+            $this->instance->question[$key] = $value;
+        }
+    }
 
     public function initializePropertyBag($q)
     {
@@ -92,4 +98,6 @@ abstract class TypeProvider implements CmsProvider
     {
         return false;
     }
+
+    public function bootPropertyBag() {}
 }

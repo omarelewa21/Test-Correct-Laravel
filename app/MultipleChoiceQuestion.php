@@ -2,6 +2,7 @@
 
 namespace tcCore;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use tcCore\Http\Requests\UpdateTestQuestionRequest;
@@ -297,5 +298,14 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface
     {
         $givenAnswersCount = collect(json_decode($answer->json, true))->filter()->count();
         return $givenAnswersCount === $this->selectable_answers;
+    }
+
+    public function getStudentPlayerComponent($context = 'question'): string
+    {
+        return str(parent::getStudentPlayerComponent($context))
+            ->when(
+                $this->selectable_answers > 1 && $this->subtype != 'ARQ',
+                fn($value) => $value->replace('multiple-choice', 'multiple-select')
+            );
     }
 }

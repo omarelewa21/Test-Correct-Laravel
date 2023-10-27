@@ -62,6 +62,7 @@ class RelationQuestion extends Question implements QuestionInterface
     public function questionWords(): hasMany
     {
         return $this->hasMany(RelationQuestionWord::class)
+            ->whereNull('relation_question_word.deleted_at')
             ->with('word');
     }
 
@@ -82,11 +83,16 @@ class RelationQuestion extends Question implements QuestionInterface
 
     public function addAnswers($mainQuestion, $answers): void
     {
-        foreach ($answers as $answer) {
-            $link = RelationQuestionWord::make($answer);
-            $link->relation_question_id = $this->getKey();
-            $link->save();
-        }
+        $currentAnswers = $this->questionWords;
+        $answers = collect($answers);
+
+        $answersToCreate = $this->getAnswersToCreate($answers, $currentAnswers);
+        $answersToRemove = $this->getAnswersToRemove($answers, $currentAnswers);
+        $answersToUpdate = $this->getAnswersToUpdate($answersToRemove, $answersToCreate);
+
+        $this->createAnswers($answersToCreate);
+        $this->removeAnswers($answersToRemove);
+        $this->updateAnswers($answersToUpdate, $answers);
     }
 
     public function wordsToAsk(): Collection
@@ -122,4 +128,112 @@ class RelationQuestion extends Question implements QuestionInterface
 
         return $word->subjectWord;
     }
+
+    public function needsToBeUpdated($request)
+    {
+        $totalData = $this->getTotalDataForTestQuestionUpdate($request);
+        if ($this->isDirtyAnswerOptions($totalData)) {
+            return true;
+        }
+        return parent::needsToBeUpdated($request);
+    }
+
+    public function isDirtyAnswerOptions($totalData): bool
+    {
+        $newAnswers = collect($totalData['answers'])->map(function ($item) {
+            return [
+                'word_id'      => $item['word_id'],
+                'word_list_id' => $item['word_list_id'],
+                'selected'     => $item['selected']
+            ];
+        })->sortBy(fn($item) => $item['word_id']);
+        $oldAnswers = $this->questionWords->sortBy(fn($item) => $item->word_id);
+
+        if ($oldAnswers->count() !== $newAnswers->count()) {
+            return true;
+        }
+
+        $isDirty = false;
+        $oldAnswers->each(function ($answer, $key) use (&$isDirty, $newAnswers) {
+            if ($answer['word_id'] !== $newAnswers[$key]['word_id']) {
+                $isDirty = true;
+                return false;
+            }
+            if ($answer['selected'] !== $newAnswers[$key]['selected']) {
+                $isDirty = true;
+                return false;
+            }
+        });
+
+        return $isDirty;
+    }
+
+    private function getAnswersToCreate(Collection $proposedAnswers, Collection $currentAnswers): Collection
+    {
+        return $proposedAnswers->filter(function ($proposal) use ($currentAnswers) {
+            return $currentAnswers->doesntContain(function ($answer) use ($proposal) {
+                return $proposal['word_id'] === $answer->word_id
+                    && $proposal['word_list_id'] === $answer->word_list_id
+                    && $proposal['selected'] === $answer->selected;
+            });
+        });
+    }
+
+    private function getAnswersToRemove(Collection $proposedAnswers, Collection $currentAnswers): Collection
+    {
+        return $currentAnswers
+            ->filter(function ($answer) use ($proposedAnswers) {
+                return $proposedAnswers->doesntContain(function ($proposal) use ($answer) {
+                    return $answer->word_id === $proposal['word_id']
+                        && $answer->word_list_id === $proposal['word_list_id']
+                        && $answer->selected === $proposal['selected'];
+                });
+            });
+    }
+
+    private function getAnswersToUpdate(Collection $answersToRemove, Collection $answersToCreate): Collection
+    {
+        return $answersToRemove->filter(function ($answer) use ($answersToCreate) {
+            return $answersToCreate->contains(fn($proposal) => $proposal['word_id'] === $answer->word_id
+                && $proposal['word_list_id'] === $answer->word_list_id);
+        })->each(function ($answer) use ($answersToRemove, $answersToCreate) {
+            $answersToCreate->forget(
+                $answersToCreate->search(
+                    fn($answerToCreate) => $answerToCreate['word_id'] === $answer->word_id
+                        && $answerToCreate['word_list_id'] === $answer->word_list_id
+                )
+            );
+            $answersToRemove->forget(
+                $answersToRemove->search(
+                    fn($answerToRemove) => $answerToRemove->word_id === $answer->word_id
+                        && $answerToRemove->word_list_id === $answer->word_list_id
+                )
+            );
+        });
+    }
+
+    private function createAnswers(Collection $answers): void
+    {
+        $answers->each(function ($answer) {
+            $link = RelationQuestionWord::make($answer);
+            $link->relation_question_id = $this->getKey();
+            $link->save();
+        });
+    }
+
+    private function removeAnswers(Collection $answers): void
+    {
+        RelationQuestionWord::whereIn('id', $answers->pluck('id'))->delete();
+    }
+
+    private function updateAnswers(Collection $answersToUpdate, Collection $answerProposals): void
+    {
+        $answersToUpdate->each(function ($answer) use ($answerProposals) {
+            $proposal = $answerProposals->where('word_id', $answer->word_id)
+                ->where('word_list_id', $answer->word_list_id)
+                ->first();
+            $answer->update(['selected' => $proposal['selected']]);
+        });
+    }
+
 }

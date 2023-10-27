@@ -324,4 +324,13 @@ class MatchingQuestion extends Question implements QuestionInterface
         $givenAnswersCount = $givenAnswersOnlyInjson->filter()->count();
         return $givenAnswersCount === $this->matchingQuestionAnswers()->where('type', 'RIGHT')->count();
     }
+
+    public function getStudentPlayerComponent($context = 'question'): string
+    {
+        return str(parent::getStudentPlayerComponent())
+            ->when(
+                strtolower($this->subtype) === 'classify',
+                fn($value) => $value->append('-classify')
+            );
+    }
 }

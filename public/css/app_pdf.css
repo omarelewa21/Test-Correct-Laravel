@@ -1739,6 +1739,7 @@ input[type=number] {
 .select-error > .multi-dropdown-select .select-input {
     border-color: var(--all-red);
 }
+
 .primary-gradient {
     background: linear-gradient(to right, var(--primary) 0%, var(--teacher-primary-light) 100%);
 }
@@ -6133,10 +6134,6 @@ video {
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
 }
-.my-3{
-  margin-top: 0.75rem;
-  margin-bottom: 0.75rem;
-}
 .my-4{
   margin-top: 1rem;
   margin-bottom: 1rem;
@@ -6356,9 +6353,6 @@ video {
 }
 .mt-px{
   margin-top: 1px;
-}
-.mb-3\.5{
-  margin-bottom: 0.875rem;
 }
 .box-border{
   box-sizing: border-box;
@@ -6848,11 +6842,17 @@ video {
 .w-px{
   width: 1px;
 }
+.\!min-w-\[130px\]{
+  min-width: 130px !important;
+}
 .min-w-\[110px\]{
   min-width: 110px;
 }
 .min-w-\[125px\]{
   min-width: 125px;
+}
+.min-w-\[13px\]{
+  min-width: 13px;
 }
 .min-w-\[150px\]{
   min-width: 150px;
@@ -6940,9 +6940,6 @@ video {
 .min-w-min{
   min-width: -moz-min-content;
   min-width: min-content;
-}
-.min-w-\[13px\]{
-  min-width: 13px;
 }
 .max-w-0{
   max-width: 0rem;
@@ -7827,6 +7824,10 @@ video {
 .border-l-student{
   --tw-border-opacity: 1;
   border-left-color: rgb(236 219 0 / var(--tw-border-opacity));
+}
+.\!bg-allred{
+  --tw-bg-opacity: 1 !important;
+  background-color: rgb(207 27 4 / var(--tw-bg-opacity)) !important;
 }
 .\!bg-primary{
   --tw-bg-opacity: 1 !important;

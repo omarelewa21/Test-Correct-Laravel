@@ -3,6 +3,7 @@
 namespace tcCore;
 
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\UnauthorizedException;
 use InvalidArgumentException;
@@ -107,7 +108,8 @@ class WordList extends Versionable
 
         $list->words()->detach($word);
 
-        if ($word->isUnused()) {
+
+        if ($word->wordLists()->doesntExist() && $word->isUnused()) {
             $word->delete();
         }
     }
@@ -177,9 +179,15 @@ class WordList extends Versionable
         return $newList;
     }
 
-    public function isUsed(): bool
+    public function isUsed($exclusions = null): bool
     {
-        return $this->questions()->exists(); //$this->words()->exists();
+        return $this
+            ->questions()
+            ->when(
+                $exclusions,
+                fn($builder) => $builder->whereNot('relation_question_id', $exclusions->getKey()),
+            )
+            ->exists();
     }
 
     public function isUnused(): bool
