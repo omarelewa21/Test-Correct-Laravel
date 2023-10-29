@@ -158,7 +158,7 @@ trait WithInlineFeedback {
 
     public function getSortedAnswerFeedback()
     {
-        if($this->getCurrentQuestion()->type !== 'OpenQuestion') {
+        if (!$this->getCurrentAnswer()) {
             return;
         }
 
@@ -323,8 +323,10 @@ SQL;
 
     public function setAnswerFeedbackFilter(string $filter) : void
     {
-        $this->answerFeedbackFilter = AnswerFeedbackFilter::tryFrom($filter);
-        $this->getSortedAnswerFeedback();
+        if(AnswerFeedbackFilter::tryFrom($filter)) {
+            $this->answerFeedbackFilter = AnswerFeedbackFilter::tryFrom($filter);
+            $this->getSortedAnswerFeedback();
+        }
     }
 
     public function getTestParticipantsRatingTheCurrentAnswer(): mixed

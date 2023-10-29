@@ -168,8 +168,7 @@ class WaitingRoom extends TCComponent
 
     public function startDiscussing()
     {
-        if ($this->waitingTestTake->discussion_type == 'OPEN_ONLY' && Auth::user()->schoolLocation->allow_new_co_learning) {
-            $this->destroyExistingCoLearningCompletionQuestionSession();
+        if (Auth::user()->schoolLocation->allow_new_co_learning) {
             return redirect('/student/co-learning/' . $this->take);
         }
 
@@ -179,12 +178,13 @@ class WaitingRoom extends TCComponent
         Auth::user()->redirectToCakeWithTemporaryLogin($options);
     }
 
-    public function destroyExistingCoLearningCompletionQuestionSession()
-    {
-        if (session()->has(CompletionQuestion::SESSION_KEY)) {
-            session()->forget(CompletionQuestion::SESSION_KEY);
-        }
-    }
+    // todo remove after refactoring colearning students
+//    public function destroyExistingCoLearningCompletionQuestionSession()
+//    {
+//        if (session()->has(CompletionQuestion::SESSION_KEY)) {
+//            session()->forget(CompletionQuestion::SESSION_KEY);
+//        }
+//    }
 
     public function startReview()
     {

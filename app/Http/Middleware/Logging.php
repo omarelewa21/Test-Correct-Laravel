@@ -42,11 +42,8 @@ class Logging
             ]
         ],
         'Teacher' => [
-            'whitelist' => [
-                ["message" => "authenticated", "path" => "livewire/message/auth.login", "method" => "ALL"],
-                ["message" => "planned test take", "path" => "api-c/test_take", "cakepath" => "/test_takes/add", "method" => "POST"],
-                ["message" => "started test take immediately", "path" => "api-c/test_take", "cakepath" => "/test_takes/start_direct/*", "method" => "POST"],
-                ["message" => "started test take", "path" => "api-c/test_take/*", "cakepath" => "/test_takes/start_test/*", "method" => "PUT"]
+            'blacklist' => [
+                ["path" => "api-c/message", "method" => "GET"],
             ]
         ],
         'Student' => [

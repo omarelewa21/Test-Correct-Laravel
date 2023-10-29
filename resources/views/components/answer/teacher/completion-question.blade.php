@@ -3,7 +3,6 @@
         @foreach($textPartialArray as $textPartial)
             {!!$textPartial!!}
         @endforeach
-
         <span class="inline-flex flex-col mx-1 mb-1">
             <span class="bold w-full flex justify-center mb-1 ">
                 @if ($studentAnswer)
@@ -23,7 +22,7 @@
             </span>
             @if($studentAnswer && $showToggles)
                 <x-button.true-false-toggle
-                        :disabled="$question->isSubType('multi') || !$answerStruct->get($answerIndex)->answered"
+                        :disabled="($disabledToggle && $question->isSubType('multi')) || !$answerStruct->get($answerIndex)->answered"
                         :initialStatus="$answerStruct->get($answerIndex)->activeToggle"
                         :toggleValue="$answerStruct->get($answerIndex)->score"
                         :identifier="$answerStruct->get($answerIndex)->tag"

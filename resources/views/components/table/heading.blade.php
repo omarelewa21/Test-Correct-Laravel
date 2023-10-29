@@ -17,9 +17,8 @@
 'column' => null,
 ])
 
-<th
-        {{ $attributes->merge(['class' => 'text-'.$textAlign.' px-3 bg-cool-gray-50 w-auto']) }}
-        @isset($width) style="width:{{$width}}" @endisset
+<th {{ $attributes->merge(['class' => 'text-'.$textAlign.' px-3 w-auto']) }}
+    style="width: {{ $width }}"
 >
     @unless ($sortable)
         <span class="text-{{$textAlign}} body2 bold">{{ $slot }}</span>

@@ -48,7 +48,7 @@
         </div>
     </div>
     @unless($this->headerCollapsed)
-        <div id="start-screen-content" class="h-full flex justify-center items-center">
+        <div id="start-screen-content" class="h-[90vh] flex justify-center overflow-y-auto">
             <div class="flex flex-col mb-[110px]">
                 <div class="flex flex-col gap-2 items-center justify-center mb-4">
                     <h3 class="text-center text-white">
@@ -58,7 +58,7 @@
                     </h3>
                     @yield('notification-box')
                 </div>
-                <div class="grid grid-cols-2 gap-5">
+                <div class="flex flex-wrap justify-center">
                     @yield('panels')
                 </div>
                 @hasSection('additionalInfo')

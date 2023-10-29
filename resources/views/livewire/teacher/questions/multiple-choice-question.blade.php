@@ -43,7 +43,7 @@
          @tabchange.window="setTimeout(() => addPointsPosition(), 100)"
          @resize.window.debounce.100ms="addPointsPosition()"
     >
-        <div class="flex px-0 py-0 border-0 bg-system-white justify-between relative">
+        <div class="flex px-0 py-0 border-0 bg-white justify-between relative">
             <div class="bold text-base">{{ __('cms.Antwoord') }}</div>
             <div wire:ignore.self x-ref="punten" class="absolute bold text-base">{{ __('cms.Punten') }}</div>
         </div>
@@ -74,7 +74,7 @@
                          wireKey="option-{{ $answer->id }}" selid="drag-box"
                          :useHandle="true"
                          :keepWidth="true"
-                         class="flex !px-0 !py-0 !border-0 bg-system-white regular"
+                         class="flex !px-0 !py-0 !border-0 bg-white regular"
                          slotClasses="w-full space-x-2.5 justify-between"
                          sortIcon="reorder"
                          dragIconClasses="cursor-move {{ isset($preview) ? 'text-midgrey hover:text-midgrey' : '' }}"

@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\StudentPlayer;
 
 use Exception;
 use Illuminate\Support\Facades\Blade;
+use tcCore\CompletionQuestionAnswer;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\Questions\WithCompletionConversion;
@@ -26,9 +27,7 @@ abstract class CompletionQuestion extends TCComponent
     public function mount(): void
     {
         if(!$this->answer) {
-            foreach($this->question->completionQuestionAnswers as $value) {
-                $this->answer[$value->tag] = "";
-            }
+            $this->buildAnswerStruct();
         }
         foreach ($this->answer as $key => $val) {
             $this->answer[$key] = BaseHelper::transformHtmlCharsReverse($val, false);
@@ -56,5 +55,13 @@ abstract class CompletionQuestion extends TCComponent
         $this->questionTextPartials = $this->explodeAndModifyQuestionText($question_text);
 
         $this->questionTextPartialFinal = $this->questionTextPartials->pop();
+    }
+
+    private function buildAnswerStruct(): void
+    {
+        foreach ($this->question->completionQuestionAnswers as $value) {
+            $index = $this->question->isSubType('multi') ? $value->tag : (int)$value->tag - 1;
+            $this->answer[$index] = "";
+        }
     }
 }

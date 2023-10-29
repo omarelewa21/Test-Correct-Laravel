@@ -49,9 +49,9 @@ export class Entry extends sidebarComponent {
         this.drawingApp.bindEventListeners(this.eventListenerSettings, this);
         this.updateLockState();
         this.updateHideState();
+        this.customizeButtonsAccordingToType();
 
         this.deleteModal = this.root.querySelector('#delete-confirm');
-        this.skipEntryContainerClick = false;
     }
 
     get eventListenerSettings() {
@@ -117,8 +117,8 @@ export class Entry extends sidebarComponent {
                 element: this.btns.edit,
                 events: {
                     "click": {
-                        callback: () => {
-                            this.handleEditShape();
+                        callback: (evt) => {
+                            this.handleEditShape(evt);
                         }
                     }
                 }
@@ -249,10 +249,6 @@ export class Entry extends sidebarComponent {
     }
 
     handleClick(evt) {
-        if(this.skipEntryContainerClick) {
-            this.skipEntryContainerClick = false;
-            return;
-        }
         const selectedEl = this.getSelectedElement();
         if (selectedEl) this.unselect(selectedEl);
         if (selectedEl === this.entryContainer) return;
@@ -268,10 +264,11 @@ export class Entry extends sidebarComponent {
         this.svgShape.shapeGroup.element.classList.add('selected');
     }
     unselect(element) {
+        element = element ?? this.getSelectedElement();
         const shapeId = element.id.substring(6);
         element.classList.remove('selected');
         element.closest('#canvas-sidebar-container').querySelector(`#${shapeId}`).classList.remove('selected');
-        this.removeEditingShape();
+        this.removeAnyEditingShapes();
         document.activeElement.blur();
     }
     toggleSelect() {
@@ -303,26 +300,21 @@ export class Entry extends sidebarComponent {
         }
     }
 
-    handleEditShape() {
+    handleEditShape(evt) {
         const selectedEl = this.getSelectedElement();
 
         if(!selectedEl) return this.startEditingShape();
 
-        if(selectedEl.classList.contains('editing')) {
-            this.removeEditingShape();
+        if(selectedEl === this.entryContainer && selectedEl.classList.contains('editing')) return;
 
-            if(selectedEl === this.entryContainer) return;
-
-            this.unselect(selectedEl);
-            this.select();
-        }
-
-        this.skipEntryContainerClick = true;
+        this.unselect(selectedEl);
+        this.select();
         this.startEditingShape();
+        evt.stopPropagation();
     }
 
     startEditingShape() {
-        this.removeEditingShape();
+        this.removeAnyEditingShapes();
         this.entryContainer.classList.add('editing');
         this.svgShape.shapeGroup.element.classList.add('editing');
         this.showRelevantShapeMenu();
@@ -333,7 +325,7 @@ export class Entry extends sidebarComponent {
         this.svgShape.setInputValuesOnEdit();
     }
 
-    removeEditingShape() {
+    removeAnyEditingShapes() {
         this.root.querySelectorAll('.editing').forEach((element) => {
             element.classList.remove('editing');
         });
@@ -375,6 +367,14 @@ export class Entry extends sidebarComponent {
     showConfirmDelete() {
         this.drawingApp.params.deleteSubject = this;
         this.deleteModal.classList.toggle('open');
+    }
+
+    customizeButtonsAccordingToType() {
+        if (this.type === "image"){
+            const editButton = this.btns.edit;
+            editButton.style.color = "grey";
+            editButton.disabled = true;
+        }
     }
 }
 

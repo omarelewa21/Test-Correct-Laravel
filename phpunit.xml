@@ -1,43 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" backupGlobals="false" backupStaticAttributes="false"
-         bootstrap="vendor/autoload.php" colors="true" convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true" convertWarningsToExceptions="true" processIsolation="false"
-         stopOnFailure="false" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
-    <coverage processUncoveredFiles="true">
-        <include>
-            <directory suffix=".php">./app</directory>
-        </include>
-    </coverage>
-    <testsuites>
-        <testsuite name="Unit">
-            <directory suffix="Test.php">./tests/Unit</directory>
-        </testsuite>
-        <testsuite name="Factory">
-            <directory suffix="Test.php">./tests/Unit/FactoryTests</directory>
-        </testsuite>
-        <testsuite name="Feature">
-            <directory suffix="Test.php">./tests/Feature</directory>
-        </testsuite>
-        <testsuite name="Qti">
-            <directory suffix="Test.php">./tests/Unit/QtiV2dot2dot2</directory>
-        </testsuite>
-        <testsuite name="TestQuestionUpdate">
-            <file>./tests/Feature/MultipleChoiceQuestionTest.php</file>
-            <file>./tests/Feature/CopyCombineerTest.php</file>
-            <file>./tests/Feature/OpenQuestionTest.php</file>
-            <file>./tests/Feature/CompletionQuestionTest.php</file>
-            <file>./tests/Feature/AddToDatabaseTest.php</file>
-            <file>./tests/Feature/ARQQuestionTest.php</file>
-            <file>./tests/Feature/TestsControllerTest.php</file>
-        </testsuite>
-    </testsuites>
-    <php>
-        <server name="APP_ENV" value="testing"/>
-        <server name="BCRYPT_ROUNDS" value="4"/>
-        <server name="CACHE_DRIVER" value="array"/>
-        <server name="MAIL_DRIVER" value="array"/>
-        <server name="QUEUE_CONNECTION" value="sync"/>
-        <server name="SESSION_DRIVER" value="array"/>
-        <server name="TELESCOPE_ENABLED" value="false"/>
-    </php>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" backupGlobals="false" bootstrap="vendor/autoload.php" colors="true" processIsolation="false" stopOnFailure="false" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.2/phpunit.xsd" cacheDirectory=".phpunit.cache" backupStaticProperties="false">
+  <coverage/>
+  <testsuites>
+    <testsuite name="Unit">
+      <directory suffix="Test.php">./tests/Unit</directory>
+    </testsuite>
+    <testsuite name="Factory">
+      <directory suffix="Test.php">./tests/Unit/FactoryTests</directory>
+    </testsuite>
+    <testsuite name="Feature">
+      <directory suffix="Test.php">./tests/Feature</directory>
+    </testsuite>
+    <testsuite name="Qti">
+      <directory suffix="Test.php">./tests/Unit/QtiV2dot2dot2</directory>
+    </testsuite>
+    <testsuite name="TestQuestionUpdate">
+      <file>./tests/Feature/MultipleChoiceQuestionTest.php</file>
+      <file>./tests/Feature/CopyCombineerTest.php</file>
+      <file>./tests/Feature/OpenQuestionTest.php</file>
+      <file>./tests/Feature/CompletionQuestionTest.php</file>
+      <file>./tests/Feature/AddToDatabaseTest.php</file>
+      <file>./tests/Feature/ARQQuestionTest.php</file>
+      <file>./tests/Feature/TestsControllerTest.php</file>
+    </testsuite>
+  </testsuites>
+  <php>
+    <server name="APP_ENV" value="testing"/>
+    <server name="BCRYPT_ROUNDS" value="4"/>
+    <server name="CACHE_DRIVER" value="array"/>
+    <server name="MAIL_DRIVER" value="array"/>
+    <server name="QUEUE_CONNECTION" value="sync"/>
+    <server name="SESSION_DRIVER" value="array"/>
+    <server name="TELESCOPE_ENABLED" value="false"/>
+  </php>
+  <source>
+    <include>
+      <directory suffix=".php">./app</directory>
+    </include>
+  </source>
 </phpunit>

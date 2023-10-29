@@ -19,20 +19,23 @@
                         />
                     </x-input.group>
                 </div>
-                <div class="flex gap-4">
-                    <x-input.group :label="__('header.Klassen')">
-                        <x-input.choices-select :multiple="true"
-                                                :options="$this->schoolClasses"
-                                                :withSearch="true"
-                                                placeholderText="{!!  __('header.Klassen') !!}"
-                                                wire:model="selectedClasses"
-                                                filterContainer="selected_classes"
-                                                id="classes"
-                                                hasErrors="{{ $errors->has('selectedClasses') ? 'true': '' }}"
-                                                                                                class="short-list"
-                        />
-                    </x-input.group>
-                    <div id="selected_classes" wire:ignore class="flex flex-wrap gap-2 self-end relative -top-0.5 mt-6" style=""></div>
+
+                <div @class([
+                    "students-classes | input-section flex gap-2 mb-4",
+                    "select-error" => $errors->has('classesAndStudents.children')
+                    ])
+                >
+                    <x-input.multi-dropdown-select :options="$this->schoolClasses"
+                                                   :title="__('teacher.Klassen en studenten')"
+                                                   containerId="c_and_s_create-container"
+                                                   :label="__('teacher.Klassen en studenten')"
+                                                   wire:model.defer="classesAndStudents"
+                                                   :item-labels="['child_disabled' => __('test-take.Already selected')]"
+                    />
+                    <div id="c_and_s_create-container"
+                         class="flex gap-2 flex-wrap"
+                         wire:ignore
+                    ></div>
                 </div>
             </div>
             <div class="toggles | flex flex-col lg:flex-row lg:gap-x-4 flex-wrap">
@@ -48,6 +51,7 @@
                                                :toolTip="__('teacher.guest_accounts_tooltip')"
                                                :tooltipAlwaysLeft="true"
                                                containerClass="lg:border-t w-full lg:w-[calc(50%-0.5rem)]"
+                                               :error="$errors->has('classesAndStudents.children')"
                 >
                     <x-icon.test-direct />
                     <span class="bold">{{ __('teacher.Test-Direct toestaan') }} </span>

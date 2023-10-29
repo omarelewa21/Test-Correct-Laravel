@@ -83,10 +83,6 @@
     background: var(--system-secondary);
 }
 
-.onboarding-page .bg-system-white {
-    background: var(--system-white);
-}
-
 .onboarding-page .bg-mid-grey {
     background: var(--mid-grey);
 }
@@ -214,7 +210,7 @@
     display: flex;
     flex-wrap: wrap;
     flex-direction: column;
-    align-content: start;
+    align-content: flex-start;
     flex-grow: 1;
 }
 

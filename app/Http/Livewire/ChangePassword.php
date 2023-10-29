@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use tcCore\Http\Traits\UserNotificationForController;
+use tcCore\Rules\NistPasswordRules;
 use tcCore\User;
 
 class ChangePassword extends TCModalComponent
@@ -13,14 +14,18 @@ class ChangePassword extends TCModalComponent
 
     public $currentPassword;
     public $newPassword;
-    public $newPasswordRepeat;
+    public $newPassword_confirmation;
+    protected $preventFieldTransformation = ['newPassword', 'newPassword_confirmation', 'currentPassword'];
 
     public function rules()
     {
         return [
             'currentPassword'   => 'required',
-            'newPasswordRepeat' => 'required|same:newPassword',
-            'newPassword'       => 'required|' . User::getPasswordLengthRule(),
+            'newPassword_confirmation' => 'required',
+            'newPassword'       => NistPasswordRules::changePassword(
+                username: auth()->user()->username,
+                oldPassword: $this->currentPassword
+            ),
         ];
     }
 
@@ -28,10 +33,10 @@ class ChangePassword extends TCModalComponent
     {
         return [
             'currentPassword.required'   => __('auth.currentPassword.required'),
-            'newPasswordRepeat.required' => __('auth.newPasswordRepeat.required'),
-            'newPasswordRepeat.same'     => __('auth.newPasswordRepeat.same'),
+            'newPassword_confirmation.required' => __('auth.newPasswordRepeat.required'),
             'newPassword.required'       => __('auth.newPassword.required'),
             'newPassword.min'            => __('auth.newPassword.min'),
+            'newPassword.confirmed'            => __('auth.newPasswordRepeat.same'),
         ];
     }
 

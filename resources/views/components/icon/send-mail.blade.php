@@ -1,4 +1,4 @@
-<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="{{ $attributes->get('class') }}">
     <g id="icons/send-mail-blue" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
         <path d="M13,6 L14,6 C14.5522847,6 15,6.44771525 15,7 L15,14 C15,14.5522847 14.5522847,15 14,15 L2,15 C1.44771525,15 1,14.5522847 1,14 L1,7 C1,6.44771525 1.44771525,6 2,6 L3,6 L3,6" id="line" stroke="currentColor" stroke-width="2"></path>
         <path d="M3,7 L3,2 C3,1.44771525 3.44771525,1 4,1 L12,1 C12.5522847,1 13,1.44771525 13,2 L13,7 L13,7" id="line" stroke="currentColor" stroke-width="2"></path>

@@ -21,7 +21,7 @@ class ArchivedScope implements Scope
      */
     public function apply(Builder $builder, Model $model)
     {
-        if (self::$skipScope) {
+        if (self::$skipScope || !Auth::user()) {
             return;
         }
         if($builder->getQuery()->columns == '') {

@@ -16,7 +16,7 @@
         {{ __('cms.Matching Question Uitleg Text') }}
     </div>
     <div class="flex flex-col space-y-2 w-full mt-4" @if(!isset($preview)) wire:sortable="__call('updateRankingOrder')" @endif >
-        <div class="flex px-0 py-0 border-0 bg-system-white">
+        <div class="flex px-0 py-0 border-0 bg-white">
             <div class="w-full mr-6">{{ __('cms.Stel je naar te slepen items op') }}</div>
             <div class="w-full mr-2">{{ __('cms.Stel je te slepen items op') }}</div>
             <div class="w-20"></div>
@@ -45,7 +45,7 @@
             @enderror
             <x-drag-item id="mc-{{ $answer->id }}" sortId="{{ $answer->order }}"
                          wireKey="option-{{ $answer->id }}" selid="drag-box"
-                         class="flex px-0 py-0 border-0 bg-system-white relative regular"
+                         class="flex px-0 py-0 border-0 bg-white relative regular"
                          slotClasses="w-full mr-0 "
                          dragClasses="hover:text-primary transition"
                          dragIconClasses="cursor-move {{ isset($preview) ? 'text-midgrey hover:text-midgrey' : '' }}"

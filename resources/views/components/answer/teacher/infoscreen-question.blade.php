@@ -1,1 +1,1 @@
-<span>infoscreen</span>
+<span>@lang('test_take.infoscreen_answer_text')</span>

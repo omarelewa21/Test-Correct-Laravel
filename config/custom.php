@@ -33,4 +33,6 @@ return [
     'default_general_terms_days'             => env('DEFAULT_GENERAL_TERMS_DAYS', 14),
     'enable_additional_seeders'              => env('ENABLE_ADDITIONAL_SEEDERS', true),
     'TB_customer_code'                       => env('TB_CUSTOMER_CODE', 'TBSC'),
+
+    'enable_hsts'                            => env('ENABLE_HSTS', true),
 ];

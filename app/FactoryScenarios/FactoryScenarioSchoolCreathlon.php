@@ -10,22 +10,30 @@ use tcCore\Factories\FactorySchoolClass;
 use tcCore\Factories\FactorySchoolLocation;
 use tcCore\Factories\FactorySchoolYear;
 use tcCore\Factories\FactorySection;
+use tcCore\Factories\FactoryTest;
 use tcCore\Factories\FactoryUser;
+use tcCore\Factories\Questions\FactoryQuestionOpenShort;
+use tcCore\Factories\SchoolLocationCreator;
 use tcCore\School;
 use tcCore\SchoolLocation;
+use tcCore\Services\ContentSource\CreathlonService;
 use tcCore\User;
 
 class FactoryScenarioSchoolCreathlon extends FactoryScenarioSchool
 {
-    protected $schoolName;
-    protected $schoolLocationName;
-    protected $schoolYearYear;
+    public $schoolName;
+    public $schoolLocationName;
+    public $schoolYearYear;
 
-    protected $sectionName;
+    public $sectionName;
 
-    protected $schoolClassName;
+    public $schoolClassName;
 
-    protected $customer_code;
+    public $customer_code;
+
+    public $teacher_one;
+
+    public $baseSubjectId = BaseSubject::FRENCH;
 
     public function __construct()
     {
@@ -45,62 +53,17 @@ class FactoryScenarioSchoolCreathlon extends FactoryScenarioSchool
     public static function create()
     {
         $factory = new static;
-        if(SchoolLocation::where('name', $factory->schoolName)->exists()){
-            throw new \Exception('Creathlon school allready exists');
-        }
 
-        //create school
-        $school = FactorySchool::create($factory->schoolName, User::find(520), ['customer_code' => 'CREATHLON'])
-            ->school;
-
-        //create school location, add educationLevels VWO, Gymnasium, Havo
-        $schoolLocation = FactorySchoolLocation::create($school, $factory->schoolLocationName, ['customer_code' => 'CREATHLON', 'user_id' => '520'])
-            ->addEducationlevels([1, 2, 3])
-            ->schoolLocation;
-
-        //create school year and full year period for the current year
-        $schoolYearLocation = FactorySchoolYear::create($schoolLocation, (int)Carbon::today()->format('Y'), true)
-            ->addPeriodFullYear()
-            ->schoolYear;
-
-        //create section and subject
-        $sectionFactory = FactorySection::create($schoolLocation, $factory->sectionName);
-
-        BaseSubject::where('name', 'NOT LIKE', '%CITO%')->each(function ($baseSubject) use ($sectionFactory) {
-            $sectionFactory->addSubject($baseSubject, 'Creathlon-'.$baseSubject->name);
-        });
-
-        $section = $sectionFactory->section;
-
-        //create creathlon official author user and a secondary teacher in the correct school
-        $creathlonAuthor = FactoryUser::createTeacher($schoolLocation, false, [
-            'username' => 'info+creathlonontwikkelaar@test-correct.nl',
-            'name_first'         => 'Teacher',
-            'name_suffix'        => '',
-            'name'               => 'Teacher Creathlon',
-            'abbreviation'       => 'TC',
-        ])->user;
-        $creathlonAuthorB = FactoryUser::createTeacher($schoolLocation, false, [
-            'username' => 'info+creathlonontwikkelaarB@test-correct.nl',
-            'name_first'         => 'Teacher',
-            'name_suffix'        => '',
-            'name'               => 'Teacher CreathlonB',
-            'abbreviation'       => 'TC',
-        ])->user;
-
-        //create school class with teacher and students records, add the teacher-user, create student-users
-
-        collect([$creathlonAuthor, $creathlonAuthorB])->each(function($author) use ($section, $schoolLocation, $factory, $schoolYearLocation) {
-            $schoolClassLocation = FactorySchoolClass::create($schoolYearLocation, 1, $factory->schoolClassName)
-                ->addTeacher($author, $section->subjects()->first())
-                ->addStudent(FactoryUser::createStudent($schoolLocation)->user)
-                ->addStudent(FactoryUser::createStudent($schoolLocation)->user)
-                ->addStudent(FactoryUser::createStudent($schoolLocation)->user);
-        });
-
-        $factory->school = $school->refresh();
-        $factory->schools->add($school);
+        SchoolLocationCreator::createCreathlonSchool($factory);
+        SchoolLocationCreator::createSimpleSchoolWithOneTeacher($factory);
 
         return $factory;
+    }
+
+    public function getData()
+    {
+        return parent::getData() + [
+                'teacherOne'          => $this->teacher_one,
+            ];
     }
 }

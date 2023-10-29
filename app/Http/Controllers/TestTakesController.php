@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
 use tcCore\AnswerRating;
@@ -665,6 +666,7 @@ class TestTakesController extends Controller
 
     public function nextQuestion(TestTake $testTake, $returnAsResponseObject = true)
     {
+        // this method is no longer used in the new CO-Learning implementation in Laravel! Only used by cake.
         if ($testTake->testTakeStatus->name == 'Discussing') {
             $testTake->load(['discussingParentQuestions'                                                => function ($query) {
                 $query->orderBy('level');
@@ -678,7 +680,7 @@ class TestTakesController extends Controller
                 $testTake->getAttribute('test_id'),
                 $testTake->getDottedDiscussingQuestionIdWithOptionalGroupQuestionId(),
                 $testTake->isDiscussionTypeOpenOnly(),
-                skipDoNotDiscuss: $testTake->studentsAreInNewCoLearningAndDiscussingTypeIsOpenOnly()
+                skipDoNotDiscuss: $testTake->studentsAreInNewCoLearning()
             );
 
             $testTake->discussingParentQuestions()->delete();
@@ -721,7 +723,7 @@ class TestTakesController extends Controller
                         $testTake->getAttribute('test_id'),
                         $newQuestionIdParents,
                         $testTake->isDiscussionTypeOpenOnly(),
-                        skipDoNotDiscuss: $testTake->studentsAreInNewCoLearningAndDiscussingTypeIsOpenOnly()
+                        skipDoNotDiscuss: $testTake->studentsAreInNewCoLearning()
                     ) !== false),
 
                 );
@@ -834,9 +836,7 @@ class TestTakesController extends Controller
 
     private function shouldSkipCreatingAnswerRatingForEmptyAnswer($answer, $discussionType): bool
     {
-        $allowNewCoLearning = auth()->user()->schoolLocation->allow_new_co_learning;
-
-        if ($allowNewCoLearning && $discussionType === 'OPEN_ONLY') {
+        if (settings()->allowNewCoLearning(auth()->user()) && $discussionType === 'OPEN_ONLY') {
             return false;
         }
 
@@ -878,6 +878,9 @@ class TestTakesController extends Controller
         $questionsNotIgnored = [];
 
         foreach ($testTake->testParticipants as $testParticipant) {
+            if (!$testParticipant->user) {
+                continue;
+            }
             foreach ($testParticipant->answers as $answer) {
                 if ($answer->getAttribute('ignore_for_rating')) {
                     continue;
@@ -946,6 +949,9 @@ class TestTakesController extends Controller
         $sheet[] = $header;
 
         foreach ($testTake->testParticipants as $testParticipant) {
+            if (!$testParticipant->user) {
+                continue;
+            }
             $score = 0;
             $rScore = 0;
             $t1Score = 0;
@@ -1328,10 +1334,22 @@ class TestTakesController extends Controller
 
     public function openDetail(TestTake $testTake, Request $request)
     {
-        $stage = $testTake->determineTestTakeStage();
-        if ($stage === 'planned') {
-            return redirect(route('teacher.test-take.planned', $testTake->uuid). '?' . $request->getQueryString());
+        if (Gate::none(['canUsePlannedTestPage', 'canUseTakenTestPage'])) {
+            return TestTake::redirectToDetail($testTake->uuid);
         }
-        return TestTake::redirectToDetail($testTake->uuid, url()->referrer());
+
+        $routeName = match ($testTake->test_take_status_id) {
+            TestTakeStatus::STATUS_PLANNED => 'teacher.test-take.planned',
+            TestTakeStatus::STATUS_TAKING_TEST => 'teacher.test-take.taking',
+            default => $testTake->test_take_status_id >= TestTakeStatus::STATUS_TAKEN
+                ? 'teacher.test-take.taken'
+                : null,
+        };
+
+        if ($routeName) {
+            return redirect(route($routeName, $testTake->uuid) . '?' . $request->getQueryString());
+        }
+
+        return TestTake::redirectToDetail($testTake->uuid);
     }
 }

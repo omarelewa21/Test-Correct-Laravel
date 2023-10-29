@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Ramsey\Uuid\Uuid;
 use tcCore\Http\Controllers\UsersController;
 use tcCore\Rules\EmailDns;
+use tcCore\Rules\NistPasswordRules;
 use tcCore\Rules\SchoolLocationUserExternalId;
 use tcCore\Rules\SchoolLocationUserExternalIdUpdate;
 use tcCore\School;
@@ -90,7 +91,8 @@ class UpdateUserRequest extends Request {
             'name' => '',
             'email' => '',
             'old_password' => 'sometimes|required|old_password:'.$this->user->getAttribute('password'),
-            'password' => 'sometimes|'. User::getPasswordLengthRule(),
+            'password' => ['sometimes', ...NistPasswordRules::changePassword($this->user->username, $data['old_password'] ?? null)],
+            'password_confirmation' => 'sometimes',
             'session_hash' => '',
             'api_key' => '',
             'external_id' => '',

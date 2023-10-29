@@ -155,82 +155,75 @@
                 @endif
             </x-slot:slideOneContent>
             <x-slot:slideTwoContent>
-                @unless($this->inlineFeedbackEnabled)
-                    <span class="flex bold">@lang('review.Gegeven feedback')</span>
-
-                    <div class="flex w-full flex-col gap-2"
-                         wire:key="feedback-editor-{{  $this->questionPosition }}"
+                <div class="answer-feedback-given-comments relative">
+                    <button class="flex bold border-t border-blue-grey py-2 justify-between items-center w-full group"
+                            :class="{'text-midgrey': !hasFeedback}"
+                            x-init="dropdownOpened = 'given-feedback'"
+                            @click="hasFeedback ? toggleFeedbackAccordion('given-feedback') : ''"
                     >
-                        {{-- all non-inline-comments are shown in a full ckeditor modal --}}
-                        @if($this->hasFeedback)
-                            <x-button.primary class="!p-0 justify-center"
-                                              wire:click="$emit('openModal', 'teacher.inline-feedback-modal', {answer: '{{  $this->currentAnswer->uuid }}', disabled: true });"
-                            >
-                                <span>@lang('review.Bekijk feedback')</span>
-                                <x-icon.chevron/>
-                            </x-button.primary>
-                        @endif
-                    </div>
-                @else
-                    {{-- only for 'open_question' / 'write down' question --}}
-                    <div class="answer-feedback-given-comments relative">
-                        <button class="flex bold border-t border-blue-grey py-2 justify-between items-center w-full group"
-                                :class="{'text-midgrey': !hasFeedback}"
-                                x-init="dropdownOpened = hasFeedback ? dropdownOpened : ''"
-                                @click="hasFeedback ? toggleFeedbackAccordion('given-feedback') : ''"
+                        <span>@lang('assessment.Gegeven feedback')</span>
+                        <span class="w-6 h-6 rounded-full flex justify-center items-center transition -mr-0.5
+                                            group-hover:bg-primary/5
+                                            group-active:bg-primary/10
+                                            group-focus:bg-primary/5 group-focus:text-primary group-focus:border group-focus:border-[color:rgba(0,77,245,0.15)]
+                                "
+                              :class="dropdownOpened === 'given-feedback' ? 'rotate-svg-90' : ''"
                         >
-                            <span>@lang('assessment.Gegeven feedback')</span>
-                            <span class="w-6 h-6 rounded-full flex justify-center items-center transition -mr-0.5
-                                                group-hover:bg-primary/5
-                                                group-active:bg-primary/10
-                                                group-focus:bg-primary/5 group-focus:text-primary group-focus:border group-focus:border-[color:rgba(0,77,245,0.15)]
-                                    "
-                                  :class="dropdownOpened === 'given-feedback' ? 'rotate-svg-90' : ''"
-                            >
-                                        <x-icon.chevron></x-icon.chevron>
-                                    </span>
-                        </button>
+                                    <x-icon.chevron></x-icon.chevron>
+                                </span>
+                    </button>
 
-                        <div class="flex w-auto flex-col gap-2 given-feedback-container -mx-4"
-                             x-show="dropdownOpened === 'given-feedback'"
-                             x-collapse
-                             wire:key="feedback-editor-{{  $this->questionPosition }}"
-                             x-data="{}"
-                             x-init=""
+                    <div class="flex w-auto flex-col gap-2 given-feedback-container -mx-4"
+                         x-show="dropdownOpened === 'given-feedback'"
+                         x-collapse
+                         wire:key="feedback-editor-{{  $this->questionPosition }}"
+                         x-data="{}"
+                         x-init=""
+                    >
+                        <div class="flex mx-auto "
+                            x-on:multi-slider-toggle-value-updated.window="$wire.setAnswerFeedbackFilter($event.detail.value)"
                         >
-                            <div class="flex mx-auto "
-                                x-on:multi-slider-toggle-value-updated.window="$wire.setAnswerFeedbackFilter($event.detail.value)"
-                            >
-                                <x-button.slider initial-status="all"
-                                                 buttonWidth="auto"
-                                                 :options="[ 'all' => __('assessment.all'), 'teacher' => __('auth.Docent'),'students' => __('test-take.Studenten')]"
-                                />
-                            </div>
-
-                            @foreach($answerFeedback->filter->visible as $comment)
-
-                                <x-partials.answer-feedback-card :comment="$comment"
-                                                                 :viewOnly="true"
-                                                                 :user-namefull="$anonymousStudentNames[$comment->user_id] ?? null"
-                                />
-
-                            @endforeach
+                            <x-button.slider initial-status="all"
+                                             buttonWidth="auto"
+                                             :options="[ 'all' => __('assessment.all'), 'teacher' => __('auth.Docent'),'students' => __('test-take.Studenten')]"
+                            />
                         </div>
+
+                        @foreach($answerFeedback->filter->visible as $comment)
+
+                            <x-partials.answer-feedback-card :comment="$comment"
+                                                             :viewOnly="true"
+                                                             :user-namefull="$anonymousStudentNames[$comment->user_id] ?? null"
+                            />
+
+                        @endforeach
                     </div>
-                @endif
+                </div>
 
             </x-slot:slideTwoContent>
 
             <x-slot:slideThreeContent>
                 <span class="flex ">@lang('assessment.CO-Learning scores')</span>
                 @if(!$this->currentAnswerCoLearningRatingsHasNoDiscrepancy())
-                    <div class="notification py-3 warning">
-                        <div class="title">
+                    <x-notification-message type="warning">
+                        <x-slot:title >
                             <x-icon.exclamation />
                             <span>@lang('review.Er waren verschillen')</span>
-                        </div>
-                        <span class="body">@lang('review.co_learning_differences')</span>
-                    </div>
+                        </x-slot:title>
+                        @if($this->currentAnswerHasToggleDiscrepanciesInCoLearningRatings())
+                            <x-slot:message>
+                                <span>
+                                     @lang('assessment.toggle_discrepancy')
+                                </span>
+                            </x-slot:message>
+                        @else
+                            <x-slot:message>
+                                <span>
+                                     @lang('review.co_learning_differences')
+                                </span>
+                            </x-slot:message>
+                        @endif
+                    </x-notification-message>
                 @endif
                 <div class="flex w-full flex-col gap-2">
                     @if($this->showCoLearningScoreToggle)
@@ -240,7 +233,7 @@
                                     <x-icon.profile class="scale-150 text-sysbase relative top-1" />
                                 </div>
                                 <span class="ml-2 truncate pr-2">Student {{ $loop->iteration }}</span>
-                                <span class="ml-auto">@js($rating->displayRating)</span>
+                                <span class="ml-auto">{{ $rating->displayRating }}</span>
                             </div>
                         @endforeach
                     @endif

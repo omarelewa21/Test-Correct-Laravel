@@ -124,4 +124,18 @@ class PurifierTest extends TestCase
         $this->assertStringContainsString('<img', $purifiedHtml);
         $this->assertStringContainsString('alt="user input alt text"', $purifiedHtml);
     }
+    /** @test */
+    public function can_add_latex_attributes_to_math_ml() {
+        $expected = <<<HTML
+            <math xmlns="http://www.w3.org/1998/Math/MathML">
+               <semantics>
+                  <mfrac><mn>1</mn><mn>2</mn></mfrac>
+                  <annotation encoding="LaTeX">\\frac12</annotation>
+               </semantics>
+            </math> 
+        HTML;
+
+        $this->assertEquals($expected, clean($expected));
+
+    }
 }

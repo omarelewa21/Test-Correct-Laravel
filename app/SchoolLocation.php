@@ -100,6 +100,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'main_phonenumber', 'internetaddress', 'show_exam_material', 'show_cito_quick_test_start', 'show_national_item_bank',
         'allow_wsc', 'allow_writing_assignment', 'license_type',
         'auto_uwlr_import','auto_uwlr_import_status','auto_uwlr_last_import','allow_cms_write_down_wsc_toggle', 'allow_new_test_take_detail_page',
+        'allow_mr_chadd',
+        'allow_new_test_taken_pages'
     ];
 
     /**

@@ -5,6 +5,7 @@ namespace tcCore\FactoryScenarios;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use tcCore\BaseSubject;
 use tcCore\Factories\FactoryBaseSubject;
 use tcCore\Factories\FactorySchool;
 use tcCore\Factories\FactorySchoolLocation;
@@ -24,9 +25,14 @@ abstract class FactoryScenarioSchool
     protected Collection $students;
 
 
+    public $baseSubjectId = BaseSubject::DUTCH;
+
+
     public function __construct()
     {
         $this->schools = collect([]);
+        $this->teachers = collect([]);
+        $this->students = collect([]);
     }
 
     public abstract static function create();

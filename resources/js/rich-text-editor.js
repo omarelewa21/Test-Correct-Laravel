@@ -107,9 +107,11 @@ window.RichTextEditor = {
             (editor) => {
 
                 // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
+
                 editor.editing.view.change(writer=>{
                     writer.setStyle('height', '150px', editor.editing.view.document.getRoot());
                 });
+
             },
         );
     },
@@ -587,6 +589,10 @@ window.RichTextEditor = {
 
             fireEventIfWordCountChanged(wordCount);
         } );
+
+        editor.editing.view.document.on('blur', () => {
+            fireEventIfWordCountChanged();
+        });
     },
     getWproofreaderConfig: function(enableGrammar = true, actionItems = ["addWord", "ignoreAll", "ignore", "settings", "toggle", "proofreadDialog"]) {
         return {
@@ -623,6 +629,7 @@ window.RichTextEditor = {
                 if (typeof resolveCallback === "function") {
                     resolveCallback(editor);
                 }
+                // editor.ui.view.editableElement.tabIndex = -1;
             })
             .catch(error => {
                 console.error(error);

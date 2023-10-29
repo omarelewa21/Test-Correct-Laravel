@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Teacher;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Test;
@@ -14,7 +15,7 @@ class PublishTestModal extends TCModalComponent
 {
     public $testUuid;
     public $showInfo;
-    public $knowledgebankUrl = 'https://support.test-correct.nl/knowledge/publiceren';
+    public $knowledgebankUrl;
     public $testErrors = [];
 
     public function mount($testUuid)
@@ -22,6 +23,7 @@ class PublishTestModal extends TCModalComponent
         $this->testUuid = $testUuid;
         $this->showInfo = !Auth::user()->has_published_test;
         $this->handleErrorsInTest();
+        $this->knowledgebankUrl = sprintf('%s/publiceren', config('app.knowledge_bank_url'));
     }
 
     public function render()
@@ -42,6 +44,10 @@ class PublishTestModal extends TCModalComponent
     private function handleErrorsInTest()
     {
         $test = Test::findByUuid($this->testUuid);
+        if(!Gate::allows('canViewTestDetails',[$test])){
+            $this->forceClose()->closeModal();
+            return;
+        }
         $duplicateIds = $test->getDuplicateQuestionIds();
         if (filled($duplicateIds)) {
             $this->handleDuplicateIdsErrors($test, $duplicateIds);

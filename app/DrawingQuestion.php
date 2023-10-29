@@ -251,7 +251,7 @@ class DrawingQuestion extends Question implements QuestionInterface {
             return true;
         }
 
-        /* Check if student has an active review session which includes this question. */
+        /* Check if student has an active review or CoLearning session which includes this question. */
         return TestTake::withoutGlobalScope(ArchivedScope::class)
             ->join(
                 'test_participants',
@@ -267,7 +267,10 @@ class DrawingQuestion extends Question implements QuestionInterface {
             )
             ->where('test_participants.user_id', $user->getKey())
             ->where('test_questions.question_id', $this->getKey())
-            ->where('test_takes.show_results', '>', now())
+            ->where(function ($query) {
+                $query->where('test_takes.show_results', '>', now())
+                      ->orWhere('test_takes.test_take_status_id', '=', TestTakeStatus::STATUS_DISCUSSING);
+            })
             ->exists();
     }
 }

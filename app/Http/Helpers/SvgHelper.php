@@ -376,7 +376,7 @@ class SvgHelper
         $widthAndHeight['h'] = (string)$height;
         $widthAndHeight['w'] = (string)$width;
 
-        return $server->getImageAsBase64($file, $widthAndHeight + ['fm' => 'jpg', 'q' => '25',]);
+        return $server->getImageAsBase64($file, $widthAndHeight + ['q' => '25',]);
     }
 
     private function base64DecodeIfNecessary($value)

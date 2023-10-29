@@ -92,7 +92,13 @@ return [
     'not_in'               => 'Geselecteerde :attribute is ongeldig.',
     'not_regex'            => 'Het :attribute format is ongeldig.',
     'numeric'              => ':Attribute dient een nummer te zijn.',
-    'password'             => 'Het wachtwoord is niet correct',
+    'password'             => [
+        'letters'       => 'Het veld wachtwoord moet minstens één letter bevatten.',
+        'mixed'         => 'Het veld wachtwoord moet minstens één hoofdletter en één kleine letter bevatten.',
+        'numbers'       => 'Het veld wachtwoord moet minstens één nummer bevatten.',
+        'symbols'       => 'Het veld wachtwoord moet minstens één symbool bevatten.',
+        'uncompromised' => 'Het opgegeven wachtwoord is verschenen in een datalek. Kies alstublieft een ander wachtwoord.',
+    ],
     'present'              => ':Attribute dient aanwezig te zijn.',
     'regex'                => 'Het :attribute formaat is ongeldig.',
     'required'             => 'Het :attribute veld is verplicht.',
@@ -183,4 +189,12 @@ return [
     'test name'                               => 'Naam toets',
     'unique_test_name'                        => 'De gekozen naam is al in gebruik. Gebruik een unieke naam',
     'invigilator_required'                    => 'Het is verplicht om een surveillant te kiezen',
+
+    // NIST Password Rules
+    'can-not-contain-word'              => 'Het wachtwoord mag het woord \':word\' niet bevatten.',
+    'can-not-be-similar-to-word'        => 'Het wachtwoord mag niet vergelijkbaar zijn met het woord \':word\'.',
+    'found-in-data-breach'              => 'Het wachtwoord is gevonden in een datalek van een derde partij en mag niet worden gebruikt.',
+    'can-not-be-dictionary-word'        => 'Het wachtwoord mag geen woord uit het woordenboek zijn.',
+    'can-not-be-repetitive-characters'  => 'Het wachtwoord mag geen herhalende tekens bevatten.',
+    'can-not-be-sequential-characters'  => 'Het wachtwoord mag geen opeenvolgende tekens bevatten.',
 ];

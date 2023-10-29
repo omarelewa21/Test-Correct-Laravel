@@ -1415,30 +1415,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         }
         return false;
     }
-    public function isInThiemeMeulenhoffSchool(): bool
-    {
-        if (optional($this->schoolLocation)->customer_code == config('custom.thieme_meulenhoff_school_customercode')) {
-            return true;
-        }
-        return false;
-    }
-    public function isInNationalItemBankSchool(): bool
-    {
-        if (optional($this->schoolLocation)->customer_code == config('custom.national_item_bank_school_customercode')) {
-            return true;
-        }
-        return false;
-    }
-
-    public function isInFormidableSchool(): bool
-    {
-        if (optional($this->schoolLocation)->customer_code == config('custom.formidable_school_customercode')) {
-            return true;
-        }
-        return false;
-    }
-
-
     public static function getDeletedNewUser()
     {
         $user = new static();
@@ -1781,6 +1757,26 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     }
                     elseif($value==3) {
                         $query->whereIn('id', $usersWithMoreThan14Days);
+                    }
+                    break;
+                case 'beta_status':
+                    $usersSystemSetting = UserSystemSetting::get();
+                    $usersWithBetaStatus = []; // Array to store user IDs with beta status
+                    $usersWithBetaStatusNewTestTakeDetailPage = []; // Array to store user IDs with beta status
+                    foreach ($usersSystemSetting as $userSystemSetting) {
+                        if ($userSystemSetting->value == 1) {
+                            $usersWithBetaStatus[] = $userSystemSetting->user_id;
+                            if ($userSystemSetting->title == 'allow_new_test_take_detail_page') {
+                                $usersWithBetaStatusNewTestTakeDetailPage[] = $userSystemSetting->user_id;
+                            }
+                        }
+                    }
+                    if($value==1) {
+                        $query->whereIn('id', $usersWithBetaStatus);
+                    } elseif($value==2) {
+                        $query->whereIn('id', $usersWithBetaStatusNewTestTakeDetailPage);
+                    } elseif($value==3) {
+                        $query->whereNotIn('id', $usersWithBetaStatus);
                     }
                     break;
                 case 'send_welcome_email':
@@ -2874,6 +2870,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             default: UserFeatureSettingEnum::AUTO_LOGOUT_MINUTES->initialValue(),
         );
         return session('extensionTime', $minutes * 60);
+    }
+
+    public function getUseAutoLogOutAttribute():int
+    {
+        return (bool)UserFeatureSetting::getSetting(
+            user   : $this,
+            title  : UserFeatureSettingEnum::ENABLE_AUTO_LOGOUT,
+            default: UserFeatureSettingEnum::ENABLE_AUTO_LOGOUT->initialValue(),
+        );
     }
 
     public function getNormalizationSettings()

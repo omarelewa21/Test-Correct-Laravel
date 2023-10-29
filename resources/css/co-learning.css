@@ -196,6 +196,7 @@
 }
 
 #co-learning-teacher-page .question-indicator .question-number,
+#co-learning-page .question-indicator .question-number,
 #assessment-page .question-indicator .question-number,
 #student-test-review .question-indicator .question-number {
     border-color: var(--system-base);
@@ -203,6 +204,7 @@
     color: white;
 }
 
+#co-learning-page .container-border-left.primary,
 #co-learning-teacher-page .container-border-left.primary,
 #assessment-page .container-border-left.primary,
 #student-test-review .container-border-left.primary {
@@ -324,8 +326,8 @@
 }
 
 
-#co-learning-teacher-page #header #start-screen-content .grid .co-learning-panel,
-#assessment-page #header #start-screen-content .grid .co-learning-panel {
+#co-learning-teacher-page #header #start-screen-content .flex .co-learning-panel,
+#assessment-page #header #start-screen-content .flex .co-learning-panel {
     width: 307px;
     height: 321px;
     padding: 30px;
@@ -390,14 +392,12 @@
 /*}*/
 
 
-#student-test-review .multiple-choice .all-or-nothing-toggle,
-#assessment-page .multiple-choice .all-or-nothing-toggle {
+.multiple-choice .all-or-nothing-toggle {
     position: absolute;
     left: calc(50% + 2rem);
     transform: translateY(-50%);
 }
-#student-test-review .multiple-choice .first-active .all-or-nothing-line,
-#assessment-page .multiple-choice .first-active .all-or-nothing-line {
+.multiple-choice .first-active .all-or-nothing-line {
     right: -1rem;
     position: absolute;
     width: 10px;

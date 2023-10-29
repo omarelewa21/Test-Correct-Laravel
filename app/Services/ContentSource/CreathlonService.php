@@ -2,7 +2,10 @@
 
 namespace tcCore\Services\ContentSource;
 
+use Illuminate\Support\Facades\Auth;
+use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Test;
+use tcCore\TestAuthor;
 use tcCore\User;
 
 class CreathlonService extends ContentSourceService
@@ -36,11 +39,44 @@ class CreathlonService extends ContentSourceService
 
     protected static function testsAvailableForUser(User $user): bool
     {
-        return Test::creathlonItemBankFiltered()->exists();
+        return (new static)->itemBankFiltered(filters: [], sorting: [], forUser: $user)->exists();
     }
 
     protected static function allowedForUser(User $user): bool
     {
         return $user->schoolLocation->allow_creathlon;
     }
+
+    public static function getCustomerCode(): array|string|null
+    {
+        return config('custom.creathlon_school_customercode');
+    }
+
+    public static function addAuthorToTest(Test $test): bool
+    {
+        if (!auth()->check()) {
+            return false;
+        }
+        if (!self::inSchool(Auth::user())) {
+            return false;
+        }
+        if ($test->scope != static::getPublishScope()) {
+            return false;
+        }
+        $test->testAuthors->each(function ($testAuthor) {
+            $testAuthor->delete();
+        });
+        return TestAuthor::addOrRestoreAuthor($test, self::getSchoolAuthor()->getKey());
+    }
+
+    private static function inSchool(User $user)
+    {
+        return $user->schoolLocation?->customer_code === config('custom.creathlon_school_customercode');
+    }
+
+    public static function getSchoolAuthor(): User|null
+    {
+        return User::where('username', config('custom.creathlon_school_author'))->first();
+    }
 }
+

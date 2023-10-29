@@ -5,6 +5,8 @@ namespace tcCore\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Laravel\Telescope\Telescope;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 use tcCore\SchoolLocation;
 
 class RefreshDatabase extends Command
@@ -16,7 +18,7 @@ class RefreshDatabase extends Command
      *
      * @var string
      */
-    protected $signature = 'test:refreshdb {--file=} {--allow-all}';
+    protected $signature = 'test:refreshdb {--file=} {--allow-all}  {{--force}}';
 
     /**
      * The console command description.
@@ -24,6 +26,7 @@ class RefreshDatabase extends Command
      * @var string
      */
     protected $description = 'Command description';
+    private string $snapShotPath;
 
 
     /**
@@ -34,6 +37,8 @@ class RefreshDatabase extends Command
     public function __construct()
     {
         parent::__construct();
+
+        $this->snapShotPath = storage_path('snapshot.sql');
     }
 
     /**
@@ -43,6 +48,17 @@ class RefreshDatabase extends Command
      */
     public function handle()
     {
+        if (!$this->option('force') && $this->hasValidDatabaseSnapShot()) {
+            $this->importDatabaseSnapshot();
+            $this->info('refresh database complete');
+            return 0;
+        }
+
+        return $this->handleFullRefresh();
+    }
+
+    private function handleFullRefresh() {
+
         $sqlImports = [
             database_path('seeds/dropAllTablesAndViews.sql'),
             database_path('seeds/testdb.sql'),
@@ -87,8 +103,9 @@ class RefreshDatabase extends Command
         }
         $this->addDefaultFeatureSettingsToSchoolLocations();
 
-
         $this->info('refresh database complete');
+
+        $this->createDatabaseSnapshot();
     }
 
     protected function grantSchoolLocationAllPermissions()
@@ -116,4 +133,72 @@ class RefreshDatabase extends Command
         SchoolLocation::all()->each->addDefaultSettings();
 
     }
+
+    private function createDatabaseSnapshot()
+    {
+        $process = Process::fromShellCommandline(sprintf(
+            'mysqldump -u%s -p%s -h%s %s > %s',
+            config('database.connections.mysql.username'),
+            config('database.connections.mysql.password'),
+            config('database.connections.mysql.host'),
+            config('database.connections.mysql.database'),
+            $this->snapShotPath
+        ));
+
+        try {
+            $process->mustRun();
+
+            $this->info('Snapshot created successfully.');
+        } catch (ProcessFailedException $exception) {
+            $this->error('Snapshot creation process has failed.');
+        }
+
+        return 0;
+    }
+
+    private function importDatabaseSnapshot()
+    {
+        $process = Process::fromShellCommandline(sprintf(
+            'mysql -u%s -p%s -h%s %s < %s',
+            config('database.connections.mysql.username'),
+            config('database.connections.mysql.password'),
+            config('database.connections.mysql.host'),
+            config('database.connections.mysql.database'),
+            $this->snapShotPath
+        ));
+
+        try {
+            $process->mustRun();
+
+            $this->info('The database has been restored from snapshot.');
+        } catch (ProcessFailedException $exception) {
+            $this->error(
+                sprintf('The restoration process from snapshot has failed. Please manually remove %s and try again.', $this->snapShotPath)
+            );
+        }
+        $this->addMigrations();
+
+        return 0;
+    }
+
+    private function hasValidDatabaseSnapShot()
+    {
+        if (!file_exists($this->snapShotPath)) {
+            // Snapshot bestaat niet
+            return false;
+        }
+
+        $fileModificationTime = filemtime($this->snapShotPath);
+        $currentTime = time();
+
+        $timeDifferenceInMinutes = ($currentTime - $fileModificationTime) / 60;
+
+        if ($timeDifferenceInMinutes > 30) {
+            // Snapshot is ouder dan 30 minuten
+            return false;
+        }
+
+        return true;
+    }
+
 }

@@ -28,6 +28,7 @@ class FactoryScenarioSchoolRandomComplexWithCreathlon extends FactoryScenarioSch
         return
             parent::create()
                 ->seedCreathlonItemBank();
+
     }
 
 

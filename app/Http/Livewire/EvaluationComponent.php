@@ -101,7 +101,6 @@ abstract class EvaluationComponent extends TCComponent
     abstract protected function getTestTakeData(): TestTake;
     abstract protected function getAnswers(): Collection;
     abstract protected function getQuestions(): Collection;
-    abstract protected function getGroups(): Collection;
 
     abstract protected function start(): void;
 
@@ -114,6 +113,13 @@ abstract class EvaluationComponent extends TCComponent
     abstract protected function currentAnswerCoLearningRatingsHasNoDiscrepancy(): bool;
 
     abstract protected function handleAnswerScore(): null|int|float;
+
+    protected function getGroups(): Collection
+    {
+        return $this->testTakeData->test->testQuestions
+            ->map(fn($testQuestion) => $testQuestion->question->isType('Group') ? $testQuestion->question : null)
+            ->filter();
+    }
 
     protected function handleGroupQuestion(): void
     {

@@ -1,6 +1,6 @@
 <?php
 
-$acceptedIps = array("95.97.95.106","95.97.95.110","178.238.100.50");
+$acceptedIps = array("95.97.95.106","95.97.95.110","178.238.100.50","81.204.12.180");
 
 if(!in_array($_SERVER["REMOTE_ADDR"],$acceptedIps)) exit;
 

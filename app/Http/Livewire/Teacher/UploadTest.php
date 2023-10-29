@@ -63,6 +63,7 @@ class UploadTest extends TCComponent
     public bool $canUseTestUploader = true;
     public array $previousUploadedTestNames = [];
     public int $uploadedTests = 0;
+    public Carbon|null $plannedAt = null;
 
     public function mount()
     {
@@ -98,6 +99,7 @@ class UploadTest extends TCComponent
     public function updatedTestInfoPlannedAt($value)
     {
         $this->showDateWarning = Carbon::parse($value)->isBefore(Carbon::parse($this->minimumTakeDate)->addDays(7));
+        $this->plannedAt =  Carbon::parse($value . ' 00:00:00');
     }
 
     public function render()
@@ -116,7 +118,6 @@ class UploadTest extends TCComponent
     private function setDateProperties(): void
     {
         $this->minimumTakeDate = Carbon::now()->addDays(7)->toDateString();
-        $this->testInfo['planned_at'] = Carbon::now()->addMonth()->toDateString();
     }
 
     public function getSubjectsProperty(): \Countable
@@ -161,14 +162,9 @@ class UploadTest extends TCComponent
             ->uuidOptionList(['uuid', 'name'], fn($label) => __('teacher.test-type-' . $label['name']));
     }
 
-    public function getTakeDateToDisplayProperty(): string
+    public function getTakeDateToDisplayProperty(): string|null
     {
-        return $this->plannedAt->format('j F Y');
-    }
-
-    public function getPlannedAtProperty(): Carbon
-    {
-        return Carbon::parse($this->testInfo['planned_at'] . ' 00:00:00');
+        return $this->plannedAt?->format('j F Y');
     }
 
     public function getSelectedSubjectProperty(): string
@@ -318,12 +314,14 @@ class UploadTest extends TCComponent
             array_merge(
                 $parentFileManagement->toArray(),
                 [
-                    'id'        => $childId,
-                    'uuid'      => Uuid::uuid4(),
-                    'origname'  => $upload->getClientOriginalName(),
-                    'name'      => $storageFileName,
-                    'parent_id' => $parentFileManagement->id,
-                ])
+                    'id'         => $childId,
+                    'uuid'       => Uuid::uuid4(),
+                    'origname'   => $upload->getClientOriginalName(),
+                    'name'       => $storageFileName,
+                    'parent_id'  => $parentFileManagement->id,
+                    'planned_at' => $parentFileManagement->planned_at,
+                ]
+            )
         );
     }
 
@@ -398,12 +396,13 @@ class UploadTest extends TCComponent
     {
         $propertiesToReset = ['checkInfo', 'uploads', 'tabOneComplete', 'tabTwoComplete'];
         if (!$keepTestInfo) {
-            $propertiesToReset[] = 'testInfo';
+            $propertiesToReset = [...$propertiesToReset, 'testInfo', 'plannedAt', 'showDateWarning'];
         }
         $this->reset(...$propertiesToReset);
 
         if (!$keepTestInfo) {
             $this->setDateProperties();
+            $this->dispatchBrowserEvent('clear-datepicker');
         }
     }
 

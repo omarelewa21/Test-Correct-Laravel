@@ -1,18 +1,19 @@
 <?php namespace tcCore\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Response;
-use tcCore\Http\Helpers\DemoHelper;
-use tcCore\Http\Requests;
-use tcCore\Http\Requests\DuplicateTestRequest;
-use tcCore\SchoolLocation;
 use tcCore\Test;
+use tcCore\User;
+use tcCore\Http\Requests;
+use tcCore\SchoolLocation;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use tcCore\Http\Helpers\DemoHelper;
+use Illuminate\Support\Facades\Auth;
 use tcCore\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Response;
 use tcCore\Http\Requests\CreateTestRequest;
 use tcCore\Http\Requests\UpdateTestRequest;
-use tcCore\User;
+use tcCore\Http\Requests\DuplicateTestRequest;
 
 class SchoolLocationUsersController extends Controller {
 

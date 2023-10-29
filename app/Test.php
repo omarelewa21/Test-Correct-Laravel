@@ -1,11 +1,14 @@
 <?php namespace tcCore;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
+use RuntimeException;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Enums\WscLanguage;
@@ -96,10 +99,7 @@ class Test extends BaseModel
             $test->forwardPropertyChangesToDependentModels();
             $test->handleTestPublishing();
             $test->handlePublishingQuestionsOfTest();
-            TestAuthor::addExamAuthorToTest($test);
-            TestAuthor::addNationalItemBankAuthorToTest($test);
-            TestAuthor::addFormidableAuthorToTest($test);
-            TestAuthor::addThiemeMeulenhoffItemBankAuthorToTest($test);
+            TestAuthor::addPublishAuthorToTest($test);
         });
 
         static::deleted(function (Test $test) {
@@ -257,12 +257,10 @@ class Test extends BaseModel
         }
     }
 
-    public function contentSourceFiltered($scopes, $customer_codes, $query, $filters = [], $sorting = [])
+    public function contentSourceFiltered($scopes, $customer_codes, $query, $filters = [], $sorting = [], User $forUser)
     {
-        $user = Auth::user();
-
         $query->select();
-        $subjectIds = Subject::getIdsForContentSource($user, Arr::wrap($customer_codes));
+        $subjectIds = Subject::getIdsForContentSource($forUser, Arr::wrap($customer_codes));
         if (is_array($subjectIds) && count($subjectIds) == 0) {
             $query->where('tests.id', -1);
             return $query;
@@ -272,9 +270,9 @@ class Test extends BaseModel
         $query->whereIn('scope', Arr::wrap($scopes));
         $query->published();
 
-        $query->where(function ($q) use ($user) {
+        $query->where(function ($q) use ($forUser) {
             return $q->where('published', true)
-                ->orWhere('author_id', $user->getKey());
+                ->orWhere('author_id', $forUser->getKey());
         });
 
         if (!array_key_exists('is_system_test', $filters)) {
@@ -284,12 +282,12 @@ class Test extends BaseModel
         $this->handleFilterParams($query, $filters);
         $this->handleFilteredSorting($query, $sorting);
 
-        if ($user->isA('teacher')) {
+        if ($forUser->isA('teacher')) {
             // don't show demo tests from other teachers
-            $query->where(function ($query) use ($user) {
-                $query->where(function ($query) use ($user) {
+            $query->where(function ($query) use ($forUser) {
+                $query->where(function ($query) use ($forUser) {
                     $query->where('demo', 1)
-                        ->where('author_id', $user->getKey());
+                        ->where('author_id', $forUser->getKey());
                 })
                     ->orWhere('demo', 0);
             });
@@ -297,77 +295,68 @@ class Test extends BaseModel
 
         return $query;
     }
-
+    /**
+     * TODO this is used in app/Http/Controllers/Cito/TestsController.php:22
+     * I think this is no longer used and can be removed september 5th 2023;
+     * We use content labeled with scope exam but only as part of the NationalItemBank;
+     */
     public function scopeCitoFiltered($query, $filters = [], $sorting = [])
     {
+        Bugsnag::notifyException(new RuntimeException('Dead code marker detected please delete the marker the code is not dead.'), function ($report) {
+            $report->setMetaData([
+                'code_context' => [
+                    'file' => __FILE__,
+                    'class' => __CLASS__,
+                    'method' => __METHOD__,
+                    'line' => __LINE__,
+                    'timestamp' => date(DATE_ATOM),
+                ]
+            ]);
+        });
         return $this->contentSourceFiltered(
             'cito',
             'CITO-TOETSENOPMAAT',
-            $query, $filters, $sorting);
+            $query,
+            $filters,
+            $sorting,
+            auth()->user()
+        );
     }
 
+    /**
+     * TODO this is used in app/Http/Controllers/Exam/TestsController.php:22
+     * I think this is no longer used and can be removed september 5th 2023;
+     * We use content labeled with scope exam but only as part of the NationalItemBank;
+     */
     public function scopeExamFiltered($query, $filters = [], $sorting = [])
     {
+        Bugsnag::notifyException(new RuntimeException('Dead code marker detected please delete the marker the code is not dead.'), function ($report) {
+            $report->setMetaData([
+                'code_context' => [
+                    'file' => __FILE__,
+                    'class' => __CLASS__,
+                    'method' => __METHOD__,
+                    'line' => __LINE__,
+                    'timestamp' => date(DATE_ATOM),
+                ]
+            ]);
+        });
         return $this->contentSourceFiltered(
             'exam',
             config('custom.examschool_customercode'),
-            $query, $filters, $sorting);
+            $query,
+            $filters,
+            $sorting,
+            auth()->user()
+        );
     }
 
-    public function scopeNationalItemBankFiltered($query, $filters = [], $sorting = [])
-    {
-        return $this->contentSourceFiltered(
-            ['ldt', 'exam', 'cito'],
-            [
-                config('custom.national_item_bank_school_customercode'),
-                config('custom.examschool_customercode'),
-                'CITO-TOETSENOPMAAT',
-            ],
-            $query, $filters, $sorting);
-    }
 
-    public function scopeThiemeMeulenHoffItemBankFiltered($query, $filters = [], $sorting = [])
+    public function scopeSharedSectionsFiltered($query, $filters = [], $sorting = [], User $forUser)
     {
-        return $this->contentSourceFiltered(
-           ThiemeMeulenhoffService::getPublishScope(),
-            config('custom.thieme_meulenhoff_school_customercode'),
-            $query, $filters, $sorting)
-            ->whereIn(
-                'subject_id',
-                ThiemeMeulenhoffService::getBuilderWithAllowedSubjectIds(Auth::user())
-            );
-        return $query;
-    }
 
-    public function scopeCreathlonItemBankFiltered($query, $filters = [], $sorting = [])
-    {
-        return $this->contentSourceFiltered(
-            'published_creathlon',
-            config('custom.creathlon_school_customercode'),
-            $query, $filters, $sorting);
-    }
 
-    public function scopeFormidableItemBankFiltered($query, $filters = [], $sorting = [])
-    {
-        return $this->contentSourceFiltered(
-            'published_formidable',
-            config('custom.formidable_school_customercode'),
-            $query, $filters, $sorting);
-    }
-
-    public function scopeOlympiadeItemBankFiltered($query, $filters = [], $sorting = [])
-    {
-        return $this->contentSourceFiltered(
-            'published_olympiade',
-            config('custom.olympiade_school_customercode'),
-            $query, $filters, $sorting);
-    }
-
-    public function scopeSharedSectionsFiltered($query, $filters = [], $sorting = [])
-    {
-        $user = Auth::user();
-
-        $subjectIds = Subject::getIdsForSharedSections($user);
+        $subjectIds = Subject::getIdsForSharedSections($forUser);
         if (!$subjectIds) {
             $query->where('tests.id', -1);
             return $query;
@@ -388,12 +377,6 @@ class Test extends BaseModel
         $query->where('demo', 0);
 
         return $query;
-    }
-
-    public function scopeSchoolFiltered($query, $filters = [], $sorting = [])
-    {
-        return $query->filtered($filters, $sorting)
-            ->published();
     }
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
@@ -940,6 +923,8 @@ class Test extends BaseModel
 
     public function getQuestionOrderListWithDiscussionType()
     {
+        $orderAllQuestion = 0;
+        $orderInTest = 0;
         $orderOpenOnly = 0;
 
         return $this->testQuestions->sortBy('order')->flatMap(function ($testQuestion) {
@@ -954,9 +939,10 @@ class Test extends BaseModel
             }
             $questionType = $testQuestion->question->canCheckAnswer() ? Question::TYPE_CLOSED : Question::TYPE_OPEN;
             return [['id' => $testQuestion->question->getKey(), 'question_type' => $questionType, 'discuss' => $testQuestion->discuss,]];
-        })->mapWithKeys(function ($item, $key) use (&$orderOpenOnly) {
+        })->mapWithKeys(function ($item, $key) use (&$orderOpenOnly, &$orderAllQuestion, &$orderInTest) {
             return [$item['id'] => [
-                'order' => $key+1,
+                'order' => (bool)$item['discuss'] ? ++$orderAllQuestion : null,
+                'order_in_test' => ++$orderInTest,
                 'order_open_only' => $item['question_type'] === Question::TYPE_OPEN && (bool)$item['discuss'] ? ++$orderOpenOnly : null,
                 ...$item,
             ]];
@@ -1313,9 +1299,10 @@ class Test extends BaseModel
      * General method to get all the questions of a test, including flattened groups.
      * A callback can be provided to add properties to a question without having to
      * copy the whole thing and make the changes required.
-     * @param $addPropertyCallback
+     * @param null $addPropertyCallback
+     * @return Collection
      */
-    public function getFlatQuestionList($addPropertyCallback = null)
+    public function getFlatQuestionList($addPropertyCallback = null): Collection
     {
         return $this->testQuestions
             ->sortBy('order')

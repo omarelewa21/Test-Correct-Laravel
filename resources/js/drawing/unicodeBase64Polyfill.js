@@ -41,6 +41,8 @@ function encode(input) {
 
 // public method for decoding
 function decode(input) {
+    if (!input) return "";
+
     let output = "";
     let chr1, chr2, chr3;
     let enc1, enc2, enc3, enc4;

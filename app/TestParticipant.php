@@ -19,7 +19,7 @@ use tcCore\Jobs\Rating\CalculateRatingForTestParticipant;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
+use tcCore\Lib\Question\QuestionInterface;
 use tcCore\Traits\UuidTrait;
 
 class TestParticipant extends BaseModel
@@ -51,7 +51,7 @@ class TestParticipant extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_take_id', 'user_id', 'school_class_id', 'test_take_status_id', 'invigilator_note', 'rating', 'allow_inbrowser_testing', 'started_in_new_player', 'answers_provisioned', 'available_for_guests', 'discussing_answer_rating_id'];
+    protected $fillable = ['test_take_id', 'user_id', 'school_class_id', 'test_take_status_id', 'invigilator_note', 'rating', 'allow_inbrowser_testing', 'started_in_new_player', 'answers_provisioned', 'available_for_guests', 'discussing_answer_rating_id', 'discussing_question_id'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -238,6 +238,11 @@ class TestParticipant extends BaseModel
     public function testTakeEvents()
     {
         return $this->hasMany('tcCore\TestTakeEvent');
+    }
+
+    public function discussingQuestion()
+    {
+        return $this->belongsTo('tcCore\Question', 'discussing_question_id');
     }
 
     public function getIpAddressAttribute($value)
@@ -535,14 +540,84 @@ class TestParticipant extends BaseModel
     /**
      * This property is being set arbitrarily in a query in CoLearningHelper, it doesn't exist on TestParticipant by default
      */
-    public function getActiveAttribute($value)
+    public function getActiveAttribute($value): bool
     {
-        if (!$this->hasAttribute('active')) {
-            throw new \Exception("The 'active' property doesn't exist on this model");
+        if (isset($this->attributes['active'])) {
+            return (bool)$this->attributes['active'];
         }
-        if (!isset($this->getAttributes()['active'])) {
-            return false;
+
+        throw new \Exception("The 'active' property doesn't exist on this model");
+    }
+
+    public function calculateStatistics(?TestTake $testTake = null, ?Test $test = null): void
+    {
+        $testTake ??= $this->testTake;
+        $test ??= $testTake->test;
+
+        $this->loadMissing([
+            'answers',
+            'answers.answerRatings',
+            'user:id',
+            'user.averageRatings' => fn($query) => $query->where('school_class_id', $this->school_class_id)
+                ->where('subject_id', $test->subject_id)
+        ]);
+
+        $questions = $test
+            ->loadMissing('testQuestions', 'testQuestions.question')
+            ->getFlatQuestionList()
+            ->mapWithKeys(fn($question) => [$question->getKey() => $question->score]);
+
+        $score = 0;
+        $madeScore = 0;
+        $maxScore = 0;
+        $questionsCount = 0;
+        $totalTime = 0;
+        $longestAnswer = null;
+
+        foreach ($this->answers as $answer) {
+            $answerQuestionId = $answer->question_id;
+            if ($questions->has($answerQuestionId)) {
+                $answerScore = $answer->final_rating ?? $answer->calculateFinalRating();
+
+                if ($answerScore !== null && $answer->final_rating !== $answerScore) {
+                    $answer->setAttribute('final_rating', $answerScore);
+                    $answer->save();
+                }
+                if (!$answer->ignore_for_rating) {
+                    $maxScore += $questions[$answerQuestionId];
+                    if ($answerScore !== null) {
+                        $score += $answerScore;
+                    }
+                }
+            }
+
+            if ($answer->done) {
+                $questionsCount++;
+                $totalTime += $answer->time;
+                if ($questions->has($answerQuestionId)) {
+                    $madeScore += $questions[$answerQuestionId];
+                }
+            }
+
+            if ($answer->time > 0 && (!$longestAnswer || $longestAnswer->time > $answer->time)) {
+                $longestAnswer = $answer;
+            }
         }
-        return $this->getAttributes()['active'] ? true : false;
+
+        if ($longestAnswer?->question instanceof QuestionInterface) {
+            $longestAnswer->question->loadRelated();
+        }
+
+        unset($this->answers);
+
+        $this->setAttribute('score', $score);
+        $this->setAttribute('made_score', $madeScore);
+        $this->setAttribute('max_score', $maxScore);
+        $this->setAttribute('questions', $questionsCount);
+        $this->setAttribute('total_time', $totalTime);
+
+        $relations = $this->getRelations();
+        $relations['longest_answer'] = $longestAnswer;
+        $this->setRelations($relations);
     }
 }

@@ -1,0 +1,1 @@
+<x-question.drawing.properties.pen :shape="$instance->shape"/>

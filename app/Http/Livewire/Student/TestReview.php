@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Student;
 
 use Illuminate\Support\Collection;
+use tcCore\Answer;
 use tcCore\Http\Livewire\EvaluationComponent;
 use tcCore\Http\Traits\WithInlineFeedback;
 
@@ -69,8 +70,13 @@ class TestReview extends EvaluationComponent
 
     public function loadQuestion(int $position): bool
     {
-        $index = $position - 1;
+        if($position > $this->questions->count()){
+            $position = $this->questions->count();
+        } elseif($position < 1){
+            $position = 1;
+        }
 
+        $index = $position - 1;
         $this->currentQuestion = $this->questions->get($index);
         $this->currentAnswer = $this->answers->where('question_id', $this->currentQuestion->id)->first();
         $this->questionPosition = $position;
@@ -87,9 +93,15 @@ class TestReview extends EvaluationComponent
 
     protected function currentAnswerCoLearningRatingsHasNoDiscrepancy(): bool
     {
-        return $this->studentRatings()
-                ->keyBy('rating')
-                ->count() === 1;
+        return !$this->currentAnswer->hasCoLearningDiscrepancy();
+    }
+
+    protected function currentAnswerHasToggleDiscrepanciesInCoLearningRatings(): bool
+    {
+        if(!$this->currentAnswer->hasCoLearningDiscrepancy()) {
+            return false;
+        }
+        return !!$this->currentAnswer->discrepancyInToggleData;
     }
 
     public function finalAnswerReached(): bool
@@ -165,27 +177,12 @@ class TestReview extends EvaluationComponent
 
     private function handleAnswerFeedback(): void
     {
-        $this->reset('feedback');
-        if ($this->hasFeedback = $this->currentAnswer->feedback->isNotEmpty()) {
-            $this->feedback = $this->currentAnswer->feedback->first()?->message;
-        }
+        $this->hasFeedback = $this->currentAnswer->feedback->isNotEmpty();
     }
 
     protected function handleAnswerScore(): null|int|float
     {
-        if ($rating = $this->teacherRating()) {
-            return $rating->rating;
-        }
-
-        if ($rating = $this->systemRating()) {
-            return $rating->rating;
-        }
-
-        if ($this->studentRatings()->isNotEmpty()) {
-            return $this->studentRatings()->median('rating');
-        }
-
-        return null;
+        return $this->currentAnswer->calculateFinalRating();
     }
 
     protected function getTestTakeData(): \tcCore\TestTake
@@ -231,13 +228,6 @@ class TestReview extends EvaluationComponent
             })
             ->sortBy(['sortOrder'])
             ->values();
-    }
-
-    protected function getGroups(): Collection
-    {
-        return $this->testTakeData->test->testQuestions
-            ->map(fn($testQuestion) => $testQuestion->question->isType('Group') ? $testQuestion->question : null)
-            ->filter();
     }
 
     private function openClosedPanels(): void

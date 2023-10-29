@@ -75,4 +75,8 @@ class AppApiController extends Controller
         $res = AppVersionDetector::checkVersionDeadline();
         return Response::json($res);
     }
+
+    public function getCurrentDate() {
+        return Response::json(['date' => AppVersionDetector::getHashDate()]);
+    }
 }

@@ -2,15 +2,14 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
-use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Validator;
 use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Http\Traits\Modal\WithPlanningFeatures;
 use tcCore\Period;
-use tcCore\Teacher;
 use tcCore\Test;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
@@ -26,12 +25,16 @@ class TestPlanModal extends TCModalComponent
     public $allowedInvigilators = [];
     public $allowedTeachers = [];
 
-    public $request = ['date' => '', 'schoolClasses' => [], 'invigilators' => [],'is_rtti_test_take' => false];
+    public $request = ['date' => '', 'schoolClasses' => [], 'invigilators' => [], 'is_rtti_test_take' => false];
 
     public $selectedClassesContainerId;
     public $selectedInvigilatorsContrainerId;
 
     public $clickDisabled = false;
+
+    public array $labels;
+
+    public bool $allowedToEnableMrChadd;
 
     public function mount($testUuid)
     {
@@ -41,6 +44,9 @@ class TestPlanModal extends TCModalComponent
         $this->allowedInvigilators = $this->getAllowedInvigilators();
         $this->allowedTeachers = $this->getAllowedTeachers();
         $this->resetModalRequest();
+        $this->setLabels();
+
+        $this->allowedToEnableMrChadd = (auth()->user()->schoolLocation->allow_mr_chadd && $this->test->isAssignment());
     }
 
     protected function rules()
@@ -51,23 +57,23 @@ class TestPlanModal extends TCModalComponent
             'request.time_end'              => 'sometimes',
             'request.weight'                => 'required',
             'request.period_id'             => 'required',
-            'request.school_classes'        => 'required',
+//            'request.school_classes'        => 'required',
             'request.notify_students'       => 'required|boolean',
             'request.invigilators'          => 'required|min:1|array',
-            'request.show_grades'             => 'sometimes|boolean',
-            'request.show_correction_model'   => 'sometimes|boolean',
+            'request.show_grades'           => 'sometimes|boolean',
+            'request.show_correction_model' => 'sometimes|boolean',
         ];
 
         if ($this->isAssignmentType()) {
             $rules['request.time_end'] = 'required';
         }
 
-        if ($user->schoollocation->allow_guest_accounts) {
-            $rules['request.school_classes'] = 'sometimes';
-            if (!empty(request()->get('request.guest_accounts'))) {
-                $rules['request.guest_accounts'] = 'required|in:1';
-            }
-        }
+//        if ($user->schoollocation->allow_guest_accounts) {
+//            $rules['request.school_classes'] = 'sometimes';
+//            if (!empty(request()->get('request.guest_accounts'))) {
+//                $rules['request.guest_accounts'] = 'required|in:1';
+//            }
+//        }
 
         if ($user->isValidExamCoordinator() && empty($this->request['owner_id'])) {
             $rules['request.owner_id'] = 'required';
@@ -79,15 +85,12 @@ class TestPlanModal extends TCModalComponent
     protected function getMessages()
     {
         return [
-            'request.invigilators.required' => __('validation.invigilator_required'),
+            'request.invigilators.required'   => __('validation.invigilator_required'),
             'request.school_classes.required' => __('validation.school_class_or_guest_accounts_required')
         ];
     }
 
-    public function updatingRequestDate($value)
-    {
-
-    }
+    public function updatingRequestDate($value) {}
 
     public function plan()
     {
@@ -96,7 +99,8 @@ class TestPlanModal extends TCModalComponent
         $controller = new TemporaryLoginController();
         $request = new Request();
 
-        $action = $this->isAssignmentType() ? "Navigation.load('/test_takes/assignment_open_teacher')" : "Navigation.load('/test_takes/planned_teacher')";
+        $action = $this->isAssignmentType(
+        ) ? "Navigation.load('/test_takes/assignment_open_teacher')" : "Navigation.load('/test_takes/planned_teacher')";
 
         $request->merge([
             'options' => [
@@ -110,14 +114,17 @@ class TestPlanModal extends TCModalComponent
 
     private function planTest()
     {
-        $t = new TestTake();
+        $testTake = new TestTake();
         $this->request['time_start'] = $this->request['date'];
         $this->request['test_take_status_id'] = TestTakeStatus::STATUS_PLANNED;
 
         $this->withValidator(function (Validator $validator) {
             $validator->after(function ($validator) {
-                if (empty($this->request['school_classes']) && empty($this->request['guest_accounts'])) {
-                    $validator->errors()->add('request.school_classes', __('validation.school_class_or_guest_accounts_required'));
+                if (empty($this->classesAndStudents['children']) && empty($this->request['guest_accounts'])) {
+                    $validator->errors()->add(
+                        'request.school_classes',
+                        __('validation.school_class_or_guest_accounts_required')
+                    );
                 }
             });
         })->validate();
@@ -128,17 +135,20 @@ class TestPlanModal extends TCModalComponent
             $this->request['time_end'] = Carbon::parse($this->request['time_end'])->endOfDay();
         }
 
-        $t->fill($this->request);
+        unset($this->request['school_classes']);
+
+        $testTake->fill($this->request);
         if ($this->isAssignmentType()) {
-            $t->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKING_TEST);
+            $testTake->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKING_TEST);
         }
 
         $testTakeOwner = Auth::user()->isValidExamCoordinator() ? $this->request['owner_id'] : Auth::id();
-        $t->setAttribute('user_id', $testTakeOwner);
+        $testTake->setAttribute('user_id', $testTakeOwner);
 
-        $t->save();
+        $testTake->save();
+        $this->handleParticipants($testTake);
 
-        return $t;
+        return $testTake;
     }
 
     public function planNext()
@@ -152,13 +162,19 @@ class TestPlanModal extends TCModalComponent
 
     private function afterPlanningToast(TestTake $testTake)
     {
-        $this->dispatchBrowserEvent('after-planning-toast',
+        $this->dispatchBrowserEvent(
+            'after-planning-toast',
             [
-                'message'       => __($testTake->isAssignmentType() ? 'teacher.test_take_assignment_planned' : 'teacher.test_take_planned', ['testName' => $testTake->test->name]),
+                'message'       => __(
+                    $testTake->isAssignmentType(
+                    ) ? 'teacher.test_take_assignment_planned' : 'teacher.test_take_planned',
+                    ['testName' => $testTake->test->name]
+                ),
                 'link'          => $testTake->directLink,
                 'takeUuid'      => $testTake->uuid,
                 'is_assignment' => $testTake->isAssignmentType()
-            ]);
+            ]
+        );
     }
 
     public function render()
@@ -179,7 +195,6 @@ class TestPlanModal extends TCModalComponent
             $this->request['time_end'] = now()->endOfDay();
         }
         $this->request['period_id'] = $this->allowedPeriods->first()->getKey();
-
 
 
         $this->request['test_id'] = $this->test->getKey();
@@ -220,5 +235,14 @@ class TestPlanModal extends TCModalComponent
     private function authorOfTestIsAnAllowedInvigilator(): bool
     {
         return $this->allowedInvigilators->contains(fn($user) => $user['value'] === $this->test->author_id);
+    }
+
+    protected function setLabels(): void
+    {
+        $this->labels = [
+            'title' => __('teacher.Toets inplannen'),
+            'date'  => __('teacher.Datum'),
+            'cta'   => __('teacher.Inplannen')
+        ];
     }
 }

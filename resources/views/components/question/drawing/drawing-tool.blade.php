@@ -11,31 +11,13 @@
                             <x-icon.drag/>
                         </div>
                     </button>
-                    <button id="add-rect-btn" title="{{ __('drawing-modal.Rechthoek') }}" data-button-group="tool">
-                        <div>
-                            <x-icon.square/>
-                        </div>
-                    </button>
-                    <button id="add-circle-btn" title="{{ __('drawing-modal.Cirkel') }}" data-button-group="tool">
-                        <div>
-                            <x-icon.circle/>
-                        </div>
-                    </button>
-                    <button id="add-line-btn" title="{{ __('drawing-modal.Rechte lijn') }}" data-button-group="tool">
-                        <div>
-                            <x-icon.line/>
-                        </div>
-                    </button>
-                    <button id="add-freehand-btn" title="{{ __('drawing-modal.Penlijn') }}" data-button-group="tool">
-                        <div>
-                            <x-icon.freehand/>
-                        </div>
-                    </button>
-                    <button id="add-text-btn" title="{{ __('drawing-modal.Tekst') }}" data-button-group="tool">
-                        <div>
-                            <x-icon.text/>
-                        </div>
-                    </button>
+                    @foreach ($shapes as $shape)
+                        <button id="add-{{$shape->id}}-btn" title={{$shape->title}} data-button-group="tool">
+                            <div>
+                                <x-dynamic-component :component="'icon.'.$shape->icon" />
+                            </div>
+                        </button>
+                    @endforeach
                     @if(Auth::user()->isA('teacher'))
                         <button id="img-upload-btn" title="{{ __('drawing-modal.Afbeelding') }}">
                             <label for="img-upload" id="img-upload-label">
@@ -74,97 +56,9 @@
                 </div>
             </div>
             <div id="properties">
-                <div class="property-group" id="text-style">
-                    <x-input.color-picker  :name="'text-color'" :id="'text-color'" :title="__('drawing-modal.Tekstkleur')"/>
-                    <div class="input-with-button-group" style="margin-right: .5rem">
-                        <button id="decr-text-size" class="Secondary" title="{{ __('drawing-modal.Vergroot tekst') }}">
-                            <div>
-                                <x-icon.min/>
-                            </div>
-                        </button>
-                        <input type="number" name="text-size" id="text-size" min="10" max="50" value="15" step="1"
-                               autocomplete="off" title="{{ __('drawing-modal.Tekstgrootte') }}">
-                        <button id="incr-text-size" class="Secondary" title="{{ __('drawing-modal.Verklein tekst') }}">
-                            <div>
-                                <x-icon.plus/>
-                            </div>
-                        </button>
-                    </div>
-                    <input type="checkbox" id="bold-toggle" style="display: none;" autocomplete="off">
-                    <button id="bold-toggle-button" title="{{ __('drawing-modal.Zet dikgedrukt aan/uit') }}">
-                        <label for="bold-toggle" id="bold-text">
-                            <x-icon.bold/>
-                        </label>
-                    </button>
-                </div>
-
-                <div class="property-group" id="opacity" title="{{ __('drawing-modal.Doorzichtigheid') }}" style="display: none">
-                    <input type="number" name="opacity" id="elem-opacity-number" min="0" max="100" value="100" step="1"
-                           autocomplete="off">
-                    <input class="drawing-toolbar-slider" type="range" name="opacity" id="elem-opacity-range" min="0"
-                           max="100" value="100" step="1" autocomplete="off" style="cursor: grab">
-                </div>
-
-                <div class="property-group" id="line">
-                    <x-input.color-picker  :name="'line-color'" :id="'line-color'" :title="__('drawing-modal.lineColor')"/>
-                    <div class="input-with-button-group">
-                        <button id="decr-line-width" class="Secondary" title="{{ __('drawing-modal.reduce-line-width') }}" disabled>
-                            <div>
-                                <x-icon.min/>
-                            </div>
-                        </button>
-                        <input type="number" name="line-width" id="line-width" min="1" max="100" value="1"
-                               autocomplete="off" title="@lang('drawing-modal.lijndikte')">
-                        <button id="incr-line-width" class="Secondary" title="{{ __('drawing-modal.enlarge-line-width') }}">
-                            <div>
-                                <x-icon.plus/>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="property-group" id="edge">
-                    <x-input.color-picker  :name="'stroke-color'" :id="'stroke-color'" :title="__('drawing-modal.Randkleur')"/>
-                    <div class="input-with-button-group">
-                        <button id="decr-stroke" class="Secondary" title="{{ __('drawing-modal.Vergroot randdikte') }}">
-                            <div>
-                                <x-icon.min/>
-                            </div>
-                        </button>
-                        <input type="number" name="stroke-width" id="stroke-width" min="0" max="100" value="1"
-                               autocomplete="off" title="@lang('drawing-modal.Randdikte')">
-                        <button id="incr-stroke" class="Secondary" title="{{ __('drawing-modal.Verklein randdikte') }}">
-                            <div>
-                                <x-icon.plus/>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="property-group" id="fill">
-                    <x-input.color-picker  :name="'fill-color'" :id="'fill-color'" :title="__('drawing-modal.Opvulkleur')"/>
-                    <input type="number" name="fill-opacity" id="fill-opacity-number" min="0" max="100" value="25"
-                           step="1" autocomplete="off" title="{{ __('drawing-modal.Doorzichtigheid opvulkleur') }}">
-                    <input class="drawing-toolbar-slider" x-ref="slider" type="range" name="fill-opacity" id="fill-opacity-range" style="cursor: grab"
-                            min="0" max="100" value="25" step="1" autocomplete="off" title="{{ __('drawing-modal.Doorzichtigheid opvulkleur') }}">
-                </div>
-
-                <div class="property-group" id="endmarker-type" title="{{ __('drawing-modal.Type lijneinde') }}">
-                    <div id="endmarker-type-wrapper">
-                        <button class="endmarker-type active" id="no-endmarker" data-button-group="endmarker-type">
-                            <x-icon.no-endmarker/>
-                        </button>
-                        <button class="endmarker-type" id="filled-arrow" data-button-group="endmarker-type">
-                            <x-icon.filled-arrow/>
-                        </button>
-                        <button class="endmarker-type" id="two-lines-arrow" data-button-group="endmarker-type">
-                            <x-icon.two-lines-arrow/>
-                        </button>
-                        <button class="endmarker-type" id="filled-dot" data-button-group="endmarker-type">
-                            <x-icon.filled-dot/>
-                        </button>
-                    </div>
-                </div>
+                @foreach ($shapes as $shape)
+                    {{$shape->render()}}
+                @endforeach
             </div>
         </section>
         <button id="exit-btn" title="{{ __('drawing-modal.Sluiten') }}">
@@ -372,11 +266,10 @@
 <template id="translation-template"
           data-answer="{{ __('cms.Antwoord') }}"
           data-question="{{ __('drawing-modal.Vraag') }}"
-          data-rect="{{ __("drawing-modal.Rechthoek") }}"
-          data-circle="{{ __("drawing-modal.Cirkel") }}"
-          data-line="{{ __("drawing-modal.Rechte lijn") }}"
-          data-text="{{ __("drawing-modal.Tekst") }}"
           data-image="{{ __("drawing-modal.Afbeelding") }}"
           data-path="{{ __("drawing-modal.Penlijn") }}"
+          @foreach($shapes as $shape)
+            data-{{$shape->id}}="{{$shape->title}}"
+          @endforeach
 ></template>
 

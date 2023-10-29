@@ -18,15 +18,24 @@
                                 :last="$this->lastQuestionForStudent"
                                 :first="$this->firstQuestionForStudent"
         />
-
-        <x-assessment-navigator id="answer-navigator"
-                                :current="$this->answerNavigationValue"
-                                :total="$this->studentCount"
-                                methodCall="loadAnswer"
-                                iconName="profile"
-                                :last="$this->lastAnswerForQuestion"
-                                :first="$this->firstAnswerForQuestion"
-        />
+        @if($this->singleParticipantState)
+            <div class="flex gap-1 items-center">
+                <span class="inline-flex items-center justify-center gap-0.5 py-[3px] pr-2 min-w-[30px] bold rounded-full bg-white text-sysbase text-center pl-2"
+                >
+                    <x-icon.profile/>
+                    <span class="inline-flex">{{ $this->participantPosition }}</span>
+                </span>
+            </div>
+        @else
+            <x-assessment-navigator id="answer-navigator"
+                                    :current="$this->answerNavigationValue"
+                                    :total="$this->studentCount"
+                                    methodCall="loadAnswer"
+                                    iconName="profile"
+                                    :last="$this->lastAnswerForQuestion"
+                                    :first="$this->firstAnswerForQuestion"
+            />
+        @endif
     </div>
 @endsection
 @section('panels')

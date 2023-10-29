@@ -1,4 +1,4 @@
-import {panParams, resizableSvgShapes, shapePropertiesAvailableToUser, zoomParams} from "./constants.js";
+import {panParams, resizableSvgShapes, shapePropertiesAvailableToUser, zoomParams, shapeTypeWithRespectiveSvgClass} from "./constants.js";
 import * as svgShape from "./svgShape.js";
 import {UIElements, warningBox} from "./uiElements.js";
 import * as sidebar from "./sidebar.js";
@@ -102,7 +102,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
             setCorrectZIndex();
             setCursorTypeAccordingToCurrentType();
-            updateOpacitySliderColor();
+            updateAllOpacitySliderColor();
 
             if (!this.isTeacher()) {
                 Canvas.layers.question.lock();
@@ -168,6 +168,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         },
         currentToolIs(toolname) {
             return this.params.currentTool === toolname;
+        },
+        toolAndShapeOfSameType(shape) {
+            return this.getElementShapeType(shape) === this.params.currentTool;
+        },
+        getElementShapeType(shape) {
+            return shape.id.split("-")[0];
         },
         isTeacher() {
             return this.params.isTeacher;
@@ -326,6 +332,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                     Canvas.params.highlightedShape.svg.unhighlight();
                     Canvas.params.highlightedShape = null;
                 }
+            },
+            /**
+             * @param {*} g element 
+             * @returns object containing element svg (svgShape class) and its sidebar (Entry class)
+             */
+            getShapeDataObject(shape) {
+                return Canvas.layers[Canvas.layerID2Key(shape.parentElement.id)].shapes[shape.id];
             }
         }
 
@@ -553,124 +566,126 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             events: {
                 "input": {
                     callback: () => {
+                        setSliderColor(UI.elemOpacityRange, UI.textColor.value);
                         editShape('updateTextColor');
                     }
                 }
             }
         },
         {
-            element: UI.strokeWidth,
+            elements: [...rootElement.querySelectorAll('[id*="stroke-width"]')],
             events: {
                 "input": {
-                    callback: () => valueWithinBounds(UI.strokeWidth) && editShape('updateStrokeWidth')
-
+                    callback: (evt) => valueWithinBounds(evt.currentTarget) && editShape('updateStrokeWidth')
                 },
                 "blur": {
-                    callback: () => {
-                        toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
+                    callback: (evt) => toggleDisableButtonStates(evt.currentTarget, 'stroke-width')
+                }
+            }
+        },
+        {
+            elements: [...rootElement.querySelectorAll('[id*="decr-stroke-width"]')],
+            events: {
+                "click": {
+                    callback: (evt) => {
+                        const input = evt.currentTarget.parentElement.querySelector('input[type=number]');
+                        input.stepDown();
+                        toggleDisableButtonStates(evt.currentTarget, 'stroke-width');
+                        editShape('updateStrokeWidth');
+                    },
+                },
+                "focus": {
+                    callback: (evt) => evt.currentTarget.classList.add("active")
+                },
+                "blur": {
+                    callback: (evt) => evt.currentTarget.classList.remove("active")
+                },
+            }
+        },
+        {
+            elements: [...rootElement.querySelectorAll('[id*="incr-stroke-width"]')],
+            events: {
+                "click": {
+                    callback: (evt) => {
+                        const input = evt.currentTarget.parentElement.querySelector('input[type=number]');
+                        input.stepUp();
+                        toggleDisableButtonStates(evt.currentTarget, 'stroke-width');
+                        editShape('updateStrokeWidth');
+                    },
+                },
+                "focus": {
+                    callback: (evt) => evt.currentTarget.classList.add("active")
+                },
+                "blur": {
+                    callback: (evt) => evt.currentTarget.classList.remove("active")
+                },
+            }
+        },
+        {
+            elements: [...rootElement.querySelectorAll('[id*="stroke-color"]')],
+            events: {
+                "input": {
+                    callback: () => editShape('updateStrokeColor')
+                }
+            }
+        },
+        {
+            elements: [...rootElement.querySelectorAll('[id*="pen-width"]')],
+            events: {
+                "input": {
+                    callback: (evt) => {
+                        valueWithinBounds(evt.currentTarget) && editShape('updatePenWidth');
+                    }
+                },
+                "blur": {
+                    callback: (evt) => {
+                        toggleDisableButtonStates(evt.currentTarget, 'pen-width');
                     }
                 }
             }
         },
         {
-            element: UI.decrStroke,
+            elements: [...rootElement.querySelectorAll('[id*="decr-pen-width"]')],
             events: {
                 "click": {
-                    callback: () => {
-                        UI.strokeWidth.stepDown();
-                        toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
-                        editShape('updateStrokeWidth');
+                    callback: (evt) => {
+                        const input = evt.currentTarget.parentElement.querySelector('input[type=number]');
+                        input.stepDown();
+                        toggleDisableButtonStates(evt.currentTarget, 'pen-width');
+                        editShape('updatePenWidth');
                     },
                 },
                 "focus": {
-                    callback: () => {
-                        UI.strokeWidth.classList.add("active");
+                    callback: (evt) => {
+                        evt.currentTarget.classList.add("active");
                     },
                 },
                 "blur": {
-                    callback: () => {
-                        UI.strokeWidth.classList.remove("active");
+                    callback: (evt) => {
+                        evt.currentTarget.classList.remove("active");
                     },
                 },
             }
         },
         {
-            element: UI.incrStroke,
+            elements: [...rootElement.querySelectorAll('[id*="incr-pen-width"]')],
             events: {
                 "click": {
-                    callback: () => {
-                        UI.strokeWidth.stepUp();
-                        toggleDisableButtonStates(UI.strokeWidth, UI.decrStroke, UI.incrStroke);
-                        editShape('updateStrokeWidth');
+                    callback: (evt) => {
+                        const input = evt.currentTarget.parentElement.querySelector('input[type=number]');
+                        input.stepUp();
+                        toggleDisableButtonStates(evt.currentTarget, 'pen-width');
+                        editShape('updatePenWidth');
                     },
                 },
                 "focus": {
-                    callback: () => {
-                        UI.strokeWidth.classList.add("active");
+                    callback: (evt) => {
+                        evt.currentTarget.classList.add("active");
                     },
                 },
                 "blur": {
-                    callback: () => {
-                        UI.strokeWidth.classList.remove("active");
-                    },
-                },
-            }
-        },
-        {
-            element: UI.lineWidth,
-            events: {
-                "input": {
-                    callback: () => {
-                        valueWithinBounds(UI.lineWidth) && editShape('updateLineWidth');
-                    }
-                },
-                "blur": {
-                    callback: () => {
-                        toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
-                    }
-                }
-            }
-        },
-        {
-            element: UI.decrLineWidth,
-            events: {
-                "click": {
-                    callback: () => {
-                        UI.lineWidth.stepDown();
-                        toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
-                        editShape('updateLineWidth');
-                    },
-                },
-                "focus": {
-                    callback: () => {
-                        UI.lineWidth.classList.add("active");
-                    },
-                },
-                "blur": {
-                    callback: () => {
-                        UI.lineWidth.classList.remove("active");
-                    },
-                },
-            }
-        },
-        {
-            element: UI.incrLineWidth,
-            events: {
-                "click": {
-                    callback: () => {
-                        UI.lineWidth.stepUp();
-                        toggleDisableButtonStates(UI.lineWidth, UI.decrLineWidth, UI.incrLineWidth);
-                        editShape('updateLineWidth');
-                    },
-                },
-                "focus": {
-                    callback: () => {
-                        UI.lineWidth.classList.add("active");
-                    },
-                },
-                "blur": {
-                    callback: () => {
-                        UI.lineWidth.classList.remove("active");
+                    callback: (evt) => {
+                        evt.currentTarget.classList.remove("active");
                     },
                 },
             }
@@ -733,23 +748,23 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             }
         },
         {
-            element: UI.fillColor,
+            elements: [...rootElement.querySelectorAll('[id*="fill-color"]')],
             events: {
                 "input": {
-                    callback: () => {
-                        updateOpacitySliderColor();
+                    callback: (evt) => {
+                        updateOpacitySliderColor(evt.currentTarget, 'fill');
                         editShape('updateFillColor');
                     }
                 }
             }
         },
         {
-            element: UI.fillOpacityNumber,
+            elements: [...rootElement.querySelectorAll('[id*="fill-opacity-number"]')],
             events: {
                 "input": {
-                    callback: () => {
-                        if(valueWithinBounds(UI.elemOpacityNumber)) {
-                            updateFillOpacityRangeInput();
+                    callback: (evt) => {
+                        if(valueWithinBounds(evt.currentTarget)) {
+                            updateFillOpacityRangeInput(evt.currentTarget, 'fill');
                             editShape('updateOpacity');
                         }
                     },
@@ -757,41 +772,33 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             }
         },
         {
-            element: UI.fillOpacityRange,
+            elements: [...rootElement.querySelectorAll('[id*="fill-opacity-range"]')],
             events: {
                 "input": {
-                    callback: () => {
-                        if(valueWithinBounds(UI.fillOpacityRange)) {
-                            updateFillOpacityNumberInput();
+                    callback: (evt) => {
+                        if(valueWithinBounds(evt.currentTarget)) {
+                            updateFillOpacityNumberInput(evt.currentTarget, 'fill');
                             editShape('updateOpacity');
                         }
                     }
                 },
                 "focus": {
-                    callback: () => {
-                        UI.fillOpacityNumber.classList.add("active");
+                    callback: (evt) => {
+                        evt.currentTarget.classList.add("active");
                     },
                 },
                 "blur": {
-                    callback: () => {
-                        UI.fillOpacityNumber.classList.remove("active");
+                    callback: (evt) => {
+                        evt.currentTarget.classList.remove("active");
                     },
                 },
             }
         },
         {
-            element: UI.strokeColor,
+            elements: [...rootElement.querySelectorAll('[id*="pen-color"]')],
             events: {
                 "input": {
-                    callback: () => editShape('updateStrokeColor')
-                }
-            }
-        },
-        {
-            element: UI.lineColor,
-            events: {
-                "input": {
-                    callback: () => editShape('updateLineColor')
+                    callback: () => editShape('updatePenColor')
                 }
             }
         },
@@ -1366,6 +1373,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
     async function submitDrawingData() {
         if (drawingApp.params.isPreview) return;
+        prepareShapesForSubmission();
 
         const b64Strings = encodeSvgLayersAsBase64Strings();
         const grid = (Canvas.layers.grid.params.hidden) ? "0.00" : drawingApp.params.gridSize.toString();
@@ -1440,6 +1448,12 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         addNunitoFontToSVG(svg);
         adjustViewboxProperties(svg, panGroupSize);
         return svg;
+    }
+
+    function prepareShapesForSubmission() {
+        rootElement.querySelectorAll(".selected,.editing").forEach((element) => {
+            element.classList.remove("selected", "editing");
+        });
     }
 
     function addNunitoFontToSVG(svg) {
@@ -1539,11 +1553,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         const layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
         if (!layerObject.props.id.includes(layerObject.Canvas.params.currentLayer)) return;
 
-        const selectedEl = rootElement.querySelector('.selected');
+        const selectedShape = rootElement.querySelector('.selected');
         const selectedSvgShape = evt.target.closest("g.shape");
 
-        if (selectedEl) removeSelectState(selectedEl);
-        if (selectedEl === selectedSvgShape) return;
+        if (selectedShape) removeSelectState(selectedShape);
+        if (selectedShape === selectedSvgShape) return;
 
         addSelectState(selectedSvgShape);
     }
@@ -1699,62 +1713,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
     function determineMainElementAttributes(type) {
         const cursorPosition = Canvas.params.cursorPosition;
-        switch (type) {
-            case "rect":
-                return {
-                    "x": cursorPosition.x,
-                    "y": cursorPosition.y,
-                    "width": 0,
-                    "height": 0,
-                    "fill":
-                        UI.fillOpacityNumber.value === 0 ? "none" : UI.fillColor.value,
-                    "fill-opacity": parseFloat(UI.fillOpacityNumber.value / 100),
-                    "stroke": UI.strokeColor.value,
-                    "stroke-width": UI.strokeWidth.value,
-                    "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
-                };
-            case "circle":
-                return {
-                    "cx": cursorPosition.x,
-                    "cy": cursorPosition.y,
-                    "r": 0,
-                    "fill":
-                        UI.fillOpacityNumber.value === 0 ? "none" : UI.fillColor.value,
-                    "fill-opacity": parseFloat(UI.fillOpacityNumber.value / 100),
-                    "stroke": UI.strokeColor.value,
-                    "stroke-width": UI.strokeWidth.value,
-                    "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
-                };
-            case "line":
-                return {
-                    "x1": cursorPosition.x,
-                    "y1": cursorPosition.y,
-                    "x2": cursorPosition.x,
-                    "y2": cursorPosition.y,
-                    "marker-end": `url(#svg-${drawingApp.params.endmarkerType}-line)`,
-                    "stroke": UI.lineColor.value,
-                    "stroke-width": UI.lineWidth.value,
-                    "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
-                };
-            case "freehand":
-                return {
-                    "d": `M ${cursorPosition.x},${cursorPosition.y}`,
-                    "fill": "none",
-                    "stroke": UI.lineColor.value,
-                    "stroke-width": UI.lineWidth.value,
-                    "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
-                };
-            case "text":
-                return {
-                    "x": cursorPosition.x,
-                    "y": cursorPosition.y,
-                    "fill": UI.textColor.value,
-                    "stroke-width": 0,
-                    "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
-                    "style": `${drawingApp.params.boldText ? "font-weight: bold;" : ""} font-size: ${UI.textSize.value / 16}rem`,
-                };
-            default:
-        }
+        return svgShape[shapeTypeWithRespectiveSvgClass[type]]
+            .getMainElementAttributes(cursorPosition, UI, drawingApp.params);
     }
 
     function makeNewSvgShapeWithSidebarEntry(type, props, parent, withHelperElements, withHighlightEvents) {
@@ -2024,8 +1984,13 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             evt,
             Canvas.params.cursorPosition
         );
-        Canvas.params.highlightedShape = newShape;
         Canvas.params.draw.newShape = null;
+        if(!newShape.svg.meetsMinRequirements()) {
+            Canvas.deleteObject(newShape.sidebar);
+            --Canvas.params.draw.shapeCountForEachType[newShape.sidebar.type];
+            return;
+        } 
+        Canvas.params.highlightedShape = newShape;
     }
 
     function stopDrag() {
@@ -2055,6 +2020,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         makeSelectedBtnActive(evt.currentTarget);
         enableSpecificPropSelectInputs();
         setCursorTypeAccordingToCurrentType();
+        unselectShapeIfNecessary();
         if (!drawingApp.currentToolIs("drag")) {
             drawingApp.warnings.whenAnyToolButDragSelected.show();
         }
@@ -2085,6 +2051,20 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             startOfSlice = 0;
         }
         return id.slice(startOfSlice, endOfSlice);
+    }
+
+    function unselectShapeIfNecessary() {
+        const selectedShape = rootElement.querySelector('.selected');
+        if(shouldUnselectShape(selectedShape)) {
+            const shapeDataObject = Canvas.getShapeDataObject(selectedShape);
+            shapeDataObject.sidebar.unselect();
+        }
+    }
+
+    function shouldUnselectShape(selectedShape) {
+        return selectedShape
+            && !drawingApp.currentToolIs("drag")
+            && !drawingApp.toolAndShapeOfSameType(selectedShape);
     }
 
     function processEndmarkerTypeChange(evt) {
@@ -2227,10 +2207,21 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             // Error callback.
             UI.submitBtn.disabled = false
         }, () => {
+            drawMissingShapesOnSvg();
             // Progress callback.
         })
     }
 
+    function drawMissingShapesOnSvg() {
+        for (const layerKey in Canvas.layers) {
+            const layer = Canvas.layers[layerKey];
+            for (const shapeKey in layer.shapes) {
+                const shape = layer.shapes[shapeKey];
+                shape.svg.redrawOnSvg();
+            }
+        }
+    }
+    
     function imageTypeIsAllowed(file) {
         if(file.size / (1024 * 1024) > 4) {
             dispatchEvent(new CustomEvent('js-localized-notify-popup', {detail: {translation_key: 'image-size-error', message_type: 'error'}}));
@@ -2317,17 +2308,28 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
 
     function updateElemOpacityNumberInput() {
         UI.elemOpacityNumber.value = UI.elemOpacityRange.value;
-        updateOpacitySliderColor();
+        setSliderColor(UI.elemOpacityRange, UI.textColor.value);
     }
 
     function updateElemOpacityRangeInput() {
         UI.elemOpacityRange.value = UI.elemOpacityNumber.value;
-        updateOpacitySliderColor();
+        setSliderColor(UI.elemOpacityRange, UI.textColor.value);
     }
 
-    function updateOpacitySliderColor() {
-        setSliderColor(UI.fillOpacityRange, UI.fillColor.value);
-        setSliderColor(UI.elemOpacityRange);
+    function updateAllOpacitySliderColor() {
+        rootElement.querySelectorAll('[id*="fill-color"]').forEach(elem => {
+            updateOpacitySliderColor(elem, 'fill');
+        });
+        setSliderColor(UI.elemOpacityRange, UI.textColor.value);
+    }
+
+    function updateOpacitySliderColor(elem, property) {
+        const propertGroup = elem.closest('.property-group');
+        const shape = getShapeFromElemId(propertGroup);
+        const slider = propertGroup.querySelector('input[type="range"]');
+        const sliderColor = propertGroup.querySelector(`#${property}-color-${shape}`).value;
+
+        setSliderColor(slider, sliderColor);
     }
 
     /**
@@ -2392,14 +2394,14 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         return `rgba(${R}, ${G}, ${B}, ${parseFloat(A) / 100})`;
     }
 
-    function updateFillOpacityNumberInput() {
-        UI.fillOpacityNumber.value = UI.fillOpacityRange.value;
-        updateOpacitySliderColor();
+    function updateFillOpacityNumberInput(elem, property) {
+        elem.previousElementSibling.value = elem.value;
+        updateOpacitySliderColor(elem, property);
     }
 
-    function updateFillOpacityRangeInput() {
-        UI.fillOpacityRange.value = UI.fillOpacityNumber.value;
-        updateOpacitySliderColor();
+    function updateFillOpacityRangeInput(elem, property) {
+        elem.nextElementSibling.value =  elem.value;
+        updateOpacitySliderColor(elem, property);
     }
 
     function valueWithinBounds(inputElem) {
@@ -2553,6 +2555,19 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         return {decrButton, incrButton};
     }
 
+    function getShapeFromElemId(elem) {
+        const parts = elem.id.split("-");
+        return parts[parts.length - 1];
+    }
+
+    function getInputsAndButtonsForProperty(propertyGroup, property, shape) {
+        const input = propertyGroup.querySelector(`#${property}-${shape}`);
+        const decrButton = propertyGroup.querySelector(`#decr-${property}-${shape}`);
+        const incrButton = propertyGroup.querySelector(`#incr-${property}-${shape}`);
+
+        return {input, decrButton, incrButton};
+    }
+
     function disableButtonsWhenNecessary(UIElementString) {
         const {decrButton, incrButton} = getButtonsForElement(UIElementString);
         const {currentValue, min, max} = getBoundsForInputElement(UI[UIElementString]);
@@ -2569,42 +2584,35 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         disableButtonsWhenNecessary('gridSize');
     }
 
-    function toggleDisableButtonStates(input, decrButton, incrButton) {
+    function toggleDisableButtonStates(elem, property) {
+        const propertGroup = elem.closest('.property-group');
+        if(!propertGroup) return;
+
+        const shape = getShapeFromElemId(propertGroup);
+        const {input, decrButton, incrButton} = getInputsAndButtonsForProperty(propertGroup, property, shape);
         const {currentValue, min, max} = getBoundsForInputElement(input);
 
         decrButton.disabled = currentValue === min;
         incrButton.disabled = currentValue === max;
     }
 
-    function checkIfShouldeditShape(selectedEl) {
-        return selectedEl && checkIfFocusedDataButtonIsSameAsSelectedElement(selectedEl)
-    }
-
-    function checkIfFocusedDataButtonIsSameAsSelectedElement(selectedEl) {
-        const currentDataButton = rootElement.querySelector('[data-button-group=tool].active');
-        if(!currentDataButton) return false;
-
-        const shapeType = selectedEl.id.split('-')[0];
-        return shapeType === currentDataButton.id.split('-')[1];
+    function checkIfShouldeditShape(selectedShape) {
+        return selectedShape && drawingApp.toolAndShapeOfSameType(selectedShape)
     }
 
     function editShape(functionName) {
-        const selectedEl = rootElement.querySelector('.editing');
-        if(!checkIfShouldeditShape(selectedEl)) return;
+        const selectedShape = rootElement.querySelector('.editing');
+        if(!checkIfShouldeditShape(selectedShape)) return;
 
-        const layerObject = Canvas.layers[Canvas.layerID2Key(selectedEl.parentElement.id)];
-        const selectedSvgShapeClass = layerObject.shapes[selectedEl.id].svg;
-
+        const selectedSvgShapeClass = Canvas.getShapeDataObject(selectedShape).svg;
         functionName in selectedSvgShapeClass && selectedSvgShapeClass[functionName]();
     }
 
     function ShouldEditTextOnClick() {
-        const selectedEl = rootElement.querySelector('.editing');
-        if(!checkIfShouldeditShape(selectedEl)) return;
+        const selectedShape = rootElement.querySelector('.editing');
+        if(!checkIfShouldeditShape(selectedShape)) return;
 
-        const shapeType = selectedEl.id.split('-')[0];
-
-        return shapeType === 'text' && Canvas.params.editingTextInZone;
+        return drawingApp.currentToolIs('text') && Canvas.params.editingTextInZone;
     }
 
     return {UI, Canvas, drawingApp}

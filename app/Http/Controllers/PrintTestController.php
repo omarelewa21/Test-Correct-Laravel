@@ -68,6 +68,37 @@ class PrintTestController extends Controller
         return $this->createPdfAttachmentsDownload();
     }
 
+    public function showGradeList(TestTake $testTake)
+    {
+        $this->testTake = $testTake->load([
+            'test:id,name',
+            'testParticipants:id,user_id,test_take_id,rating',
+            'testParticipants.user' => fn($query) => $query->select(
+                'id',
+                'name',
+                'name_first',
+                'name_suffix'
+            )->withTrashed(),
+        ]);
+        $this->testTake->testParticipants
+            ->each(fn($participant) => $participant->user->fullName = $participant->user->name_full);
+
+        $titleForPdf = sprintf('%s %s', __('test-take.Cijferlijst voor'), $this->testTake->test->name);
+
+        $html = view(
+            'grade-list',
+            [
+                'testParticipants' => $testTake->testParticipants,
+                'titleForPdfPage'  => $titleForPdf,
+            ]
+        )
+            ->render();
+        $pdf = PdfController::HtmlToPdfFromString($html);
+
+
+        return $this->makeResponseForPdf($pdf, $titleForPdf);
+    }
+
     private function createPdfDownload()
     {
         $coverPdf = $this->generateCoverPdf();
@@ -75,24 +106,21 @@ class PrintTestController extends Controller
 
         $mergedPdf = $this->mergePdfFiles($coverPdf, $mainPdf);
 
-        $titleForPdfPage = __('test-pdf.printversion_test') . ' ' . $this->test->name . ' ' . Carbon::now()->format('d-m-Y H:i');
+        $titleForPdfPage = __('test-pdf.printversion_test') . ' ' . $this->test->name . ' ' . Carbon::now()->format(
+                'd-m-Y H:i'
+            );
 
-        return response()->make($mergedPdf, 200, [
-            'Content-Type'        => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="' . $titleForPdfPage . '.pdf"'
-        ]);
+        return $this->makeResponseForPdf($mergedPdf, $titleForPdfPage);
     }
 
     private function createPdfAttachmentsDownload()
     {
         $pdf = $this->generatePdfAttachmentsPdf();
 
-        $titleForPdf = __('test-pdf.printversion_test_attachments') . ' ' . $this->test->name . ' ' . Carbon::now()->format('d-m-Y H:i');
+        $titleForPdf = __('test-pdf.printversion_test_attachments') . ' ' . $this->test->name . ' ' . Carbon::now(
+            )->format('d-m-Y H:i');
 
-        return response()->make($pdf, 200, [
-            'Content-Type'        => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="' . $titleForPdf . '.pdf"'
-        ]);
+        return $this->makeResponseForPdf($pdf, $titleForPdf);
     }
 
     private function mergePdfFiles($coverPdf, $mainPdf)
@@ -133,9 +161,13 @@ class PrintTestController extends Controller
     {
         $showCoverExplanationText = !$this->testOpgavenPdf;
 
-        $cover = (new Cover($this->test, $showCoverExplanationText, $this->testOpgavenPdf ? 'opgaven' : 'toets'))->render();
-        $header = (new CoverHeader($this->test, $this->testTake, $this->testOpgavenPdf ? 'opgaven' : 'toets'))->render();
-        $footer = (new CoverFooter($this->test, $this->testTake, $this->testOpgavenPdf ? 'opgaven' : 'toets'))->render();
+        $cover = (new Cover(
+            $this->test, $showCoverExplanationText, $this->testOpgavenPdf ? 'opgaven' : 'toets'
+        ))->render();
+        $header = (new CoverHeader($this->test, $this->testTake, $this->testOpgavenPdf ? 'opgaven' : 'toets'))->render(
+        );
+        $footer = (new CoverFooter($this->test, $this->testTake, $this->testOpgavenPdf ? 'opgaven' : 'toets'))->render(
+        );
 
         return PdfController::createTestPrintPdf($cover, $header, $footer);
     }
@@ -155,14 +187,19 @@ class PrintTestController extends Controller
         // todo add check or failure when $current out of bounds $data;
         $styling = $this->getCustomStylingFromQuestions($data);
 
-        $titleForPdfPage = __('test-pdf.printversion_test') . ' ' . $this->test->name . ' ' . Carbon::now()->format('d-m-Y H:i');
+        $titleForPdfPage = __('test-pdf.printversion_test') . ' ' . $this->test->name . ' ' . Carbon::now()->format(
+                'd-m-Y H:i'
+            );
         view()->share('titleForPdfPage', $titleForPdfPage);
         ini_set('max_execution_time', '90');
 
         if (!$this->testOpgavenPdf) {
             $html = view('test-print', compact(['data', 'nav', 'styling', 'test', 'attachment_counters']))->render();
         } else {
-            $html = view('test-opgaven-print', compact(['data', 'nav', 'styling', 'test', 'attachment_counters']))->render();
+            $html = view(
+                'test-opgaven-print',
+                compact(['data', 'nav', 'styling', 'test', 'attachment_counters'])
+            )->render();
         }
 
         return PdfController::createTestPrintPdf($html, $header, $footer);
@@ -181,15 +218,18 @@ class PrintTestController extends Controller
 
                     if ($testQuestion->question->groupquestion_type === 'carousel') {
                         //filters questions to needed amount for carousel
-                        return collect($testQuestion->question->filterQuestionsForCarousel(
-                            $testQuestion->question->groupQuestionQuestions->map(function ($item) use ($groupQuestion) {
-                                $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
-                                return $item->question;
-                            })->toArray())
+                        return collect(
+                            $testQuestion->question->filterQuestionsForCarousel(
+                                $testQuestion->question->groupQuestionQuestions->map(
+                                    function ($item) use ($groupQuestion) {
+                                        $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
+                                        return $item->question;
+                                    }
+                                )->toArray()
+                            )
                         )->map(fn($item) => Question::find($item['id']))
                             ->prepend($testQuestion->question)
                             ->add($testQuestion->question);
-
                     }
 
                     return $testQuestion->question->groupQuestionQuestions->map(function ($item) use ($groupQuestion) {
@@ -240,6 +280,20 @@ class PrintTestController extends Controller
         return $data->map(function ($question) {
             return $question->getQuestionInstance()->styling;
         })->unique()->implode(' ');
+    }
+
+    /**
+     * @param string $mergedPdf
+     * @param string $titleForPdfPage
+     * @return \Illuminate\Http\Response|mixed
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     */
+    private function makeResponseForPdf(string $mergedPdf, string $titleForPdfPage): mixed
+    {
+        return response()->make($mergedPdf, 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $titleForPdfPage . '.pdf"'
+        ]);
     }
 
 }

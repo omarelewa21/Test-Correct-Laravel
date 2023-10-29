@@ -30,45 +30,9 @@ class AuthorsController extends Controller
         return User::where('username', config('custom.examschool_author'))->first();
     }
 
-    public static function getNationalItemBankAuthor()
-    {
-        return User::where('username', config('custom.national_item_bank_school_author'))->first();
-    }
-
-    public static function getFormidableAuthor()
-    {
-        return User::where('username', config('custom.formidable_school_author'))->first();
-    }
 
 
-    public static function getThiemeMeulenhoffAuthor()
-    {
-        return User::where('username', config('custom.thieme_meulenhoff_school_author'))->first();
-    }
 
-    public static function getPublishableAuthorByCustomerCode($customerCode)
-    {
-        $lookupTable = (new self)->getPublishableAuthorCustomerCodesAndUsernames();
-
-        $username = $lookupTable[$customerCode] ?? false;
-
-        if(!$username){
-            return false;
-        }
-        return User::where('username', $username)->first();
-    }
-
-    private function getPublishableAuthorCustomerCodesAndUsernames()
-    {
-        return [
-            config('custom.examschool_customercode')                => config('custom.examschool_author'),
-            config('custom.national_item_bank_school_customercode') => config('custom.national_item_bank_school_author'),
-            config('custom.creathlon_school_customercode')          => config('custom.creathlon_school_author'),
-            config('custom.olympiade_school_customercode')          => config('custom.olympiade_school_author'),
-            config('custom.formidable_school_customercode')          => config('custom.formidable_school_author'),
-            config('custom.thieme_meulenhoff_school_customercode')  => config('custom.thieme_meulenhoff_school_author'),
-        ];
-    }
 
     private function getBuilderForOwnSubjects($user)
     {

@@ -7,6 +7,15 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use tcCore\EducationLevel;
 use tcCore\Http\Helpers\ContentSourceHelper;
+use tcCore\Services\ContentSource\CreathlonService;
+use tcCore\Services\ContentSource\FormidableService;
+use tcCore\Services\ContentSource\NationalItemBankService;
+use tcCore\Services\ContentSource\OlympiadeService;
+use tcCore\Services\ContentSource\PersonalService;
+use tcCore\Services\ContentSource\SchoolLocationService;
+use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
+use tcCore\Services\ContentSource\UmbrellaOrganizationService;
+use tcCore\Services\ContentSourceFactory;
 use tcCore\Test;
 
 trait ContentSourceTabsTrait
@@ -37,8 +46,8 @@ trait ContentSourceTabsTrait
 
         $this->allowedTabs = ContentSourceHelper::allAllowedForUser(Auth::user());
 
-        $this->schoolLocationInternalContentTabs = $this->allowedTabs->filter(fn ($contentSourceClass, $sourceName) => in_array($sourceName, ['personal', 'school_location']));
-        $this->schoolLocationExternalContentTabs = $this->allowedTabs->reject(fn ($contentSourceClass, $sourceName) => in_array($sourceName, ['personal', 'school_location']));
+        $this->schoolLocationInternalContentTabs = $this->allowedTabs->filter(fn($contentSourceClass, $sourceName) => in_array($sourceName, ['personal', 'school_location']));
+        $this->schoolLocationExternalContentTabs = $this->allowedTabs->reject(fn($contentSourceClass, $sourceName) => in_array($sourceName, ['personal', 'school_location']));
 
         $this->rejectExcludedTabs();
 
@@ -74,7 +83,6 @@ trait ContentSourceTabsTrait
         if (!isset($this->excludeTabs)) return;
 
         $this->schoolLocationExternalContentTabs = $this->schoolLocationExternalContentTabs->reject(fn($class, $tab) => collect($this->excludeTabs)->contains($tab));
-
     }
 
     protected function filterableEducationLevelsBasedOnTab(): Collection
@@ -84,19 +92,13 @@ trait ContentSourceTabsTrait
         }
 
         if ($this->isExternalContentTab()) {
-            return EducationLevel::whereIn(
-                'id',
-                DB::query()->fromSub(
-                    Test::when($this->openTab === 'umbrella', fn($query) => $query->sharedSectionsFiltered([], []))
-                        ->when($this->openTab === 'national', fn($query) => $query->nationalItemBankFiltered([], []))
-                        ->when($this->openTab === 'creathlon', fn($query) => $query->creathlonItemBankFiltered([], []))
-                        ->when($this->openTab === 'olympiade', fn($query) => $query->olympiadeItemBankFiltered([], []))
-                        ->when($this->openTab === 'formidable', fn($query) => $query->formidableItemBankFiltered([], [])),
-                    'tests2'
-                )->select('education_level_id')
-            )->optionList();
+            if ($serviceClass = ContentSourceFactory::makeWithTabExternalOnly($this->openTab)) {
+                return EducationLevel::whereIn(
+                    'id',
+                    $serviceClass->itemBankFiltered(filters:[], sorting:[], forUser: auth()->user())->select('education_level_id')
+                )->optionList();
+            }
         }
-
         return collect();
     }
 }

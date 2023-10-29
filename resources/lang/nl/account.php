@@ -37,4 +37,5 @@ return [
     'Jouw klassen'                                            => '[0,1]Jouw klas|[2,*]Jouw klassen',
     'Standaard normering'                                     => 'Standaard normering',
     'Antwoorden met CO-Learning score overslaan' => 'Antwoorden met CO-Learning score overslaan',
+    'Schrijf op'                                              => 'Schrijf op',
 ];

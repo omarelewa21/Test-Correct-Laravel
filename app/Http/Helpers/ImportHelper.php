@@ -786,6 +786,8 @@ class ImportHelper
             DB::rollback();
             $failure_messages[] = 'Rollback completed;';
             $this->importLog("Transaction failed with message ".$e->getMessage());
+            logger('----- uwlr import log ERROR ------');
+            logger($failure_messages);
             if ($e->getMessage() == 'collected errors') {
                 return ['errors' => $this->makeErrorsUnique()];
             } else {

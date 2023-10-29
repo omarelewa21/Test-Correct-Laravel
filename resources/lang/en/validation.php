@@ -56,6 +56,13 @@ return [
     ],
     "not_in"               => "The selected :attribute is invalid.",
     "numeric"              => "The :attribute must be a number.",
+    'password'             => [
+        'letters'       => 'The password field must contain at least one letter.',
+        'mixed'         => 'The password field must contain at least one uppercase and one lowercase letter.',
+        'numbers'       => 'The password field must contain at least one number.',
+        'symbols'       => 'The password field must contain at least one symbol.',
+        'uncompromised' => 'The given password has appeared in a data leak. Please choose a different password.',
+    ],
     "regex"                => "The :attribute format is invalid.",
     "required"             => "The :attribute field is required.",
     "required_if"          => "The :attribute field is required when :other is :value.",
@@ -140,4 +147,12 @@ return [
     'unique_test_name'                        => 'The given test name is already in use. Please enter a unique test name.',
 
     'invigilator_required' => 'It is required to choose an invigilator.',
+
+    // NIST Password Rules
+    'can-not-contain-word'              => 'The password can not contain the word \':word\'.',
+    'can-not-be-similar-to-word'        => 'The password can not be similar to the word \':word\'.',
+    'found-in-data-breach'              => 'The password was found in a third party data breach, and can not be used.',
+    'can-not-be-dictionary-word'        => 'The password can not be a dictionary word.',
+    'can-not-be-repetitive-characters'  => 'The password can not be repetitive characters.',
+    'can-not-be-sequential-characters'  => 'The password can not be sequential characters.',
 ];

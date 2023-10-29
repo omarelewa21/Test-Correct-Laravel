@@ -1,4 +1,5 @@
 <?php
+
 return [
     'Inplannen'                                                                                => 'Inplannen',
     'Naam toets of opdracht'                                                                   => 'Naam toets of opdracht',
@@ -53,8 +54,7 @@ return [
     'Voorbeeld'                                                                                => 'Voorbeeld',
     'Exporteren naar PDF'                                                                      => 'Maak PDF',
     'Kopie maken'                                                                              => 'Kopie maken',
-    'Je hebt het vak, niveau en/of leerjaar van de toets aangepast.'                           => 'Je hebt het vak, niveau en/of leerjaar van de toets aangepast. Is deze verandering een verbetering
-                    van de toets of is het een nieuwe toets?',
+    'Je hebt het vak, niveau en/of leerjaar van de toets aangepast.'                           => 'Je hebt het vak, niveau en/of leerjaar van de toets aangepast. Is deze verandering een verbetering van de toets of is het een nieuwe toets?',
     'Kies een of meerdere onderdelen'                                                          => 'Kies één onderdeel van de toets om te exporteren.',
     'Kies een pdf attachment'                                                                  => 'Kies één pdf bijlage van de toets om te exporteren.',
     'question_bank_add_confirmation_text'                                                      => 'Je gaat een groepsvraag toevoegen als hoofdvraag',
@@ -77,15 +77,14 @@ return [
     'test-type-Formatief'                                                                      => 'Formatief',
     'test-type-Opdracht'                                                                       => 'Opdracht',
     'test-type-Oefentoets'                                                                     => 'Oefentoets',
-
     'notify_students'                                                                          => 'Leerlingen informeren',
     'notify_students_tooltip'                                                                  => 'Leerlingen via mail informeren over deze toetsafname.',
-
-    'not_linked_to_subjects'         => 'Toets construeren niet mogelijk omdat je niet aan vakken gekoppeld bent.',
-    'not_linked_to_education_levels' => 'Toets construeren niet mogelijk omdat je niet aan leerjaren gekoppeld bent.',
-
-    'Exporteer naar RTTI Online'    => 'Exporteer naar RTTI Online',
-    'exporteer_naar_rtti_online_tooltip' => 'Let op, normeren en becijferen gebeurt in RTTI-Online als dit aanstaat.',
-    'allow_wsc'                => 'Spellingscontrole toestaan voor studenten',
-
+    'not_linked_to_subjects'                                                                   => 'Toets construeren niet mogelijk omdat je niet aan vakken gekoppeld bent.',
+    'not_linked_to_education_levels'                                                           => 'Toets construeren niet mogelijk omdat je niet aan leerjaren gekoppeld bent.',
+    'Exporteer naar RTTI Online'                                                               => 'Exporteer naar RTTI Online',
+    'exporteer_naar_rtti_online_tooltip'                                                       => 'Let op, normeren en becijferen gebeurt in RTTI-Online als dit aanstaat.',
+    'allow_wsc'                                                                                => 'Spellingscontrole toestaan voor studenten',
+    'enable_mr_chadd'                                                                          => 'Mr. Chadd toestaan voor studenten',
+    'enable_mr_chadd_tt'                                                                       => 'Sta studenten toe om Mr. Chadd te gebruiken tijdens het maken van de opdracht',
+    'RTTI Online export maken'                                                                 => 'RTTI Online export maken',
 ];

@@ -15,7 +15,7 @@
     >
         <input type="text"
                :placeholder="multiSelectOpen ? labels.placeholder_open : labels.placeholder_closed"
-               class="h-10 w-[200px] pl-4 pr-8 cursor-pointer placeholder-sysbase placeholder:text-base border rounded-10 focus:placeholder-note focus:bg-primary/5 focus:outline-none hover:border-primary transition-colors"
+               class="select-input | h-10 w-[200px] pl-4 pr-8 cursor-pointer placeholder-sysbase placeholder:text-base border rounded-10 focus:placeholder-note focus:bg-primary/5 focus:outline-none hover:border-primary transition-colors"
                x-model="query"
                x-on:click.stop="if(!multiSelectOpen) openDropdown()"
                x-bind:class="{

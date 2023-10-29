@@ -23,13 +23,13 @@
             <div class="dates-weight | flex flex-wrap gap-4 w-full">
                 <div class="flex flex-1 space-x-4">
                     <x-input.group class="flex flex-1" label="{{ __('teacher.Datum') }}">
-                        <x-input.datepicker wire:model="timeStart" locale="nl" minDate="today" class="bg-offwhite" />
+                        <x-input.datepicker wire:model="timeStart" locale="nl" minDate="today" class="bg-offwhite"/>
                     </x-input.group>
 
 
                     @if ($this->isAssignmentType())
                         <x-input.group class="flex flex-1" label="{{ __('teacher.Datum tot') }}">
-                            <x-input.datepicker wire:model="timeEnd" locale="nl" minDate="today" />
+                            <x-input.datepicker wire:model="timeEnd" locale="nl" minDate="today"/>
                         </x-input.group>
                     @endif
                 </div>
@@ -37,7 +37,7 @@
                     <x-input.group class="flex flex-1" label="{{ __('teacher.Periode') }}">
                         <x-input.select class="w-full" wire:model="testTake.period_id">
                             @foreach($allowedPeriods as $period)
-                                <x-input.option :value="$period->id" :label="$period->name" />
+                                <x-input.option :value="$period->id" :label="$period->name"/>
                             @endforeach
                         </x-input.select>
                     </x-input.group>
@@ -93,7 +93,7 @@
                                                    containerClass="border-t w-full lg:w-[calc(50%-0.5rem)]"
                                                    selid="plan-modal-allow-browser"
                     >
-                        <x-icon.web />
+                        <x-icon.web/>
                         <span class="bold">{{ __('teacher.Browsertoetsen toestaan') }} </span>
                     </x-input.toggle-row-with-title>
                     <x-input.toggle-row-with-title wire:model="testTake.guest_accounts"
@@ -103,7 +103,7 @@
                                                    containerClass="lg:border-t w-full lg:w-[calc(50%-0.5rem)]"
                                                    :error="$this->getErrorBag()->has('testTake.school_classes')"
                     >
-                        <x-icon.test-direct />
+                        <x-icon.test-direct/>
                         <span class="bold">{{ __('teacher.Test-Direct toestaan') }} </span>
                     </x-input.toggle-row-with-title>
                     @if($rttiExportAllowed)
@@ -111,10 +111,20 @@
                                                        :toolTip="__('teacher.exporteer_naar_rtti_online_tooltip')"
                                                        containerClass="w-full lg:w-[calc(50%-0.5rem)]"
                         >
-                            <x-icon.export />
+                            <x-icon.export/>
                             <span class="bold">{{ __('teacher.Exporteer naar RTTI Online') }} </span>
                         </x-input.toggle-row-with-title>
                     @endif
+                    @if($this->allowedToEnableMrChadd)
+                        <x-input.toggle-row-with-title wire:model="testTake.enable_mr_chadd"
+                                                       :toolTip="__('teacher.enable_mr_chadd_tt')"
+                                                       containerClass="border-t-0 w-full lg:w-[calc(50%-0.5rem)]"
+                        >
+                            <x-icon.questionmark class="flex-shrink-0"/>
+                            <span class="bold">{{ __('teacher.enable_mr_chadd') }} </span>
+                        </x-input.toggle-row-with-title>
+                    @endif
+
                 </div>
             </div>
             <div class="input-section">
@@ -141,7 +151,7 @@
                           wire:target="save"
                           wire:click="save"
             >
-                <x-icon.checkmark />
+                <x-icon.checkmark/>
                 <span>@lang('test-take.Wijzig instellingen')</span>
             </x-button.cta>
         </div>

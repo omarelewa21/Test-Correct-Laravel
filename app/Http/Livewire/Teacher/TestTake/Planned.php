@@ -3,30 +3,25 @@
 namespace tcCore\Http\Livewire\Teacher\TestTake;
 
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Blade;
-use Illuminate\View\AnonymousComponent;
+use Illuminate\Support\Facades\Gate;
 use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Livewire\Teacher\TestTake\TestTake as TestTakeComponent;
-use tcCore\Http\Livewire\Teacher\TestTakeWarningModal;
 use tcCore\Invigilator;
 use tcCore\Log;
-use tcCore\TestKind;
 use tcCore\TestParticipant;
 use tcCore\TestTake as TestTakeModel;
-use tcCore\User;
 
 class Planned extends TestTakeComponent
 {
-    public $dropdownData = [];
-    public $selected = [];
     public Collection $invigilatorUsers;
 
-    public $activeSelect = 'string-14371dbf-a00c-4373-9597-146ff91d0008';
-
-    public function mount(TestTakeModel $testTake)
+    public function mount(TestTakeModel $testTake): void
     {
+        if (Gate::denies('canUsePlannedTestPage')) {
+            TestTakeModel::redirectToDetail($testTake->uuid);
+        }
         parent::mount($testTake);
-        $this->setInvigilators();
+        $this->setStudentData();
     }
 
     public function refresh(): void
@@ -39,115 +34,6 @@ class Planned extends TestTakeComponent
     public function redirectToOverview()
     {
         return CakeRedirectHelper::redirectToCake('planned.my_tests');
-    }
-
-    public function fillGridData()
-    {
-        $this->testTake->load([
-            'test:id,name,uuid,subject_id,test_kind_id',
-            'test.subject:id,name',
-            'scheduledByUser:id,name,name_first,name_suffix',
-            'user:id,name,name_first,name_suffix,uuid',
-            'invigilators:test_take_id,user_id,uuid',
-            'invigilatorUsers:id,name,name_first,name_suffix,uuid',
-
-        ]);
-        $schoolClasses = $this->testTake->schoolClasses()->get('name');
-        $this->gridData = [
-            [
-                'title' => __('student.subject'),
-                'data'  => $this->testTake->test->subject->name,
-            ],
-            [
-                'title' => __('test-take.Afname gepland op'),
-                'data'  => $this->testTake->time_start->format('d-m-Y'),
-            ],
-            [
-                'title' => __('test-take.Gepland door'),
-                'data'  => $this->testTake->scheduledByUser?->getFullNameWithAbbreviatedFirstName(),
-            ],
-            [
-                'title' => trans_choice('test-take.Klas', $schoolClasses->count()),
-                'data'  => $schoolClasses
-                    ->map(fn($class) => $class->name)
-                    ->join(', ', sprintf(" %s ", __('test-take.and'))),
-            ],
-            [
-                'title' => __('general.Docent'),
-                'data'  => $this->testTake->user->getFullNameWithAbbreviatedFirstName(),
-            ],
-            [
-                'title' => trans_choice('test-take.Surveillant', $this->testTake->invigilatorUsers->count()),
-                'data'  => $this->testTake->invigilatorUsers
-                    ->map(fn($user) => $user->getFullNameWithAbbreviatedFirstName())
-                    ->join(', ', sprintf(" %s ", __('test-take.and'))),
-            ],
-            [
-                'title' => __('teacher.Weging'),
-                'data'  => $this->testTake->weight,
-            ],
-            [
-                'title' => __('teacher.type'),
-                'data'  => Blade::renderComponent(
-                    new AnonymousComponent(
-                        'components.partials.test-take-type-label',
-                        ['type' => $this->testTake->retake]
-                    )
-                ),
-            ],
-        ];
-
-        if ($this->testTake->test->test_kind_id === TestKind::ASSIGNMENT_TYPE) {
-            array_splice(
-                $this->gridData,
-                1,
-                0,
-
-                [
-                    'title' => __('test-take.Beschikbaar tot'),
-                    'data'  => $this->testTake->time_end->format('d-m-Y'),
-                ]
-
-            );
-        }
-    }
-
-    protected function setStudentData(): void
-    {
-        $this->testTake->loadMissing([
-            'testParticipants',
-            'testParticipants.user:id,name,name_first,name_suffix,uuid'
-        ]);
-
-        $this->participants = $this->testTake
-            ->testParticipants
-            ->each(function ($participant) {
-                $participant->name = html_entity_decode($participant->user->name_full);
-                $participant->present = $this->activeParticipantUuids->contains($participant->user->uuid);
-                $participant->user->setAppends([]); /* Disables unnecessary append queries */
-            });
-    }
-
-    private function setInvigilators(): void
-    {
-        $this->invigilatorUsers = $this->testTake
-            ->load([
-                'invigilators:test_take_id,user_id,uuid',
-                'invigilatorUsers:id,name,name_first,name_suffix,uuid',
-            ])
-            ->invigilatorUsers
-            ->map(function ($user) {
-                $invigilator = $this->testTake
-                    ->invigilators
-                    ->first(fn($invigilator) => $invigilator->user_id === $user->id);
-                $user->invigilator_uuid = $invigilator->uuid;
-                $user->displayName = $user->getFullNameWithAbbreviatedFirstName();
-
-                $user->setAppends([]);
-                $invigilator->setAppends([]);
-
-                return $user;
-            });
     }
 
     public function removeParticipant($participantUuid): void
@@ -172,16 +58,17 @@ class Planned extends TestTakeComponent
 
     public function canStartTestTake(): bool
     {
-        return $this->testTake->time_start->isToday();
+        return $this->testTake->time_start->isToday() && $this->hasStudentStartRequirement();
     }
 
     public function startTake(): void
     {
-        $warnings = collect([
-            'browser_testing' => $this->testTake->allow_inbrowser_testing,
-            'guest_accounts' => $this->testTake->guest_accounts,
-            'participants_incomplete' => $this->participants->count() !== $this->activeParticipantUuids->count(),
-        ])->filter();
+        if (!$this->canStartTestTake()) {
+            $this->addError('cannot_start_take_before_start_date', [__('auth.something_went_wrong')]);
+            return;
+        }
+
+        $warnings = $this->getWarningsAboutStartingTake();
 
         if ($warnings->isNotEmpty()) {
             $this->emit(
@@ -196,9 +83,22 @@ class Planned extends TestTakeComponent
         CakeRedirectHelper::redirectToCake('planned.surveillance');
     }
 
-    public function setDataPropertiesForTemplate(): void
+    public function breadcrumbTitle(): string
     {
-        $this->setStudentData();
-        $this->setInvigilators();
+        return __('header.Mijn ingeplande toetsen');
+    }
+
+    public function getWarningsAboutStartingTake(): Collection
+    {
+        return collect([
+            'browser_testing' => $this->testTake->allow_inbrowser_testing,
+            'guest_accounts' => $this->testTake->guest_accounts,
+            'participants_incomplete' => $this->participants->count() !== $this->activeParticipantUuids->count(),
+        ])->filter();
+    }
+
+    private function hasStudentStartRequirement(): bool
+    {
+        return $this->testTake->guest_accounts || $this->participants->isNotEmpty();
     }
 }

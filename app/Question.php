@@ -361,7 +361,7 @@ class Question extends MtiBaseModel
 
     public function pValue()
     {
-        return $this->hasMany('tcCore\PValue');
+        return $this->hasMany('tcCore\PValue', 'question_id');
     }
 
     public function owner()
@@ -486,30 +486,6 @@ class Question extends MtiBaseModel
     public function isDirtyAttainments()
     {
         return $this->isDirtyAttainmentsGeneric('attainments', 'questionAttainments');
-        if ($this->attainments === null) {
-            return false;
-        }
-
-        $attainments = $this->questionAttainments()->pluck('attainment_id')->all();
-
-        /////////////////
-        //fix for TC-106
-        //also fixed in the fill() method, but somehow that doesn't work
-        //so we also fix it here, because this is where the error will start
-        if (!is_array($this->attainments)) {
-            $this->attainments = [$this->attainments];
-        }
-
-        if (!is_array($attainments)) {
-            $attainments = [$attainments];
-        }
-        /////////////////
-
-        if (count($this->attainments) != count($attainments) || array_diff($this->attainments, $attainments)) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     public function isDirtyLearningGoals()
@@ -538,11 +514,7 @@ class Question extends MtiBaseModel
         }
         /////////////////
 
-        if (count($this->$globalName) != count($attainments) || array_diff($this->$globalName, $attainments)) {
-            return true;
-        } else {
-            return false;
-        }
+        return (count($this->$globalName) != count($attainments) || array_diff($this->$globalName, $attainments));
     }
 
     protected function saveAttainments()
@@ -573,70 +545,43 @@ class Question extends MtiBaseModel
 
         $tags = $this->tagRelations()->pluck('tag_id')->all();
 
-        if (count($this->tags) != count($tags) || array_diff($this->tags, $tags)) {
-            return true;
-        } else {
-            return false;
-        }
+        return count($this->tags) != count($tags) || array_diff($this->tags, $tags);
     }
 
     public function isDirtyAttachmentOptions($request): bool
     {
-        if (isset($request->all()['questionAttachmentOptions'])) {
-            return true;
-        }
-
-        return false;
+        return (isset($request->all()['questionAttachmentOptions']));
     }
 
-    public function isDirtyAnswerOptions($totalData)
+    public function isDirtyAnswerOptions($totalData): bool
     {
         if (!array_key_exists('answers', $totalData)) {
             return false;
         }
+
         switch ($this->type) {
             case 'MatchingQuestion':
                 $requestAnswers = $this->convertMatchingAnswers($totalData['answers']);
-                try {
-                    $question = MatchingQuestion::findOrFail($this->id);
-                    $answers = $this->convertMatchingAnswersFromQuestion($question);
-                    if ($requestAnswers == $answers) {
-                        return false;
-                    }
-                } catch (Exception $e) {
-                    return true;
-                }
-                return true;
+                $questionClass = MatchingQuestion::class;
                 break;
             case 'RankingQuestion':
                 $requestAnswers = $this->trimAnswerOptions($totalData['answers']);
-                try {
-                    $question = RankingQuestion::findOrFail($this->id);
-                    $answers = $this->convertRankingAnswersFromQuestion($question);
-                    if ($requestAnswers == $answers) {
-                        return false;
-                    }
-                } catch (Exception $e) {
-                    return true;
-                }
-                return true;
+                $questionClass = RankingQuestion::class;
                 break;
             case 'MultipleChoiceQuestion':
                 $requestAnswers = $this->trimAnswerOptions($totalData['answers']);
-                try {
-                    $question = MultipleChoiceQuestion::findOrFail($this->id);
-                    $answers = $this->convertMultipleChoiceAnswersFromQuestion($question);
-                    if ($requestAnswers == $answers) {
-                        return false;
-                    }
-                } catch (Exception $e) {
-                    return true;
-                }
-                return true;
+                $questionClass = MultipleChoiceQuestion::class;
                 break;
             default:
                 return false;
-                break;
+        }
+
+        try {
+            $question = $questionClass::findOrFail($this->id);
+            $answers = $this->convertAnswersFromQuestion($question, $this->type);
+            return $requestAnswers != $answers;
+        } catch (Exception $e) {
+            return true;
         }
     }
 
@@ -652,13 +597,7 @@ class Question extends MtiBaseModel
 
     public function isUsed($ignoreRelationTo)
     {
-
-
-        //$uses = Question::withTrashed()->where('derived_question_id', $this->getKey())->count();
-
         $uses = (new Question)->withTrashed()->where('derived_question_id', $this->getKey())->count();
-        //Log::debug('Is used for question #'.$this->getKey());
-        //Log::debug('Derived Questions = '.$uses);
 
         $testQuestions = TestQuestion::withTrashed()->where('question_id', $this->getKey());
 
@@ -672,14 +611,12 @@ class Question extends MtiBaseModel
         if ($ignoreRelationTo instanceof Answer) {
             $answers->where($ignoreRelationTo->getKeyName(), '!=', $ignoreRelationTo->getKey());
         }
-        //Log::debug('Answers = '.$answers->count());
         $uses += $answers->count();
 
         $answerParentQuestions = AnswerParentQuestion::withTrashed()->where('group_question_id', $this->getKey());
         if ($ignoreRelationTo instanceof Answer) {
             $answerParentQuestions->where('answer_id', '!=', $ignoreRelationTo->getKey());
         }
-        //Log::debug('Answer Parent Questions = '.$answerParentQuestions->count());
         $uses += $answerParentQuestions->count();
 
         $groupQuestionQuestions = GroupQuestionQuestion::withTrashed()->where('question_id', $this->getKey());
@@ -698,13 +635,7 @@ class Question extends MtiBaseModel
 
     public function isUsedInGroupQuestion($groupQuestionQuestionManager, $groupQuestionPivot)
     {
-        if ($groupQuestionQuestionManager->isUsed()) {
-            return true;
-        }
-        if ($this->isUsed($groupQuestionPivot)) {
-            return true;
-        }
-        return false;
+        return $groupQuestionQuestionManager->isUsed() || $this->isUsed($groupQuestionPivot);
     }
 
     public function scopeDifferentScenariosAndDemo($query, $filters = [])
@@ -912,6 +843,7 @@ class Question extends MtiBaseModel
         return $returnArray;
     }
 
+//    @TODO refactor this method to MatchingQuestion class?
     private function convertMatchingAnswersFromQuestion($question)
     {
         $returnArray = [];
@@ -1019,7 +951,7 @@ class Question extends MtiBaseModel
                 ->question
                 ->getKey();
         }
-        return $groupQuestions->first()->groupQuestion->getKey();
+        return $groupQuestions->first()?->groupQuestion->getKey();
     }
 
     public function getTotalDataForTestQuestionUpdate($request)
@@ -1634,5 +1566,17 @@ class Question extends MtiBaseModel
     public function isFullyAnswered(Answer $answer): bool
     {
         return (bool)$answer->done;
+    }
+
+    public function getGroupQuestion(TestTake $testTake) : false|GroupQuestion
+    {
+        return GroupQuestion::select('group_questions.*')
+                             ->join('group_question_questions', 'group_questions.id', '=', 'group_question_questions.group_question_id')
+                             ->join('test_questions', 'test_questions.question_id', '=', 'group_questions.id')
+                             ->join('tests', 'tests.id', '=', 'test_questions.test_id')
+                             ->join('test_takes', 'test_takes.test_id', '=', 'tests.id')
+                             ->where('test_takes.id', $testTake->getKey())
+                             ->where('group_question_questions.question_id', $this->getKey())
+                             ->first() ?? false;
     }
 }

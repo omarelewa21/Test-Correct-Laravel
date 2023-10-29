@@ -21,15 +21,16 @@
                        x-on:click="first()"
                        x-bind:disabled="current === firstValue"
         >
-            <x-icon.arrow-last class="inline-flex rotate-180 -top-0 relative" />
+            <x-icon.arrow-last class="inline-flex rotate-180 -top-0 relative"/>
         </x-button.text>
         <x-button.text :white="true"
                        class="previous |"
                        size="sm"
                        x-on:click="previous()"
                        x-bind:disabled="current === firstValue"
+                       id="btn_{{ $methodCall }}_previous"
         >
-            <x-icon.chevron class="inline-flex rotate-180 -top-0 relative" />
+            <x-icon.chevron class="inline-flex rotate-180 -top-0 relative"/>
         </x-button.text>
     </div>
     <div class="flex gap-1 items-center">
@@ -37,7 +38,7 @@
               x-bind:class="current >= 10 ? 'pl-2' : 'pl-2'"
         >
             @if($iconName)
-                <x-dynamic-component component="icon.{{ $iconName }}" />
+                <x-dynamic-component component="icon.{{ $iconName }}"/>
             @endif
             <span class="inline-flex" x-text="current"></span>
         </span>
@@ -50,8 +51,9 @@
                        size="sm"
                        x-on:click="next()"
                        x-bind:disabled="current === lastValue"
+                       id="btn_{{ $methodCall }}_next"
         >
-            <x-icon.chevron class="inline-flex top-0 relative" />
+            <x-icon.chevron class="inline-flex top-0 relative"/>
         </x-button.text>
         <x-button.text :white="true"
                        class="last |"
@@ -59,7 +61,7 @@
                        x-on:click="last()"
                        x-bind:disabled="current === lastValue"
         >
-            <x-icon.arrow-last class="inline-flex top-0 relative" />
+            <x-icon.arrow-last class="inline-flex top-0 relative"/>
         </x-button.text>
     </div>
 </div>

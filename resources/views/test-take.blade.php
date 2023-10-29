@@ -182,6 +182,12 @@
                 addTitleToImages('.test-take-questions',"{{__('Beschrijving afbeelding niet beschikbaar')}}");
             });
         </script>
+
     @endpush
+    @if($allowMrChadd)
+        @pushonce('scripts')
+            <script defer src="https://c.mrchadd.nl/embed.js"></script>
+        @endpushonce
+    @endif
 </x-layouts.app>
 

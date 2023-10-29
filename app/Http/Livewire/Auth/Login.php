@@ -21,6 +21,7 @@ use tcCore\Http\Requests\Request;
 use tcCore\Jobs\SendForgotPasswordMail;
 use tcCore\Rules\EmailDns;
 use tcCore\Rules\EmailImproved;
+use tcCore\Rules\NistPasswordRules;
 use tcCore\Rules\TrueFalseRule;
 use tcCore\SamlMessage;
 use tcCore\Services\EmailValidatorService;
@@ -104,7 +105,7 @@ class Login extends TCComponent
     public $studentDownloadUrl = 'https://www.test-correct.nl/student/';
 
     public $errorKeys = [];
-
+    protected $preventFieldTransformation = ['password'];
     protected $listeners = ['open-auth-modal' => 'openAuthModal', 'password_reset' => 'passwordReset'];
 
     protected function getRules()
@@ -220,7 +221,7 @@ class Login extends TCComponent
         $testCodeHelper = new TestTakeCodeHelper();
 
         $testTakeCode = $testCodeHelper->getTestTakeCodeIfExists($this->testTakeCode);
-        if (!$testTakeCode || !$testTakeCode->testTake) {
+        if (!$testTakeCode || !$testTakeCode->testTake || $testTakeCode->testTake->time_start != Carbon::today()) {
             $this->errorKeys[] = 'no_test_found_with_code';
             return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
         }

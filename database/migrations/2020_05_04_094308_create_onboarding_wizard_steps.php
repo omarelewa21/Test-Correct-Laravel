@@ -81,7 +81,7 @@ class CreateOnboardingWizardSteps extends Migration
                         'title' => 'Test-Correct in vogelvlucht.',
                         'action'         => OnboardingWizard::VIDEO,
                         'action_content' => 'https://www.youtube.com/embed/Wy5MFtTeCZ0',
-                        'knowledge_base_action' => 'https://support.test-correct.nl/knowledge/',
+                        'knowledge_base_action' => config('app.knowledge_bank_url'),
                     ],
                     [
                         'title'          => 'Klik zelf door Test-Correct.',
@@ -92,7 +92,7 @@ class CreateOnboardingWizardSteps extends Migration
                         'title'          => 'We hebben een demotoets voor je klaargezet!',
                         'action'         => OnboardingWizard::VIDEO,
                         'action_content' => 'https://www.youtube.com/embed/0fhZg050CtY',
-                        'knowledge_base_action' => 'https://support.test-correct.nl/knowledge/itembank',
+                        'knowledge_base_action' => config('app.knowledge_bank_url').'/itembank',
                     ],
                     [
                         'title'          => 'Bekijk zelf de demotoets.',
@@ -116,7 +116,7 @@ class CreateOnboardingWizardSteps extends Migration
                         'title'          => 'Hoe werkt het inplannen van een toets?',
                         'action'         => OnboardingWizard::VIDEO,
                         'action_content' => 'https://www.youtube.com/embed/NbosbKEbDm4',
-                        'knowledge_base_action' => 'https://support.test-correct.nl/knowledge/inplannen',
+                        'knowledge_base_action' => config('app.knowledge_bank_url').'/inplannen',
                     ],
                     [
                         'title'          => 'Plan zelf een toets in',
@@ -127,7 +127,7 @@ class CreateOnboardingWizardSteps extends Migration
                         'title'          => 'Hoe kun je een toets afnemen en surveilleren?',
                         'action'         => OnboardingWizard::VIDEO,
                         'action_content' => 'https://www.youtube.com/embed/aNYg5MxnKpQ',
-                        'knowledge_base_action' => 'https://support.test-correct.nl/knowledge/surveilleren-van-toetsen',
+                        'knowledge_base_action' => config('app.knowledge_bank_url').'/surveilleren-van-toetsen',
                     ],
                     [
                         'title'          => 'Je eerste toets afnemen en surveilleren.',
@@ -151,7 +151,7 @@ class CreateOnboardingWizardSteps extends Migration
                         'title'          => 'Hoe kijk je een toets na in Test-Correct?',
                         'action'         => OnboardingWizard::VIDEO,
                         'action_content' => 'https://www.youtube.com/embed/fTe8E3MT5Rc',
-                        'knowledge_base_action' => 'https://support.test-correct.nl/knowledge/toets-nakijken',
+                        'knowledge_base_action' => config('app.knowledge_bank_url').'/toets-nakijken',
                     ],
                     [
                         'title'          => 'Kijk je eerste toets na.',
@@ -162,7 +162,7 @@ class CreateOnboardingWizardSteps extends Migration
                         'title'          => 'Hoe normeer en becijfer je toetsen in Test-Correct?',
                         'action'         => OnboardingWizard::VIDEO,
                         'action_content' => 'https://www.youtube.com/embed/JooBFbN6jDQ',
-                        'knowledge_base_action' => 'https://support.test-correct.nl/knowledge/normeren',
+                        'knowledge_base_action' => config('app.knowledge_bank_url').'/normeren',
                     ],
                     [
                         'title'          => 'Normeer en becijfer zelf een toets.',
@@ -186,7 +186,7 @@ class CreateOnboardingWizardSteps extends Migration
                         'title'          => 'Wat is CO-Learning?',
                         'action'         => OnboardingWizard::VIDEO,
                         'action_content' => 'https://www.youtube.com/embed/IE8pfZz5ZqM',
-                        'knowledge_base_action' => 'https://support.test-correct.nl/knowledge/co-learning-module',
+                        'knowledge_base_action' => config('app.knowledge_bank_url').'/co-learning-module',
                     ],
                     [
                         'title'          => 'Zelf aan de slag met CO-Learning.',
@@ -210,7 +210,7 @@ class CreateOnboardingWizardSteps extends Migration
                         'title'          => 'Hoe houd je zicht op de voortgang van je studenten?',
                         'action'         => OnboardingWizard::VIDEO,
                         'action_content' => 'https://www.youtube.com/embed/-S2utWIORoo',
-                        'knowledge_base_action' => 'https://support.test-correct.nl/knowledge/analyse-1',
+                        'knowledge_base_action' => config('app.knowledge_bank_url').'/analyse-1',
                     ],
                     [
                         'title'          => 'Klik hier als je alle stappen hebt gedaan',
@@ -229,13 +229,13 @@ class CreateOnboardingWizardSteps extends Migration
                         'title'          => 'Hoe kun je je klassen uploaden?',
                         'action'         => OnboardingWizard::VIDEO,
                         'action_content' => 'https://www.youtube.com/embed/Y_yi0H4vGlA',
-                        'knowledge_base_action' => 'https://support.test-correct.nl/knowledge/klas-uploaden',
+                        'knowledge_base_action' => config('app.knowledge_bank_url').'/klas-uploaden',
                     ],
                     [
                         'title'          => 'Hoe kun je je bestaande toetsen uploaden?',
                         'action'         => OnboardingWizard::VIDEO,
                         'action_content' => 'https://www.youtube.com/embed/-AQyzBffjKs',
-                        'knowledge_base_action' => 'https://support.test-correct.nl/knowledge/toets-uploaden',
+                        'knowledge_base_action' => config('app.knowledge_bank_url').'/toets-uploaden',
                     ],
                     [
                         'title'          => 'Klik hier als je alle stappen hebt gedaan',
@@ -254,7 +254,7 @@ class CreateOnboardingWizardSteps extends Migration
                         'title'          => 'Hoe kun je zelf toetsen construeren? (deel 1)',
                         'action'         => OnboardingWizard::VIDEO,
                         'action_content' => 'https://www.youtube.com/embed/lh7gWGZ4pzE',
-                        'knowledge_base_action' => 'https://support.test-correct.nl/knowledge/starten-met-toets-construeren',
+                        'knowledge_base_action' => config('app.knowledge_bank_url').'/starten-met-toets-construeren',
                     ],
                     [
                         'title'          => 'Hoe kun je zelf toetsen construeren? (deel 2)',

@@ -1,4 +1,5 @@
 <?php
+
 return [
     'Inplannen'                                                                                => 'Schedule',
     'Naam toets of opdracht'                                                                   => 'Name test or assignment',
@@ -51,7 +52,7 @@ return [
     'Instellingen'                                                                             => 'Settings',
     'Construeren'                                                                              => 'Construct',
     'Voorbeeld'                                                                                => 'Preview',
-    'Exporteren naar PDF'                                                                                => 'Export to PDF',
+    'Exporteren naar PDF'                                                                      => 'Export to PDF',
     'Kopie maken'                                                                              => 'Create duplicate',
     'Je hebt het vak, niveau en/of leerjaar van de toets aangepast.'                           => 'You have changed the subject level or level year for this this. Would you like to update the current test or would you like the changes to be saved in a duplicate.',
     'Kies een of meerdere onderdelen'                                                          => 'Choose one aspect of the test to be exported.',
@@ -83,5 +84,9 @@ return [
     'not_linked_to_education_levels'                                                           => 'Test constructing not possible because you are not linked to education levels.',
     'Exporteer naar RTTI Online'                                                               => 'Export to RTTI Online',
     'exporteer_naar_rtti_online_tooltip'                                                       => 'Be aware that norming and grading takes place in RTTI-Online when this is on',
-    'allow_wsc'                                                                       => 'Allow spellchecker for students',
+    'allow_wsc'                                                                                => 'Allow spellchecker for students',
+    'RTTI Online export maken'                                                                 => 'Create RTTI Online export',
+    'enable_mr_chadd'                                                                          => 'Enable Mr. Chadd for students',
+    'enable_mr_chadd_tt'                                                                       => 'Enable students to use Mr. Chadd when doing the assignment',
+
 ];

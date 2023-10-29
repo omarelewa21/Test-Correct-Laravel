@@ -12,9 +12,9 @@ class AnswerRating extends BaseModel
 
     use SoftDeletes;
 
-    const TYPE_STUDENT = 'STUDENT';
-    const TYPE_TEACHER = 'TEACHER';
-    const TYPE_SYSTEM = 'SYSTEM';
+    public const TYPE_STUDENT = 'STUDENT';
+    public const TYPE_TEACHER = 'TEACHER';
+    public const TYPE_SYSTEM = 'SYSTEM';
 
     /**
      * The database table used by the model.
@@ -114,24 +114,29 @@ class AnswerRating extends BaseModel
                         $query->where('test_take_id', '=', $value);
                     }
                     break;
+                case 'discussing_at_test_participant_id':
+                    //this case continues with the code in the next case
+                    $testParticipant = TestParticipant::whereUuid($value)->first();
+
+                    $testTake = $testParticipant->testTake;
+                    $discussingQuestion = $testParticipant->discussingQuestion;
                 case 'discussing_at_test_take_id':
-                    $value = TestTake::whereUuid($value)->first()->getKey();
+                    //if the case above is executed, the variables $testTakeId and $questionId are already set, else set them here
+                    $testTake ??= TestTake::whereUuid($value)->first();
+                    $testTakeId = $testTake->getKey();
+                    $discussingQuestion ??= $testTake->discussingQuestion;
+                    $questionId = $discussingQuestion->getKey();
 
-                    $query->where('test_take_id', '=', $value);
+                    $query->where('test_take_id', '=', $testTakeId);
 
-                    $parentRows = DiscussingParentQuestion::where('test_take_id', $value)->orderBy('level')->get();
-                    $parents = null;
-                    foreach ($parentRows as $answerParentQuestion) {
-                        if ($parents !== null) {
-                            $parents .= '.';
-                        }
-                        $parents .= $answerParentQuestion->getAttribute('group_question_id');
+                    $groupQuestionId = $discussingQuestion->getGroupQuestionIdByTest($testTake->test->getKey());
+                    if($groupQuestionId !== null) {
+                        $groupQuestionId = (string)$groupQuestionId; //answerParents is also a string or null
                     }
 
-                    $questionId = TestTake::where('id', $value)->value('discussing_question_id');
-                    $answers = Answer::whereIn('test_participant_id', function ($query) use ($value) {
+                    $answers = Answer::whereIn('test_participant_id', function ($query) use ($testTakeId) {
                         $testParticipant = new TestParticipant();
-                        $query->select($testParticipant->getKeyName())->from($testParticipant->getTable())->where('test_take_id', $value);
+                        $query->select($testParticipant->getKeyName())->from($testParticipant->getTable())->where('test_take_id', $testTakeId);
                     })->where('question_id', $questionId)->with('answerParentQuestions')->get();
 
                     $answerIds = array();
@@ -144,12 +149,10 @@ class AnswerRating extends BaseModel
                             }
                             $answerParents .= $answerParentQuestion->getAttribute('group_question_id');
                         }
-
-                        if ($parents == $answerParents) {
+                        if ($groupQuestionId == $answerParents) {
                             $answerIds[] = $answer->getKey();
                         }
                     }
-
                     $query->whereIn('answer_id', $answerIds);
                     break;
                 case 'type':

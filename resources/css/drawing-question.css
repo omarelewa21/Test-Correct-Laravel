@@ -29,7 +29,7 @@
     --cursor-tools-default: crosshair;
     --cursor-move-shape: grab;
     --cursor-moving-shape: grabbing;
-    --cursor-freehand: url(/img/cursor-freehand.svg), crosshair;
+    --cursor-freehand: crosshair;
 
     /* Sidebar parameters */
     --open-sidebar-min-width: 14.5rem;
@@ -171,7 +171,6 @@
     outline: none;
     color: var(--all-Base);
     font: inherit;
-    width: auto;
 }
 
 
@@ -211,7 +210,7 @@
     width: 2.5rem;
     height: 2.5rem;
     margin-right: 0.5rem;
-    border-radius: 0.5rem;
+    border-radius: 0.4rem;
 }
 
 #drawing-tool .color-pallete:hover {
@@ -231,13 +230,13 @@
     outline-offset: 2px;
 }
 
-#drawing-tool input[type=button] {
+[id*="fill-color"], [id*="stroke-color"], #text-color {
     width: 100%;
     height: 100%;
-    border-radius: 0.5rem;
+    border-radius: 0.4rem;
 }
 
-#drawing-tool #stroke-color {
+#drawing-tool [id*="stroke-color"] {
     border: 10px solid black;
     background-color: white;
     color: white;
@@ -249,18 +248,16 @@
     color: blue;
 }
 
-#drawing-tool #line-color {
+#drawing-tool [id*="pen-color"] {
     width: 2.5rem;
     height: 2.5rem;
     border: var(--default-border);
-    border-radius: 0.5rem;
-    background: var(--all-OffWhite);
 }
 
-#drawing-tool #line-color {
+#drawing-tool [id*="pen-color"] {
     --height: 0.5rem;
 }
-#drawing-tool #line-color {
+#drawing-tool [id*="pen-color"] {
     height: var(--height);
     transform: rotate(-45deg);
     margin: calc(50% - (var(--height) / 2)) 0;

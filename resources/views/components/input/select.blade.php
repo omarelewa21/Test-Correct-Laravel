@@ -16,10 +16,11 @@
      x-bind:aria-expanded="singleSelectOpen ? 'true' : 'false'"
         {{ $attributes->except(['id','class', 'wire:model']) }}
 >
-    <span class="selected"
+    <span class="selected truncate"
           x-bind:class="['', null].includes(value) ? 'text-midgrey italic' : 'text-sysbase'"
-          data-select-text="{{ __('test-take.Selecteer...') }}"
+          x-bind:title="selectedText"
           x-text="selectedText"
+          data-select-text="{{ __('test-take.Selecteer...') }}"
     ></span>
     <x-icon.chevron-small
             class="absolute right-5 transform transition-transform pointer-events-none group-hover/select:text-primary"

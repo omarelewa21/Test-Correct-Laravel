@@ -23,12 +23,12 @@
                     <x-input.text wire:model.lazy="newPassword" type="password" />
                 </x-input.group>
                 <x-input.group label="{{ __('auth.new_password_repeat')}}" class="flex-1 pb-2">
-                    @error('newPasswordRepeat')
+                    @error('newPassword_confirmation')
                     <div class="validate-red text-sm">
                         {{ $message }}
                     </div>
                     @enderror
-                    <x-input.text wire:model.lazy="newPasswordRepeat" type="password" autofocus />
+                    <x-input.text wire:model.lazy="newPassword_confirmation" type="password" autofocus />
                 </x-input.group>
                 <div class="mid-grey w-1/2 md:w-auto order-2 md:order-3 pl-2 h-16 overflow-visible md:h-auto md:overflow-auto requirement-font-size">
                     <div class="validate-{{$this->minCharRule}}">

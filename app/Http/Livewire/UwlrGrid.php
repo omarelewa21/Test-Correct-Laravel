@@ -187,8 +187,14 @@ class UwlrGrid extends TCComponent
                         $samengesteldeGroepenKeys = $this->getSamengesteldeGroepenKeys($r[$k]);
 
                         $samengesteldeGroepen = $samengesteldeGroepCollection->filter(function($groep) use ($samengesteldeGroepenKeys) {
+                            if(is_object($groep)){
+                                $groep = (array) $groep;
+                            }
                             return in_array($groep['key'],  $samengesteldeGroepenKeys);
                         })->map(function($groep){
+                            if(is_object($groep)){
+                                $groep = (array) $groep;
+                            }
                             return $groep['naam'];
                         });
 
@@ -199,8 +205,14 @@ class UwlrGrid extends TCComponent
 
                         if($this->hasSamengesteldeGroepInGroepen($r[$k])){
                             $groepen = $samengesteldeGroepCollection->filter(function ($groep) use ($groepenKeys) {
+                                if(is_object($groep)){
+                                    $groep = (array) $groep;
+                                }
                                 return in_array($groep['key'], $groepenKeys);
                             })->map(function ($groep) {
+                                if(is_object($groep)){
+                                    $groep = (array) $groep;
+                                }
                                 return $groep['naam'];
                             });
 
@@ -209,8 +221,14 @@ class UwlrGrid extends TCComponent
 
                         } else {
                             $groepen = $groepCollection->filter(function ($groep) use ($groepenKeys) {
+                                if(is_object($groep)){
+                                    $groep = (array) $groep;
+                                }
                                 return in_array($groep['key'], $groepenKeys);
                             })->map(function ($groep) {
+                                if(is_object($groep)){
+                                    $groep = (array) $groep;
+                                }
                                 return $groep['naam'];
                             });
 

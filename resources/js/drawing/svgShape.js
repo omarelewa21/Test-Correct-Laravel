@@ -1,6 +1,6 @@
-import {pixelsPerCentimeter, elementClassNameForType, resizableSvgShapes} from "./constants.js";
+import { pixelsPerCentimeter, elementClassNameForType, resizableSvgShapes } from "./constants.js";
 import * as svgElement from "./svgElement.js";
-import {htmlElement} from "./htmlElement.js";
+import { htmlElement } from "./htmlElement.js";
 
 /**
  * @typedef propObj
@@ -25,8 +25,8 @@ class svgShape {
         this.shapeId = shapeId;
         this.type = type;
         this.props = props ?? {
-            main: {class: "main"},
-            group: {class: "shape draggable", id: `${type}-${shapeId}`},
+            main: { class: "main" },
+            group: { class: "shape draggable", id: `${type}-${shapeId}` }
         };
         this.Canvas = Canvas;
         this.drawingApp = drawingApp;
@@ -37,7 +37,7 @@ class svgShape {
         this.parent = parent;
         //construct shape group
         this.props.group.class = "shape draggable";
-        if(this.shapeShouldBeResizable()) this.props.group.class += " resizable";
+        if (this.shapeShouldBeResizable()) this.props.group.class += " resizable";
         this.props.group.id = `${this.type}-${this.shapeId}`;
         this.shapeGroup = new svgElement.Group(this.props.group);
         // construct main element
@@ -79,7 +79,7 @@ class svgShape {
                 "r": "8px",
                 "stroke": "var(--teacher-Primary)",
                 "stroke-width": "2",
-                "fill": "var(--all-OffWhite)",
+                "fill": "var(--all-OffWhite)"
             }),
             new svgElement.Circle({
                 "class": "corner side-sw",
@@ -88,7 +88,7 @@ class svgShape {
                 "r": "8px",
                 "stroke": "var(--teacher-Primary)",
                 "stroke-width": "2",
-                "fill": "var(--all-OffWhite)",
+                "fill": "var(--all-OffWhite)"
             }),
             new svgElement.Circle({
                 "class": "corner side-se",
@@ -97,7 +97,7 @@ class svgShape {
                 "r": "8px",
                 "stroke": "var(--teacher-Primary)",
                 "stroke-width": "2",
-                "fill": "var(--all-OffWhite)",
+                "fill": "var(--all-OffWhite)"
             }),
             new svgElement.Circle({
                 "class": "corner side-ne",
@@ -106,14 +106,14 @@ class svgShape {
                 "r": "8px",
                 "stroke": "var(--teacher-Primary)",
                 "stroke-width": "2",
-                "fill": "var(--all-OffWhite)",
-            }),
+                "fill": "var(--all-OffWhite)"
+            })
         ];
     }
 
     makeBorderElement() {
         let bbox = this.mainElement.getBoundingBox();
-        const borderColor = (this.isQuestionLayer() && this.drawingApp.isTeacher()) ? '--purple-mid-dark' : '--primary';
+        const borderColor = (this.isQuestionLayer() && this.drawingApp.isTeacher()) ? "--purple-mid-dark" : "--primary";
         return new svgElement.Rectangle({
             "class": "border",
             "x": bbox.x - this.offset,
@@ -124,7 +124,7 @@ class svgShape {
             "stroke-width": "3",
             "stroke-dasharray": "10",
             "fill": "red",
-            "fill-opacity": "0",
+            "fill-opacity": "0"
         });
     }
 
@@ -133,7 +133,7 @@ class svgShape {
     }
 
     isQuestionLayer() {
-        return this.Canvas.layerID2Key(this.parent.id) === 'question';
+        return this.Canvas.layerID2Key(this.parent.id) === "question";
     }
 
     updateHelperElements() {
@@ -175,10 +175,10 @@ class svgShape {
     }
 
     showBorderElement() {
-        if (this.elementBelongsToCurrentLayer() && this.drawingApp.currentToolIs('drag')) {
+        if (this.elementBelongsToCurrentLayer() && this.drawingApp.currentToolIs("drag")) {
             this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
-            this.borderElement.setAttribute("stroke-dasharray", '4,5');
-            this.borderElement.setAttribute("opacity", '.5');
+            this.borderElement.setAttribute("stroke-dasharray", "4,5");
+            this.borderElement.setAttribute("opacity", ".5");
         }
     }
 
@@ -187,7 +187,7 @@ class svgShape {
     }
 
     showCornerElements() {
-        if (this.elementBelongsToCurrentLayer() && this.drawingApp.currentToolIs('drag')) {
+        if (this.elementBelongsToCurrentLayer() && this.drawingApp.currentToolIs("drag")) {
             this.cornerElements.forEach((cornerElement) => {
                 cornerElement.show();
             });
@@ -202,7 +202,7 @@ class svgShape {
 
     hideBorderElement() {
         this.borderElement.setAttribute("stroke", "none");
-        this.borderElement.setAttribute("opacity", '');
+        this.borderElement.setAttribute("opacity", "");
     }
 
     hideCornerElements() {
@@ -345,33 +345,24 @@ class svgShape {
     }
 
     showExplainerForLayer() {
-        this.sidebarEntry.entryContainer.parentElement.querySelector('.explainer').style.display = 'inline-block';
+        this.sidebarEntry.entryContainer.parentElement.querySelector(".explainer").style.display = "inline-block";
     }
 
-    updateFillColor() {
-        this.mainElement.setAttribute("fill", this.UI.fillColor.value);
+    meetsMinRequirements() {
+        return true;
     }
 
-    updateOpacity() {
-        const opacity = parseFloat(this.UI.fillOpacityNumber.value / 100);
-        this.mainElement.setAttribute("fill-opacity", opacity);
+    redrawOnSvg() {
+        if (this.parent.querySelector(`#${this.shapeGroup.element.id}`)) {
+            this.handleShapeNodes();
+            return;
+        }
+
+        this.parent.append(this.shapeGroup.element);
+        this.handleShapeNodes();
     }
 
-    updateStrokeColor() {
-        this.mainElement.setAttribute("stroke", this.UI.strokeColor.value);
-    }
-
-    updateLineColor() {
-        this.mainElement.setAttribute("stroke", this.UI.lineColor.value);
-        if(this.type === 'line') this.updateMarkerColor();
-    }
-
-    updateStrokeWidth() {
-        this.mainElement.setAttribute("stroke-width", this.UI.strokeWidth.value);
-    }
-
-    updateLineWidth() {
-        this.mainElement.setAttribute("stroke-width", this.UI.lineWidth.value);
+    handleShapeNodes() {
     }
 }
 
@@ -400,26 +391,63 @@ export class Rectangle extends svgShape {
 
     setFillColorOnEdit() {
         const fillColor = this.mainElement.getAttribute("fill");
-        const input = this.UI.fillColor;
+        const input = this.UI.fillColorRect;
         input.value = fillColor;
         input.style.cssText = `background-color: ${fillColor}; color: ${fillColor};`;
     }
 
     setStrokeColorOnEdit() {
         const strokeColor = this.mainElement.getAttribute("stroke");
-        const input = this.UI.strokeColor;
+        const input = this.UI.strokeColorRect;
         input.value = strokeColor;
         input.style.cssText = `border-color: ${strokeColor}`;
     }
 
     setOpacityInputValueOnEdit() {
-        const input = this.UI.fillOpacityNumber;
+        const input = this.UI.fillOpacityNumberRect;
         input.value = this.mainElement.getAttribute("fill-opacity") * 100;
-        input.dispatchEvent(new Event('input'));
+        input.dispatchEvent(new Event("input"));
     }
 
     setStrokeWidthOnEdit() {
-        this.UI.strokeWidth.value = this.mainElement.getAttribute("stroke-width");
+        this.UI.strokeWidthRect.value = this.mainElement.getAttribute("stroke-width");
+    }
+
+    static getMainElementAttributes(cursorPosition, UI) {
+        return {
+            "x": cursorPosition.x,
+            "y": cursorPosition.y,
+            "width": 0,
+            "height": 0,
+            "fill":
+                UI.fillOpacityNumberRect.value === 0 ? "none" : UI.fillColorRect.value,
+            "fill-opacity": parseFloat(UI.fillOpacityNumberRect.value / 100),
+            "stroke": UI.strokeColorRect.value,
+            "stroke-width": UI.strokeWidthRect.value,
+            "opacity": 1
+        };
+    }
+
+    updateFillColor() {
+        this.mainElement.setAttribute("fill", this.UI.fillColorRect.value);
+    }
+
+    updateStrokeWidth() {
+        this.mainElement.setAttribute("stroke-width", this.UI.strokeWidthRect.value);
+    }
+
+    updateOpacity() {
+        const opacity = parseFloat(this.UI.fillOpacityNumberRect.value / 100);
+        this.mainElement.setAttribute("fill-opacity", opacity);
+    }
+
+    updateStrokeColor() {
+        this.mainElement.setAttribute("stroke", this.UI.strokeColorRect.value);
+    }
+
+    meetsMinRequirements() {
+        const bbox = this.mainElement.getBoundingBox();
+        return bbox.width >= 8 && bbox.height >= 8;
     }
 }
 
@@ -448,26 +476,61 @@ export class Circle extends svgShape {
 
     setFillColorOnEdit() {
         const fillColor = this.mainElement.getAttribute("fill");
-        const input = this.UI.fillColor;
+        const input = this.UI.fillColorCircle;
         input.value = fillColor;
         input.style.cssText = `background-color: ${fillColor}; color: ${fillColor};`;
     }
 
     setStrokeColorOnEdit() {
         const strokeColor = this.mainElement.getAttribute("stroke");
-        const input = this.UI.strokeColor;
+        const input = this.UI.strokeColorCircle;
         input.value = strokeColor;
         input.style.cssText = `border-color: ${strokeColor}`;
     }
 
     setOpacityInputValueOnEdit() {
-        const input = this.UI.fillOpacityNumber;
+        const input = this.UI.fillOpacityNumberCircle;
         input.value = this.mainElement.getAttribute("fill-opacity") * 100;
-        input.dispatchEvent(new Event('input'));
+        input.dispatchEvent(new Event("input"));
     }
 
     setStrokeWidthOnEdit() {
-        this.UI.strokeWidth.value = this.mainElement.getAttribute("stroke-width");
+        this.UI.strokeWidthCircle.value = this.mainElement.getAttribute("stroke-width");
+    }
+
+    static getMainElementAttributes(cursorPosition, UI) {
+        return {
+            "cx": cursorPosition.x,
+            "cy": cursorPosition.y,
+            "r": 0,
+            "fill":
+                UI.fillOpacityNumberCircle.value === 0 ? "none" : UI.fillColorCircle.value,
+            "fill-opacity": parseFloat(UI.fillOpacityNumberCircle.value / 100),
+            "stroke": UI.strokeColorCircle.value,
+            "stroke-width": UI.strokeWidthCircle.value,
+            "opacity": 1
+        };
+    }
+
+    updateFillColor() {
+        this.mainElement.setAttribute("fill", this.UI.fillColorCircle.value);
+    }
+
+    updateStrokeWidth() {
+        this.mainElement.setAttribute("stroke-width", this.UI.strokeWidthCircle.value);
+    }
+
+    updateOpacity() {
+        const opacity = parseFloat(this.UI.fillOpacityNumberCircle.value / 100);
+        this.mainElement.setAttribute("fill-opacity", opacity);
+    }
+
+    updateStrokeColor() {
+        this.mainElement.setAttribute("stroke", this.UI.strokeColorCircle.value);
+    }
+
+    meetsMinRequirements() {
+        return this.mainElement.getAttribute("r") >= 4;
     }
 }
 
@@ -485,13 +548,17 @@ export class Line extends svgShape {
      */
     constructor(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
         super(shapeId, "line", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
-        this.svgCanvas = drawingApp.params.root.querySelector('#svg-canvas');
+        this.svgCanvas = drawingApp.params.root.querySelector("#svg-canvas");
         this.makeOwnMarkerForThisShape();
+    }
+
+    editOwnMarkerForThisShape() {
+        this.makeOwnMarkerForThisShape(true);
     }
 
     makeOwnMarkerForThisShape(editing = false) {
         const markerType = editing ? this.getCurrentActiveMarkerType() : this.getMarkerType();
-        if(markerType === "no-endmarker"){
+        if (markerType === "no-endmarker") {
             this.marker?.remove();
             this.marker = null;
             this.props.main["marker-end"] = "url(#svg-no-endmarker-line)";
@@ -520,6 +587,18 @@ export class Line extends svgShape {
         newMarker.style[propertyToChange] = this.props.main.stroke;
         this.parent.appendChild(newMarker);
         this.marker = newMarker;
+    }
+
+    static getMainElementAttributes(cursorPosition, UI, params) {
+        return {
+            "x1": cursorPosition.x,
+            "y1": cursorPosition.y,
+            "x2": cursorPosition.x,
+            "y2": cursorPosition.y,
+            "marker-end": `url(#svg-${params.endmarkerType}-line)`,
+            "stroke": UI.penColorLine.value,
+            "stroke-width": UI.penWidthLine.value
+        };
     }
 
     getMarkerType() {
@@ -556,11 +635,7 @@ export class Line extends svgShape {
     updateMarkerColor() {
         if (!this.marker) return;
         const propertyToChange = this.getPropertyToChange(this.getMarkerType());
-        this.marker.style[propertyToChange] = this.UI.lineColor.value;
-    }
-
-    editOwnMarkerForThisShape() {
-        this.makeOwnMarkerForThisShape(true);
+        this.marker.style[propertyToChange] = this.UI.penColorLine.value;
     }
 
     setInputValuesOnEdit() {
@@ -571,19 +646,38 @@ export class Line extends svgShape {
 
     setLineColorOnEdit() {
         const lineColor = this.mainElement.getAttribute("stroke");
-        const input = this.UI.lineColor;
+        const input = this.UI.penColorLine;
         input.value = lineColor;
         input.style.cssText = `background-color: ${lineColor}; color: ${lineColor};`;
     }
 
     setLineWidthOnEdit() {
-        this.UI.lineWidth.value = this.mainElement.getAttribute("stroke-width");
+        this.UI.penWidthLine.value = this.mainElement.getAttribute("stroke-width");
     }
 
     setEndMarkerOnEdit() {
         const markerType = this.getMarkerType();
-        this.root.querySelector('.endmarker-type.active')?.classList.remove('active');
-        this.root.querySelector(`.endmarker-type#${markerType}`)?.classList.add('active');
+        this.root.querySelector(".endmarker-type.active")?.classList.remove("active");
+        this.root.querySelector(`.endmarker-type#${markerType}`)?.classList.add("active");
+    }
+
+    updatePenWidth() {
+        this.mainElement.setAttribute("stroke-width", this.UI.penWidthLine.value);
+    }
+
+    updatePenColor() {
+        this.mainElement.setAttribute("stroke", this.UI.penColorLine.value);
+        this.updateMarkerColor();
+    }
+
+    meetsMinRequirements() {
+        return this.mainElement.element.getTotalLength() >= 10;
+    }
+
+    handleShapeNodes() {
+        if (this?.marker && !this.parent.querySelector(`#${this.marker.id}`)) {
+            this.parent.append(this.marker);
+        }
     }
 }
 
@@ -602,8 +696,19 @@ export class Text extends svgShape {
     constructor(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
         super(shapeId, "text", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
         this.mainElement.setTextContent(this.props.main["data-textcontent"]);
-        this.mainElement.setFontFamily('Nunito');
+        this.mainElement.setFontFamily("Nunito");
         this.registerEditingEvents();
+    }
+
+    static getMainElementAttributes(cursorPosition, UI, params) {
+        return {
+            "x": cursorPosition.x,
+            "y": cursorPosition.y,
+            "fill": UI.textColor.value,
+            "stroke-width": 0,
+            "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
+            "style": `${params.boldText ? "font-weight: bold;" : ""} font-size: ${UI.textSize.value / 16}rem`
+        };
     }
 
     updateTextColor() {
@@ -611,7 +716,7 @@ export class Text extends svgShape {
     }
 
     updateBoldText() {
-        this.mainElement.element.style.fontWeight = this.drawingApp.params.boldText ? 'bold' : 'normal';
+        this.mainElement.element.style.fontWeight = this.drawingApp.params.boldText ? "bold" : "normal";
         this.updateHelperElements();
     }
 
@@ -629,7 +734,7 @@ export class Text extends svgShape {
 
         let canvasContainer = this.root.querySelector("#svg-canvas").parentElement;
         const fontSize = parseFloat(this.mainElement.element.style.fontSize);
-        const topOffset = fontSize * parseFloat(getComputedStyle(document.documentElement).fontSize)
+        const topOffset = fontSize * parseFloat(getComputedStyle(document.documentElement).fontSize);
         let textInput = new htmlElement("input", canvasContainer, {
             id: "add-text-input",
             type: "text",
@@ -645,20 +750,20 @@ export class Text extends svgShape {
                 transform-origin: bottom left;\
                 transform: scale(${this.Canvas.params.zoomFactor})`,
             autocomplete: "off",
-            spellcheck: "false",
+            spellcheck: "false"
         });
         textInput.focus();
 
         textInput.addEventListener("focusout", () => {
             const text = textInput.element.value;
             textInput.deleteElement();
-            textInput.element.style.display = 'none';
+            textInput.element.style.display = "none";
             if (text.length === 0) {
                 this.cancelConstruction();
                 return;
             }
             this.mainElement.setTextContent(text, false);
-            this.mainElement.setFontFamily('Nunito');
+            this.mainElement.setFontFamily("Nunito");
             this.updateBorderElement();
             this.updateCornerElements();
         });
@@ -667,61 +772,61 @@ export class Text extends svgShape {
     registerEditingEvents() {
         const element = this.shapeGroup.element;
 
-        ['touchenter', 'mouseenter'].forEach( evt =>
+        ["touchenter", "mouseenter"].forEach(evt =>
             element.addEventListener(evt,
                 () => {
-                    const activeTool = this.root.querySelector('[data-button-group=tool].active');
-                    const dragIsActive = activeTool.id.split('-')[0] === 'drag';
+                    const activeTool = this.root.querySelector("[data-button-group=tool].active");
+                    const dragIsActive = activeTool.id.split("-")[0] === "drag";
 
-                    if(element.classList.contains('editing') && !dragIsActive) {
+                    if (element.classList.contains("editing") && !dragIsActive) {
                         activateTextEditing(this);
                     } else {
                         returnTextToNormal(this, dragIsActive);
                     }
                 },
-            false)
+                false)
         );
 
-        ['touchleave', 'mouseleave'].forEach( evt => 
+        ["touchleave", "mouseleave"].forEach(evt =>
             element.addEventListener(evt, () => {
                 this.Canvas.params.editingTextInZone = false;
             }, false)
         );
 
-        ['touchstart', 'mousedown'].forEach( evt =>
+        ["touchstart", "mousedown"].forEach(evt =>
             element.addEventListener(evt, () => {
-                if(!element.classList.contains('editing') || !this.Canvas.params.editingTextInZone) return;
-    
+                if (!element.classList.contains("editing") || !this.Canvas.params.editingTextInZone) return;
+
                 handleEditTextClick(this);
-            },  false)
+            }, false)
         );
 
         function returnTextToNormal(thisClass, dragIsActive) {
-            if(dragIsActive){
-                element.style.cursor = 'move';
+            if (dragIsActive) {
+                element.style.cursor = "move";
             } else {
-                element.style.cursor = 'crosshair';
+                element.style.cursor = "crosshair";
             }
             thisClass.Canvas.params.editingTextInZone = false;
         }
 
         function activateTextEditing(thisClass) {
-            element.style.cursor = 'text';
+            element.style.cursor = "text";
             thisClass.Canvas.params.editingTextInZone = true;
         }
 
         function handleEditTextClick(thisClass) {
             const textElement = thisClass.mainElement.element;
             const coordinates = thisClass.drawingApp.convertCanvas2DomCoordinates({
-                x: textElement.getAttribute('x'),
-                y: textElement.getAttribute('y'),
+                x: textElement.getAttribute("x"),
+                y: textElement.getAttribute("y")
             });
 
             let textInput = makeTextInput(thisClass, textElement, coordinates);
 
             textInput.element.value = textElement.textContent;
-            textElement.textContent = '';
-            textElement.parentElement.style.display = 'none';
+            textElement.textContent = "";
+            textElement.parentElement.style.display = "none";
 
             textInput.focus();
 
@@ -731,7 +836,7 @@ export class Text extends svgShape {
         function makeTextInput(thisClass, textElement, coordinates) {
             let canvasContainer = thisClass.root.querySelector("#svg-canvas").parentElement;
             const fontSize = parseFloat(textElement.style.fontSize);
-            const topOffset = fontSize * parseFloat(getComputedStyle(document.documentElement).fontSize)
+            const topOffset = fontSize * parseFloat(getComputedStyle(document.documentElement).fontSize);
             const textInput = new htmlElement("input", canvasContainer, {
                 id: "edit-text-input",
                 type: "text",
@@ -747,20 +852,20 @@ export class Text extends svgShape {
                     transform-origin: bottom left;\
                     transform: scale(${thisClass.Canvas.params.zoomFactor})`,
                 autocomplete: "off",
-                spellcheck: "false",
+                spellcheck: "false"
             });
             return textInput;
         }
 
         function addInputEventListeners(thisClass, textInput, textElement) {
-            textInput.addEventListener('input', () => {
+            textInput.addEventListener("input", () => {
                 textInput.element.style.width = `${textInput.element.value.length + 1}ch`;
-            }, false)
+            }, false);
 
             textInput.addEventListener("focusout", () => {
                 const text = textInput.element.value;
                 textInput.deleteElement();
-                textInput.element.style.display = 'none';
+                textInput.element.style.display = "none";
                 if (text.length === 0) {
                     thisClass.cancelConstruction();
                     return;
@@ -768,7 +873,7 @@ export class Text extends svgShape {
                 textElement.textContent = text;
                 thisClass.updateBorderElement();
                 thisClass.updateCornerElements();
-                textElement.parentElement.style = '';
+                textElement.parentElement.style = "";
             });
         }
     }
@@ -792,20 +897,20 @@ export class Text extends svgShape {
     }
 
     setBoldTextOnEdit() {
-        const isBold = this.mainElement.element.style.fontWeight === 'bold';
+        const isBold = this.mainElement.element.style.fontWeight === "bold";
         this.drawingApp.params.boldText = this.UI.boldText.checked = isBold;
 
-        if(isBold){
-            this.UI.boldToggleButton.classList.add('active');
+        if (isBold) {
+            this.UI.boldToggleButton.classList.add("active");
         } else {
-            this.UI.boldToggleButton.classList.remove('active');
+            this.UI.boldToggleButton.classList.remove("active");
         }
     }
 
     setOpacityInputValueOnEdit() {
         const input = this.UI.elemOpacityNumber;
         input.value = this.mainElement.getAttribute("opacity") * 100;
-        input.dispatchEvent(new Event('input'));
+        input.dispatchEvent(new Event("input"));
     }
 }
 
@@ -827,8 +932,8 @@ export class Image extends svgShape {
 
     moveToCenter() {
         const bbox = this.mainElement.getBoundingBox();
-        this.mainElement.setX(-bbox.width / 2)
-        this.mainElement.setY(-bbox.height / 2)
+        this.mainElement.setX(-bbox.width / 2);
+        this.mainElement.setY(-bbox.height / 2);
     }
 }
 
@@ -846,6 +951,27 @@ export class Path extends svgShape {
      */
     constructor(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
         super(shapeId, "path", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+    }
+
+    static getMainElementAttributes(cursorPosition, UI) {
+        return {
+            "d": `M ${cursorPosition.x},${cursorPosition.y}`,
+            "fill": "none",
+            "stroke": UI.penColorFreehand.value,
+            "stroke-width": UI.penWidthFreehand.value
+        };
+    }
+
+    updatePenWidth() {
+        this.mainElement.setAttribute("stroke-width", this.UI.penWidthFreehand.value);
+    }
+
+    updatePenColor() {
+        this.mainElement.setAttribute("stroke", this.UI.penColorFreehand.value);
+    }
+
+    meetsMinRequirements() {
+        return this.mainElement.element.getTotalLength() >= 10;
     }
 }
 
@@ -918,7 +1044,7 @@ export class Grid extends Path {
     calculateDAttributeForOrigin(size) {
         const spokeLength = size * pixelsPerCentimeter / 2;
         return `M-${spokeLength},${0}l${spokeLength * 2
-        },0m-${spokeLength},-${spokeLength}l0,${spokeLength * 2}`
+        },0m-${spokeLength},-${spokeLength}l0,${spokeLength * 2}`;
     }
 
     calculateAmountOfGridLines(interval, bounds) {
@@ -926,7 +1052,7 @@ export class Grid extends Path {
             left: Math.trunc(Math.abs(bounds.left) / (interval)),
             right: Math.trunc(Math.abs(bounds.right) / (interval)),
             top: Math.trunc(Math.abs(bounds.top) / (interval)),
-            bottom: Math.trunc(Math.abs(bounds.bottom) / (interval)),
+            bottom: Math.trunc(Math.abs(bounds.bottom) / (interval))
         };
     }
 }
@@ -949,18 +1075,18 @@ export class Freehand extends Path {
     }
 
     setInputValuesOnEdit() {
-        this.setLineColorOnEdit();
-        this.setLineWidthOnEdit();
+        this.setPathColorOnEdit();
+        this.setPathWidthOnEdit();
     }
 
-    setLineColorOnEdit() {
-        const lineColor = this.mainElement.getAttribute("stroke");
-        const input = this.UI.lineColor;
-        input.value = lineColor;
-        input.style.cssText = `background-color: ${lineColor}; color: ${lineColor};`;
+    setPathColorOnEdit() {
+        const pathColor = this.mainElement.getAttribute("stroke");
+        const input = this.UI.penColorFreehand;
+        input.value = pathColor;
+        input.style.cssText = `background-color: ${pathColor}; color: ${pathColor};`;
     }
 
-    setLineWidthOnEdit() {
-        this.UI.lineWidth.value = this.mainElement.getAttribute("stroke-width");
+    setPathWidthOnEdit() {
+        this.UI.penWidthFreehand.value = this.mainElement.getAttribute("stroke-width");
     }
 }

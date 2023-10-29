@@ -244,7 +244,7 @@ Core = {
      * @param {boolean} firstLoad
      * @param {int} secondsBeforeTeacherLogout - default 15 min
      */
-    startUserLogoutInterval(firstLoad = false, secondsBeforeTeacherLogout = 15 * 60) {
+    startUserLogoutInterval(firstLoad = false, secondsBeforeTeacherLogout = 15 * 60  ) {
         let inactive = 0;
         document.addEventListener('mouseover', () => inactive = 0);
         document.addEventListener('keydown', () => inactive = 0);

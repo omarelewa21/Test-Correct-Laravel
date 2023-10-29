@@ -211,7 +211,7 @@
     </div>
     @if($this->showKnowledgebankAppNotificationModal)
         <x-modal.iframe wire:model="showKnowledgebankAppNotificationModal"
-                        url="https://support.test-correct.nl/knowledge/melding-verouderde-versie"
+                        url="{{ config('app.knowledge_bank_url') }}/melding-verouderde-versie"
                         maxWidth="7xl"
         />
     @endif

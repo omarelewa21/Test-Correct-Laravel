@@ -67,7 +67,7 @@
                         @endphp
                         @enderror
                         <x-drag-item id="mc-{{ $key }}-{{$answer->id}}"
-                                     class="flex ml-3 pr-2.5  mb-2 px-0 py-0 border-0 bg-system-white relative relative sub-item-with-connecting-line regular"
+                                     class="flex ml-3 pr-2.5  mb-2 px-0 py-0 border-0 bg-white relative relative sub-item-with-connecting-line regular"
                                      sortId="{{ $key }}={{ $answer->id }}"
                                      wireKey="option-{{ $key }}-{{ $answer->id }}"
                                      selid="drag-box"

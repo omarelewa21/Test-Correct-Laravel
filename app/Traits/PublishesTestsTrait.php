@@ -2,12 +2,16 @@
 
 namespace tcCore\Traits;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Auth;
+use RuntimeException;
 use tcCore\GroupQuestion;
 use tcCore\Http\Controllers\AuthorsController;
 use tcCore\QuestionAuthor;
 use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
+use tcCore\Services\ContentSourceFactory;
 use tcCore\TestAuthor;
+use tcCore\User;
 
 
 trait PublishesTestsTrait
@@ -64,12 +68,33 @@ trait PublishesTestsTrait
         if (!$this->publishesTestsCustomerCode) {
             return false;
         }
-        if (!$this->publishesTestslookupTable->has($this->publishesTestsCustomerCode)) {
+        $service = ContentSourceFactory::makeExternalWithCustomerCode($this->publishesTestsCustomerCode);
+        if (!$service) {
+            // the exam school does not have its own content provider;
+            // it might be dead code; Martin Folkerts 2023-09-06
+            if( config('custom.examschool_customercode')  === $this->publishesTestsCustomerCode) {
+                Bugsnag::notifyException(new RuntimeException('Dead code marker detected please delete the marker the code is not dead.'), function ($report) {
+                    $report->setMetaData([
+                        'code_context' => [
+                            'file' => __FILE__,
+                            'class' => __CLASS__,
+                            'method' => __METHOD__,
+                            'line' => __LINE__,
+                            'timestamp' => date(DATE_ATOM),
+                        ]
+                    ]);
+                });
+                $this->publishesTestsAbbreviation = 'EXAM';
+                $this->publishesTestsScope = 'exam';
+                $this->publishesTestsAuthor = User::where('username', config('custom.examschool_author'))->first();
+                return true;
+            }
+
             return false;
         }
-        $this->publishesTestsScope = $this->publishesTestslookupTable[$this->publishesTestsCustomerCode]['scope'];
-        $this->publishesTestsAbbreviation = $this->publishesTestslookupTable[$this->publishesTestsCustomerCode]['abbreviation'];
-        $this->publishesTestsAuthor = AuthorsController::getPublishableAuthorByCustomerCode($this->publishesTestsCustomerCode);
+        $this->publishesTestsScope = $service::getPrimaryScope();
+        $this->publishesTestsAbbreviation = $service::getPublishPrimaryAbbreviation();
+        $this->publishesTestsAuthor = $service::getSchoolAuthor();
 
         return true;
     }

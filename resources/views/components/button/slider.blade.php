@@ -6,7 +6,7 @@
 'disabledStyling' => false,
 'useNamedSlots' => false,
 'initialStatus' => null,
-'toggleValue' => 0,
+'toggleValue' => null,
 'identifier' => null,
 ])
 <span wire:ignore

@@ -60,7 +60,11 @@
                    'disabled' => $smartboardButtonDisabled,
                 ])
                 @disabled($smartboardButtonDisabled)
-                title="@lang($smartboardButtonActive ? 'co-learning.hide-from-smartboard' :'co-learning.show-on-smartboard')"
+                @if($smartboardButtonDisabled && $testParticipant->discussing_question_id !== $testParticipant->testTake->discussing_question_id)
+                    title="@lang('co-learning.student-at-different-question')"
+                @else
+                    title="@lang($smartboardButtonActive ? 'co-learning.hide-from-smartboard' :'co-learning.show-on-smartboard')"
+                @endif
         >
             <x-icon.on-smartboard-show />
         </button>

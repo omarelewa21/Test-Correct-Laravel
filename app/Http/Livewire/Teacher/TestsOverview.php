@@ -11,6 +11,15 @@ use tcCore\EducationLevel;
 use tcCore\Http\Livewire\OverviewComponent;
 use tcCore\Http\Helpers\Choices\Choice;
 use tcCore\Lib\Repositories\TaxonomyRepository;
+use tcCore\Services\ContentSource\CreathlonService;
+use tcCore\Services\ContentSource\FormidableService;
+use tcCore\Services\ContentSource\NationalItemBankService;
+use tcCore\Services\ContentSource\OlympiadeService;
+use tcCore\Services\ContentSource\PersonalService;
+use tcCore\Services\ContentSource\SchoolLocationService;
+use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
+use tcCore\Services\ContentSource\UmbrellaOrganizationService;
+use tcCore\Services\ContentSourceFactory;
 use tcCore\Subject;
 use tcCore\TemporaryLogin;
 use tcCore\Test;
@@ -84,35 +93,11 @@ class TestsOverview extends OverviewComponent
         } catch (\Exception $e) {
         }
 
-        switch ($this->openTab) {
-            case 'school_location':
-                $datasource = $this->getSchoolDatasource();
-                break;
-            case 'national':
-                $datasource = $this->getNationalDatasource();
-                break;
-            case 'umbrella':
-                $datasource = $this->getUmbrellaDatasource();
-                break;
-            case 'formidable':
-                $datasource = $this->getFormidableDatasource();
-                break;
-            case 'creathlon':
-                $datasource = $this->getCreathlonDatasource();
-                break;
-            case 'olympiade':
-                $datasource = $this->getOlympiadeDatasource();
-                break;
-            case 'thieme_meulenhoff':
-                $datasource = $this->getThiemeMeulenhoffDatasource();
-                break;
-            case 'personal':
-            default :
-                $datasource = $this->getPersonalDatasource();
-                break;
-
-        }
-        return $datasource
+        return ContentSourceFactory::makeWithTab($this->openTab)->itemBankFiltered(
+            $this->getContentSourceFilters(),
+            $this->sorting,
+            auth()->user()
+        )
             ->with([
                 'educationLevel',
                 'testKind',
@@ -125,79 +110,6 @@ class TestsOverview extends OverviewComponent
             ])
             ->paginate(self::PER_PAGE);
     }
-
-    private function getSchoolDatasource()
-    {
-        return Test::schoolFiltered(
-            array_merge(
-                $this->cleanFilterForSearch($this->filters, 'school_location'),
-                ['owner_id' => auth()->user()->school_location_id]
-            ),
-            $this->sorting
-        );
-    }
-
-    private function getNationalDatasource()
-    {
-        return Test::nationalItemBankFiltered(
-            $this->getContentSourceFilters(),
-            $this->sorting
-        );
-    }
-
-    private function getPersonalDatasource()
-    {
-        $filters = $this->filters;
-        $filters['author_id'] = [auth()->id()];
-
-        return Test::filtered(
-            $this->cleanFilterForSearch($filters, 'personal'),
-            $this->sorting
-        )
-            ->where('tests.author_id', auth()->id());
-    }
-
-    private function getUmbrellaDatasource()
-    {
-        return Test::sharedSectionsFiltered(
-            $this->getUmbrellaDatasourceFilters(),
-            $this->sorting
-        );
-    }
-
-    private function getCreathlonDatasource()
-    {
-        return Test::creathlonItemBankFiltered(
-            $this->getContentSourceFilters(),
-            $this->sorting
-        );
-    }
-
-    private function getFormidableDatasource()
-    {
-        return Test::formidableItemBankFiltered(
-            $this->getContentSourceFilters(),
-            $this->sorting
-        );
-    }
-
-
-    private function getOlympiadeDatasource()
-    {
-        return Test::olympiadeItemBankFiltered(
-            $this->getContentSourceFilters(),
-            $this->sorting
-        );
-    }
-
-    private function getThiemeMeulenhoffDatasource()
-    {
-        return Test::thiemeMeulenhoffItemBankFiltered(
-            $this->getContentSourceFilters(),
-            $this->sorting
-        );
-    }
-
 
     protected function setFilters(array $filters = null): void
     {
@@ -281,9 +193,8 @@ class TestsOverview extends OverviewComponent
         return collect($filters)->reject(function ($filter, $key) use ($notAllowed) {
             if ($filter instanceof Collection) {
                 return $filter->isEmpty() || in_array($key, $notAllowed);
-            } else {
-                return empty($filter) || in_array($key, $notAllowed);
             }
+            return empty($filter) || in_array($key, $notAllowed);
         })->toArray();
     }
 
@@ -373,14 +284,6 @@ class TestsOverview extends OverviewComponent
         return auth()->user()->redirectToCakeWithTemporaryLogin($testTake->getPlannedTestOptions());
     }
 
-    private function getContentSourceFilters(): array
-    {
-        $filters = $this->cleanFilterForSearch($this->filters, 'external');
-        if (!isset($filters['base_subject_id']) && !Auth::user()->isValidExamCoordinator()) {
-            $filters['base_subject_id'] = BaseSubject::currentForAuthUser()->pluck('id')->toArray();
-        }
-        return $filters;
-    }
 
     protected function mergeFiltersWithDefaults(): void
     {
@@ -401,6 +304,25 @@ class TestsOverview extends OverviewComponent
         ];
 
         return $notAllowed[$source];
+    }
+
+    private function getContentSourceFilters(): array
+    {
+        if ($this->openTab == 'personal') {
+            $filters = $this->filters;
+            $filters['author_id'] = [auth()->id()];
+            return $this->cleanFilterForSearch($filters, 'personal');
+        }
+
+        if ($this->openTab == 'umbrella') {
+            return $this->getUmbrellaDatasourceFilters();
+        }
+
+        $filters = $this->cleanFilterForSearch($this->filters, 'external');
+        if (!isset($filters['base_subject_id']) && !Auth::user()->isValidExamCoordinator()) {
+            $filters['base_subject_id'] = BaseSubject::currentForAuthUser()->pluck('id')->toArray();
+        }
+        return $filters;
     }
 
     /**

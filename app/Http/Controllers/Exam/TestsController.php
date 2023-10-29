@@ -1,5 +1,6 @@
 <?php namespace tcCore\Http\Controllers\Exam;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +22,17 @@ class TestsController extends Controller {
 	 */
 	public function index(Request $request)
 	{
+        Bugsnag::notifyException(new RuntimeException('Dead code marker detected please delete the marker the code is not dead.'), function ($report) {
+            $report->setMetaData([
+                'code_context' => [
+                    'file' => __FILE__,
+                    'class' => __CLASS__,
+                    'method' => __METHOD__,
+                    'line' => __LINE__,
+                    'timestamp' => date(DATE_ATOM),
+                ]
+            ]);
+        });
         // @@ see TC-160
         // we now alwas change the setting to make it faster and don't reverse it anymore
         // as on a new server we might forget to update this setting and it doesn't do any harm to do this extra query
@@ -40,6 +52,17 @@ class TestsController extends Controller {
 	 */
 	public function show(Test $test)
 	{
+        Bugsnag::notifyException(new RuntimeException('Dead code marker detected please delete the marker the code is not dead.'), function ($report) {
+            $report->setMetaData([
+                'code_context' => [
+                    'file' => __FILE__,
+                    'class' => __CLASS__,
+                    'method' => __METHOD__,
+                    'line' => __LINE__,
+                    'timestamp' => date(DATE_ATOM),
+                ]
+            ]);
+        });
 		$test->load('educationLevel', 'author', 'author.school', 'author.schoolLocation', 'subject', 'period', 'testKind');
 		return Response::make($test, 200);
 	}

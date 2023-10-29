@@ -36,11 +36,10 @@
         <x-slot:title>{{  str(__('co-learning.all_questions'))->ucfirst() }}</x-slot:title>
         <x-slot:subtitle>
             <div>{{ __('co-learning.all_questions_text') }}</div>
-            <div class="text-[14px]">{{ __('co-learning.all_questions_note') }}</div>
         </x-slot:subtitle>
         <x-slot:button>
             <x-button.cta size="md"
-                          wire:click.prevent="handleHeaderCollapse({discussionType:'ALL'})">
+                          x-on:click.prevent="handleHeaderCollapse({discussionType:'ALL'})">
                 <span>
                     @lang($this->coLearningRestart && !$this->openOnly ? 'auth.continue' : 'co-learning.start')
                 </span>
@@ -76,11 +75,10 @@
         <x-slot:title>{{ str(__('co-learning.open_questions_only'))->ucfirst() }}</x-slot:title>
         <x-slot:subtitle>
             <div>{{ __('co-learning.open_questions_text') }}</div>
-            <div class="text-[14px]">{{ __('co-learning.open_questions_note') }}</div>
         </x-slot:subtitle>
         <x-slot:button>
             <x-button.cta size="md"
-                          @click.prevent="handleHeaderCollapse({discussionType:'OPEN_ONLY'})">
+                          x-on:click.prevent="handleHeaderCollapse({discussionType:'OPEN_ONLY'})">
                 <span>
                     @lang($this->coLearningRestart && $this->openOnly ? 'auth.continue' : 'co-learning.start')
                 </span>
@@ -131,7 +129,7 @@
             </div>
         </div>
         @endif
-        <div @class(["flex flex-col w-3/4 self-center divide-white divide-y border-b border-white ", 'border-b-white/25' => false, 'border-t' => !auth()->user()->schoolLocation->allow_wsc])>
+        <div @class(["flex flex-col w-3/4 self-center divide-white divide-y border-b border-white ", 'border-b-white/25' => true, 'border-t' => !auth()->user()->schoolLocation->allow_wsc])>
             <div class="flex py-2 px-4 items-center justify-between">
                 <span>@lang('co-learning.comments-for-students')</span>
                 <div class="flex items-center gap-4">
@@ -147,4 +145,53 @@
                 </div>
             </div>
         </div>
+        <div @class(["flex flex-col w-3/4 self-center divide-white divide-y border-b border-white ", 'border-b-white/25' => true, 'border-t' => !auth()->user()->schoolLocation->allow_wsc])>
+            <div class="flex py-2 px-4 items-center justify-between">
+                <span>@lang('co-learning.question-text-for-students')</span>
+                <div class="flex items-center gap-4">
+                    @if($this->testTake->enable_question_text_colearning)
+                        <x-input.toggle wire:click="toggleStudentEnableQuestionText($event.target.checked)" checked />
+                    @else
+                        <x-input.toggle wire:click="toggleStudentEnableQuestionText($event.target.checked)"/>
+                    @endif
+
+                    <x-tooltip idle-classes="bg-transparent text-white border-white border">
+                        <span class="text-left">@lang('co-learning.question-text-for-students-tt')</span>
+                    </x-tooltip>
+                </div>
+            </div>
+        </div>
+        <div @class(["flex flex-col w-3/4 self-center divide-white divide-y border-b border-white ", 'border-b-white/25' => false, 'border-t' => !auth()->user()->schoolLocation->allow_wsc])>
+            <div class="flex py-2 px-4 items-center justify-between">
+                <span>@lang('co-learning.answer-model-for-students')</span>
+                <div class="flex items-center gap-4">
+                    @if($this->testTake->enable_answer_model_colearning)
+                        <x-input.toggle wire:click="toggleStudentEnableAnswerModel($event.target.checked)" checked />
+                    @else
+                        <x-input.toggle wire:click="toggleStudentEnableAnswerModel($event.target.checked)"/>
+                    @endif
+
+                    <x-tooltip idle-classes="bg-transparent text-white border-white border">
+                        <span class="text-left">@lang('co-learning.answer-model-for-students-tt')</span>
+                    </x-tooltip>
+                </div>
+            </div>
+        </div>
+        {{-- TODO: Re-enable this after deployment 28-9-23, also swap border-b-white/25 above back to true --}}
+{{--        <div @class(["flex flex-col w-3/4 self-center divide-white divide-y border-b border-white ", 'border-b-white/25' => false, 'border-t' => !auth()->user()->schoolLocation->allow_wsc])>--}}
+{{--            <div class="flex py-2 px-4 items-center justify-between">--}}
+{{--                <span>@lang('co-learning.navigation-for-students')</span>--}}
+{{--                <div class="flex items-center gap-4">--}}
+{{--                    @if($this->testTake->enable_student_navigation_colearning)--}}
+{{--                        <x-input.toggle wire:click="toggleStudentEnableNavigation($event.target.checked)" checked />--}}
+{{--                    @else--}}
+{{--                        <x-input.toggle wire:click="toggleStudentEnableNavigation($event.target.checked)"/>--}}
+{{--                    @endif--}}
+
+{{--                    <x-tooltip idle-classes="bg-transparent text-white border-white border">--}}
+{{--                        <span class="text-left">@lang('co-learning.navigation-for-students-tt')</span>--}}
+{{--                    </x-tooltip>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--        </div>--}}
     @endsection

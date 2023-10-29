@@ -63,4 +63,9 @@ trait WithCompletionConversion
                 return $stringPartialsArray;
             });
     }
+
+    protected function countCompletionQuestionOptions($question_text): int
+    {
+        return preg_match_all($this->searchPattern, $question_text);
+    }
 }

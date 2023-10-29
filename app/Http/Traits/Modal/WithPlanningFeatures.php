@@ -2,15 +2,25 @@
 
 namespace tcCore\Http\Traits\Modal;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
+use tcCore\Http\Helpers\Choices\ChildChoice;
+use tcCore\Http\Helpers\Choices\ParentChoice;
+use tcCore\Lib\TestParticipant\Factory as ParticipantFactory;
 use tcCore\SchoolClass;
 use tcCore\Teacher;
+use tcCore\TestTake;
+use tcCore\TestKind;
 use tcCore\UserFeatureSetting;
 
 trait WithPlanningFeatures
 {
     public $rttiExportAllowed = false;
+    public array $classesAndStudents = [
+        'parents'  => [],
+        'children' => []
+    ];
 
     public function mountWithPlanningFeatures()
     {
@@ -33,12 +43,11 @@ trait WithPlanningFeatures
 
     private function getConditionalRules(): array
     {
-        $conditionalRules = [];
-        if (!$this->testTake->guest_accounts) {
-            $conditionalRules['selectedClasses'] = 'required';
-        }
         if ($this->rttiExportAllowed) {
             $conditionalRules['testTake.is_rtti_test_take'] = 'required';
+        }
+        if($this->testTake->test->test_kind_id === TestKind::ASSIGNMENT_TYPE) {
+            $conditionalRules['testTake.enable_mr_chadd'] = 'required';
         }
         return $conditionalRules;
     }
@@ -48,10 +57,11 @@ trait WithPlanningFeatures
         return !!Auth::user()->schoolLocation->is_rtti_school_location;
     }
 
-    public function getSchoolClassesProperty()
+    public function getSchoolClassesProperty(): array
     {
         $filters = $this->getFiltersForSchoolClasses();
-        return SchoolClass::filtered($filters)->optionList();
+        $classes = SchoolClass::filtered($filters)->get();
+        return $this->buildChoicesArrayWithClasses($classes);
     }
 
     public function isAssignmentType()
@@ -115,5 +125,42 @@ trait WithPlanningFeatures
         // invigilators shouldn't be restricted to subject, those users could get to the test anyway
         $query = Teacher::getTeacherUsersForSchoolLocationInCurrentYear(Auth::user()->schoolLocation);
         return $query->get()->map(fn($teacher) => ['value' => $teacher->id, 'label' => $teacher->name_full]);
+    }
+
+    protected function buildChoicesArrayWithClasses(
+        Collection $classes,
+                   $selectedCallback = null,
+    ): array {
+        return $classes->map(function ($class) use ($selectedCallback) {
+            return ParentChoice::build(
+                value           : $class->uuid,
+                label           : html_entity_decode($class->name),
+                customProperties: ['parentId' => $class->uuid],
+                children        : $class->studentUsers->map(
+                    function ($studentUser) use ($selectedCallback, $class) {
+                        $selected = false;
+                        if (is_callable($selectedCallback)) {
+                            $selected = $selectedCallback($studentUser);
+                        }
+
+                        return ChildChoice::build(
+                            value           : $studentUser->uuid,
+                            label           : html_entity_decode($studentUser->name_full),
+                            customProperties: [
+                                'parentId'    => $class->uuid,
+                                'parentLabel' => html_entity_decode($class->name),
+                                'selected'    => $selected,
+                            ]
+                        );
+                    }
+                )
+            );
+        })->toArray();
+    }
+
+    protected function handleParticipants(TestTake $testTake): void
+    {
+        ParticipantFactory::generateForUsers($testTake, $this->classesAndStudents);
+        $testTake->dispatchNewTestTakePlannedEvent();
     }
 }

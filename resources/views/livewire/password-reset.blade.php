@@ -78,6 +78,11 @@
                 </div>
             </div>
             <div class="error-section">
+                @error('username')
+                <div class="notification error mt-4">
+                    <span class="title">{{ $message }}</span>
+                </div>
+                @enderror
                 @error('password')
                 <div class="notification error mt-4">
                     <span class="title">{{ $message }}</span>

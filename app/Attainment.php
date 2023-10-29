@@ -1,10 +1,10 @@
 <?php namespace tcCore;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Scopes\AttainmentScope;
 use tcCore\Traits\UuidTrait;
 
@@ -211,5 +211,61 @@ class Attainment extends BaseModel
             })->count();
     }
 
+    public static function getAnalysisDataForTestTake(TestTake $testTake): Collection
+    {
+        $participantIdsBuilder = $testTake->testParticipants()->select('id');
+        $data = DB::table('p_values')
+            ->leftJoin('questions', 'p_values.question_id', '=', 'questions.id')
+            ->leftJoin('question_attainments', 'questions.id', '=', 'question_attainments.question_id')
+            ->leftJoin('attainments', 'question_attainments.attainment_id', '=', 'attainments.id')
+            ->selectRaw(
+                'attainments.*,
+                    sum(p_values.score) as total_score, 
+                    sum(p_values.max_score) as total_max_score,count(question_attainments.question_id) as questions_per_attainment,
+                    count(distinct p_values.test_participant_id) as count_testparticipants,
+                    sum(p_values.score)/sum(p_values.max_score) as p_value'
+            )
+            ->whereIn('test_participant_id', $participantIdsBuilder)
+            ->whereNull('p_values.deleted_at')
+            ->whereNull('question_attainments.deleted_at')
+            ->whereNull('questions.deleted_at')
+            ->whereNull('attainments.deleted_at')
+            ->whereNotNull('attainments.id')
+            ->groupBy('attainments.id')
+            ->orderBy('attainments.code', 'asc')
+            ->orderBy('attainments.subcode')
+            ->get();
 
+        return Attainment::hydrate($data->toArray());
+    }
+
+    public function getStudentAnalysisDataForTestTake(TestTake $testTake): Collection
+    {
+        $participantIdsBuilder = $testTake->testParticipants()->select('id');
+        $data = DB::table('p_values')
+            ->leftJoin('questions', 'p_values.question_id', '=', 'questions.id')
+            ->leftJoin('question_attainments', 'questions.id', '=', 'question_attainments.question_id')
+            ->leftJoin('test_participants', 'p_values.test_participant_id', '=', 'test_participants.id')
+            ->leftJoin('users', 'test_participants.user_id', '=', 'users.id')
+            ->selectRaw(
+                'users.name_first,users.name_suffix,users.name,users.uuid,
+                    sum(p_values.score) as total_score, 
+                    sum(p_values.max_score) as total_max_score,count(question_attainments.question_id) as questions_per_attainment,
+                    count(distinct p_values.test_participant_id) as count_testparticipants,
+                    sum(p_values.score)/sum(p_values.max_score) as p_value'
+            )
+            ->whereIn('test_participant_id', $participantIdsBuilder)
+            ->where('question_attainments.attainment_id', $this->getKey())
+            ->whereNull('p_values.deleted_at')
+            ->whereNull('question_attainments.deleted_at')
+            ->whereNull('questions.deleted_at')
+            ->whereNull('users.deleted_at')
+            ->whereNull('test_participants.deleted_at')
+            ->whereNotNull('question_attainments.attainment_id')
+            ->orderBy('p_value', 'desc')
+            ->groupBy('test_participant_id')
+            ->get();
+
+        return User::hydrate($data->toArray());
+    }
 }

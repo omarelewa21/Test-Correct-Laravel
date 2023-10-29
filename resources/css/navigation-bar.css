@@ -193,8 +193,11 @@
     cursor: pointer;
 }
 
-.navigation-bar .menu-bottom .menu-item:nth-of-type(1n) {
+.navigation-bar .menu-bottom .menu-item {
     margin-left: 13px;
+}
+.navigation-bar .menu-bottom .menu-item ~ .menu-item {
+    margin-left: 0;
 }
 
 .navigation-bar .menu-bottom .menu-item.button-active,

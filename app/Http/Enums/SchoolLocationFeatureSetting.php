@@ -48,6 +48,10 @@ enum SchoolLocationFeatureSetting: string
 
     #[Type('bool')]
     case ALLOW_NEW_TEST_TAKE_DETAIL_PAGE = 'allow_new_test_take_detail_page';
+    #[Type('bool')]
+    case ALLOW_NEW_TEST_TAKEN_PAGES = 'allow_new_test_taken_pages';
+    #[Type('bool')]
+    case ALLOW_MR_CHADD = 'allow_mr_chadd';
 
 
     public static function validateTestPackage(TestPackages|string $testPackage): string|false

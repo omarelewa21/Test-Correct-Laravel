@@ -2,13 +2,15 @@
 
 namespace tcCore\Http\Livewire\Teacher\Cms\Providers;
 
+use tcCore\Question;
 use tcCore\Attachment;
+use tcCore\TestQuestion;
+use tcCore\UserFeatureSetting;
 use tcCore\GroupQuestionQuestion;
+use Illuminate\Support\Facades\Auth;
 use tcCore\Http\Interfaces\CmsProvider;
 use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Livewire\Teacher\Cms\Constructor;
-use tcCore\Question;
-use tcCore\TestQuestion;
 
 abstract class TypeProvider implements CmsProvider
 {
@@ -55,12 +57,6 @@ abstract class TypeProvider implements CmsProvider
         );
     }
 
-    public function preparePropertyBag()
-    {
-        foreach ($this->questionOptions as $key => $value) {
-            $this->instance->question[$key] = $value;
-        }
-    }
 
     public function initializePropertyBag($q)
     {

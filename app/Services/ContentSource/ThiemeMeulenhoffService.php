@@ -4,15 +4,17 @@ namespace tcCore\Services\ContentSource;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use tcCore\BaseSubject;
-use tcCore\Http\Enums\Attributes\Type;
+use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Subject;
 use tcCore\Test;
+use tcCore\TestAuthor;
 use tcCore\User;
 
 class ThiemeMeulenhoffService extends ContentSourceService
 {
-    public static int $order = 500;
+    public static int $order = 700;
 
     public static function getTranslation(): string
     {
@@ -52,19 +54,19 @@ class ThiemeMeulenhoffService extends ContentSourceService
 
     protected static function testsAvailableForUser(User $user): bool
     {
-        return Test::thiemeMeulenhoffItemBankFiltered()->exists();
+        return (new static)->itemBankFiltered(filters: [], sorting: [], forUser: $user)->exists();
     }
 
     protected static function allowedForUser(User $user): bool
     {
-       return self::featureSettingForUser($user)->isNotEmpty();
+        return self::featureSettingForUser($user)->isNotEmpty();
     }
 
     protected static function featureSettingForUser(User $user): Collection
     {
-      return self::getAllFeatureSettings()->filter(function ($setting) use ($user) {
-        return $user->schoolLocation->$setting;
-    });
+        return self::getAllFeatureSettings()->filter(function ($setting) use ($user) {
+            return $user->schoolLocation->$setting;
+        });
     }
 
     private static function getAllowedBaseSubjectIds(User $user): Collection
@@ -84,6 +86,47 @@ class ThiemeMeulenhoffService extends ContentSourceService
     public static function getBuilderWithAllowedSubjectIds($user): Builder
     {
         $allowedBaseSubjects = self::getAllowedBaseSubjectIds($user);
-        return Subject::select('id')->whereIn('base_subject_id',  $allowedBaseSubjects);
+        return Subject::select('id')->whereIn('base_subject_id', $allowedBaseSubjects);
+    }
+
+    public function itemBankFiltered($filters = [], $sorting = [], User $forUser): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::itemBankFiltered($filters, $sorting, $forUser)
+            ->whereIn(
+                'subject_id',
+                self::getBuilderWithAllowedSubjectIds($forUser)
+            );
+    }
+
+    public static function getCustomerCode(): array|string|null
+    {
+        return config('custom.thieme_meulenhoff_school_customercode');
+    }
+
+    public static function addAuthorToTest(Test $test): bool
+    {
+        if (!auth()->check()) {
+            return false;
+        }
+        if (!self::inSchool(auth()->user())) {
+            return false;
+        }
+        if ($test->scope != static::getPublishScope()) {
+            return false;
+        }
+        $test->testAuthors->each(function ($testAuthor) {
+            $testAuthor->delete();
+        });
+        return TestAuthor::addOrRestoreAuthor($test, self::getSchoolAuthor()->getKey());
+    }
+
+    private static function inSchool(User $user): bool
+    {
+        return $user->schoolLocation?->customer_code == config('custom.thieme_meulenhoff_school_customercode');
+    }
+
+    public static function getSchoolAuthor(): User|null
+    {
+        return User::where('username', config('custom.thieme_meulenhoff_school_author'))->first();
     }
 }

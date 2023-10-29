@@ -401,7 +401,6 @@ document.addEventListener("alpine:init", () => {
         resolvingTitle: true,
         index: 1,
         mode: mode,
-        attachmentLoading: false,
         async init() {
             this.setIndex();
 
@@ -427,9 +426,6 @@ document.addEventListener("alpine:init", () => {
             const parent = this.$root.parentElement;
             if (parent === null) return;
             this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
-        },
-        dispatchAttachmentLoading() {
-            window.dispatchEvent(new CustomEvent("attachment-preview-loading"));
         }
     }));
 
@@ -1592,7 +1588,14 @@ document.addEventListener("alpine:init", () => {
             this.value = target.firstElementChild.dataset.id;
 
             this.$root.dataset.hasValue = this.value !== null;
-            if (oldValue !== this.value) {
+            if (oldValue?.toString() !== this.value?.toString()) {
+                if([null, 'null'].includes(this.$root.dataset.toggleValue)) {
+                    this.$dispatch("multi-slider-toggle-value-updated", {
+                        value: target.firstElementChild.dataset.id,
+                        firstTick: oldValue === null
+                    });
+                    return;
+                };
                 /* dispatch with a static (question score) value, not value/key of button-option, only works with true/false  */
                 this.$dispatch("slider-toggle-value-updated", {
                     value: this.$root.dataset.toggleValue,
@@ -1600,10 +1603,7 @@ document.addEventListener("alpine:init", () => {
                     firstTick: oldValue === null,
                     identifier: this.identifier
                 });
-                this.$dispatch("multi-slider-toggle-value-updated", {
-                    value: target.firstElementChild.dataset.id,
-                    firstTick: oldValue === null,
-                });
+
             }
         },
         hoverButton(target) {
@@ -1652,8 +1652,8 @@ document.addEventListener("alpine:init", () => {
             const sourceCount = Object.entries(sources).length;
             const widthDividableBySourceCount = Math.round(containerWidth / sourceCount) * sourceCount;
 
-            if(!isNaN(widthDividableBySourceCount) && widthDividableBySourceCount > 0) {
-                this.$root.style.width = widthDividableBySourceCount + 'px';
+            if (!isNaN(widthDividableBySourceCount) && widthDividableBySourceCount > 0) {
+                this.$root.style.width = widthDividableBySourceCount + "px";
             }
         }
     }));
@@ -1793,7 +1793,7 @@ document.addEventListener("alpine:init", () => {
         init() {
             this.menuCard = this.$root.closest("#context-menu-base");
             this.bodyPage = this.$root.closest(".divide-secondary");
-            if(!this.bodyPage) {
+            if (!this.bodyPage) {
                 this.bodyPage = this.$root.closest("body");
                 this.menuOffsetMarginTop -= 10;
                 this.menuOffsetMarginLeft -= 24;
@@ -1823,7 +1823,7 @@ document.addEventListener("alpine:init", () => {
 
             this.$root.style.top = (this.detailCoordsTop + this.menuOffsetMarginTop) + "px";
             this.$root.style.left = (this.detailCoordsLeft - this.menuOffsetMarginLeft) + "px";
-            if(! detail?.preventLivewireCall) {
+            if (!detail?.preventLivewireCall) {
                 let readyForShow = await this.$wire.setContextValues(this.uuid, this.contextData);
                 if (readyForShow) this.contextMenuOpen = true;
             }
@@ -1841,9 +1841,9 @@ document.addEventListener("alpine:init", () => {
         droppingFile: false,
         init() {
             this.id = this.containerId + "-" + key;
-            this.$watch('expanded', (value) => {
+            this.$watch("expanded", (value) => {
                 setTimeout(() => {
-                    this.$el.querySelector('[block-body]').style.overflow = value ? 'visible' : 'hidden';
+                    this.$el.querySelector("[block-body]").style.overflow = value ? "visible" : "hidden";
                 }, 100);
             });
         },
@@ -1982,39 +1982,39 @@ document.addEventListener("alpine:init", () => {
                 this.setInitialFocusInput();
             });
         },
-        setInitialFocusInput (){
-            let name = ('' != this.activeOverlay) ? this.activeOverlay : this.openTab;
-            var finder = `[data-focus-tab = '${name}']`
+        setInitialFocusInput() {
+            let name = ("" != this.activeOverlay) ? this.activeOverlay : this.openTab;
+            var finder = `[data-focus-tab = '${name}']`;
             setTimeout(() => {
-                this.$root.querySelector(finder)?.focus()
+                this.$root.querySelector(finder)?.focus();
             }, 250);
         },
         setCurrentFocusInput() {
             let name = ("" != this.activeOverlay) ? this.activeOverlay : this.openTab;
             var finder = `[data-focus-tab = '${name}']`;
 
-            if("" != this.hasErrors) {
+            if ("" != this.hasErrors) {
                 let errorCode = this.hasErrors[0];
                 switch (errorCode) {
-                    case 'invalid_test_code':
-                    case 'no_test_found_with_code':
-                        errorCode = 'invalid_test_code';
+                    case "invalid_test_code":
+                    case "no_test_found_with_code":
+                        errorCode = "invalid_test_code";
                         break;
                 }
 
-                if(document.activeElement.type === 'password') {
+                if (document.activeElement.type === "password") {
                     //Do not focus on other fields when password is focused to prevent users typing password in the wrong field
                     //only works when the form is submitted by enter key, else focus is on the login button
-                    errorCode = 'password';
+                    errorCode = "password";
                 }
 
-                finder =  `[data-focus-tab-error = '${name}-${errorCode}']`;
+                finder = `[data-focus-tab-error = '${name}-${errorCode}']`;
             }
             setTimeout(() => this.$root.querySelector(finder)?.focus(), 250);
         },
         changeActiveOverlay(activeOverlay = "") {
             this.activeOverlay = activeOverlay;
-        },
+        }
     }));
     Alpine.data("assessment", (array) => ({
         score: array.initialScore,
@@ -2032,6 +2032,8 @@ document.addEventListener("alpine:init", () => {
                 this.shadowScore = isFloat(initialScore) ? parseFloat(initialScore) : parseInt(initialScore);
             }
             this.$nextTick(() => this.$dispatch("slider-score-updated", { score: this.score }));
+
+            this.bindKeyboardShortCuts();
         },
         toggleCount() {
             return document.querySelectorAll(".student-answer .slider-button-container:not(.disabled)").length;
@@ -2080,7 +2082,11 @@ document.addEventListener("alpine:init", () => {
             this.$store.assessment.currentScore = this.score;
         },
         dispatchNewScoreToSlider() {
-            document.querySelector(".score-slider-container")
+            const scoreSliderContainer = document.querySelector(".score-slider-container");
+
+            if(!scoreSliderContainer) return;
+
+            scoreSliderContainer
                 .dispatchEvent(new CustomEvent(
                     "new-score",
                     { detail: { score: this.score } }
@@ -2104,6 +2110,51 @@ document.addEventListener("alpine:init", () => {
             Object.assign(this, data);
             this.score = this.shadowScore = data.initialScore;
             this.$nextTick(() => this.$dispatch("slider-score-updated", { score: this.score }));
+        },
+        bindKeyboardShortCuts() {
+
+
+            // During assessment, clicking:
+            // - A will go to previous answer
+            // - D will go to next answer
+            // - S will go to previous question
+            // - W will go to next question
+
+            document.addEventListener('DOMContentLoaded', (event) => {
+                // disable tab key for all elements when in assessment mode because this corrupts the right tab drawer;
+                // document.querySelectorAll('textarea').forEach(element => element.tabIndex = -1);
+                // document.querySelectorAll('input').forEach(element => element.tabIndex = -1);
+
+                // Map each key to the corresponding button's selid
+                const keyToSelIdMap = {
+                    'a': 'btn_loadAnswer_previous',
+                    'd': 'btn_loadAnswer_next',
+                    's': 'btn_loadQuestion_previous',
+                    'w': 'btn_loadQuestion_next',
+                };
+
+                // Add a keyup event listener to the document
+                document.addEventListener('keyup', (event) => {
+                    // If the target is an input or textarea, do nothing
+                    if ((event.target.tagName.toLowerCase() === 'input' && !event.target.classList.contains('js-allow-for-wasd-navigation')) || event.target.tagName.toLowerCase() === 'textarea') {
+                        return;
+                    }
+                    // Check if the event.target is a ckEditor
+                    if (event.target.classList.contains('ck')) {
+                        return;
+                    }
+                    const id = keyToSelIdMap[event.key.toLowerCase()];
+
+                    // If a mapping exists, "click" the corresponding button
+                    if (id) {
+                        const button = document.getElementById(id);
+                        if (button) {
+                            button.focus(); //make sure the previous lazy input has synced its value
+                            button.click();
+                        }
+                    }
+                });
+            });
         }
     }));
     Alpine.data("assessmentNavigator", (current, total, methodCall, lastValue, firstValue) => ({
@@ -2114,28 +2165,28 @@ document.addEventListener("alpine:init", () => {
         firstValue,
         skipWatch: false,
         async first() {
-            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'first');
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, "first");
             }
             await this.updateCurrent(this.firstValue, "first");
         },
         async last() {
-            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'last');
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, "last");
             }
             await this.updateCurrent(this.lastValue, "last");
         },
         async next() {
             if (this.current >= this.lastValue) return;
-            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'next');
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, "next");
             }
             await this.updateCurrent(this.current + 1, "incr");
         },
         async previous() {
             if (this.current <= this.firstValue) return;
-            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'previous');
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, "previous");
             }
             await this.updateCurrent(this.current - 1, "decr");
         },
@@ -2199,7 +2250,7 @@ document.addEventListener("alpine:init", () => {
             return element.offsetTop + (element.offsetHeight / 2);
         }
     }));
-    Alpine.data("assessmentDrawer", (inReview = false, tabs = [1,2,3], startCollapsed = false) => ({
+    Alpine.data("assessmentDrawer", (inReview = false, tabs = [1, 2, 3], startCollapsed = false) => ({
         activeTab: 1,
         tabs: tabs,
         container: null,
@@ -2214,12 +2265,12 @@ document.addEventListener("alpine:init", () => {
             this.tab(this.tabs[0]);
             this.$watch("collapse", (value) => {
                 this.$store.coLearningStudent.drawerCollapsed = value;
-                window.dispatchEvent(new CustomEvent('drawer-collapse', { detail: value }));
+                window.dispatchEvent(new CustomEvent("drawer-collapse", { detail: value }));
                 document.documentElement.style.setProperty("--active-sidebar-width", value ? "var(--collapsed-sidebar-width)" : "var(--sidebar-width)");
             });
         },
-        getSlideElementByIndex: function (index) {
-            return this.$root.closest('.drawer').querySelector(".slide-" + index);
+        getSlideElementByIndex: function(index) {
+            return this.$root.closest(".drawer").querySelector(".slide-" + index);
         },
         async tab(index, openDrawer = false, answerFeedbackCommentUuid = null) {
             if (!this.tabs.includes(index)) return;
@@ -2232,35 +2283,35 @@ document.addEventListener("alpine:init", () => {
             if (answerFeedbackCommentUuid) {
                 await this.scrollToCommentCard(answerFeedbackCommentUuid);
             } else {
-                await smoothScroll(this.container, 0, slide.offsetLeft)
+                await smoothScroll(this.container, 0, slide.offsetLeft);
             }
-            if(openDrawer) {
+            if (openDrawer) {
                 this.collapse = false;
             }
 
             setTimeout(() => {
                 const position = (this.container.scrollLeft / 300) + 1;
                 if (!this.tabs.includes(position)) {
-                    this.container.scrollTo({left: slide.offsetLeft});
+                    this.container.scrollTo({ left: slide.offsetLeft });
                 }
             }, 500);
         },
-        async scrollToCommentCard (answerFeedbackUuid) {
+        async scrollToCommentCard(answerFeedbackUuid) {
             this.container = this.$root.querySelector("#slide-container") ?? this.$root.closest("#slide-container");
 
-            const commentCard = document.querySelector('[data-uuid="'+answerFeedbackUuid+'"].answer-feedback-card')
+            const commentCard = document.querySelector("[data-uuid=\"" + answerFeedbackUuid + "\"].answer-feedback-card");
             const slide = this.getSlideElementByIndex(2);
             let cardTop = commentCard.offsetTop;
 
-            if(slide.offsetHeight <= this.container.offsetHeight) {
+            if (slide.offsetHeight <= this.container.offsetHeight) {
                 return await smoothScroll(this.container, 0, slide.offsetLeft);
             }
 
             await smoothScroll(this.container, cardTop, slide.offsetLeft);
         },
         async next() {
-            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'next');
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, "next");
             }
             if (this.needsToPerformActionsStill()) {
                 this.$dispatch("scoring-elements-error");
@@ -2276,8 +2327,8 @@ document.addEventListener("alpine:init", () => {
             });
         },
         async previous() {
-            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'previous');
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, "previous");
             }
             this.tab(1);
             await this.$nextTick(async () => {
@@ -2290,7 +2341,7 @@ document.addEventListener("alpine:init", () => {
             let slide = document.querySelector(".slide-" + index);
             this.handleSlideHeight(slide);
 
-            if(AnswerFeedbackUuid) this.scrollToCommentCard(AnswerFeedbackUuid);
+            if (AnswerFeedbackUuid) this.scrollToCommentCard(AnswerFeedbackUuid);
         },
         handleSlideHeight(slide) {
             if (slide.offsetHeight > this.container.offsetHeight) {
@@ -2332,10 +2383,11 @@ document.addEventListener("alpine:init", () => {
                 });
         }
     }));
-    Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning, focusInput, continuousSlider) => ({
+    Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning, focusInput, continuousSlider, minScore) => ({
         score,
         model,
         maxScore,
+        minScore,
         timeOut: null,
         halfPoints,
         disabled,
@@ -2361,14 +2413,13 @@ document.addEventListener("alpine:init", () => {
             if (this.score > this.maxScore) {
                 this.score = this.maxScore;
             }
-            if (this.score < 0) {
-                this.score = 0;
+            if (this.score < this.minScore) {
+                this.score = this.minScore;
             }
 
+            let el = this.$root.querySelector(".score-slider-input");
 
-            let el = document.querySelector(".score-slider-input");
-
-            var offsetFromCenter = -40;
+            let offsetFromCenter = -40;
             offsetFromCenter += (this.score / this.maxScore) * 80;
 
             el.style.setProperty("--slider-thumb-offset", `calc(${offsetFromCenter}% + 1px)`);
@@ -2385,6 +2436,10 @@ document.addEventListener("alpine:init", () => {
             this.$wire.sync(this.model, this.score);
             this.$store.assessment.currentScore = this.score;
             this.$dispatch("slider-score-updated", { score: this.score });
+
+            if (this.$root.classList.contains("untouched")) {
+                this.$root.classList.remove("untouched");
+            }
         },
         noChangeEventFallback() {
             if (this.score === null) {
@@ -2407,6 +2462,7 @@ document.addEventListener("alpine:init", () => {
                     }
                 });
             }
+            this.initInvalidNumberBackupScore();
 
             this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
             this.$watch("score", (value, oldValue) => {
@@ -2419,8 +2475,8 @@ document.addEventListener("alpine:init", () => {
                 if (value >= this.maxScore) {
                     this.score = value = this.maxScore;
                 }
-                if (value <= 0) {
-                    this.score = value = 0;
+                if (value <= this.minScore) {
+                    this.score = value = this.minScore;
                 }
 
                 this.score = value = this.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
@@ -2438,6 +2494,20 @@ document.addEventListener("alpine:init", () => {
                 this.halfTotal = this.hasMaxDecimalScoreWithHalfPoint();
                 this.bars = this.maxScore / 0.5;
             }
+
+            if (this.usedSliders && this.$root.dataset?.sliderKey) {
+                if (this.usedSliders.contains(this.$root.dataset?.sliderKey) && this.$root.classList.contains("untouched")) {
+                    this.$root.classList.remove("untouched");
+                }
+            }
+            this.$nextTick(() => {
+                let rangeInput = this.$root.querySelector("input[type=\"range\"]");
+                let left = rangeInput?.offsetWidth / 2;
+                if (this.continuousSlider) {
+                    left = left - 2;
+                }
+                rangeInput?.style.setProperty("--moz-left-zero", `-${left}px`);
+            });
         },
         markInputElementsWithError() {
             if (this.disabled) return;
@@ -2459,12 +2529,29 @@ document.addEventListener("alpine:init", () => {
         sliderPillClasses(value) {
             const score = this.halfTotal || this.halfPoints ? this.score * 2 : this.score;
             const first = ((value / 2) + "").split(".")[1] === "5";
-            return value <= score
-                ? `bg-primary border-primary highlight ${first ? "first" : "second"}`
-                : `border-bluegrey opacity-100 ${first ? "first" : "second"}`;
+            let classes = first ? "first" : "second";
+
+            return value <= score ? classes += " highlight" : classes;
         },
         hasMaxDecimalScoreWithHalfPoint() {
             return isFloat(this.maxScore);
+        },
+        handleInvalidNumberInput() {
+            //chromium: (chromium transforms alphanumeric character to an empty string)
+            if(this.$event.data === "") {
+                this.score = this.$store.scoreSlider.currentBackupScore;
+                return;
+            }
+            //firefox: (firefox passes the alphanumeric character)
+            if(isNaN(this.$event.data) && this.$event.data !== undefined) {
+                this.score = this.$store.scoreSlider.currentBackupScore;
+                return;
+            }
+
+            this.$store.scoreSlider.currentBackupScore = parseFloat(this.$event.target.value);
+        },
+        initInvalidNumberBackupScore () {
+            this.$store.scoreSlider.currentBackupScore = this.score;
         }
     }));
 
@@ -2653,13 +2740,13 @@ document.addEventListener("alpine:init", () => {
             }, 5000);
         },
         async loadQuestion(number) {
-            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'loadQuestion', number);
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, "loadQuestion", number);
             }
 
             this.$dispatch("answer-feedback-drawer-tab-update", { tab: 1 });
             await this.$wire.loadQuestionFromNav(number);
-        },
+        }
     }));
     Alpine.data("accountSettings", (openTab, language) => ({
         openTab,
@@ -2694,168 +2781,172 @@ document.addEventListener("alpine:init", () => {
         hasFeedback,
         async init() {
             this.$store.answerFeedback.resetEditingComment();
-            console.log('init answer feedback');
-            this.dropdownOpened = questionType === 'OpenQuestion' ? 'given-feedback' : 'add-feedback';
+            this.dropdownOpened = questionType === "OpenQuestion" ? "given-feedback" : "add-feedback";
 
-            if(questionType !== 'OpenQuestion') {
-                return;
-            }
             this.setFocusTracking();
 
-            document.addEventListener('comment-color-updated', async (event) => {
-                let styleTagElement = document.querySelector('#temporaryCommentMarkerStyles');
+            document.addEventListener("comment-color-updated", async (event) => {
+                let styleTagElement = document.querySelector("#temporaryCommentMarkerStyles");
 
                 let colorWithOpacity = event.detail.color;
-                let color = colorWithOpacity.replace('0.4', '1');
+                let color = colorWithOpacity.replace("0.4", "1");
 
                 styleTagElement.innerHTML = `p .ck-comment-marker[data-comment="${event.detail.threadId}"]{\n` +
                     `                            --ck-color-comment-marker: ${colorWithOpacity} !important;\n` + /* opacity .4 */
                     `                            --ck-color-comment-marker-border: ${color} !important;\n` + /* opacity 1.0 */
                     `                            --ck-color-comment-marker-active: ${colorWithOpacity} !important;\n` + /* opacity .4 */
-                    `                        }`
+                    `                        }`;
             });
 
-            document.addEventListener('comment-emoji-updated', async (event) => {
-                let ckeditorIconWrapper = document.querySelector('#icon-' + event.detail.threadId)
-                let cardIconWrapper = document.querySelector('[data-uuid="'+event.detail.uuid+'"].answer-feedback-card-icon')
+            document.addEventListener("comment-emoji-updated", async (event) => {
+                let ckeditorIconWrapper = document.querySelector("#icon-" + event.detail.threadId);
+                let cardIconWrapper = document.querySelector("[data-uuid=\"" + event.detail.uuid + "\"].answer-feedback-card-icon");
 
-                if(ckeditorIconWrapper) this.addOrReplaceIconByName(ckeditorIconWrapper, event.detail.iconName);
-                if(cardIconWrapper) {
+                if (ckeditorIconWrapper) this.addOrReplaceIconByName(ckeditorIconWrapper, event.detail.iconName);
+                if (cardIconWrapper) {
                     this.addOrReplaceIconByName(cardIconWrapper, event.detail.iconName, true);
-                    if (event.detail.iconName === null || event.detail.iconName === '' || event.detail.iconName === undefined){
+                    if (event.detail.iconName === null || event.detail.iconName === "" || event.detail.iconName === undefined) {
                         return;
                     }
-                    cardIconWrapper.querySelector('span').style = '';
+                    cardIconWrapper.querySelector("span").style = "";
                 }
             });
 
-            window.addEventListener('new-comment-color-updated',
+            window.addEventListener("new-comment-color-updated",
                 (event) => this.updateNewCommentMarkerStyles(event?.detail?.color)
             );
 
-            document.addEventListener('mousedown', (event) => {
+            document.addEventListener("mousedown", (event) => {
                 this.resetCommentColorPickerFocusState(event);
                 this.resetCommentEmojiPickerFocusState(event);
 
-                if(this.activeComment === null) {
+                if (this.activeComment === null) {
                     return;
                 }
                 //check for click outside 1. comment markers, 2. comment marker icons, 3. comment cards.
-                if(event.srcElement.closest(':is(.ck-comment-marker, .answer-feedback-comment-icon, .given-feedback-container)') ) {
-                    let element = event.srcElement.closest('.ck-comment-marker');
-                    if(element instanceof Element && window.getComputedStyle(element).backgroundColor === 'rgba(0, 0, 0, 0)' ) {
+                if (event.srcElement.closest(":is(.ck-comment-marker, .answer-feedback-comment-icon, .given-feedback-container)")) {
+                    let element = event.srcElement.closest(".ck-comment-marker");
+                    if (element instanceof Element && window.getComputedStyle(element).backgroundColor === "rgba(0, 0, 0, 0)") {
                         //ignore click on inactive comment marker
                         this.clearActiveComment();
                     }
                     return;
                 }
-                this.clearActiveComment()
-            })
+                this.clearActiveComment();
+            });
 
 
             this.preventOpeningModalFromBreakingDrawer();
         },
         resetCommentColorPickerFocusState(event) {
-            if (event.srcElement.closest('.comment-color-picker')) {
+            if (event.srcElement.closest(".comment-color-picker")) {
                 return;
             }
-            let commentColorPickerCKEditorElement = document.querySelector('.comment-color-picker[ckEditorElement].picker-focussed');
+            let commentColorPickerCKEditorElement = document.querySelector(".comment-color-picker[ckEditorElement].picker-focussed");
             if (commentColorPickerCKEditorElement) {
-                commentColorPickerCKEditorElement.classList.remove('picker-focussed');
+                commentColorPickerCKEditorElement.classList.remove("picker-focussed");
             }
         },
         resetCommentEmojiPickerFocusState(event) {
-            if (event.srcElement.closest('.comment-emoji-picker')) {
+            if (event.srcElement.closest(".comment-emoji-picker")) {
                 return;
             }
-            let commentEmojiPickerCKEditorElement = document.querySelector('.comment-emoji-picker[ckEditorElement].picker-focussed');
+            let commentEmojiPickerCKEditorElement = document.querySelector(".comment-emoji-picker[ckEditorElement].picker-focussed");
             if (commentEmojiPickerCKEditorElement) {
-                commentEmojiPickerCKEditorElement.classList.remove('picker-focussed');
+                commentEmojiPickerCKEditorElement.classList.remove("picker-focussed");
             }
         },
         async updateCommentThread(element) {
-            let answerFeedbackCardElement = element.closest('.answer-feedback-card');
+            let answerFeedbackCardElement = element.closest(".answer-feedback-card");
 
             let answerFeedbackUuid = answerFeedbackCardElement.dataset.uuid;
 
-            let comment_color = answerFeedbackCardElement.querySelector('.comment-color-picker input:checked')?.dataset?.color;
-            let comment_emoji = answerFeedbackCardElement.querySelector('.comment-emoji-picker input:checked')?.dataset?.emoji;
+            let comment_color = answerFeedbackCardElement.querySelector(".comment-color-picker input:checked")?.dataset?.color;
+            let comment_emoji = answerFeedbackCardElement.querySelector(".comment-emoji-picker input:checked")?.dataset?.emoji;
 
-            const answerFeedbackEditor = ClassicEditors['update-'+answerFeedbackUuid];
+            const answerFeedbackEditor = ClassicEditors["update-" + answerFeedbackUuid];
 
             const answerFeedbackData = answerFeedbackEditor.getData();
 
             await answerFeedbackEditor.destroy();
-            this.cancelEditingComment(answerFeedbackCardElement.dataset.threadId)
+            this.cancelEditingComment(answerFeedbackCardElement.dataset.threadId);
 
-            let commentStyles = await this.$wire.call('updateExistingComment', {
+            let commentStyles = await this.$wire.call("updateExistingComment", {
                 uuid: answerFeedbackUuid,
                 message: answerFeedbackData,
                 comment_emoji: comment_emoji,
-                comment_color: comment_color,
+                comment_color: comment_color
             });
-            document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
+            const commentMarkerStyles = document.querySelector('#commentMarkerStyles');
+            if(commentMarkerStyles) commentMarkerStyles.innerHTML = commentStyles;
         },
         async createCommentThread() {
             //somehow the editor id sometimes shows an old cached value, so we set it again here
             this.answerEditorId = this.$el.dataset.answerEditorId;
             this.feedbackEditorId = this.$el.dataset.feedbackEditorId;
 
-            let addCommentElement = this.$el.closest('.answer-feedback-add-comment')
+            let addCommentElement = this.$el.closest(".answer-feedback-add-comment");
 
-            let comment_color = addCommentElement.querySelector('.comment-color-picker input:checked')?.dataset?.color;
+            let comment_color = addCommentElement.querySelector(".comment-color-picker input:checked")?.dataset?.color;
 
-            let comment_emoji = addCommentElement.querySelector('.comment-emoji-picker input:checked')?.dataset?.emoji;
-            let comment_iconName = addCommentElement.querySelector('.comment-emoji-picker input:checked')?.dataset?.iconname;
+            let comment_emoji = addCommentElement.querySelector(".comment-emoji-picker input:checked")?.dataset?.emoji;
+            let comment_iconName = addCommentElement.querySelector(".comment-emoji-picker input:checked")?.dataset?.iconname;
 
             const answerEditor = ClassicEditors[this.answerEditorId];
             const feedbackEditor = ClassicEditors[this.feedbackEditorId];
 
-            var comment = feedbackEditor.getData() || '<p></p>';
+            var comment = feedbackEditor.getData() || "<p></p>";
 
-            answerEditor.focus();
+            answerEditor?.focus();
 
             this.$nextTick(async () => {
 
-                if(answerEditor.plugins.get( 'CommentsRepository' ).activeCommentThread) {
+                if(answerEditor && answerEditor.plugins.get( "CommentsRepository" ).activeCommentThread) {
 
                     //created feedback record data
                     var feedback = await this.$wire.createNewComment([]);
 
-                    await answerEditor.execute( 'addCommentThread', { threadId: feedback.threadId } );
+                    await answerEditor.execute("addCommentThread", { threadId: feedback.threadId });
 
-                    var newCommentThread = answerEditor.plugins.get( 'CommentsRepository' ).getCommentThreads().filter((thread) => { return thread.id == feedback.threadId})[0];
+                    var newCommentThread = answerEditor.plugins.get("CommentsRepository").getCommentThreads().filter((thread) => {
+                        return thread.id == feedback.threadId;
+                    })[0];
 
-                    newCommentThread.addComment({threadId: feedback.threadId, commentId: feedback.commentId, content: comment, authorId: this.userId});
+                    newCommentThread.addComment({
+                        threadId: feedback.threadId,
+                        commentId: feedback.commentId,
+                        content: comment,
+                        authorId: this.userId
+                    });
 
                     var updatedAnswerText = answerEditor.getData();
                     // updatedAnswerText = updatedAnswerText.replaceAll('&nbsp;', '');
-                    // console.log(updatedAnswerText)
 
                     let commentStyles = await this.$wire.saveNewComment({
                         uuid: feedback.uuid,
                         message: comment,
                         comment_color: comment_color,
-                        comment_emoji: comment_emoji,
+                        comment_emoji: comment_emoji
                     }, updatedAnswerText);
 
                     await this.createCommentIcon({
                         uuid: feedback.uuid,
                         threadId: feedback.threadId,
-                        iconName: comment_iconName,
-                    })
+                        iconName: comment_iconName
+                    });
 
-                    document.querySelector('#commentMarkerStyles').innerHTML = commentStyles;
+                    const commentMarkerStyles = document.querySelector("#commentMarkerStyles");
+                    if(commentMarkerStyles) commentMarkerStyles.innerHTML = commentStyles;
 
                     this.hasFeedback = true;
 
 
-                    this.$dispatch('answer-feedback-show-comments');
+                    this.$dispatch("answer-feedback-show-comments");
 
                     this.scrollToCommentCard(feedback.uuid);
 
                     setTimeout(() => {
-                        ClassicEditors[this.feedbackEditorId].setData('<p></p>');
+                        ClassicEditors[this.feedbackEditorId].setData("<p></p>");
                     }, 300);
                     return;
                 }
@@ -2863,49 +2954,54 @@ document.addEventListener("alpine:init", () => {
                 var feedback = await this.$wire.createNewComment({
                     message: comment,
                     comment_color: null, //no comment color when its a general ticket.
-                    comment_emoji: comment_emoji,
+                    comment_emoji: comment_emoji
                 }, false);
 
                 this.hasFeedback = true;
 
-                this.$dispatch('answer-feedback-show-comments');
+                this.$dispatch("answer-feedback-show-comments");
 
                 let intervalCount = 0;
                 let interval = setInterval(() => {
                     intervalCount++;
-                    this.$dispatch('answer-feedback-show-comments');
-                    if(intervalCount > 2) {
+                    this.$dispatch("answer-feedback-show-comments");
+                    if (intervalCount > 2) {
                         this.scrollToCommentCard(feedback.uuid);
                     }
-                    if(intervalCount === 5) {
+                    if (intervalCount === 5) {
                         clearInterval(interval);
                         return;
                     }
                 }, 400);
 
-                feedbackEditor.setData('<p></p>');
+                feedbackEditor.setData("<p></p>");
+
+                const checkedRadioInput = document.querySelector('.answer-feedback-add-comment .emoji-picker-radio input:checked');
+                if(checkedRadioInput) {
+                    checkedRadioInput.checked = false;
+                }
             });
 
         },
         async deleteCommentThread(threadId, feedbackId) {
 
 
-            if(threadId === null) {
+            if (threadId === null) {
                 await this.$wire.deleteCommentThread(null, feedbackId);
                 this.$wire.render();
                 return;
             }
             const answerEditor = ClassicEditors[this.answerEditorId];
 
-            let commentsRepository = answerEditor.plugins.get( 'CommentsRepository' );
+            let commentsRepository = answerEditor.plugins.get("CommentsRepository");
 
             let thread = commentsRepository.getCommentThread(threadId);
 
             const result = await this.$wire.deleteCommentThread(threadId, feedbackId);
-            if(result) {
+            if (result) {
                 //delete icon positioned over the ckeditor
-                let deletedThreadIcon = document.querySelector('.answer-feedback-comment-icons #icon-'+threadId);
-                if(deletedThreadIcon) {
+                let deletedThreadIcon = document.querySelector(".answer-feedback-comment-icons #icon-" + threadId);
+                if (deletedThreadIcon) {
                     deletedThreadIcon.remove();
                 }
                 thread.remove();
@@ -2916,16 +3012,16 @@ document.addEventListener("alpine:init", () => {
 
                 return;
             }
-            console.error('failed to delete answer feedback');
+            console.error("failed to delete answer feedback");
         },
-        initCommentIcons(commentThreads, answerFeedbackFilter = 'all') {
+        initCommentIcons(commentThreads, answerFeedbackFilter = "all") {
             let filteredCommentThreads = commentThreads.filter((thread) => {
                 return (
-                    (answerFeedbackFilter === 'current_user' && thread.currentUser)
-                    || (answerFeedbackFilter === 'students' && thread.role === 'student')
-                    || (answerFeedbackFilter === 'teacher' && thread.role === 'teacher')
-                    || answerFeedbackFilter === 'all'
-                )
+                    (answerFeedbackFilter === "current_user" && thread.currentUser)
+                    || (answerFeedbackFilter === "students" && thread.role === "student")
+                    || (answerFeedbackFilter === "teacher" && thread.role === "teacher")
+                    || answerFeedbackFilter === "all"
+                );
             });
             filteredCommentThreads.forEach((thread) => {
                 this.createCommentIcon(thread);
@@ -2934,19 +3030,19 @@ document.addEventListener("alpine:init", () => {
             //create global event listener for comment icon click and hover
             this.createCommentTagsEventListener(filteredCommentThreads);
         },
-        createCommentTagsEventListener( enabledCommentThreads) {
-            const commentEditorContainer = document.querySelector('.answer-feedback-comment-icons').parentElement;
+        createCommentTagsEventListener(enabledCommentThreads) {
+            const commentEditorContainer = document.querySelector(".answer-feedback-comment-icons").parentElement;
             let hoveringCommentThread = null;
 
             //remove previous event listeners, if any
-            if(this.commentTagsEventListeners) {
-                commentEditorContainer.removeEventListener('click', this.commentTagsEventListeners['click']);
-                commentEditorContainer.removeEventListener('mouseover', this.commentTagsEventListeners['mouseover']);
+            if (this.commentTagsEventListeners) {
+                commentEditorContainer.removeEventListener("click", this.commentTagsEventListeners["click"]);
+                commentEditorContainer.removeEventListener("mouseover", this.commentTagsEventListeners["mouseover"]);
             }
             this.commentTagsEventListeners = [];
 
-            this.commentTagsEventListeners['click'] = (event) => {
-                let targetCommentElement = event.target.closest('[data-comment], [data-threadid]');
+            this.commentTagsEventListeners["click"] = (event) => {
+                let targetCommentElement = event.target.closest("[data-comment], [data-threadid]");
                 if (!targetCommentElement) return;
 
                 let clickedEnabledCommentThread = enabledCommentThreads.filter((thread) => {
@@ -2956,10 +3052,10 @@ document.addEventListener("alpine:init", () => {
                 if (!clickedEnabledCommentThread) return;
 
                 this.setActiveComment(clickedEnabledCommentThread.threadId, clickedEnabledCommentThread.uuid);
-            }
+            };
 
-            this.commentTagsEventListeners['mouseover'] = (event) => {
-                let targetCommentElement = event.target.closest('[data-comment], [data-threadid]');
+            this.commentTagsEventListeners["mouseover"] = (event) => {
+                let targetCommentElement = event.target.closest("[data-comment], [data-threadid]");
                 let targetCommentThreadId = targetCommentElement?.dataset.comment || targetCommentElement?.dataset.threadid || false;
 
                 let previousHoveringCommentThread = hoveringCommentThread;
@@ -2967,22 +3063,22 @@ document.addEventListener("alpine:init", () => {
                     return thread.threadId === targetCommentThreadId;
                 }).pop();
 
-                if(!hoveringCommentThread) {
+                if (!hoveringCommentThread) {
                     //only clear hovering comment if leaving an enabled/valid comment thread element
                     previousHoveringCommentThread ? this.clearHoveringComment() : null;
                     return;
                 }
-                if(hoveringCommentThread.threadId === previousHoveringCommentThread?.threadId) {
+                if (hoveringCommentThread.threadId === previousHoveringCommentThread?.threadId) {
                     return;
                 }
                 this.setHoveringComment(hoveringCommentThread.threadId, hoveringCommentThread.uuid);
-            }
+            };
 
-            commentEditorContainer.addEventListener('click', this.commentTagsEventListeners['click']);
-            commentEditorContainer.addEventListener('mouseover', this.commentTagsEventListeners['mouseover']);
+            commentEditorContainer.addEventListener("click", this.commentTagsEventListeners["click"]);
+            commentEditorContainer.addEventListener("mouseover", this.commentTagsEventListeners["mouseover"]);
         },
         repositionAnswerFeedbackIcons() {
-            let answerFeedbackCommentIcons = document.querySelectorAll('.answer-feedback-comment-icon');
+            let answerFeedbackCommentIcons = document.querySelectorAll(".answer-feedback-comment-icon");
             answerFeedbackCommentIcons.forEach((iconWrapper) => {
                 let threadId = iconWrapper.dataset.threadid;
                 let threadUuid = iconWrapper.dataset.uuid;
@@ -2991,63 +3087,63 @@ document.addEventListener("alpine:init", () => {
         },
         setIconPositionForThread(iconWrapper, threadId, answerFeedbackUuid) {
             const commentMarkers = document.querySelectorAll(`[data-comment='` + threadId + `']`);
-            if(commentMarkers.length === 0) {
-                iconWrapper.style.display = 'none';
+            if (commentMarkers.length === 0) {
+                iconWrapper.style.display = "none";
                 return;
             }
-            const lastCommentMarker = commentMarkers[commentMarkers.length-1];
+            const lastCommentMarker = commentMarkers[commentMarkers.length - 1];
 
-            iconWrapper.style.top = (lastCommentMarker.offsetTop - 15 /* adjust icon alignment */ + lastCommentMarker.offsetHeight - 24 /* adjust to last line of marker */) + 'px';
+            iconWrapper.style.top = (lastCommentMarker.offsetTop - 15 /* adjust icon alignment */ + lastCommentMarker.offsetHeight - 24 /* adjust to last line of marker */) + "px";
 
             let lastCommentMarkerClientRects = lastCommentMarker.getClientRects();
             let lastCommentMarkerParentClientRects = lastCommentMarker.offsetParent.getClientRects();
 
-            let lastCommentMarkerLineClientRight = lastCommentMarkerClientRects[lastCommentMarkerClientRects.length-1].right;
-            let lastCommentMarkerLineParentClientLeft = lastCommentMarkerParentClientRects[lastCommentMarkerParentClientRects.length-1].left;
+            let lastCommentMarkerLineClientRight = lastCommentMarkerClientRects[lastCommentMarkerClientRects.length - 1].right;
+            let lastCommentMarkerLineParentClientLeft = lastCommentMarkerParentClientRects[lastCommentMarkerParentClientRects.length - 1].left;
 
             let lastCommentMarkerLineOffsetLeft = lastCommentMarkerLineClientRight - lastCommentMarkerLineParentClientLeft;
 
-            iconWrapper.style.left = (lastCommentMarkerLineOffsetLeft - 5) + 'px';
+            iconWrapper.style.left = (lastCommentMarkerLineOffsetLeft - 5) + "px";
         },
         initCommentIcon(iconWrapper, thread) {
             setTimeout(() => {
                 this.setIconPositionForThread(iconWrapper, thread.threadId, thread.uuid);
 
-                iconWrapper.setAttribute('data-uuid', thread.uuid);
-                iconWrapper.setAttribute('data-threadId', thread.threadId);
+                iconWrapper.setAttribute("data-uuid", thread.uuid);
+                iconWrapper.setAttribute("data-threadId", thread.threadId);
 
                 this.addOrReplaceIconByName(iconWrapper, thread.iconName);
-            }, 200)
+            }, 200);
         },
-        createCommentIcon (thread) {
-            let commentIconsContainer = document.querySelector('.answer-feedback-comment-icons');
-            let iconId = "icon-"+thread.threadId;
-            let iconWrapper = document.createElement('div');
-            iconWrapper.classList.add('absolute');
-            iconWrapper.classList.add('z-10');
-            iconWrapper.classList.add('cursor-pointer');
-            iconWrapper.classList.add('answer-feedback-comment-icon');
+        createCommentIcon(thread) {
+            let commentIconsContainer = document.querySelector(".answer-feedback-comment-icons");
+            let iconId = "icon-" + thread.threadId;
+            let iconWrapper = document.createElement("div");
+            iconWrapper.classList.add("absolute");
+            iconWrapper.classList.add("z-10");
+            iconWrapper.classList.add("cursor-pointer");
+            iconWrapper.classList.add("answer-feedback-comment-icon");
             iconWrapper.id = iconId;
-            commentIconsContainer.appendChild(iconWrapper)
+            commentIconsContainer.appendChild(iconWrapper);
 
             this.initCommentIcon(iconWrapper, thread);
         },
-        addOrReplaceIconByName (el, iconName, isFeedbackCardIcon = false) {
-            el.innerHTML = '';
+        addOrReplaceIconByName(el, iconName, isFeedbackCardIcon = false) {
+            el.innerHTML = "";
 
             let iconTemplate = null;
-            if(iconName === null || iconName === '' || iconName === undefined) {
-                if(isFeedbackCardIcon)  {
+            if (iconName === null || iconName === "" || iconName === undefined) {
+                if (isFeedbackCardIcon) {
                     return;
                 }
-                iconTemplate = document.querySelector('#default-icon')
+                iconTemplate = document.querySelector("#default-icon");
             } else {
-                iconTemplate = document.querySelector('#'+iconName.replace('icon.', ''))
+                iconTemplate = document.querySelector("#" + iconName.replace("icon.", ""));
             }
             el.appendChild(document.importNode(iconTemplate.content, true));
         },
         setHoveringComment(threadId, answerFeedbackUuid) {
-            this.hoveringComment = {threadId: threadId, uuid: answerFeedbackUuid };
+            this.hoveringComment = { threadId: threadId, uuid: answerFeedbackUuid };
             this.setHoveringCommentMarkerStyle();
         },
         clearHoveringComment() {
@@ -3056,111 +3152,115 @@ document.addEventListener("alpine:init", () => {
         },
         cancelEditingComment(threadId, AnswerFeedbackUuid, originalIconName = false, originalColor = false) {
             //reset temporary styling
-            document.querySelector('#temporaryCommentMarkerStyles').innerHTML = '';
+            const temporaryStyleTag = document.querySelector("#temporaryCommentMarkerStyles");
+            if(temporaryStyleTag) temporaryStyleTag.innerHTML = '';
 
             this.setEditingComment(null);
 
             //reset radio buttons
-            if(originalColor) {
-                document.querySelector('[data-uuid="'+AnswerFeedbackUuid+`"].answer-feedback-card .comment-color-picker [data-color="${originalColor}"]`).checked = true;
+            if (originalColor) {
+                document.querySelector("[data-uuid=\"" + AnswerFeedbackUuid + `"].answer-feedback-card .comment-color-picker [data-color="${originalColor}"]`).checked = true;
             }
 
-            if(originalIconName === false) return; /* false is unset, but null is a valid value */
+            if (originalIconName === false) return; /* false is unset, but null is a valid value */
 
-            if(originalIconName === null || originalIconName === '') {
-                let emojiPicker = document.querySelector('[data-uuid="'+AnswerFeedbackUuid+`"].answer-feedback-card .comment-emoji-picker input:checked`)
-                if(emojiPicker) emojiPicker.checked = false;
+            if (originalIconName === null || originalIconName === "") {
+                let emojiPicker = document.querySelector("[data-uuid=\"" + AnswerFeedbackUuid + `"].answer-feedback-card .comment-emoji-picker input:checked`);
+                if (emojiPicker) emojiPicker.checked = false;
             } else {
-                document.querySelector('[data-uuid="'+AnswerFeedbackUuid+`"].answer-feedback-card .comment-emoji-picker [data-iconName="${originalIconName}"]`).checked = true;
+                document.querySelector("[data-uuid=\"" + AnswerFeedbackUuid + `"].answer-feedback-card .comment-emoji-picker [data-iconName="${originalIconName}"]`).checked = true;
             }
 
             //reset icon to the original if originalIconName is given (null is also valid)
-            let ckeditorIconWrapper = document.querySelector('#icon-' + threadId)
-            let cardIconWrapper = document.querySelector('[data-uuid="'+AnswerFeedbackUuid+'"].answer-feedback-card-icon')
+            let ckeditorIconWrapper = document.querySelector("#icon-" + threadId);
+            let cardIconWrapper = document.querySelector("[data-uuid=\"" + AnswerFeedbackUuid + "\"].answer-feedback-card-icon");
 
-            if(ckeditorIconWrapper) this.addOrReplaceIconByName(ckeditorIconWrapper, originalIconName);
-            if(cardIconWrapper) {
-                if(originalIconName === null || originalIconName === '') {
-                    cardIconWrapper.innerHTML = '';
+            if (ckeditorIconWrapper) this.addOrReplaceIconByName(ckeditorIconWrapper, originalIconName);
+            if (cardIconWrapper) {
+                if (originalIconName === null || originalIconName === "") {
+                    cardIconWrapper.innerHTML = "";
                     return;
                 }
 
                 this.addOrReplaceIconByName(cardIconWrapper, originalIconName);
-                cardIconWrapper.querySelector('span').style = '';
+                cardIconWrapper.querySelector("span").style = "";
             }
 
         },
         updateNewCommentMarkerStyles(color) {
             const styleTag = document.querySelector('#addFeedbackMarkerStyles');
-
-            let colorCode = 'rgba(var(--primary-rgb), 0.4)';
-            if(color) {
-                colorCode = color;
-            }
-            styleTag.innerHTML = '\n' +
-                '        :root {\n' +
-                '            --active-comment-color: '+ colorCode +'; /* default color, overwrite when color picker is used */\n' +
-                '            --ck-color-comment-marker-active: var(--active-comment-color);\n' +
-                '        }\n' +
-                '    span.ck-comment-marker[data-comment="new-comment-thread"]{\n' +
-                '            --active-comment-color: '+ colorCode +'; /* default color, overwrite when color picker is used */\n' +
-                '            --ck-color-comment-marker: var(--active-comment-color);\n' +
-                '            --ck-color-comment-marker-active: var(--active-comment-color);\n' +
-                '            cursor: pointer !important;\n' +
-                '        }';
-        },
-        setHoveringCommentMarkerStyle(removeStyling = false) {
-            const styleTag = document.querySelector('#hoveringCommentMarkerStyle');
             if(!styleTag) {
                 return;
             }
 
-            if(removeStyling || this.hoveringComment.threadId === null) {
-                styleTag.innerHTML = '';
+            let colorCode = "rgba(var(--primary-rgb), 0.4)";
+            if (color) {
+                colorCode = color;
+            }
+            styleTag.innerHTML = "\n" +
+                "        :root {\n" +
+                "            --active-comment-color: " + colorCode + "; /* default color, overwrite when color picker is used */\n" +
+                "            --ck-color-comment-marker-active: var(--active-comment-color);\n" +
+                "        }\n" +
+                "    span.ck-comment-marker[data-comment=\"new-comment-thread\"]{\n" +
+                "            --active-comment-color: " + colorCode + "; /* default color, overwrite when color picker is used */\n" +
+                "            --ck-color-comment-marker: var(--active-comment-color);\n" +
+                "            --ck-color-comment-marker-active: var(--active-comment-color);\n" +
+                "            cursor: pointer !important;\n" +
+                "        }";
+        },
+        setHoveringCommentMarkerStyle(removeStyling = false) {
+            const styleTag = document.querySelector("#hoveringCommentMarkerStyle");
+            if (!styleTag) {
                 return;
             }
 
-            styleTag.innerHTML = '' +
-                'span.ck-comment-marker[data-comment="'+ this.hoveringComment.threadId +'"] { color: var(--teacher-primary); }' +
-                'div[data-threadid="'+this.hoveringComment.threadId+'"] svg { color: var(--teacher-primary); }';
+            if (removeStyling || this.hoveringComment.threadId === null) {
+                styleTag.innerHTML = "";
+                return;
+            }
+
+            styleTag.innerHTML = "" +
+                "span.ck-comment-marker[data-comment=\"" + this.hoveringComment.threadId + "\"] { color: var(--teacher-primary); }" +
+                "div[data-threadid=\"" + this.hoveringComment.threadId + "\"] svg { color: var(--teacher-primary); }";
 
         },
         setActiveCommentMarkerStyle(removeStyling = false) {
-            const styleTag = document.querySelector('#activeCommentMarkerStyle');
-            if(!styleTag) {
+            const styleTag = document.querySelector("#activeCommentMarkerStyle");
+            if (!styleTag) {
                 return;
             }
 
-            if(removeStyling || this.activeComment?.threadId === null) {
-                styleTag.innerHTML = '';
+            if (removeStyling || this.activeComment?.threadId === null) {
+                styleTag.innerHTML = "";
                 return;
             }
 
-            styleTag.innerHTML = '' +
-                'span.ck-comment-marker[data-comment="'+ this.activeComment?.threadId +'"] { ' +
-                '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' +
-                '} ' +
-                'span.ck-comment-marker[data-comment="'+ this.activeComment?.threadId +'"].ck-math-widget { ' +
-                '   border: 1px solid transparent !important; ' +
-                '} ' +
-                'span.ck-comment-marker[data-comment="'+ this.activeComment?.threadId +'"] img { ' +
-                '   border: 1px solid var(--ck-color-comment-marker-border) !important; ' +
-                '} '  +
-                'div.answer-feedback-comment-icon[data-threadid="'+ this.activeComment?.threadId +'"] { ' +
-                '   z-index: 11 ' +
-                '} '
+            styleTag.innerHTML = "" +
+                "span.ck-comment-marker[data-comment=\"" + this.activeComment?.threadId + "\"] { " +
+                "   border: 1px solid var(--ck-color-comment-marker-border) !important; " +
+                "} " +
+                "span.ck-comment-marker[data-comment=\"" + this.activeComment?.threadId + "\"].ck-math-widget { " +
+                "   border: 1px solid transparent !important; " +
+                "} " +
+                "span.ck-comment-marker[data-comment=\"" + this.activeComment?.threadId + "\"] img { " +
+                "   border: 1px solid var(--ck-color-comment-marker-border) !important; " +
+                "} " +
+                "div.answer-feedback-comment-icon[data-threadid=\"" + this.activeComment?.threadId + "\"] { " +
+                "   z-index: 11 " +
+                "} "
             ;
 
         },
-        setActiveComment (threadId, answerFeedbackUuid) {
-            this.$dispatch('answer-feedback-show-comments');
+        setActiveComment(threadId, answerFeedbackUuid) {
+            this.$dispatch("answer-feedback-show-comments");
             setTimeout(() => {
-                if(this.$store.answerFeedback.feedbackBeingEdited()) {
+                if (this.$store.answerFeedback.feedbackBeingEdited()) {
                     /* when editing, no other comment can be activated */
                     return;
                 }
                 this.$dispatch("answer-feedback-drawer-tab-update", { tab: 2, uuid: answerFeedbackUuid });
-                this.activeComment = {threadId: threadId, uuid: answerFeedbackUuid };
+                this.activeComment = { threadId: threadId, uuid: answerFeedbackUuid };
                 this.setActiveCommentMarkerStyle();
             }, 300);
         },
@@ -3169,27 +3269,30 @@ document.addEventListener("alpine:init", () => {
             this.setActiveCommentMarkerStyle(true);
         },
         setFocusTracking() {
-            if(viewOnly) {
+            if (viewOnly) {
                 return;
             }
+            const answerEditor = ClassicEditors[this.answerEditorId];
+            const feedbackEditor = ClassicEditors[this.feedbackEditorId];
+            if(!answerEditor || !feedbackEditor) {
+                return;
+            }
+
             setTimeout(()=> {
                 try {
-                    const answerEditor = ClassicEditors[this.answerEditorId];
-                    const feedbackEditor = ClassicEditors[this.feedbackEditorId];
-
                     answerEditor.ui.focusTracker.add( feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
 
-                    feedbackEditor.ui.focusTracker.add( answerEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
+                    feedbackEditor.ui.focusTracker.add(answerEditor.sourceElement.parentElement.querySelector(".ck.ck-content"));
 
                 } catch (exception) {
                     // ignore focusTracker error when trying to add element that is already registered
                     // there is no way to preventively check if the element is already registered
-                    if(!exception.message.contains('focustracker-add-element-already-exist')) {
+                    if (!exception.message.contains("focustracker-add-element-already-exist")) {
                         throw exception;
                     }
                 }
 
-            },1000)
+            }, 1000);
         },
         get answerEditor() {
             return ClassicEditors[this.answerEditorId];
@@ -3200,36 +3303,39 @@ document.addEventListener("alpine:init", () => {
         createFocusableButtons() {
             setTimeout(() => {
                 try {
-                    const answerEditor = ClassicEditors[this.answerEditorId];
-                    const buttonWrapper = document.querySelector('#saveNewFeedbackButtonWrapper');
+                    const buttonWrapper = document.querySelector("#saveNewFeedbackButtonWrapper");
 
-                    if(buttonWrapper.children.length > 0) {
+                    if (buttonWrapper.children.length > 0) {
                         return;
                     }
 
                     //text cancel button:
-                    const textCancelButton = new window.CkEditorButtonView(new window.CkEditorLocale('nl'));
+                    const textCancelButton = new window.CkEditorButtonView(new window.CkEditorLocale("nl"));
                     textCancelButton.set({
                         label: buttonWrapper.dataset.cancelTranslation,
-                        classList: 'text-button button-sm',
-                        eventName: 'cancel',
+                        classList: "text-button button-sm",
+                        eventName: "cancel"
                     });
                     textCancelButton.render();
 
-                    answerEditor.ui.focusTracker.add(textCancelButton.element);
                     buttonWrapper.appendChild(textCancelButton.element);
 
                     //CTA save button:
-                    const saveButtonCta = new window.CkEditorButtonView(new window.CkEditorLocale('nl'));
+                    const saveButtonCta = new window.CkEditorButtonView(new window.CkEditorLocale("nl"));
                     saveButtonCta.set({
                         label: buttonWrapper.dataset.saveTranslation,
-                        classList: 'cta-button button-gradient button-sm',
-                        eventName: 'save',
+                        classList: "cta-button button-gradient button-sm",
+                        eventName: "save"
                     });
                     saveButtonCta.render();
 
-                    answerEditor.ui.focusTracker.add(saveButtonCta.element);
                     buttonWrapper.appendChild(saveButtonCta.element);
+
+                    const answerEditor = ClassicEditors[this.answerEditorId];
+                    if(answerEditor) {
+                        answerEditor.ui.focusTracker.add(textCancelButton.element);
+                        answerEditor.ui.focusTracker.add(saveButtonCta.element);
+                    }
 
                 } catch (exception) {
                     //
@@ -3239,60 +3345,70 @@ document.addEventListener("alpine:init", () => {
         createCommentColorRadioButton(el, rgb, colorName, checked) {
             const answerEditor = ClassicEditors[this.answerEditorId];
 
-            const radiobutton = new window.CkEditorRadioWithColorView(new window.CkEditorLocale('nl'));
+            const radiobutton = new window.CkEditorRadioWithColorView(new window.CkEditorLocale("nl"));
             radiobutton.set({
-                rgb: rgb.replace('rgba(', '').replace(',0.4)',''),
-                colorName: colorName,
+                rgb: rgb.replace("rgba(", "").replace(",0.4)", ""),
+                colorName: colorName
             });
             radiobutton.render();
 
             answerEditor.ui.focusTracker.add(radiobutton.element);
 
-            el.appendChild(radiobutton.element)
+            el.appendChild(radiobutton.element);
 
-            radiobutton.element.querySelector('input').checked = checked;
+            radiobutton.element.querySelector("input").checked = checked;
 
         },
         createCommentIconRadioButton(el, iconName, emojiValue, checked) {
-            const answerEditor = ClassicEditors[this.answerEditorId];
-
-            const radiobutton = new window.CkEditorRadioWithIconView(new window.CkEditorLocale('nl'));
+            const radiobutton = new window.CkEditorRadioWithIconView(new window.CkEditorLocale("nl"));
             radiobutton.set({
                 iconName: iconName,
-                emojiValue: emojiValue,
+                emojiValue: emojiValue
             });
             radiobutton.render();
 
-            answerEditor.ui.focusTracker.add(radiobutton.element);
+            const answerEditor = ClassicEditors[this.answerEditorId];
+            if(answerEditor) {
+                answerEditor.ui.focusTracker.add(radiobutton.element);
+            }
 
-            el.appendChild(radiobutton.element)
+            el.appendChild(radiobutton.element);
 
-            radiobutton.element.querySelector('span').appendChild(
-                document.importNode(el.querySelector('template').content, true)
+            radiobutton.element.querySelector("span").appendChild(
+                document.importNode(el.querySelector("template").content, true)
             );
         },
-        setEditingComment (AnswerFeedbackUuid) {
+        setEditingComment(AnswerFeedbackUuid) {
             this.activeComment = null;
             this.$store.answerFeedback.setEditingComment(AnswerFeedbackUuid ?? null);
             setTimeout(() => {
                 this.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
-            },500)
+            }, 500);
         },
         async toggleFeedbackAccordion (name, forceOpenAccordion = false) {
+            const addFeedbackAccordion = document.querySelector('.answer-feedback-add-comment button');
+            const givenFeedbackAccordion = document.querySelector('.answer-feedback-given-comments button');
+
             if(this.$store.answerFeedback.newFeedbackBeingCreated()) {
-                this.dropdownOpened ='add-feedback';
+                this.dropdownOpened ="add-feedback";
                 return;
-            };
-            if(this.$store.answerFeedback.feedbackBeingEdited()) {
-                this.dropdownOpened ='given-feedback';
+            }
+            ;
+            if (this.$store.answerFeedback.feedbackBeingEdited()) {
+                this.dropdownOpened = "given-feedback";
                 return;
             };
 
-            if(this.dropdownOpened === name && !forceOpenAccordion) {
+            if(givenFeedbackAccordion.disabled && name === "given-feedback") {
                 this.dropdownOpened = null;
                 return;
             }
-            if(questionType === 'OpenQuestion' && name === 'add-feedback') {
+
+            if (this.dropdownOpened === name && !forceOpenAccordion) {
+                this.dropdownOpened = null;
+                return;
+            }
+            if (questionType === "OpenQuestion" && name === "add-feedback") {
                 try {
                     this.setFocusTracking();
                 } catch (e) {
@@ -3307,61 +3423,81 @@ document.addEventListener("alpine:init", () => {
         },
         resetAddNewAnswerFeedback(cancelAddingNewComment = false) {
             //find default/blue color picker and enable it.
-            let defaultColorPicker = document.querySelector('.answer-feedback-add-comment .comment-color-picker [data-color="blue"]');
+            let defaultColorPicker = document.querySelector(".answer-feedback-add-comment .comment-color-picker [data-color=\"blue\"]");
             if (defaultColorPicker !== null) {
                 defaultColorPicker.checked = true;
             }
 
             //find checked emoji picker, uncheck
-            let checkedEmojiPicker = document.querySelector('.answer-feedback-add-comment .comment-emoji-picker input:checked');
+            let checkedEmojiPicker = document.querySelector(".answer-feedback-add-comment .comment-emoji-picker input:checked");
             if (checkedEmojiPicker !== null) {
                 checkedEmojiPicker.checked = false;
             }
 
             //answerFeedbackeditor reset text
             const answerEditor = ClassicEditors[this.feedbackEditorId];
-            answerEditor.setData('<p></p>');
+            answerEditor.setData("<p></p>");
 
             this.updateNewCommentMarkerStyles(null);
 
-            if(cancelAddingNewComment) {
-                window.dispatchEvent(new CustomEvent('answer-feedback-show-comments'));
+            if (cancelAddingNewComment) {
+                window.dispatchEvent(new CustomEvent("answer-feedback-show-comments"));
             }
         },
-        preventOpeningModalFromBreakingDrawer () {
-            var observer = new MutationObserver(function (mutations) {
-                mutations.forEach(function (mutation) {
-                    if (mutation.attributeName == "class" && mutation.target.classList.contains('overflow-y-hidden')) {
-                        mutation.target.classList.remove('overflow-y-hidden');
+        preventOpeningModalFromBreakingDrawer() {
+            var observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.attributeName == "class" && mutation.target.classList.contains("overflow-y-hidden")) {
+                        mutation.target.classList.remove("overflow-y-hidden");
                     }
                 });
             });
             observer.observe(
-                document.querySelector('body'),
-                {attributes: true}
+                document.querySelector("body"),
+                { attributes: true }
             );
-        },
+        }
 
     }));
     Alpine.data("coLearningStudent", () => ({
         async goToPreviousAnswerRating() {
-            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToPreviousAnswerRating');
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, "goToPreviousAnswerRating");
             }
             this.$wire.goToPreviousAnswerRating();
         },
         async goToNextAnswerRating() {
-            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToNextAnswerRating');
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, "goToNextAnswerRating");
             }
             this.$wire.goToNextAnswerRating();
         },
-        async goToFinishedCoLearningPage() {
+        async goToPreviousQuestion() {
             if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToFinishedCoLearningPage');
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToPreviousQuestion');
+            }
+            this.$wire.goToPreviousQuestion();
+        },
+        async goToNextQuestion() {
+            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToNextQuestion');
+            }
+            this.$wire.goToNextQuestion();
+        },
+        async goToFinishedCoLearningPage() {
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, "goToFinishedCoLearningPage");
             }
 
             this.$wire.goToFinishedCoLearningPage();
+        },
+        toggleTicked(event) {
+            this.updateLivewireComponent(event);
+        },
+        updateLivewireComponent(event) {
+            if (event.hasOwnProperty("identifier")) {
+                this.$wire.toggleValueUpdated(event.identifier, event.state, event.value);
+            }
         },
     }));
     Alpine.data("drawingQuestionImagePreview", () => ({
@@ -3444,20 +3580,19 @@ document.addEventListener("alpine:init", () => {
 
             this.editor.maxWords = value;
         },
-        addSelectedWordCounter(eventDetails, text='Geselecteerde woorden') {
-            if(eventDetails.editorId !== this.editor.sourceElement.id) return;
+        addSelectedWordCounter(eventDetails, text = "Geselecteerde woorden") {
+            if (eventDetails.editorId !== this.editor.sourceElement.id) return;
 
             const spanId = "selected-word-span";
             this.$root.querySelector(`#${spanId}`)?.remove();
 
-            if(eventDetails.wordCount === 0) return;
+            if (eventDetails.wordCount === 0) return;
 
             let element = document.createElement("strong");
             element.id = spanId;
-            element.classList.add("ml-4");
             element.innerHTML = `${text}: ${eventDetails.wordCount}`;
 
-            this.wordContainer.parentNode.append(element);
+            this.$root.querySelector(`#selected-word-count-${eventDetails.editorId}`).append(element);
         }
     }));
     Alpine.data("openQuestionStudentPlayer", (editorId) => ({
@@ -3486,7 +3621,7 @@ document.addEventListener("alpine:init", () => {
             return ClassicEditors[this.editorId];
         },
         syncEditorData() {
-            if (!this.getEditor() || this.getEditor().getData() === '') return;
+            if (!this.getEditor() || this.getEditor().getData() === "") return;
             this.$wire.sync("answer", this.getEditor().getData());
         }
     }));
@@ -3508,33 +3643,33 @@ document.addEventListener("alpine:init", () => {
                 }
             });
 
-            if (this.reinitializedTimeoutData && this.reinitializedTimeoutData.hasOwnProperty('timeLeft')) {
+            if (this.reinitializedTimeoutData && this.reinitializedTimeoutData.hasOwnProperty("timeLeft")) {
                 this.$nextTick(() => {
-                    this.startTimeout(this.reinitializedTimeoutData)
+                    this.startTimeout(this.reinitializedTimeoutData);
                 });
             }
         },
         currentUpdated(current) {
             this.showMe = (this.number == current);
-            if(this.showMe) this.$wire.updateAnswerIdForTestParticipant();
+            if (this.showMe) this.$wire.updateAnswerIdForTestParticipant();
         },
         refreshQuestion(eventData) {
             if (eventData.indexOf(this.number) !== -1) {
-                this.$wire.set('closed', true);
+                this.$wire.set("closed", true);
             }
         },
         closeThisQuestion(eventData) {
-            if(!this.showMe) return;
-            this.$wire.set('showCloseQuestionModal', true);
-            this.$wire.set('nextQuestion', eventData);
+            if (!this.showMe) return;
+            this.$wire.set("showCloseQuestionModal", true);
+            this.$wire.set("nextQuestion", eventData);
         },
         closeThisGroup(eventData) {
-            if(!this.showMe) return;
-            this.$wire.set('showCloseGroupModal', true);
-            this.$wire.set('nextQuestion', eventData);
+            if (!this.showMe) return;
+            this.$wire.set("showCloseGroupModal", true);
+            this.$wire.set("nextQuestion", eventData);
         },
         startTimeout(eventData) {
-            if(this.progressBar) return;
+            if (this.progressBar) return;
             this.progressBar = true;
             this.startTime = eventData.timeout;
 
@@ -3557,8 +3692,8 @@ document.addEventListener("alpine:init", () => {
             }
         },
         markInfoscreenAsSeen(eventData, questionUuid) {
-            if(questionUuid !== eventData) return;
-            this.$wire.markAsSeen(eventData)
+            if (questionUuid !== eventData) return;
+            this.$wire.markAsSeen(eventData);
         }
     }));
 
@@ -3928,27 +4063,27 @@ document.addEventListener("alpine:init", () => {
         }
 
     }));
-    Alpine.data('questionBank', (openTab, inGroup, inTestBankContext) => ({
+    Alpine.data("questionBank", (openTab, inGroup, inTestBankContext) => ({
         questionBankOpenTab: openTab,
         inGroup: inGroup,
         groupDetail: null,
         bodyVisibility: true,
         inTestBankContext: inTestBankContext,
-        maxHeight: 'calc(100vh - var(--header-height))',
+        maxHeight: "calc(100vh - var(--header-height))",
         init() {
-            this.groupDetail = this.$el.querySelector('#groupdetail');
+            this.groupDetail = this.$el.querySelector("#groupdetail");
 
-            this.$watch('showBank', value => {
-                if (value === 'questions') {
+            this.$watch("showBank", value => {
+                if (value === "questions") {
                     this.$wire.loadSharedFilters();
                 }
             });
 
-            this.$watch('$store.questionBank.inGroup', value => {
+            this.$watch("$store.questionBank.inGroup", value => {
                 this.inGroup = value;
             });
 
-            this.$watch('$store.questionBank.active', value => {
+            this.$watch("$store.questionBank.active", value => {
                 if (value) {
                     this.$wire.setAddedQuestionIdsArray();
                 } else {
@@ -3961,50 +4096,50 @@ document.addEventListener("alpine:init", () => {
 
                 if (readyForSlide) {
                     if (this.inTestBankContext) {
-                        this.$refs['tab-container'].style.display = 'none';
-                        this.$refs['main-container'].style.height = '100vh';
+                        this.$refs["tab-container"].style.display = "none";
+                        this.$refs["main-container"].style.height = "100vh";
                     } else {
-                        this.maxHeight = this.groupDetail.offsetHeight + 'px';
+                        this.maxHeight = this.groupDetail.offsetHeight + "px";
                     }
                     this.groupDetail.style.left = 0;
-                    this.$refs['main-container'].scrollTo({top: 0, behavior: 'smooth'});
-                    this.$el.scrollTo({top: 0, behavior: 'smooth'});
+                    this.$refs["main-container"].scrollTo({ top: 0, behavior: "smooth" });
+                    this.$el.scrollTo({ top: 0, behavior: "smooth" });
                     this.$nextTick(() => {
                         setTimeout(() => {
                             this.bodyVisibility = false;
                             if (this.inTestBankContext) {
-                                this.groupDetail.style.position = 'relative';
+                                this.groupDetail.style.position = "relative";
                             } else {
-                                handleVerticalScroll(this.$el.closest('.slide-container'));
+                                handleVerticalScroll(this.$el.closest(".slide-container"));
                             }
                         }, 500);
-                    })
+                    });
                 }
             };
 
             this.closeGroupDetailQb = () => {
                 if (!this.bodyVisibility) {
                     this.bodyVisibility = true;
-                    this.maxHeight = 'calc(100vh - var(--header-height))';
-                    this.groupDetail.style.left = '100%';
+                    this.maxHeight = "calc(100vh - var(--header-height))";
+                    this.groupDetail.style.left = "100%";
                     if (this.inTestBankContext) {
-                        this.groupDetail.style.position = 'absolute';
-                        this.$refs['tab-container'].style.display = 'block';
+                        this.groupDetail.style.position = "absolute";
+                        this.$refs["tab-container"].style.display = "block";
                     }
                     this.$nextTick(() => {
                         this.$wire.clearGroupDetails();
                         setTimeout(() => {
                             if (!this.inTestBankContext) {
-                                handleVerticalScroll(this.$el.closest('.slide-container'));
+                                handleVerticalScroll(this.$el.closest(".slide-container"));
                             }
                         }, 250);
-                    })
+                    });
                 }
             };
 
             this.addQuestionToTest = async (button, questionUuid, showQuestionBankAddConfirmation = false) => {
                 if (showQuestionBankAddConfirmation) {
-                    return this.$wire.emit('openModal', 'teacher.add-sub-question-confirmation-modal', {questionUuid: questionUuid});
+                    return this.$wire.emit("openModal", "teacher.add-sub-question-confirmation-modal", { questionUuid: questionUuid });
                 }
                 button.disabled = true;
                 var enableButton = await this.$wire.handleCheckboxClick(questionUuid);
@@ -4016,13 +4151,272 @@ document.addEventListener("alpine:init", () => {
         }
     }));
 
+    Alpine.data("constructionDrawer", (emptyStateActive, showBank) => ({
+        loadingOverlay: false,
+        collapse: false,
+        backdrop: false,
+        emptyStateActive,
+        showBank,
+        init() {
+            this.collapse = window.innerWidth < 1000;
+            if (this.emptyStateActive) {
+                this.$store.cms.emptyState = true;
+                this.backdrop = true;
+            }
+
+            this.$watch("emptyStateActive", (value) => {
+                this.backdrop = value;
+                this.$store.cms.emptyState = value;
+            });
+        },
+        handleBackdrop() {
+            if (this.backdrop) {
+                this.$root.dataset.closedWithBackdrop = "true";
+                this.backdrop = !this.backdrop;
+            } else {
+                if (this.$root.dataset.closedWithBackdrop === "true") {
+                    this.backdrop = true;
+                }
+            }
+        },
+        handleLoading() {
+            this.loadingOverlay = this.$store.cms.loading;
+        },
+        handleSliderClick(event) {
+            if (!event.target.classList.contains("slider-option")) {
+                return;
+            }
+            document.querySelectorAll(".option-menu-active").forEach((el) => this.$dispatch(el.getAttribute("context") + "-context-menu-close"));
+            this.$nextTick(() => this.showBank = event.target.firstElementChild.dataset.id);
+        }
+
+    }));
+    Alpine.data("constructionBody", (loading, empty,dirty, questionEditorId, answerEditorId) => ({
+        loading,
+        empty,
+        dirty,
+        loadTimeout: null,
+        questionEditorId,
+        answerEditorId,
+        init() {
+            this.$store.cms.processing = empty;
+            this.$watch("$store.cms.loading", (value) => this.loadingTimeout(value));
+            this.$watch("loading", (value) => this.loadingTimeout(value));
+            this.$watch("dirty", (value) => this.$store.cms.dirty = value);
+        },
+        handleQuestionChange(evt) {
+            // this.$store.cms.loading = true;
+            // this.loading = true;
+            // this.$wire.set("loading", true);
+            if (typeof evt !== "undefined") this.empty = false;
+            this.removeDrawingLegacy();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            this.$store.cms.dirty = false;
+        },
+        loadingTimeout(value) {
+            /*if (value !== true)*/ return;
+            this.loadTimeout = setTimeout(() => {
+                this.$store.cms.loading = false;
+                this.$store.cms.processing = false;
+                this.$wire.set("loading", false);
+                clearTimeout(this.loadTimeout);
+            }, 500);
+
+        },
+        removeDrawingLegacy() {
+            this.$root.querySelector("#drawing-question-tool-container")?.remove();
+        },
+        changeEditorWscLanguage(lang) {
+            if (document.getElementById(this.questionEditorId)) {
+                WebspellcheckerTlc.lang(ClassicEditors[this.questionEditorId], lang);
+            }
+            if (document.getElementById(this.answerEditorId)) {
+                WebspellcheckerTlc.lang(ClassicEditors[this.answerEditorId], lang);
+            }
+        },
+        forceSyncEditors() {
+            if (document.getElementById(this.questionEditorId)) {
+                this.$wire.sync("question.question", ClassicEditors[this.questionEditorId].getData());
+            }
+            if (document.getElementById(this.answerEditorId)) {
+                this.$wire.sync("question.answer", ClassicEditors[this.answerEditorId].getData());
+            }
+        },
+        isLoading() {
+            return (this.$store.cms.loading || this.$store.cms.emptyState);
+        },
+        isProcessing() {
+            return (this.$store.cms.processing);
+        }
+    }));
+    Alpine.data("constructionDirector", () => ({
+        init() {
+            this.$store.cms.loading = false;
+        },
+        get drawer() {
+            return this.getLivewireComponent('cms-drawer');
+        },
+        get constructor() {
+            return this.getLivewireComponent('cms');
+        },
+        async openQuestion(questionProperties) {
+            this.$dispatch('store-current-question');
+            this.$store.cms.scrollPos = document.querySelector('.drawer').scrollTop;
+            this.$store.cms.loading = true;
+            await this.constructor.showQuestion(questionProperties)
+            this.$store.cms.loading = false;
+
+        },
+        getLivewireComponent(attribute) {
+            return Livewire.find(
+                document.querySelector(`[${attribute}]`).getAttribute('wire:id')
+            );
+        }
+    }));
+
+    Alpine.data("testTakePage", (openTab, inGroup, inTestBankContext) => ({
+        testCodePopup: false,
+        urlCopied: false,
+        urlCopiedTimeout: null,
+        init() {
+            this.$watch("urlCopied", value => {
+                if (value) {
+                    clearTimeout(this.urlCopiedTimeout);
+                    setTimeout(() => this.urlCopied = false, 2000);
+                }
+            });
+        }
+    }));
+    Alpine.data("participantDetailPopup", () => ({
+        participantPopupOpen: false,
+        button: null,
+        async openPopup(event) {
+            if (this.participantPopupOpen) {
+                await this.closePopup(event);
+            }
+            this.button = event.element;
+            this.button.dataset.open = "true";
+
+            await this.$wire.openPopup(event.participant);
+            this.participantPopupOpen = true;
+
+            this.$nextTick(() => {
+                this.$root.style.left = this.getLeft();
+                this.$root.style.top = this.getTop();
+            });
+        },
+        async closePopup() {
+            this.participantPopupOpen = false;
+            await this.$wire.closePopup();
+            this.button.dataset.open = "false";
+        },
+        handleScroll() {
+            if (!this.participantPopupOpen) return;
+            this.$root.style.top = this.getTop();
+        },
+        getTop() {
+            return (this.button.getBoundingClientRect().top - this.$root.offsetHeight - 8) + "px";
+        },
+        getLeft() {
+            return ((this.button.getBoundingClientRect().left + (this.button.getBoundingClientRect().width / 2)) - (this.$root.offsetWidth / 2)) + "px";
+        }
+    }));
+    Alpine.data("testTakeAttainmentAnalysis", (columns) => ({
+        attainmentOpen: [],
+        studentData: [],
+        columns,
+        totalWidth: null,
+        loadingData: [],
+        init() {
+            this.fixPvalueContainerWidth();
+        },
+        fixPvalueContainerWidth() {
+            this.totalWidth = document.querySelector(".pvalue-questions")?.getBoundingClientRect().width;
+            this.$root.querySelectorAll(".pvalue-container").forEach((el) => {
+                el.style.width = this.totalWidth + "px";
+            });
+        },
+        async openRow(attainment) {
+            if (this.loadingData.includes(attainment)) return;
+            if (!this.studentData[attainment]) {
+                this.loadingData.push(attainment);
+                this.studentData[attainment] = await this.$wire.attainmentStudents(attainment);
+                this.loadingData = this.loadingData.filter(key => key !== attainment);
+            }
+
+            this.attainmentOpen.push(attainment);
+            this.$nextTick(() => this.fixPvalueContainerWidth());
+        },
+        closeRow(attainment) {
+            this.attainmentOpen = this.attainmentOpen.filter(key => key !== attainment);
+        },
+        async toggleRow(attainment) {
+            if (this.attainmentOpen.includes(attainment)) {
+                this.closeRow(attainment);
+                return;
+            }
+            await this.openRow(attainment);
+        },
+        styles(pValue, multiplier) {
+            return {
+                "width": this.barWidth(multiplier),
+                "backgroundColor": this.backgroundColor(pValue)
+            };
+        },
+        barWidth(multiplier) {
+            return (this.totalWidth / this.columns.length) * multiplier + "px";
+        },
+        backgroundColor(pValue) {
+            if ((pValue * 100) < 55) return "var(--all-red)";
+            if ((pValue * 100) < 65) return "var(--student)";
+            return "var(--cta-primary)";
+        },
+        isLastStudentInRow(student, attainment) {
+            const index = this.studentData[attainment]?.findIndex(s => s.uuid === student.uuid);
+            return this.studentData[attainment]?.length === index + 1;
+        },
+        resetAnalysis() {
+            this.attainmentOpen = [];
+            this.studentData = [];
+            this.loadingData = [];
+        }
+    }));
+    Alpine.data("pdfDownload", (translation, links) => ({
+        value : null,
+        waitingScreenHtml: PdfDownload.waitingScreenHtml(translation),
+        links,
+        select: function(option) {
+            this.value = option;
+        },
+        selected: function(option){
+            return option === this.value;
+        },
+        export_pdf: function (){
+            if(!this.value){
+                $wire.set('displayValueRequiredMessage', true);
+                return;
+            }
+            return this.export_now(this.links[this.value]);
+        },
+        export_now: function(url) {
+            var isSafari = navigator.userAgent.indexOf('Safari') > -1 && navigator.userAgent.indexOf('Chrome') <= -1
+            if(isSafari){
+                window.open(url);
+                return;
+            }
+            var windowReference = window.open();
+            windowReference.document.write(this.waitingScreenHtml);
+            windowReference.location = url;
+        },
+    }));
 
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");
         f(window, el._x_dataStack[0]);
     });
+
     Alpine.store("cms", {
-        loading: false,
+        loading: true,
         processing: false,
         dirty: false,
         scrollPos: 0,
@@ -4049,6 +4443,9 @@ document.addEventListener("alpine:init", () => {
             this.toggleCount = toggleCount;
         }
     });
+    Alpine.store("scoreSlider", {
+        currentBackupScore: null,
+    })
     Alpine.store("editorMaxWords", {});
     Alpine.store("coLearningStudent", {
         drawerCollapsed: null,
@@ -4058,70 +4455,80 @@ document.addEventListener("alpine:init", () => {
             }
             return this.drawerCollapsed;
         }
-    }),
-    Alpine.store("answerFeedback", {
-        editingComment: null,
-        creatingNewComment: false,
-        navigationRoot: null,
-        navigationMethod: null,
-        navigationArgs: null,
-        feedbackBeingEditedOrCreated() {
-            if(this.navigationRoot) {
-                this.navigationRoot = null;
-                this.navigationMethod = null;
-                this.creatingNewComment = false;
-                this.editingComment = null;
-                return false;
-            }
-            return this.feedbackBeingEdited() || this.newFeedbackBeingCreated();
-        },
-        feedbackBeingEdited() {
-            if(this.navigationRoot) {
-                this.navigationRoot = null;
-                this.navigationMethod = null;
-                this.creatingNewComment = false;
-                this.editingComment = null;
-                return false;
-            }
-            if(this.editingComment === null) {
-                return false;
-            }
-            return this.editingComment;
-        },
-        newFeedbackBeingCreated() {
-            if(this.navigationRoot) {
-                this.navigationRoot = null;
-                this.navigationMethod = null;
-                this.creatingNewComment = false;
-                this.editingComment = null;
-                return false;
-            }
-            return this.creatingNewComment;
-        },
-        openConfirmationModal(navigatorRootElement, methodName, methodArgs = null) {
-            this.navigationRoot = navigatorRootElement;
-            this.navigationMethod = methodName;
-            this.navigationArgs = methodArgs;
-            Livewire.emit('openModal', 'modal.confirm-still-editing-comment-modal', {'creatingNewComment': this.creatingNewComment});
-        },
-        continueAction() {
-            this.editingComment = null;
-            this.navigationRoot.dispatchEvent(new CustomEvent('continue-navigation', {detail: {method: this.navigationMethod, args: [this.navigationArgs]}}))
-            Livewire.emit('closeModal');
-        },
-        cancelAction() {
-            this.navigationRoot = null;
-            this.navigationMethod = null;
-            window.dispatchEvent(new CustomEvent('answer-feedback-drawer-tab-update', {detail: {tab: 2, uuid: this.editingComment}}));
-            Livewire.emit('closeModal');
-        },
-        resetEditingComment() {
-            this.setEditingComment(null);
-        },
-        setEditingComment(AnswerFeedbackUuid) {
-            this.editingComment = AnswerFeedbackUuid;
-        }
     });
+    Alpine.store("answerFeedback", {
+            editingComment: null,
+            creatingNewComment: false,
+            navigationRoot: null,
+            navigationMethod: null,
+            navigationArgs: null,
+            feedbackBeingEditedOrCreated() {
+                if (this.navigationRoot) {
+                    this.navigationRoot = null;
+                    this.navigationMethod = null;
+                    this.creatingNewComment = false;
+                    this.editingComment = null;
+                    return false;
+                }
+                return this.feedbackBeingEdited() || this.newFeedbackBeingCreated();
+            },
+            feedbackBeingEdited() {
+                if (this.navigationRoot) {
+                    this.navigationRoot = null;
+                    this.navigationMethod = null;
+                    this.creatingNewComment = false;
+                    this.editingComment = null;
+                    return false;
+                }
+                if (this.editingComment === null) {
+                    return false;
+                }
+                return this.editingComment;
+            },
+            newFeedbackBeingCreated() {
+                if (this.navigationRoot) {
+                    this.navigationRoot = null;
+                    this.navigationMethod = null;
+                    this.creatingNewComment = false;
+                    this.editingComment = null;
+                    return false;
+                }
+                return this.creatingNewComment;
+            },
+            openConfirmationModal(navigatorRootElement, methodName, methodArgs = null) {
+                this.navigationRoot = navigatorRootElement;
+                this.navigationMethod = methodName;
+                this.navigationArgs = methodArgs;
+                Livewire.emit("openModal", "modal.confirm-still-editing-comment-modal", { "creatingNewComment": this.creatingNewComment });
+            },
+            continueAction() {
+                this.editingComment = null;
+                this.navigationRoot.dispatchEvent(new CustomEvent("continue-navigation", {
+                    detail: {
+                        method: this.navigationMethod,
+                        args: [this.navigationArgs]
+                    }
+                }));
+                Livewire.emit("closeModal");
+            },
+            cancelAction() {
+                this.navigationRoot = null;
+                this.navigationMethod = null;
+                window.dispatchEvent(new CustomEvent("answer-feedback-drawer-tab-update", {
+                    detail: {
+                        tab: 2,
+                        uuid: this.editingComment
+                    }
+                }));
+                Livewire.emit("closeModal");
+            },
+            resetEditingComment() {
+                this.setEditingComment(null);
+            },
+            setEditingComment(AnswerFeedbackUuid) {
+                this.editingComment = AnswerFeedbackUuid;
+            }
+        });
     Alpine.store("studentPlayer", {
         playerComponent: null,
         getPlayer() {
@@ -4172,5 +4579,5 @@ const selectFunctions = {
             + parseInt(dropdown.style.maxHeight);
         const property = top >= screen.availHeight ? "bottom" : "top";
         dropdown.style[property] = this.$root.offsetHeight + 8 + "px";
-    },
+    }
 };

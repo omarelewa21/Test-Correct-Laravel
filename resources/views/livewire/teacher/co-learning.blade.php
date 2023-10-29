@@ -32,9 +32,59 @@
              class="flex border-2 relative w-full justify-between overflow-auto "
                              wire:poll.keep-alive.5000ms="render()"
         >
+
             <div class="flex flex-col w-full space-y-4 pt-10 px-[60px] pb-14"
                  wire:key="container-{{$this->testTake->discussing_question_id}}"
             >
+                @if($group) {{-- start group question container --}}
+                <x-accordion.container :active-container-key="true ? 'group' : ''"
+                                       :wire:key="'group-section-'. $this->discussingQuestion->id"
+                >
+                    <x-accordion.block key="group"
+                                       :emitWhenSet="true"
+                                       :wire:key="'group-section-block-'. $this->discussingQuestion->id"
+                                       mode="transparent"
+                    >
+                        <x-slot:title>
+                            <h4 class="flex items-center pr-4"
+                                selid="questiontitle"
+                            >
+                                <span>@lang('question.Vraaggroep')</span>
+                                <span>:</span>
+                                <span x-cloak class="ml-2 text-left flex line-clamp-1"
+                                      title="{!! $group->name !!}">
+                                            {!! $group->name !!}
+                                        </span>
+                                @if($group->isCarouselQuestion())
+                                    <span class="ml-2 lowercase text-base"
+                                          title="@lang('assessment.carousel_explainer')"
+                                    >@lang('cms.carrousel')</span>
+                                @endif
+                            </h4>
+                        </x-slot:title>
+                        <x-slot:body>
+                            <div class="flex flex-col gap-2"
+                                 wire:key="group-block-{{  $group->uuid }}">
+                                <div class="flex flex-wrap">
+                                    @foreach($group->attachments as $attachment)
+                                        <x-attachment.badge-view :attachment="$attachment"
+                                                                 :title="$attachment->title"
+                                                                 :wire:key="'badge-'.$group->uuid"
+                                                                 :question-id="$group->getKey()"
+                                                                 :question-uuid="$group->uuid"
+                                        />
+                                    @endforeach
+                                </div>
+                                <div class="">
+                                    {!! $group->converted_question_html !!}
+                                </div>
+                            </div>
+                        </x-slot:body>
+                    </x-accordion.block>
+                </x-accordion.container>
+                {{-- end group question container --}}
+                @endif
+
                 <x-accordion.container :active-container-key="'question'"
                                        :wire:key="'question-section-'.$this->discussingQuestion->id"
                 >
@@ -44,7 +94,7 @@
                         <x-slot:title>
                             <div class="question-indicator items-center flex">
                                 <div class="inline-flex question-number rounded-full text-center justify-center items-center">
-                                    <span class="align-middle cursor-default">{{ $this->questionIndex }}</span>
+                                    <span class="align-middle cursor-default">{{ $this->questionIndexAsInTest }}</span>
                                 </div>
                                 <div class="flex gap-4 items-center relative top-0.5">
                                     <h4 class="inline-flex"
@@ -160,6 +210,9 @@
                                                 :editorId="'editor-'.$this->discussingQuestion->uuid.$this->activeAnswerRating->id"
                                                 :show-toggles="false"
                                                 :webSpellChecker="$this->testTake->enable_spellcheck_colearning"
+                                                :answerRating="$this->activeAnswerRating"
+                                                :inCoLearning="true"
+                                                :disabled-toggle="true"
                                         />
                                     </div>
                                 </x-slot:body>

@@ -154,33 +154,38 @@
                                           :unique-key="$this->questionNavigationValue.'-'.$this->answerNavigationValue"
             >
                 <x-slot:slideOneContent>
-                    @if($this->showCoLearningScoreToggle)
-                        <div class="colearning-answers | flex w-full items-center justify-between"
-                             title="@lang('assessment.score_assigned'): @js($this->coLearningScoredValue)"
-                             x-cloak
-                        >
-                            <x-input.toggle disabled checked/>
-                            <span class="bold text-base">@lang('assessment.Score uit CO-Learning')</span>
-                            <x-tooltip>@lang('assessment.colearning_score_tooltip')</x-tooltip>
-                        </div>
-                        <div @class([
-                                          'notification py-0 px-4 gap-6 flex items-center',
-                                          'warning' => !$this->currentAnswerCoLearningRatingsHasNoDiscrepancy(),
-                                          'info' => $this->currentAnswerCoLearningRatingsHasNoDiscrepancy(),
-                                          ])
-                        >
-                            <x-icon.co-learning class="min-w-[1rem]" />
-                            <span class="bold">@lang($this->getDiscrepancyTranslationKey())</span>
-                        </div>
-                    @endif
                     @if($this->showAutomaticallyScoredToggle)
                         <div class="auto-assessed | flex w-full items-center justify-between cursor-default"
                              title="@lang('assessment.score_assigned'): @js($this->automaticallyScoredValue)"
                              x-cloak
                         >
-                            <x-input.toggle disabled checked/>
-                            <span class="bold text-base">@lang('assessment.Automatisch nakijken')</span>
+                            <span class="flex items-center text-center gap-2">
+                                <x-input.toggle disabled checked/>
+                                <span class="bold text-base">@lang('assessment.Automatisch nakijken')</span>
+                            </span>
                             <x-tooltip>@lang('assessment.closed_question_checked_tooltip')</x-tooltip>
+                        </div>
+                    @endif
+                    @if($this->showCoLearningScoreToggle)
+                        <div class="space-y-2">
+                            <div class="colearning-answers | flex w-full items-center justify-between"
+                                 title="{{  $this->coLearningScoredValue ?  __('assessment.score_assigned').': ' . $this->coLearningScoredValue : __('assessment.no_score_assigned') }}"
+                                 x-cloak
+                            >
+                                <span class="flex items-center text-center gap-2">
+                                    <x-input.toggle disabled checked/>
+                                    <span class="bold text-base">@lang('assessment.Score uit CO-Learning')</span>
+                                </span>
+                                <x-tooltip>@lang('assessment.colearning_score_tooltip')</x-tooltip>
+                            </div>
+                            <x-notification-message
+                                    :type="$this->currentAnswerCoLearningRatingsHasNoDiscrepancy() ? 'info' : 'warning'"
+                            >
+                                <x-slot:title >
+                                    <x-icon.co-learning/>
+                                    <span>@lang($this->getDiscrepancyTranslationKey())</span>
+                                </x-slot:title>
+                            </x-notification-message>
                         </div>
                     @endif
                     @if($this->showScoreSlider)
@@ -239,7 +244,6 @@
                          x-on:answer-feedback-focus-feedback-editor.window="toggleFeedbackAccordion('add-feedback', true)"
                          x-on:answer-feedback-show-comments.window="toggleFeedbackAccordion('given-feedback', true)"
                     >
-                        @if($this->inlineFeedbackEnabled)
                         <div class="answer-feedback-add-comment">
                             <button class="flex bold border-t border-blue-grey py-2 justify-between items-center w-full group"
                                   :class="$store.answerFeedback.editingComment !== null ? 'text-midgrey' : ''"
@@ -264,19 +268,22 @@
                                  wire:ignore
                                  x-init="createFocusableButtons()"
                             >
+                                @if($this->currentQuestion->isType('OpenQuestion'))
                                     <x-input.comment-color-picker
                                             commentThreadId="new-comment"
                                             uuid="new-comment"
                                             :useCkEditorView="true"
                                     ></x-input.comment-color-picker>
+                                @else
+                                    <x-partials.comment-emoji-templates/>
+                                @endif
 
-
-                                    <x-input.comment-emoji-picker
-                                            commentThreadId="new-comment"
-                                            uuid="new-comment"
-                                            :new-comment="true"
-                                            :useCkEditorView="true"
-                                    ></x-input.comment-emoji-picker>
+                                <x-input.comment-emoji-picker
+                                        commentThreadId="new-comment"
+                                        uuid="new-comment"
+                                        :new-comment="true"
+                                        :useCkEditorView="true"
+                                ></x-input.comment-emoji-picker>
 
                                     <div class="comment-feedback-editor"
                                             x-on:click="$el.classList.add('editor-focussed')"
@@ -287,6 +294,7 @@
                                             @lang('assessment.Feedback schrijven')
                                         </label>
                                         <x-input.rich-textarea type="create-answer-feedback"
+
                                                                :editorId="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue"
                                         />
                                     </div>
@@ -305,89 +313,88 @@
                             </div>
                         </div>
 
-                            <div class="answer-feedback-given-comments | relative">
-                                <button class="flex bold border-t border-blue-grey py-2 justify-between items-center w-full group"
-                                        :class="{'text-midgrey': !hasFeedback || $store.answerFeedback.creatingNewComment !== false}"
-                                        x-init="dropdownOpened = hasFeedback ? dropdownOpened : 'add-feedback'"
-                                        @click="hasFeedback ? toggleFeedbackAccordion('given-feedback') : ''"
-                                        :disabled="!hasFeedback || $store.answerFeedback.creatingNewComment !== false"
+                        <div class="answer-feedback-given-comments | relative">
+                            <button class="flex bold border-t border-blue-grey py-2 justify-between items-center w-full group"
+                                    :class="{'text-midgrey': !hasFeedback || $store.answerFeedback.creatingNewComment !== false}"
+                                    x-init="dropdownOpened = hasFeedback ? dropdownOpened : 'add-feedback'"
+                                    @click="hasFeedback ? toggleFeedbackAccordion('given-feedback') : ''"
+                                    :disabled="!hasFeedback || $store.answerFeedback.creatingNewComment !== false"
+                            >
+                                <span>@lang('assessment.Gegeven feedback')</span>
+                                <span class="w-6 h-6 rounded-full flex justify-center items-center transition -mr-0.5
+                                            group-hover:bg-primary/5
+                                            group-active:bg-primary/10
+                                            group-focus:bg-primary/5 group-focus:text-primary group-focus:border group-focus:border-[color:rgba(0,77,245,0.15)]
+                                "
+                                      :class="dropdownOpened === 'given-feedback' ? 'rotate-svg-90' : ''"
                                 >
-                                    <span>@lang('assessment.Gegeven feedback')</span>
-                                    <span class="w-6 h-6 rounded-full flex justify-center items-center transition -mr-0.5
-                                                group-hover:bg-primary/5
-                                                group-active:bg-primary/10
-                                                group-focus:bg-primary/5 group-focus:text-primary group-focus:border group-focus:border-[color:rgba(0,77,245,0.15)]
-                                    "
-                                          :class="dropdownOpened === 'given-feedback' ? 'rotate-svg-90' : ''"
-                                    >
-                                        <x-icon.chevron></x-icon.chevron>
-                                    </span>
-                                </button>
+                                    <x-icon.chevron></x-icon.chevron>
+                                </span>
+                            </button>
 
-                                <div class="flex w-auto flex-col gap-2 given-feedback-container -mx-4"
-                                     x-show="dropdownOpened === 'given-feedback'"
-                                     x-collapse
-                                     wire:key="feedback-editor-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
-                                     x-data="{}"
-                                     x-init=""
-                                >
+                            <div class="flex w-auto flex-col gap-2 given-feedback-container -mx-4"
+                                 x-show="dropdownOpened === 'given-feedback'"
+                                 x-collapse
+                                 wire:key="feedback-editor-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue }}"
+                                 x-data="{}"
+                                 x-init=""
+                            >
 
-                                    <x-menu.context-menu.base context="answer-feedback">
-                                        <div x-show="$store.answerFeedback.editingComment === null">
-                                            <x-menu.context-menu.button @click="setEditingComment(uuid)">
-                                                <x-slot:icon>
-                                                    <x-icon.edit/>
-                                                </x-slot:icon>
-                                                <x-slot:text>@lang('cms.Wijzigen')</x-slot:text>
-                                            </x-menu.context-menu.button>
-                                        </div>
-
-                                        <x-menu.context-menu.button @click="closeMenu(); deleteCommentThread(contextData?.threadId, uuid)">
+                                <x-menu.context-menu.base context="answer-feedback">
+                                    <div x-show="$store.answerFeedback.editingComment === null">
+                                        <x-menu.context-menu.button @click="setEditingComment(uuid)">
                                             <x-slot:icon>
-                                                <x-icon.trash/>
+                                                <x-icon.edit/>
                                             </x-slot:icon>
-                                            <x-slot:text>@lang('cms.Verwijderen')</x-slot:text>
+                                            <x-slot:text>@lang('cms.Wijzigen')</x-slot:text>
                                         </x-menu.context-menu.button>
-
-                                    </x-menu.context-menu.base>
-
-                                    <div class="flex mx-auto "
-                                         x-on:multi-slider-toggle-value-updated.window="$wire.setAnswerFeedbackFilter($event.detail.value)"
-                                    >
-                                        <x-button.slider initial-status="all"
-                                                         buttonWidth="auto"
-                                                         :options="[ 'all' => __('assessment.all'), 'teacher' => __('auth.Docent'),'students' => __('test-take.Studenten')]"
-                                        />
                                     </div>
 
+                                    <x-menu.context-menu.button @click="closeMenu(); deleteCommentThread(contextData?.threadId, uuid)">
+                                        <x-slot:icon>
+                                            <x-icon.trash/>
+                                        </x-slot:icon>
+                                        <x-slot:text>@lang('cms.Verwijderen')</x-slot:text>
+                                    </x-menu.context-menu.button>
 
-                                    @foreach($this->getVisibleAnswerFeedback() as $comment)
+                                </x-menu.context-menu.base>
 
-                                        <x-partials.answer-feedback-card :comment="$comment"></x-partials.answer-feedback-card>
-
-                                    @endforeach
+                                <div class="flex mx-auto "
+                                     x-on:multi-slider-toggle-value-updated.window="$wire.setAnswerFeedbackFilter($event.detail.value)"
+                                >
+                                    <x-button.slider initial-status="all"
+                                                     buttonWidth="auto"
+                                                     :options="[ 'all' => __('assessment.all'), 'teacher' => __('auth.Docent'),'students' => __('test-take.Studenten')]"
+                                    />
                                 </div>
+
+                                @foreach($this->getVisibleAnswerFeedback() as $comment)
+
+                                    <x-partials.answer-feedback-card :comment="$comment"></x-partials.answer-feedback-card>
+
+                                @endforeach
                             </div>
-                        @else
-                            <div class="flex w-full flex-col gap-2">
-                                <span>@lang('assessment.Feedback schrijven')</span>
-                                <x-input.rich-textarea type="assessment-feedback"
-                                                       :editorId="'feedback-editor-'. $this->questionNavigationValue.'-'.$this->answerNavigationValue"
-                                                       wire:model.debounce.300ms="feedback"
-                                        {{-- :disabled="$this->currentQuestion->isSubType('writing')"  todo find out what to do with writing assignment exceptions --}}
-                                />
-                            </div>
-                        @endif
+                        </div>
                     </div>
                 </x-slot:slideTwoContent>
 
                 <x-slot:slideThreeContent>
+
                     <span class="flex ">@lang('assessment.CO-Learning scores')</span>
                     @if(!$this->currentAnswerCoLearningRatingsHasNoDiscrepancy())
-                        <div class="notification py-0 px-4 gap-6 flex items-center warning">
-                            <x-icon.co-learning/>
-                            <span class="bold">@lang('assessment.discrepancy')</span>
-                        </div>
+                        <x-notification-message type="warning"  stretched="false">
+                            <x-slot:title >
+                                <x-icon.co-learning/>
+                                <span>@lang('assessment.discrepancy')</span>
+                            </x-slot:title>
+                            @if($this->currentAnswerHasToggleDiscrepanciesInCoLearningRatings())
+                            <x-slot:message>
+                                <span>
+                                     @lang('assessment.toggle_discrepancy')
+                                </span>
+                            </x-slot:message>
+                            @endif
+                        </x-notification-message>
                     @endif
                     <div class="flex w-full flex-col gap-2">
                         @if($this->showCoLearningScoreToggle)
@@ -419,8 +426,8 @@
 
                     @if($this->finalAnswerReached() && $this->assessedAllAnswers())
                         <x-button.cta size="sm"
-                                      wire:click="redirectBack"
-                                      wire:target="redirectBack,previous,next"
+                                      wire:click="finish"
+                                      wire:target="finish,redirectBack,previous,next"
                                       wire:loading.attr="disabled"
                                       wire:key="next-button-{{  $this->questionNavigationValue.'-'.$this->answerNavigationValue .'='.$this->assessedAllAnswers() }}"
                                       selid="assessment-footer-finish"

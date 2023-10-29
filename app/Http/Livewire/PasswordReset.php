@@ -3,10 +3,12 @@
 namespace tcCore\Http\Livewire;
 
 use Illuminate\Auth\Passwords\PasswordBroker;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Password;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Livewire\Auth\Login;
 use tcCore\Http\Traits\UserNotificationForController;
+use tcCore\Rules\NistPasswordRules;
 use tcCore\User;
 
 class PasswordReset extends TCComponent
@@ -23,24 +25,25 @@ class PasswordReset extends TCComponent
     public $btnDisabled = false;
 
     protected $queryString = ['token'];
+    protected $preventFieldTransformation = ['password', 'password_confirmation'];
+
 
     private function get_browser_language()
     {
         return BaseHelper::browserLanguage();
     }
 
-    protected function messages(){
-        if($this->get_browser_language() == 'nl'){
-            return[
-                'password.required' => 'Wachtwoord is verplicht',
-                'password.min'      => 'Wachtwoord moet langer zijn dan 8 karakters',
-                'password.same'     => 'Wachtwoord komt niet overeen',
-            ];
-        }
-        return[
-            'password.required' => 'Password is required',
-            'password.min'      => 'Password must be longer than 8 characters',
-            'password.same'     => 'Password does not match',
+    protected function messages()
+    {
+        App::setLocale('NL');
+
+        return [
+            'username.required'  => __('auth.email_required'),
+            'username.email'     => __('auth.email_incorrect'),
+            'password.required'  => __('auth.password_required'),
+            'password.min'       => __('auth.password_min'),
+            'password.same'      => __('registration.password_same'),
+            'password.confirmed' => __('registration.password_same'),
         ];
     }
 
@@ -58,7 +61,7 @@ class PasswordReset extends TCComponent
     {
         return [
             'username' => 'required|email',
-            'password' => 'required|same:password_confirmation|'. User::getPasswordLengthRule(),
+            'password' => NistPasswordRules::changePassword($this->username),
             'token'    => 'required',
         ];
     }
@@ -81,28 +84,26 @@ class PasswordReset extends TCComponent
             $user->save();
         });
 
-        if ($response === PasswordBroker::PASSWORD_RESET){
+        if ($response === PasswordBroker::PASSWORD_RESET) {
             $this->notifyUser($this->username);
             $this->emitTo(Login::class, 'password_reset');
         }
 
         if ($response === PasswordBroker::INVALID_USER) {
-            if($this->get_browser_language() == 'nl'){
+            if ($this->get_browser_language() == 'nl') {
                 $this->addError('password', 'Het opgegeven emailadres is niet correct');
-            }
-            else{
+            } else {
                 $this->addError('password', 'The email address provided is incorrect');
             }
         };
 
         if ($response === PasswordBroker::INVALID_TOKEN) {
-            if($this->get_browser_language() == 'nl'){
+            if ($this->get_browser_language() == 'nl') {
                 $this->addError('password', 'De gebruikte link niet correct, of verlopen');
-            }
-            else{
+            } else {
                 $this->addError('password', 'The link used is incorrect, or has expired');
             }
-                
+
         }
     }
 
