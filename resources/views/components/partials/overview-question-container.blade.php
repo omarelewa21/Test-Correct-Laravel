@@ -31,11 +31,9 @@
             <x-not-answered/>
         @endif
     </div>
-    @if($this->group)
     <div class="flex flex-wrap">
-        <x-attachment.student-buttons-container :questionAttachmentsExist="true" :question="$question" :group="$this->group" :blockAttachments="false"/>
+        <x-attachment.student-buttons-container :questionAttachmentsExist="true" :question="$question"  :blockAttachments="false"/>
     </div>
-    @endif
     <div class="flex flex-1 overview">
         @if($question->closeable || ( !is_null($question->groupQuestion) && $question->groupQuestion->closeable) )
             @if($this->closed)

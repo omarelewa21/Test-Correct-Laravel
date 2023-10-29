@@ -23,6 +23,7 @@
                                  :question-uuid="$question->uuid"
                                  :clickOverride="true"
                                  x-on:click="await $wire.closeAttachmentModal();$wire.showAttachment('{{ $attachment->uuid }}')"
+                                 class="{{ !$loop->last && $attachment->groupDivider ? 'lead-divider' : '' }}"
         />
     @endforeach
 @endif

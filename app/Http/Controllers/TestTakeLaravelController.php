@@ -50,7 +50,7 @@ class TestTakeLaravelController extends Controller
         $groupQuestionsId = array_keys($groupedQuestions); 
         $groupQuestions = GroupQuestion::whereIn('id', $groupQuestionsId)->get();
         
-        $questionsNotInGroup = $data->where('is_subquestion', 0)->pluck('id')->toArray();
+        $nonGroupedQuestions = $data->where('is_subquestion', 0)->pluck('id')->toArray();
         
         
         $answers = $this->getAnswers($testTake, $data, $testParticipant);
@@ -62,7 +62,7 @@ class TestTakeLaravelController extends Controller
         $uuid = $testTake->uuid;
         // todo add check or failure when $current out of bounds $data;
         $styling = $this->getCustomStylingFromQuestions($data);
-        return view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling' , 'groupedQuestions' , 'questionsNotInGroup' , 'groupQuestions']));
+        return view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling' , 'groupedQuestions' , 'nonGroupedQuestions' , 'groupQuestions']));
     }
 
 
