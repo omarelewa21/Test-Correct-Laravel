@@ -18,8 +18,10 @@ return new class extends Migration
         // add feature allow_olympiade_archive to existing school locations with olympiade access
         FeatureSetting::where('title','allow_olympiade')->where('settingable_type',\tcCore\SchoolLocation::class)->get()->each(function (FeatureSetting $fs){
             $sl = SchoolLocation::find($fs->settingable_id);
-            $sl->allow_olympiade_archive = true;
-            $sl->save();
+            if($sl) {
+                $sl->allow_olympiade_archive = true;
+                $sl->save();
+            }
         });
         // make published_olympiade => published_olympiade_archive for both the tests and the questions
         Test::where('scope','published_olympiade')->update(['scope' => 'published_olympiade_archive']);
