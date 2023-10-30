@@ -150,7 +150,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
 
         $this->redirectIfNotAllowed();
 
-        $this->getStaticNavigationData();
+        $this->getStaticNavigationDataAndRedirectIfNoAvailableQuestions();
 
         if ($this->testTakeIsBeingRestarted()) {
             $this->coLearningRestart = true;
@@ -229,7 +229,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
         //finally set bool to true
         $this->coLearningHasBeenStarted = true;
         $this->headerCollapsed = true;
-        $this->getStaticNavigationData();
+        $this->getStaticNavigationDataAndRedirectIfNoAvailableQuestions();
         $this->refreshComponentData();
 
         return $this->coLearningHasBeenStarted;
@@ -543,7 +543,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
         }
     }
 
-    protected function getStaticNavigationData()
+    protected function getStaticNavigationDataAndRedirectIfNoAvailableQuestions(): Redirector|null
     {
         $this->openOnly = $this->testTake->discussion_type === self::DISCUSSION_TYPE_OPEN_ONLY;
 
@@ -560,10 +560,15 @@ class CoLearning extends TCComponent implements CollapsableHeader
         }
         $this->questionCountFiltered = $this->questionsOrderList->count('id');
 
+        if(!$this->questionCountFiltered){
+            return $this->redirectBack();
+        }
+
         $this->firstQuestionId = $this->questionsOrderList->sortBy('order')->first()['id'];
         $this->lastQuestionId = $this->questionsOrderList->sortBy('order')->last()['id'];
 
         $this->getNavigationData();
+        return null;
     }
 
     private function convertCompletionQuestionToHtml(?Collection $answers = null)

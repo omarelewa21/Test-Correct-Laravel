@@ -1314,7 +1314,7 @@ class Test extends BaseModel
                         function ($item) use ($addPropertyCallback, $groupQuestion) {
                             $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
                             if (is_callable($addPropertyCallback)) {
-                                $addPropertyCallback($item);
+                                $addPropertyCallback($item, $groupQuestion);
                             }
                             return $item->question;
                         }

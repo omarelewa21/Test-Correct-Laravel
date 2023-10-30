@@ -285,6 +285,11 @@ class Taken extends TestTakeComponent
     /* Button actions */
     public function startCoLearning(): Redirector|RedirectResponse|bool
     {
+        if(!$this->takenTestData['colearnable']){
+            $this->dispatchBrowserEvent('notify', ['message' => __('test-take.CO-Learning niet mogelijk met alleen carrousel vragen'), 'type' => 'error']);
+            return true;
+        }
+
         if (!$this->showWaitingRoom) {
             return $this->showWaitingRoom = true;
         }
@@ -388,8 +393,16 @@ class Taken extends TestTakeComponent
             'discussedQuestions' => $this->discussedQuestions(),
             'assessedQuestions'  => $this->assessedQuestions(),
             'questionsToAssess'  => $this->questionsOfTest->count(),
-            'maxScore'           => $this->questionsOfTest->sum('score')
+            'maxScore'           => $this->questionsOfTest->sum('score'),
+            'colearnable'        => $this->isColearnable(),
         ];
+    }
+
+    private function isColearnable(): bool
+    {
+        return $this->questionsOfTest->contains(function($question){
+          return $question->colearnable === true;
+        });
     }
 
     private function discussedQuestions(): int
@@ -677,12 +690,17 @@ class Taken extends TestTakeComponent
                 'test.testQuestions.question.pValue',
             ])
             ->test
-            ->getFlatQuestionList(function ($connection) {
+            ->getFlatQuestionList(function ($connection, $groupQuestion = null) {
                 $connection->question->pValues = $connection->question
                     ->pValue
                     ->filter(
                         fn($pValue) => $this->participantResults->pluck('id')->contains($pValue->test_participant_id)
                     );
+                $colearnable = true;
+                if($groupQuestion && $groupQuestion->isCarouselQuestion()){
+                    $colearnable = false;
+                }
+                $connection->question->colearnable = $colearnable;
             })
             ->when($this->testTakeStatusId >= TestTakeStatus::STATUS_DISCUSSED, function ($collection) {
                 $collection->each(function ($question, $key) {
