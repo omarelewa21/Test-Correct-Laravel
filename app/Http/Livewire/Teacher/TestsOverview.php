@@ -82,6 +82,7 @@ class TestsOverview extends OverviewComponent
             return view('livewire.teacher.question-bank-overview')->layout('layouts.app-teacher');
 
         $results = $this->getDatasource();
+
         return view('livewire.teacher.tests-overview')->layout('layouts.app-teacher')->with(compact(['results']));
     }
 
@@ -92,7 +93,6 @@ class TestsOverview extends OverviewComponent
             DB::statement($expression->getValue(DB::connection()->getQueryGrammar()));
         } catch (\Exception $e) {
         }
-
         return ContentSourceFactory::makeWithTab($this->openTab)->itemBankFiltered(
             $this->getContentSourceFilters(),
             $this->sorting,

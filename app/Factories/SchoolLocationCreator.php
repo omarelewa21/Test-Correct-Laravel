@@ -214,6 +214,82 @@ class SchoolLocationCreator
         return $factory;
     }
 
+    public static function createOlympiadeArchiveSchool($factory): FactoryScenarioSchoolOlympiadeArchive
+    {
+        if (SchoolLocation::where('name', $factory->schoolName)->exists()) {
+            throw new Exception('Olympiade Archive school allready exists');
+        }
+
+        //create school
+        $school = FactorySchool::create($factory->schoolName, User::find(520),
+            ['customer_code' => $factory->customer_code])
+            ->school;
+
+        //create school location, add educationLevels VWO, Gymnasium, Havo
+        $schoolLocation = FactorySchoolLocation::create($school, $factory->schoolLocationName,
+            ['customer_code' => $factory->customer_code, 'user_id' => '520'])
+            ->addEducationlevels([1, 2, 3])
+            ->schoolLocation;
+
+        //create school year and full year period for the current year
+        $schoolYearLocation = FactorySchoolYear::create($schoolLocation, (int) Carbon::today()->format('Y'), true)
+            ->addPeriodFullYear()
+            ->schoolYear;
+
+        //create section and subject
+        $sectionFactory = FactorySection::create($schoolLocation, $factory->sectionName);
+
+        BaseSubject::where('name', 'NOT LIKE', '%CITO%')->each(function ($baseSubject) use ($sectionFactory) {
+            $sectionFactory->addSubject($baseSubject, 'Olympiade-archive-'.$baseSubject->name);
+        });
+
+        $section = $sectionFactory->section;
+
+        $subjectDutch = $section->subjects()->where('base_subject_id', $factory->baseSubjectId)->first();
+
+        //create Olympiade official author user and a secondary teacher in the correct school
+        $olympiadeAuthor = FactoryUser::createTeacher($schoolLocation, false, [
+            'username'     => config('custom.olympiade_archive_school_author'),
+            'name_first'   => 'Teacher',
+            'name_suffix'  => '',
+            'name'         => 'Teacher Olympiade Archive',
+            'abbreviation' => 'TOAA',
+        ])->user;
+        $olympiadeAuthorB = FactoryUser::createTeacher($schoolLocation, false, [
+            'username'     => $factory->createUsernameForSecondUser(config('custom.olympiade_archive_school_author')),
+            'name_first'   => 'Teacher',
+            'name_suffix'  => '',
+            'name'         => 'Teacher Olympiade ArchiveB',
+            'abbreviation' => 'TOAB',
+        ])->user;
+
+        //create school class with teacher and students records, add the teacher-user, create student-users
+        self::buildSchoolClass($factory->schoolClassName, $section->subjects()->first(), $olympiadeAuthor);
+        self::buildSchoolClass($factory->schoolClassName, $section->subjects()->first(), $olympiadeAuthorB);
+
+
+
+        $factory->school = $school->refresh();
+        $factory->schools->add($school);
+
+        FactoryTest::create($olympiadeAuthor)
+            ->setProperties([
+                'name'               => 'test-'.$subjectDutch->name,
+                'subject_id'         => $subjectDutch->id,
+                'abbreviation'       => OlympiadeArchiveService::getPublishAbbreviation(),
+                'scope'              => OlympiadeArchiveService::getPublishScope(),
+                'education_level_id' => '1',
+                'draft'              => false,
+            ])
+            ->addQuestions([
+                FactoryQuestionOpenShort::create()->setProperties([
+                    "question" => '<p>voorbeeld vraag Nederlands gepubliceerd Olympiade Archief:</p> <p>wat is de waarde van pi</p> ',
+                ]),
+            ]);
+
+        return $factory;
+    }
+
     public static function createNationalItemBankSchool(FactoryScenarioSchoolNationalItemBank $factory)
     {
         if (SchoolLocation::where('name', $factory->schoolName)->exists()) {
