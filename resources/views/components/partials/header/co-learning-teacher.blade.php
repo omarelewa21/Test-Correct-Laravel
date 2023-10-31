@@ -141,7 +141,7 @@
                                 @if($this->coLearningRestart)
                                     {{-- TODO add text x/x questions, on date ... --}}
                                     {!!  __('co-learning.current_session', [
-                                        'index' => $this->questionIndex,
+                                        'index' => $this->discussedQuestionsCount,
                                         'totalQuestions' => $this->questionCount,
                                         'date' => $this->testTake->updated_at->format('d/m/Y')
                                     ]) !!}

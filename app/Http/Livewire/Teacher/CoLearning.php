@@ -75,6 +75,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
     public int $questionCountFiltered; // filtered question count (only discussed questions)
     public int $questionIndex; // filtered question index (only discussed questions)
     public int $questionIndexAsInTest; // unfiltered question index (as in test)
+    public int $discussedQuestionsCount;
 //    public int $questionIndexOpenOnly; //order exclusing not discussed questions and non-open questions
 
     protected $queryString = [
@@ -537,6 +538,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
         $this->questionsOrderList = $this->getQuestionList();
 
         $this->questionCount = $this->questionsOrderList->count('id');
+        $this->discussedQuestionsCount = $this->questionsOrderList->filter(fn($question) => (bool)$question['discussed'])->count();
 
         //filter questions that have 'discuss in class' on false
         $this->questionsOrderList = $this->questionsOrderList->filter(fn($item) => (bool)$item['discuss']);
@@ -729,7 +731,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
     {
         $testTakeQuestions = TestTakeQuestion::whereTestTakeId($this->testTake->getKey())
             ->get()
-            ->map(fn($item) => $item->question->getKey());
+            ->keyBy('question_id');
 
         $orderList = collect($this->testTake->test->getQuestionOrderListWithDiscussionType());
 
@@ -740,9 +742,10 @@ class CoLearning extends TCComponent implements CollapsableHeader
         //filters questions that are not checked at start screen
         // recalculates order of questionList
         $order = 1;
-        return $orderList->filter(fn($question) => $testTakeQuestions->contains($question['id']))
-        ->map(function ($question) use (&$order) {
+        return $orderList->filter(fn($question) => $testTakeQuestions->has($question['id']))
+        ->map(function ($question) use (&$order, $testTakeQuestions) {
             $question['order'] = $order++;
+            $question['discussed'] = (bool) $testTakeQuestions->get($question['id'])->discussed;
             return $question;
         });
     }
