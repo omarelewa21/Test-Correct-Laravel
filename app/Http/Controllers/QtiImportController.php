@@ -96,14 +96,8 @@ class QtiImportController extends Controller
             $data['education_level_id'] = EducationLevel::whereUuid($data['education_level_id'])->first()->getKey();
             $data['subject_id'] = Subject::whereUuid($data['subject_id'])->first()->getKey();
 
-            $schoolLocationId = $data['school_location_id'];
-            $schoolLocation = SchoolLocation::find($schoolLocationId);
-            $schoolYears = $schoolLocation->schoolLocationSchoolYears->map(function ($l) {
-                return $l->school_year_id;
-            });
-            $periods = Period::where('start_date', '<=', Carbon::today())->where('end_date', '>=',
-                Carbon::today())->whereIn('school_year_id', $schoolYears->toArray())->get();
-            if ($periods->count() != 1) {
+            $periods = SchoolLocation::find($data['school_location_id'])->schoolYears()->first()->periods;
+            if ($periods->count() < 1) {
                 Log::error(sprintf('no valid period found for school location %s met id %d', $schoolLocation->name,
                     $schoolLocation->id));
                 return response()->json([

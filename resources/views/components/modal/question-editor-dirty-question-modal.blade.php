@@ -75,11 +75,11 @@
                 @else
                     <span class="">{{ __('cms.question_incomplete_text', ['item' => $item]) }}</span>
                 @endif
-                <div class="flex w-full justify-end mt-4 space-x-4">
+                <div class="flex w-full justify-end mt-4 space-x-4 items-center">
                     <x-button.text @click="deleteAction()">
                         <span>{{ $new ? __('cms.Verwijderen') : __('cms.Wijzigingen niet opslaan')}}</span>
                     </x-button.text>
-                    <x-button.primary @click="continueAction()">
+                    <x-button.primary @click="continueAction()" size="md">
                         <span>{{ __('cms.Aanvullen') }}</span>
                         <x-icon.chevron/>
                     </x-button.primary>

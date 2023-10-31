@@ -1533,9 +1533,16 @@ button.button {
     box-shadow: 0px 2px 4px 0px rgba(77, 87, 143, 0.5);
 }
 
+.notification svg {
+    flex-shrink: 0;
+}
+
 .notification .title {
     font-weight: bold;
     font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .notification .body {
@@ -1561,6 +1568,19 @@ button.button {
     background: var(--red-light);
     border-color: var(--red-notification-border);
     color: var(--all-red);
+}
+
+.notification.with-message {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+.notification.without-message {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 0px;
+    padding-bottom: 0px;
 }
 .test-row {
     border-radius: 10px;
@@ -3266,7 +3286,7 @@ input[type=number] {
     --cursor-tools-default: crosshair;
     --cursor-move-shape: grab;
     --cursor-moving-shape: grabbing;
-    --cursor-freehand: url(/img/cursor-freehand.svg), crosshair;
+    --cursor-freehand: crosshair;
 
     /* Sidebar parameters */
     --open-sidebar-min-width: 14.5rem;
@@ -6417,6 +6437,11 @@ span.flatpickr-weekday {
     --datepicker-border-color: var(--blue-grey);
     --datepicker-background-color: var(--off-white);
 }
+
+.datepicker-error .datepicker {
+    --datepicker-border-color: var(--all-red);
+}
+
 .flatpickr-month {
     background-color: #FFFFFF !important;
 }
@@ -7130,6 +7155,7 @@ input.datepicker {
     left: var(--thumb-left);
     top: var(--thumb-top);
     transform: translateX(var(--moz-left-zero));
+    visibility: hidden;
 }
 
 .score-slider-container :is(.score-slider-continuous-input, .score-slider-input).hide-thumb:not(.moving)::-moz-range-thumb:hover {
@@ -11583,6 +11609,10 @@ video {
 .my-2{
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
+}
+.my-3{
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
 }
 .my-4{
   margin-top: 1rem;

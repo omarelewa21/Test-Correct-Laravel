@@ -15,6 +15,7 @@
             <x-button.text size="sm"
                            class="min-h-0 -mt-1"
                            wire:click="$emit('openModal', 'teacher.test-take.set-student-review-modal', {testTake: '{{ $this->testTakeUuid }}' });"
+                           :disabled="!$this->showResults()"
             >
                 <x-icon.edit />
                 <span>{{ $this->showResultsButtonText() }}</span>
@@ -191,8 +192,8 @@
                                 @forelse($this->participants as $participant)
                                     <div @class([
                                             'filter-pill px-4 gap-2 h-10 transition-opacity',
-                                            'disabled' => !$participant->present,
-                                            'enabled' => $participant->present
+                                            'student-absent' => !$participant->present,
+                                            'student-present' => $participant->present
                                         ])
                                          wire:key="participant-{{ $participant->uuid }}-@js($participant->present)"
                                     >
@@ -266,6 +267,7 @@
                                         </x-input.select>
                                         <x-input.text value="1"
                                                       class="min-w-[60px] w-[60px] text-center"
+                                                      type="number"
                                                       wire:model="gradingValue"
                                         />
                                         <div class="flex relative items-center">
@@ -414,19 +416,19 @@
                                     <div class="flex w-1/3 justify-end">
                                         <div class="flex gap-4 items-center">
                                             <span>@lang('test-take.Hoogste cijfer')</span>
-                                            <x-mark-badge :rating="$this->participantResults->max('rating')" />
+                                            <x-mark-badge :rating="$this->participantResults->where('rating', '!=', 0)->max('rating')" />
                                         </div>
                                     </div>
                                     <div class="flex w-1/3 justify-end">
                                         <div class="flex gap-4 items-center">
                                             <span>@lang('test-take.Laagste cijfer')</span>
-                                            <x-mark-badge :rating="$this->participantResults->min('rating')" />
+                                            <x-mark-badge :rating="$this->participantResults->where('rating', '!=', 0)->min('rating')" />
                                         </div>
                                     </div>
                                     <div class="flex w-1/3 justify-end">
                                         <div class="flex gap-4 items-center">
                                             <span>@lang('test-take.Gemiddeld cijfer')</span>
-                                            <x-mark-badge :rating="$this->participantResults->avg('rating')" />
+                                            <x-mark-badge :rating="$this->participantResults->where('rating', '!=', 0)->avg('rating')" />
                                         </div>
                                     </div>
                                 </div>

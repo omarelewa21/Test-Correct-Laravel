@@ -57,7 +57,6 @@ class AppVersionDetector
         ],
         "iOS" => [
             "ok" => [
-                "3.0.2",
                 "3.0.3",
                 "3.0.4",
                 "3.0.5",
@@ -93,11 +92,9 @@ class AppVersionDetector
             ],
             "needsUpdate" => [
                 "0.0.1",
-                "0.0.2"
             ],
             "needsUpdateDeadline" => [
                 "0.0.1" => "31 december 2023",
-                "0.0.2" => "20 juli 2023"
             ],
         ],
         "ChromeOS" => [
@@ -164,18 +161,6 @@ class AppVersionDetector
         ],
         "windowsElectron" => [
             "ok" => [
-                "3.3.2",
-                "3.3.3",
-                "3.3.4",
-                "3.3.5",
-                "3.4.0",
-                "3.4.1",
-                "3.4.2",
-                "3.4.3",
-                "3.4.4",
-                "3.5.0",
-                "4.0.0",
-                "4.0.1",
                 "4.0.2",
                 "4.0.3",
                 "4.0.4",
@@ -196,27 +181,15 @@ class AppVersionDetector
             ],
             "needsUpdate" => [
                 "0.0.1",
-                "0.0.2"
+                "4.0.1"
             ],
             "needsUpdateDeadline" => [
                 "0.0.1" => "31 december 2023",
-                "0.0.2" => "20 juli 2023"
+                "4.0.1" => "1 november 2023"
             ],
         ],
         "macosElectron" => [
             "ok" => [
-                "3.3.2",
-                "3.3.3",
-                "3.3.4",
-                "3.3.5",
-                "3.4.0",
-                "3.4.1",
-                "3.4.2",
-                "3.4.3",
-                "3.4.4",
-                "3.5.0",
-                "4.0.0",
-                "4.0.1",
                 "4.0.2",
                 "4.0.3",
                 "4.0.4",
@@ -237,11 +210,11 @@ class AppVersionDetector
             ],
             "needsUpdate" => [
                 "0.0.1",
-                "0.0.2"
+                "4.0.1"
             ],
             "needsUpdateDeadline" => [
                 "0.0.1" => "31 december 2023",
-                "0.0.2" => "20 juli 2023"
+                "4.0.1" => "1 november 2023"
             ],
         ]
     ];

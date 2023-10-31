@@ -7,6 +7,7 @@ window.plyrPlayer = {
         // disable element if not null
         try{
             elem.setAttribute("style", "pointer-events: none;");
+            elem.setAttribute('disabled', true);
         }
         catch(e){}
     },
@@ -109,6 +110,7 @@ window.plyrPlayer = {
 
         if(!audioCanBePlayedAgain){
             this.disableElem(player.elements.buttons.play[0]);
+            this.disableElem(player.elements.progress.getElementsByTagName('input')[0]);
         }
 
         return player

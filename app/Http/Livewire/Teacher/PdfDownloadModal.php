@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Test;
@@ -18,6 +19,7 @@ class PdfDownloadModal extends TCModalComponent
     public bool $testTakeHasAnswers = false;
 
     public bool $displayValueRequiredMessage = false;
+
     protected static array $maxWidths = [
         'w-modal' => 'max-w-[720px]',
     ];
@@ -27,15 +29,22 @@ class PdfDownloadModal extends TCModalComponent
         return 'w-modal';
     }
 
-    public function mount($uuid, bool $testTake = false)
+    public function mount($uuid, $testTake = null): void
     {
         if ($testTake) {
-            $this->testTake = TestTake::whereUuid($uuid)->first();
+            $this->testTake = TestTake::whereUuid($testTake)
+                ->with(['test'])
+                ->withCount('testParticipants')
+                ->first();
             $this->test = $this->testTake->test;
-            $this->testTakeHasAnswers = ((bool)$this->testTake->testParticipants()->count());
-            //$this->testTake->test_take_status_id >= 8; //only show if testTake discussed or Rated? or just if it has answers?
+            $this->testTakeHasAnswers = (bool)$this->testTake->test_participants_count;
         } else {
             $this->test = Test::findByUuid($uuid);
+        }
+
+        if(!Gate::allows('canViewTestDetails',[$this->test])){
+            $this->forceClose()->closeModal();
+            return;
         }
 
         $this->testHasPdfAttachments = $this->test->hasPdfAttachments;
@@ -50,7 +59,10 @@ class PdfDownloadModal extends TCModalComponent
         $request->merge([
             'options' => [
                 'page'        => sprintf('/tests/view/%s', $this->test->uuid),
-                'page_action' => sprintf("Loading.show();Popup.load('/tests/pdf_showPDFAttachment/%s', 1000);", $this->test->uuid),
+                'page_action' => sprintf(
+                    "Loading.show();Popup.load('/tests/pdf_showPDFAttachment/%s', 1000);",
+                    $this->test->uuid
+                ),
             ],
         ]);
 
@@ -72,5 +84,79 @@ class PdfDownloadModal extends TCModalComponent
     public function close()
     {
         $this->closeModal();
+    }
+
+    public function downloadLinks(): array
+    {
+        return collect($this->downloadOptions())
+            ->mapWithKeys(fn($data, $key) => [$key => $data['link']])
+            ->toArray();
+    }
+
+    public function downloadOptions(): array
+    {
+        $options = [
+            'testopgavenpdf'  => [
+                'link'    => route('teacher.preview.test_pdf', ['test' => $this->test->uuid]),
+                'sticker' => 'test-export-questions',
+                'active'  => true,
+                'show'    => true,
+                'title'   => __('cms.toets_opgaven_pdf'),
+                'text'    => __('cms.toets_opgaven_pdf_omschrijving'),
+            ],
+            'testtakepdf'     => [
+                'link'    => '',
+                'sticker' => 'test-export-questions',
+                'active'  => true,
+                'show'    => !empty($this->testTake),
+                'title'   => __('cms.toets_pdf'),
+                'text'    => __('cms.toets_pdf_omschrijving'),
+            ],
+            'testpdf'         => [
+                'link'    => route('teacher.preview.test_opgaven_pdf', ['test' => $this->test->uuid]),
+                'sticker' => 'test-export-questions',
+                'active'  => true,
+                'show'    => empty($this->testTake),
+                'title'   => __('cms.toets_pdf'),
+                'text'    => __('cms.toets_pdf_omschrijving'),
+            ],
+            'testattachments' => [
+                'link'    => route('teacher.preview.test_attachments', ['test' => $this->test->uuid]),
+                'sticker' => 'test-export-attachments',
+                'active'  => $this->test->attachments->isNotEmpty(),
+                'show'    => true,
+                'title'   => __('cms.bijlagen'),
+                'text'    => __('cms.alle bijlagen'),
+            ],
+            'answermodel'     => [
+                'link'    => route('teacher.test-answer-model', ['test' => $this->test->uuid]),
+                'sticker' => 'test-export-answermodel',
+                'active'  => true,
+                'show'    => true,
+                'title'   => __('cms.antwoordmodellen'),
+                'text'    => __('cms.antwoordmodellen_omschrijving'),
+            ],
+            'studentanswers'  => [
+                'link'    => '',
+                'sticker' => 'test-export-answers',
+                'active'  => $this->testTakeHasAnswers,
+                'show'    => true,
+                'title'   => __('cms.antwoorden'),
+                'text'    => __('cms.antwoorden_omschrijving'),
+            ],
+        ];
+
+        if ($this->testTake) {
+            $options['testtakepdf']['link'] = route(
+                'teacher.preview.test_take_pdf',
+                ['test_take' => $this->testTake->uuid]
+            );
+            $options['studentanswers']['link'] = route(
+                'teacher.preview.test_take',
+                ['test_take' => $this->testTake->uuid]
+            );
+        }
+
+        return $options;
     }
 }

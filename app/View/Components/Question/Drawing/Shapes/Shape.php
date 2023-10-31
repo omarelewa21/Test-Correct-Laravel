@@ -7,7 +7,7 @@ use Illuminate\View\Component;
 
 abstract class Shape extends Component
 {
-    public $title, $id, $icon, $shape;
+    public string $title, $id, $icon, $shape;
 
     public function __construct()
     {
@@ -17,8 +17,8 @@ abstract class Shape extends Component
     public function render(): View
     {
         $view = strtolower(class_basename($this));
-        return view("components.question.drawing.shapes.$view", ['instance' => $this]); 
+        return view("components.question.drawing.shapes.$view", ['instance' => $this]);
     }
 
-    abstract protected function setProperties();
+    abstract protected function setProperties(): void;
 }

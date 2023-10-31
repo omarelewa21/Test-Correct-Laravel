@@ -1588,7 +1588,7 @@ document.addEventListener("alpine:init", () => {
             this.value = target.firstElementChild.dataset.id;
 
             this.$root.dataset.hasValue = this.value !== null;
-            if (oldValue !== this.value || allowClickingCurrentValue) {
+            if (oldValue?.toString() !== this.value?.toString() || allowClickingCurrentValue) {
                 if([null, 'null'].includes(this.$root.dataset.toggleValue)) {
                     this.$dispatch("multi-slider-toggle-value-updated", {
                         value: target.firstElementChild.dataset.id,
@@ -2137,9 +2137,9 @@ document.addEventListener("alpine:init", () => {
                 // Add a keyup event listener to the document
                 document.addEventListener('keyup', (event) => {
                     // If the target is an input or textarea, do nothing
-                    // if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') {
-                    //     return;
-                    // }
+                    if ((event.target.tagName.toLowerCase() === 'input' && !event.target.classList.contains('js-allow-for-wasd-navigation')) || event.target.tagName.toLowerCase() === 'textarea') {
+                        return;
+                    }
                     // Check if the event.target is a ckEditor
                     if (event.target.classList.contains('ck')) {
                         return;
@@ -2150,6 +2150,7 @@ document.addEventListener("alpine:init", () => {
                     if (id) {
                         const button = document.getElementById(id);
                         if (button) {
+                            button.focus(); //make sure the previous lazy input has synced its value
                             button.click();
                         }
                     }
@@ -2407,42 +2408,15 @@ document.addEventListener("alpine:init", () => {
             return (value - min) / (max - min) * 100;
         },
         setThumbOffset() {
-
             if (continuousSlider) {
                 return;
             }
-
-            if (event && event.data) {
-                const keyToSelIdMap = {
-                    'a': 'btn_loadAnswer_previous',
-                    'd': 'btn_loadAnswer_next',
-                    's': 'btn_loadQuestion_previous',
-                    'w': 'btn_loadQuestion_next',
-                };
-
-                // Add a keyup event listener to the document
-
-
-                const id = keyToSelIdMap[event.data.toLowerCase()];
-                // If a mapping exists, "click" the corresponding button
-                if (id) {
-                    const button = document.getElementById(id);
-                    if (button) {
-                        button.click();
-                        return;
-                    }
-                }
-            }
-
-
-
             if (this.score > this.maxScore) {
                 this.score = this.maxScore;
             }
             if (this.score < this.minScore) {
                 this.score = this.minScore;
             }
-
 
             let el = this.$root.querySelector(".score-slider-input");
 
@@ -2489,6 +2463,7 @@ document.addEventListener("alpine:init", () => {
                     }
                 });
             }
+            this.initInvalidNumberBackupScore();
 
             this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
             this.$watch("score", (value, oldValue) => {
@@ -2561,6 +2536,23 @@ document.addEventListener("alpine:init", () => {
         },
         hasMaxDecimalScoreWithHalfPoint() {
             return isFloat(this.maxScore);
+        },
+        handleInvalidNumberInput() {
+            //chromium: (chromium transforms alphanumeric character to an empty string)
+            if(this.$event.data === "") {
+                this.score = this.$store.scoreSlider.currentBackupScore;
+                return;
+            }
+            //firefox: (firefox passes the alphanumeric character)
+            if(isNaN(this.$event.data) && this.$event.data !== undefined) {
+                this.score = this.$store.scoreSlider.currentBackupScore;
+                return;
+            }
+
+            this.$store.scoreSlider.currentBackupScore = parseFloat(this.$event.target.value);
+        },
+        initInvalidNumberBackupScore () {
+            this.$store.scoreSlider.currentBackupScore = this.score;
         }
     }));
 
@@ -4160,6 +4152,129 @@ document.addEventListener("alpine:init", () => {
         }
     }));
 
+    Alpine.data("constructionDrawer", (emptyStateActive, showBank) => ({
+        loadingOverlay: false,
+        collapse: false,
+        backdrop: false,
+        emptyStateActive,
+        showBank,
+        init() {
+            this.collapse = window.innerWidth < 1000;
+            if (this.emptyStateActive) {
+                this.$store.cms.emptyState = true;
+                this.backdrop = true;
+            }
+
+            this.$watch("emptyStateActive", (value) => {
+                this.backdrop = value;
+                this.$store.cms.emptyState = value;
+            });
+        },
+        handleBackdrop() {
+            if (this.backdrop) {
+                this.$root.dataset.closedWithBackdrop = "true";
+                this.backdrop = !this.backdrop;
+            } else {
+                if (this.$root.dataset.closedWithBackdrop === "true") {
+                    this.backdrop = true;
+                }
+            }
+        },
+        handleLoading() {
+            this.loadingOverlay = this.$store.cms.loading;
+        },
+        handleSliderClick(event) {
+            if (!event.target.classList.contains("slider-option")) {
+                return;
+            }
+            document.querySelectorAll(".option-menu-active").forEach((el) => this.$dispatch(el.getAttribute("context") + "-context-menu-close"));
+            this.$nextTick(() => this.showBank = event.target.firstElementChild.dataset.id);
+        }
+
+    }));
+    Alpine.data("constructionBody", (loading, empty,dirty, questionEditorId, answerEditorId) => ({
+        loading,
+        empty,
+        dirty,
+        loadTimeout: null,
+        questionEditorId,
+        answerEditorId,
+        init() {
+            this.$store.cms.processing = empty;
+            this.$watch("$store.cms.loading", (value) => this.loadingTimeout(value));
+            this.$watch("loading", (value) => this.loadingTimeout(value));
+            this.$watch("dirty", (value) => this.$store.cms.dirty = value);
+        },
+        handleQuestionChange(evt) {
+            // this.$store.cms.loading = true;
+            // this.loading = true;
+            // this.$wire.set("loading", true);
+            if (typeof evt !== "undefined") this.empty = false;
+            this.removeDrawingLegacy();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            this.$store.cms.dirty = false;
+        },
+        loadingTimeout(value) {
+            /*if (value !== true)*/ return;
+            this.loadTimeout = setTimeout(() => {
+                this.$store.cms.loading = false;
+                this.$store.cms.processing = false;
+                this.$wire.set("loading", false);
+                clearTimeout(this.loadTimeout);
+            }, 500);
+
+        },
+        removeDrawingLegacy() {
+            this.$root.querySelector("#drawing-question-tool-container")?.remove();
+        },
+        changeEditorWscLanguage(lang) {
+            if (document.getElementById(this.questionEditorId)) {
+                WebspellcheckerTlc.lang(ClassicEditors[this.questionEditorId], lang);
+            }
+            if (document.getElementById(this.answerEditorId)) {
+                WebspellcheckerTlc.lang(ClassicEditors[this.answerEditorId], lang);
+            }
+        },
+        forceSyncEditors() {
+            if (document.getElementById(this.questionEditorId)) {
+                this.$wire.sync("question.question", ClassicEditors[this.questionEditorId].getData());
+            }
+            if (document.getElementById(this.answerEditorId)) {
+                this.$wire.sync("question.answer", ClassicEditors[this.answerEditorId].getData());
+            }
+        },
+        isLoading() {
+            return (this.$store.cms.loading || this.$store.cms.emptyState);
+        },
+        isProcessing() {
+            return (this.$store.cms.processing);
+        }
+    }));
+    Alpine.data("constructionDirector", () => ({
+        init() {
+            this.$store.cms.loading = false;
+        },
+        get drawer() {
+            return this.getLivewireComponent('cms-drawer');
+        },
+        get constructor() {
+            return this.getLivewireComponent('cms');
+        },
+        async openQuestion(questionProperties) {
+            this.$dispatch('store-current-question');
+            this.$store.cms.scrollPos = document.querySelector('.drawer').scrollTop;
+            this.$store.cms.loading = true;
+            await this.constructor.showQuestion(questionProperties)
+            this.$store.cms.loading = false;
+
+        },
+        getLivewireComponent(attribute) {
+            return Livewire.find(
+                document.querySelector(`[${attribute}]`).getAttribute('wire:id')
+            );
+        }
+    }));
+
     Alpine.data("testTakePage", (openTab, inGroup, inTestBankContext) => ({
         testCodePopup: false,
         urlCopied: false,
@@ -4285,13 +4400,42 @@ document.addEventListener("alpine:init", () => {
             this.$wire.toggleQuestionChecked(questionUuid);
         }
     }));
+    Alpine.data("pdfDownload", (translation, links) => ({
+        value : null,
+        waitingScreenHtml: PdfDownload.waitingScreenHtml(translation),
+        links,
+        select: function(option) {
+            this.value = option;
+        },
+        selected: function(option){
+            return option === this.value;
+        },
+        export_pdf: function (){
+            if(!this.value){
+                $wire.set('displayValueRequiredMessage', true);
+                return;
+            }
+            return this.export_now(this.links[this.value]);
+        },
+        export_now: function(url) {
+            var isSafari = navigator.userAgent.indexOf('Safari') > -1 && navigator.userAgent.indexOf('Chrome') <= -1
+            if(isSafari){
+                window.open(url);
+                return;
+            }
+            var windowReference = window.open();
+            windowReference.document.write(this.waitingScreenHtml);
+            windowReference.location = url;
+        },
+    }));
 
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");
         f(window, el._x_dataStack[0]);
     });
+
     Alpine.store("cms", {
-        loading: false,
+        loading: true,
         processing: false,
         dirty: false,
         scrollPos: 0,
@@ -4318,6 +4462,9 @@ document.addEventListener("alpine:init", () => {
             this.toggleCount = toggleCount;
         }
     });
+    Alpine.store("scoreSlider", {
+        currentBackupScore: null,
+    })
     Alpine.store("editorMaxWords", {});
     Alpine.store("coLearningStudent", {
         drawerCollapsed: null,
@@ -4327,8 +4474,8 @@ document.addEventListener("alpine:init", () => {
             }
             return this.drawerCollapsed;
         }
-    }),
-        Alpine.store("answerFeedback", {
+    });
+    Alpine.store("answerFeedback", {
             editingComment: null,
             creatingNewComment: false,
             navigationRoot: null,

@@ -2207,10 +2207,21 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             // Error callback.
             UI.submitBtn.disabled = false
         }, () => {
+            drawMissingShapesOnSvg();
             // Progress callback.
         })
     }
 
+    function drawMissingShapesOnSvg() {
+        for (const layerKey in Canvas.layers) {
+            const layer = Canvas.layers[layerKey];
+            for (const shapeKey in layer.shapes) {
+                const shape = layer.shapes[shapeKey];
+                shape.svg.redrawOnSvg();
+            }
+        }
+    }
+    
     function imageTypeIsAllowed(file) {
         if(file.size / (1024 * 1024) > 4) {
             dispatchEvent(new CustomEvent('js-localized-notify-popup', {detail: {translation_key: 'image-size-error', message_type: 'error'}}));

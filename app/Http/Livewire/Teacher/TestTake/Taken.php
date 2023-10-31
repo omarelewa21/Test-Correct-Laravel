@@ -69,6 +69,12 @@ class Taken extends TestTakeComponent
             TestTakeModel::redirectToDetail($testTake->uuid);
         }
 
+        $asExamCoordinator = false;
+        if($testTake->test_take_status_id === TestTakeStatus::STATUS_RATED){
+            $asExamCoordinator = true;
+        }
+        Gate::authorize('isAllowedToViewTestTake',[$testTake, false, $asExamCoordinator ]);
+
         parent::mount($testTake);
         $this->createSystemRatingsWhenNecessary();
         $this->testTakeStatusId = $this->testTake->test_take_status_id;
@@ -187,7 +193,7 @@ class Taken extends TestTakeComponent
                 'CO-Learning' => 'cta',
                 'Assessment'  => 'primary'
             ],
-            TestTakeStatus::STATUS_DISCUSSED => [
+            TestTakeStatus::STATUS_DISCUSSED  => [
                 'CO-Learning' => 'cta',
                 'Assessment'  => 'primary'
             ],
@@ -346,7 +352,9 @@ class Taken extends TestTakeComponent
 
     public function publishResults(): void
     {
-        if(!$this->gradingStandard) return;
+        if (!$this->gradingStandard) {
+            return;
+        }
         $this->standardizeResults(
             standard    : GradingStandard::tryFrom($this->gradingStandard),
             gradingValue: $this->gradingValue,
@@ -360,6 +368,10 @@ class Taken extends TestTakeComponent
             }
             $participant->definitiveRating = $participant->rating;
         });
+
+        if ($this->testTake->test_take_status_id !== TestTakeStatus::STATUS_RATED) {
+            $this->testTake->updateToRated();
+        }
 
         Session::put($this->resultSessionKey(), $this->participantResults);
         $this->participantGradesChanged = false;
@@ -382,7 +394,7 @@ class Taken extends TestTakeComponent
 
     private function discussedQuestions(): int
     {
-        if($this->testTake->test_take_status_id < 7) {
+        if ($this->testTake->test_take_status_id < 7) {
             return 0;
         }
 
@@ -399,10 +411,6 @@ class Taken extends TestTakeComponent
 
     private function assessedQuestions(): int
     {
-        if($this->testTake->test_take_status_id < 7){
-            return 0;
-        }
-
         return TestTakeHelper::getAssessedQuestionCount($this->testTake);
     }
 
@@ -462,19 +470,7 @@ class Taken extends TestTakeComponent
 
     private function getScoreForParticipant(TestParticipant $participant): mixed
     {
-        return $participant->answers->sum(function ($answer) {
-            $rating = $answer->answerRatings
-                ->sortBy(function ($rating) {
-                    if ($rating->type === AnswerRating::TYPE_TEACHER) {
-                        return 1;
-                    }
-                    if ($rating->type === AnswerRating::TYPE_SYSTEM) {
-                        return 2;
-                    }
-                    return 3;
-                })->first();
-            return $rating?->rating;
-        });
+        return $participant->answers->sum(fn($answer) => $answer->calculateFinalRating());
     }
 
     private function getDiscrepanciesForParticipant(TestParticipant $participant)
@@ -486,11 +482,18 @@ class Taken extends TestTakeComponent
 
     private function getRatedQuestionsForParticipant(TestParticipant $participant): int
     {
-        return $participant->answers->sum(function ($answer) {
-            return (int)$answer->answerRatings
-                ->whereIn('type', [AnswerRating::TYPE_TEACHER, AnswerRating::TYPE_SYSTEM])
-                ->isNotEmpty();
-        });
+        return $participant->answers
+            ->sum(function ($answer) {
+                $givenRating = (int)$answer->answerRatings
+                    ->whereIn('type', [AnswerRating::TYPE_TEACHER, AnswerRating::TYPE_SYSTEM])
+                    ->isNotEmpty();
+
+                if ($givenRating) {
+                    return $givenRating;
+                }
+
+                return (int)($answer->hasCoLearningDiscrepancy() === false);
+            });
     }
 
     private function getAttainments(): Collection
@@ -705,6 +708,8 @@ class Taken extends TestTakeComponent
 
     private function setStandardizationProperties(): void
     {
+        $this->calculateFinalRatingForParticipantsWhenNecessary();
+
         $this->gradingStandards = GradingStandard::casesWithDescription();
 
         if ($this->testTake->results_published) {
@@ -717,7 +722,10 @@ class Taken extends TestTakeComponent
         $this->gradingStandard = str($standard->name)->lower()->value();
         $this->cesuurPercentage = $cesuurPercentage ? (float)$cesuurPercentage : null;
 
-        if (!$this->testTake->results_published || $this->testTake->results_published->lt($this->testTake->assessed_at)) {
+
+        if (!$this->testTake->results_published || $this->testTake->results_published->lt(
+                $this->testTake->assessed_at
+            )) {
             $this->standardizeResults(
                 $standard,
                 $this->gradingValue
@@ -762,5 +770,12 @@ class Taken extends TestTakeComponent
         );
     }
 
-
+    private function calculateFinalRatingForParticipantsWhenNecessary(): void
+    {
+        Answer::whereIn('test_participant_id', $this->testTake->testParticipants()->select('id'))
+            ->whereNull('final_rating')
+            ->get()
+            ->each
+            ->calculateAndSaveFinalRating();
+    }
 }
