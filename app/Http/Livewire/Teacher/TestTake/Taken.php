@@ -682,6 +682,7 @@ class Taken extends TestTakeComponent
 
     private function getQuestionList(): Collection
     {
+        $hasCarousel = false;
         $allQuestions = $this->testTake
             ->loadMissing([
                 'test',
@@ -690,7 +691,7 @@ class Taken extends TestTakeComponent
                 'test.testQuestions.question.pValue',
             ])
             ->test
-            ->getFlatQuestionList(function ($connection, $groupQuestion = null) {
+            ->getFlatQuestionList(function ($connection, $groupQuestion = null) use(&$hasCarousel) {
                 $connection->question->pValues = $connection->question
                     ->pValue
                     ->filter(
@@ -699,6 +700,7 @@ class Taken extends TestTakeComponent
                 $colearnable = true;
                 if($groupQuestion && $groupQuestion->isCarouselQuestion()){
                     $colearnable = false;
+                    $hasCarousel = true;
                 }
                 $connection->question->colearnable = $colearnable;
             })
@@ -717,15 +719,19 @@ class Taken extends TestTakeComponent
                     }
                 });
             });
-        // we need to remove the ones that are not given to test participants as some carousel
-        // questions can be left out
-        $testParticipantIdQueryBuilder = $this->testTake->testParticipants()
-            ->where('test_take_status_id','>',TestTakeStatus::STATUS_TEST_NOT_TAKEN)
-            ->select('id');
-        $questionIdsUsed = Answer::whereIn('test_participant_id',$testParticipantIdQueryBuilder)->groupBy('question_id')->pluck('question_id');
-        return $allQuestions->filter(function($question) use ($questionIdsUsed){
-           return $questionIdsUsed->contains($question->getKey());
-        });
+
+        if($hasCarousel) {
+            // we need to remove the ones that are not given to test participants as some carousel
+            // questions can be left out
+            $testParticipantIdQueryBuilder = $this->testTake->testParticipants()
+                ->where('test_take_status_id', '>', TestTakeStatus::STATUS_TEST_NOT_TAKEN)
+                ->select('id');
+            $questionIdsUsed = Answer::whereIn('test_participant_id', $testParticipantIdQueryBuilder)->groupBy('question_id')->pluck('question_id');
+            return $allQuestions->filter(function ($question) use ($questionIdsUsed) {
+                return $questionIdsUsed->contains($question->getKey());
+            });
+        }
+        return $allQuestions;
     }
 
     private function hasIgnoredAllQuestions(): bool
