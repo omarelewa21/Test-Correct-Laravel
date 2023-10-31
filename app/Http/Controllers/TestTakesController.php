@@ -997,7 +997,7 @@ class TestTakesController extends Controller
                             break;
                     }
                 } else {
-                    $row[] = '-';
+                    $row[] = 'X';
                 }
             }
 
