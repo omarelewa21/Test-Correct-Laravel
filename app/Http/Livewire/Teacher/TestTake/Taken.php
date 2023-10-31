@@ -669,7 +669,7 @@ class Taken extends TestTakeComponent
 
     private function getQuestionList(): Collection
     {
-        return $this->testTake
+        $allQuestions = $this->testTake
             ->loadMissing([
                 'test',
                 'test.testQuestions',
@@ -699,6 +699,15 @@ class Taken extends TestTakeComponent
                     }
                 });
             });
+        // we need to remove the ones that are not given to test participants as some carousel
+        // questions can be left out
+        $testParticipantIdQueryBuilder = $this->testTake->testParticipants()
+            ->where('test_take_status_id','>',TestTakeStatus::STATUS_TEST_NOT_TAKEN)
+            ->select('id');
+        $questionIdsUsed = Answer::whereIn('test_participant_id',$testParticipantIdQueryBuilder)->groupBy('question_id')->pluck('question_id');
+        return $allQuestions->filter(function($question) use ($questionIdsUsed){
+           return $questionIdsUsed->contains($question->getKey());
+        });
     }
 
     private function hasIgnoredAllQuestions(): bool
