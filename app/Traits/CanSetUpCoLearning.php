@@ -65,7 +65,10 @@ trait CanSetUpCoLearning
     private function getExpandedQuestionList()
     {
         if(!isset($this->questionsSetUpOrderList)) {
-            $this->questionsSetUpOrderList = collect($this->testTake->test->getQuestionOrderListExpanded());
+            $this->questionsSetUpOrderList = collect(
+                //does not use cached result when still in the set-up screen
+                $this->testTake->test->getQuestionOrderListExpanded(forgetCache: $this->coLearningHasBeenStarted)
+            );
         }
 
         return $this->sortSetupQuestionOrderList();

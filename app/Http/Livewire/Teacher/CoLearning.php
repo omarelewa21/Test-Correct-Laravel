@@ -152,7 +152,6 @@ class CoLearning extends TCComponent implements CollapsableHeader
 
             $this->getSetUpData();
         }
-
         if ($this->testTakeIsBeingRestarted()) {
             $this->coLearningRestart = true;
             return;
@@ -703,14 +702,14 @@ class CoLearning extends TCComponent implements CollapsableHeader
     {
         return $this->coLearningHasBeenStarted === false
             && $this->testTake->discussing_question_id !== null
-            && $this->testTake->discussion_type !== null
+//            && $this->testTake->discussion_type !== null
             && $this->testTake->test_take_status_id >= TestTakeStatus::STATUS_TAKEN;
     }
 
     private function testTakeHasNotYetBeenStartedBefore(): bool
     {
         return $this->testTake->discussing_question_id === null
-            || $this->testTake->discussion_type === null
+//            || $this->testTake->discussion_type === null
             || $this->testTake->test_take_status_id === TestTakeStatus::STATUS_TAKEN;
     }
 

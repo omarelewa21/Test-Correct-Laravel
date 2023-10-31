@@ -5,6 +5,7 @@ use tcCore\Answer;
 use tcCore\AnswerRating;
 use tcCore\GroupQuestion;
 use tcCore\Lib\Question\QuestionInterface;
+use tcCore\Question;
 use tcCore\Test;
 use tcCore\TestParticipant;
 use tcCore\Http\Helpers\QuestionHelper;
@@ -136,6 +137,16 @@ class QuestionGatherer {
             $dottedQuestionId = null;
         }
         $testTakeQuestions = TestTakeQuestion::whereTestTakeId($testTakeId)->get();
+
+        //map groupquestions on the testTakeQuestions
+        $testTakeQuestions->map(function ($testTakeQuestion) {
+            $groupQuestionId = Question::find($testTakeQuestion->question_id)->getGroupQuestionIdByTest($testTakeQuestion->testTake->test_id);
+            if($groupQuestionId == null){
+                return $testTakeQuestion;
+            }
+            $testTakeQuestion->question_id = $groupQuestionId .'.'. $testTakeQuestion->question_id;
+            return $testTakeQuestion;
+        });
 
         foreach($questions as $questionId) {
             // If dottedQuestionId is null, return the questionId. The handles #1: getting the first question, #2: getting the next question because dottedQuestionId will be set to null

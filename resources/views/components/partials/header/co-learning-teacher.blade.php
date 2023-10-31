@@ -396,6 +396,7 @@
                     </span>
                     <x-button.cta
                             x-on:click.prevent.stop="handleHeaderCollapse({'discussionType': 'all'})"
+                            :disabled="$this->setupCheckedQuestionsCount === 0"
                     >
                         <span>@lang('co-learning.start')</span>
                     </x-button.cta>
@@ -404,7 +405,7 @@
             @endif
 
 
-            <div @class(["navigation-dots", "flex-row-reverse" => $this->setupStep === 2])> {{-- step 2: flex-row-reverse --}}
+            <div @class(["navigation-dots", "flex-row-reverse" => $this->setupStep === 2])>
                 <div class="navigation-dot-full"></div>
                 <div class="navigation-dot-open"
                      wire:click="{{$this->setupStep === 1 ? 'nextSetupStep' : 'previousSetupStep' }}"

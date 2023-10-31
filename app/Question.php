@@ -961,7 +961,7 @@ class Question extends MtiBaseModel
                 ->question
                 ->getKey();
         }
-        return $groupQuestions->first()->groupQuestion->getKey();
+        return $groupQuestions->first()?->groupQuestion->getKey();
     }
 
     public function getTotalDataForTestQuestionUpdate($request)

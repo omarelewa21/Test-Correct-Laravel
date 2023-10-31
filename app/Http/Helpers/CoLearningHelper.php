@@ -176,7 +176,6 @@ class CoLearningHelper extends BaseHelper
             'testParticipants.answers.answerParentQuestions',
             'testTakeQuestions',
         ]);
-
         // Set next question
         $newQuestionIdParents = QuestionGatherer::getNextQuestionId(
             $testTake->getAttribute('test_id'),
