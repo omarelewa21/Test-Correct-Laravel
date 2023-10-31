@@ -16,11 +16,8 @@
             <x-icon.locked class="ml-2"/>
         @endif
 
-        <h1 class="inline-block ml-2 mr-6" selid="questiontitle"> {!! __($question->caption) !!} </h1>
+        <h2 class="inline-block ml-2 mr-6" selid="questiontitle"> {!! __($question->caption) !!} </h2>
         <h4 class="inline-block">{{ $question->score }} pt</h4>
-        @if($this->group)
-            <h1  class="inline-flex ml-2">{{ $this->group->name }}</h1>
-        @endif
         @if ($this->answered)
             @if($this->isQuestionFullyAnswered())
                 <x-answered/>

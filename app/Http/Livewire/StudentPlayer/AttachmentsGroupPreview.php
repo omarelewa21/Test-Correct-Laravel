@@ -13,7 +13,7 @@ class AttachmentsGroupPreview extends TCComponent
     public $answers;
     public $number;
 
-    use WithAttachments;
+    use WithPreviewAttachments;
     use WithGroups;
 
 

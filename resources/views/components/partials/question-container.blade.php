@@ -27,7 +27,7 @@
                 :disabledBackGround="true"
             >
             <x-slot:title>
-                    <h6 wire:ignore class="inline-flex"> {{__('cms.group-question')}} : {{ $this->group->name }}</h6>
+                    <h4 wire:ignore class="inline-flex font-bold"> {{__('cms.group-question')}} : {{ $this->group->name }}</h4>
             </x-slot:title>
             <x-slot:body>
                     <div class="flex flex-1 flex-col">
@@ -52,7 +52,7 @@
                 <x-icon.locked class="ml-2"/>
             @endif
 
-            <h1 wire:ignore class="inline-block ml-2 mr-6" selid="questiontitle">{!! __($question->caption) !!}</h1>
+            <h2 wire:ignore class="inline-block ml-2 mr-6" selid="questiontitle">{!! __($question->caption) !!}</h2>
 
             @if ($question->score > 0)
                 <h4 wire:ignore class="inline-block">{{ $question->score }} pt</h4>

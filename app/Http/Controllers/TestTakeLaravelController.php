@@ -2,16 +2,14 @@
 
 namespace tcCore\Http\Controllers;
 
+use tcCore\TestKind;
 use tcCore\TestTake;
 use Ramsey\Uuid\Uuid;
 use tcCore\GroupQuestion;
 use tcCore\TemporaryLogin;
-use Illuminate\Support\Str;
 use tcCore\TestParticipant;
 use Illuminate\Http\Request;
-use tcCore\TestTake as Test;
 use tcCore\GroupQuestionQuestion;
-use Illuminate\Support\Facades\DB;
 use tcCore\Http\Helpers\BaseHelper;
 use Illuminate\Support\Facades\Auth;
 use tcCore\Http\Traits\WithStudentTestTakes;

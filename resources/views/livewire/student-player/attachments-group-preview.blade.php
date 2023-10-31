@@ -1,6 +1,6 @@
 <div>
     @if ($this->group)
-        <h6 wire:ignore class="inline-flex"> {{ __('cms.group-question') }} : {{ $this->group->name }}</h6>
+        <h4 wire:ignore class="inline-flex font-bold mb-4"> {{ __('cms.group-question') }} : {{ $this->group->name }}</h4>
         <div class="flex flex-wrap">
             <x-attachment.student-buttons-container :group="$this->group" :blockAttachments="false" />
         </div>
