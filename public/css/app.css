@@ -7867,7 +7867,7 @@ input.datepicker {
 /* media rules for next/previous answer rating button in colearning student */
 @media screen and (max-width: 1024px) {
 
-    #co-learning-page div :is(.previous-question-btn, .previous-answer-rating-btn) {
+    #co-learning-page div .text-button:is(.previous-question-btn, .previous-answer-rating-btn) {
         width: -moz-fit-content;
         width: fit-content;
     }
@@ -12354,6 +12354,9 @@ video {
 }
 .w-px{
   width: 1px;
+}
+.\!w-10{
+  width: 2.5rem !important;
 }
 .min-w-\[110px\]{
   min-width: 110px;

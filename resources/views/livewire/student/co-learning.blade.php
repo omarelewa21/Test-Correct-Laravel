@@ -279,9 +279,8 @@
                         </x-button.text>
                     @endif
 
-                    {{-- AnswerRating Navigation buttons--}}
                     <x-dynamic-component :component="$selfPacedNavigation ? 'button.text' : 'button.primary' "
-                                         class="rotate-svg-180 previous-answer-rating-btn whitespace-nowrap"
+                                         class="rotate-svg-180 previous-answer-rating-btn whitespace-nowrap !min-w-10"
                                          x-on:click="await goToPreviousAnswerRating()"
                                          wire:loading.attr="disabled"
                                          :disabled="$this->isPreviousAnswerRatingButtonDisabled()"

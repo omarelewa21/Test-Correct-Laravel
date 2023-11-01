@@ -638,7 +638,7 @@
 /* media rules for next/previous answer rating button in colearning student */
 @media screen and (max-width: 1024px) {
 
-    #co-learning-page div :is(.previous-question-btn, .previous-answer-rating-btn) {
+    #co-learning-page div .text-button:is(.previous-question-btn, .previous-answer-rating-btn) {
         width: fit-content;
     }
 
