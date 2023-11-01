@@ -70,4 +70,6 @@ return [
     'navigation-for-students'       => 'Studenten werken op hun eigen tempo',
     'navigation-for-students-tt'    => 'Nadat CO-Learning is gestart, kunnen studenten op eigen snelheid de vragen navigeren en is de docent navigatie niet meer leidend.',
     'student-at-different-question' => 'Student beoordeelt een andere vraag',
+    'allow-browser-access'          => 'Browsertoegang toestaan',
+    'allow-browser-access-tt'       => 'Hiermee kunnen studenten niet alleen via de app, maar ook via de browser CO-Learning gebruiken',
 ];

@@ -111,8 +111,24 @@
         <div @class(['flex justify-center items-center uppercase text-[14px] margin-[0_0_5px] mt-6'])>
             @lang('co-learning.open-question-options')
         </div>
-        @if(auth()->user()->schoolLocation->allow_wsc)
         <div @class(["flex flex-col w-3/4 self-center divide-white divide-y border-t border-b border-white ", 'border-b-white/25' => true])>
+            <div class="flex py-2 px-4 items-center justify-between">
+                <span>@lang('co-learning.allow-browser-access')</span>
+                <div class="flex items-center gap-4">
+                    @if($this->testTake->allow_inbrowser_colearning)
+                        <x-input.toggle wire:click="toggleStudentAllowBrowserAccess($event.target.checked)" checked />
+                    @else
+                        <x-input.toggle wire:click="toggleStudentAllowBrowserAccess($event.target.checked)"/>
+                    @endif
+
+                    <x-tooltip idle-classes="bg-transparent text-white border-white border">
+                        <span class="text-left">@lang('co-learning.allow-browser-access-tt')</span>
+                    </x-tooltip>
+                </div>
+            </div>
+        </div>
+        @if(auth()->user()->schoolLocation->allow_wsc)
+        <div @class(["flex flex-col w-3/4 self-center divide-white divide-y border-b border-white ", 'border-b-white/25' => true])>
             <div class="flex py-2 px-4 items-center justify-between">
                 <span>@lang('co-learning.spellchecker-for-students')</span>
                 <div class="flex items-center gap-4">
