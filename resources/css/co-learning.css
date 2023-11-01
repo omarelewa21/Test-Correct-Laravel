@@ -635,6 +635,34 @@
     z-index: 1
 }
 
+/* media rules for next/previous answer rating button in colearning student */
+@media screen and (max-width: 1024px) {
+
+    #co-learning-page div :is(.previous-question-btn, .previous-answer-rating-btn) {
+        width: fit-content;
+    }
+
+    #co-learning-page :is(.next-question-btn, .previous-question-btn, .previous-answer-rating-btn, .next-answer-rating-btn, .finish-co-learning-btn ) {
+        padding: 0;
+        width: 40px;
+        max-width: 40px;
+        min-width: 16px;
+    }
+
+    #co-learning-page :is(.previous-answer-rating-btn, .next-answer-rating-btn, .finish-co-learning-btn) > span {
+        display: none;
+    }
+
+    #co-learning-page :is(.previous-answer-rating-btn, .finish-co-learning-btn, .next-question-btn, .previous-question-btn) > svg {
+        margin: auto;
+    }
+
+    #co-learning-page :is(.next-answer-rating-btn) > svg {
+        margin: 1.5px 3.5px; /*icon is 9px wide*/
+    }
+}
+
+
 /* not really co-learning: */
 .indented-toggle-row {
     margin-left: 66px !important;
@@ -644,3 +672,4 @@
 .border-bottom-05-secondary {
     border-bottom: 1px solid rgba(var(--system-secondary-rgb), 0.5);
 }
+

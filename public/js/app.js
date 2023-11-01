@@ -7949,7 +7949,7 @@ document.addEventListener("alpine:init", function () {
         if (this.value === null) {
           return;
         }
-        this.$el.querySelector(".group").firstElementChild.classList.add("text-primary");
+        this.$el.querySelector(".group").classList.add("active-slider-option");
         if (this.value !== "" && Object.keys(this.sources).includes(String(this.value))) {
           this.activateButton(this.$el.querySelector("[data-id='" + this.value + "']").parentElement);
         } else {
@@ -7959,12 +7959,13 @@ document.addEventListener("alpine:init", function () {
       },
       clickButton: function clickButton(target) {
         var _this$value;
+        var allowClickingCurrentValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         this.activateButton(target);
         this.markInputElementsClean();
         var oldValue = this.value;
         this.value = target.firstElementChild.dataset.id;
         this.$root.dataset.hasValue = this.value !== null;
-        if ((oldValue === null || oldValue === void 0 ? void 0 : oldValue.toString()) !== ((_this$value = this.value) === null || _this$value === void 0 ? void 0 : _this$value.toString())) {
+        if ((oldValue === null || oldValue === void 0 ? void 0 : oldValue.toString()) !== ((_this$value = this.value) === null || _this$value === void 0 ? void 0 : _this$value.toString()) || allowClickingCurrentValue) {
           if ([null, 'null'].includes(this.$root.dataset.toggleValue)) {
             this.$dispatch("multi-slider-toggle-value-updated", {
               value: target.firstElementChild.dataset.id,
@@ -7973,6 +7974,7 @@ document.addEventListener("alpine:init", function () {
             return;
           }
           ;
+
           /* dispatch with a static (question score) value, not value/key of button-option, only works with true/false  */
           this.$dispatch("slider-toggle-value-updated", {
             value: this.$root.dataset.toggleValue,
@@ -7992,14 +7994,14 @@ document.addEventListener("alpine:init", function () {
           _this27.buttonPosition = target.offsetLeft + "px";
           _this27.buttonWidth = target.offsetWidth + "px";
           target.dataset.active = true;
-          target.firstElementChild.classList.add("text-primary");
+          target.classList.add("active-slider-option");
           _this27.handle.classList.remove("hidden");
           _this27.handle.classList.add("block");
         });
       },
       resetButtons: function resetButtons(target) {
         Array.from(target.parentElement.children).forEach(function (button) {
-          button.firstElementChild.classList.remove("text-primary");
+          button.classList.remove("active-slider-option");
         });
       },
       setHandle: function setHandle() {
@@ -11346,6 +11348,26 @@ document.addEventListener("alpine:init", function () {
         this.attainmentOpen = [];
         this.studentData = [];
         this.loadingData = [];
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("coLearningSetup", function () {
+    return {
+      init: function init() {
+        var _this107 = this;
+        window.addEventListener("multi-slider-toggle-value-updated", function (event) {
+          switch (event.detail.value) {
+            case "open":
+              _this107.$wire.updateQuestionsChecked("open");
+              break;
+            case "all":
+              _this107.$wire.updateQuestionsChecked("all");
+              break;
+          }
+        });
+      },
+      toggleQuestionChecked: function toggleQuestionChecked(questionUuid) {
+        this.$wire.toggleQuestionChecked(questionUuid);
       }
     };
   });

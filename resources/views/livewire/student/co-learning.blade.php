@@ -259,7 +259,7 @@
                     </div>
                     @endif
                 </div>
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-4 text-right">
                     <span><b class="bold">{{ __('co-learning.answer') }} {{ $this->answerFollowUpNumber }}</b>/{{ $this->numberOfAnswers }}</span>
                     <span><b class="bold">{{ __('co-learning.question') }} {{$this->questionOrderNumber}}</b>/{{$this->numberOfQuestions}}</span>
                     {{--
@@ -269,51 +269,53 @@
                         - previous/next questions have an arrow icon
                     --}}
 
-                    {{-- Question Navigation buttons--}}
                     @if($selfPacedNavigation)
-                        <x-button.text class="rotate-svg-180"
+                        <x-button.text class="rotate-svg-180 previous-question-btn"
                                        x-on:click="await goToPreviousQuestion()"
                                        wire:loading.attr="disabled"
                                        :disabled="$this->isPreviousQuestionButtonDisabled()"
                         >
                             <x-icon.arrow/>
-                            <span>{{ __('test_take.previous_question') }}</span>
                         </x-button.text>
-                    @endif
-                    @if($selfPacedNavigation)
-                        <x-button.primary x-on:click="await goToNextQuestion()"
-                                          wire:loading.attr="disabled"
-                                          :disabled="$this->isNextQuestionButtonDisabled()"
-                        >
-                            <span>{{ __('test_take.next_question') }}</span>
-                            <x-icon.arrow/>
-                        </x-button.primary>
                     @endif
 
                     {{-- AnswerRating Navigation buttons--}}
                     <x-dynamic-component :component="$selfPacedNavigation ? 'button.text' : 'button.primary' "
-                                         class="rotate-svg-180"
+                                         class="rotate-svg-180 previous-answer-rating-btn whitespace-nowrap"
                                          x-on:click="await goToPreviousAnswerRating()"
                                          wire:loading.attr="disabled"
                                          :disabled="$this->isPreviousAnswerRatingButtonDisabled()"
                     >
                         <x-icon.chevron/>
-                        <span>{{ __('co-learning.previous_answer') }}</span>
+                        <span>{{ __('pagination.previous') }}</span>
                     </x-dynamic-component>
                     <x-button.primary x-on:click="await goToNextAnswerRating()"
                                       wire:loading.attr="disabled"
+                                      class="next-answer-rating-btn whitespace-nowrap"
                                       :disabled="$this->isNextAnswerRatingButtonDisabled()"
                     >
                         <span>{{ __('co-learning.next_answer') }}</span>
                         <x-icon.chevron/>
                     </x-button.primary>
 
+                    @if($selfPacedNavigation)
+                        <x-button.primary x-on:click="await goToNextQuestion()"
+                                          wire:loading.attr="disabled"
+                                          class="p-0 next-question-btn"
+                                          :disabled="$this->isNextQuestionButtonDisabled()"
+                        >
+                            <x-icon.arrow/>
+                        </x-button.primary>
+                    @endif
+
                     {{-- Finish CO-Learning button --}}
                     @if($this->atLastQuestion)
                         <x-button.cta x-on:click="await goToFinishedCoLearningPage"
                                       wire:loading.attr="disabled"
+                                      class="finish-co-learning-btn"
                                       :disabled="!$finishCoLearningButtonEnabled"
                         >
+                            <x-icon.checkmark/>
                             <span>{{ __('co-learning.finish') }}</span>
                         </x-button.cta>
                     @endif
