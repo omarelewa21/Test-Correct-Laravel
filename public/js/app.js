@@ -7958,13 +7958,12 @@ document.addEventListener("alpine:init", function () {
         this.preventFractionalPixels();
       },
       clickButton: function clickButton(target) {
-        var _this$value;
         this.activateButton(target);
         this.markInputElementsClean();
         var oldValue = this.value;
         this.value = target.firstElementChild.dataset.id;
         this.$root.dataset.hasValue = this.value !== null;
-        if ((oldValue === null || oldValue === void 0 ? void 0 : oldValue.toString()) !== ((_this$value = this.value) === null || _this$value === void 0 ? void 0 : _this$value.toString())) {
+        if (oldValue !== this.value) {
           if ([null, 'null'].includes(this.$root.dataset.toggleValue)) {
             this.$dispatch("multi-slider-toggle-value-updated", {
               value: target.firstElementChild.dataset.id,
@@ -8557,9 +8556,9 @@ document.addEventListener("alpine:init", function () {
           // Add a keyup event listener to the document
           document.addEventListener('keyup', function (event) {
             // If the target is an input or textarea, do nothing
-            if (event.target.tagName.toLowerCase() === 'input' && !event.target.classList.contains('js-allow-for-wasd-navigation') || event.target.tagName.toLowerCase() === 'textarea') {
-              return;
-            }
+            // if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') {
+            //     return;
+            // }
             // Check if the event.target is a ckEditor
             if (event.target.classList.contains('ck')) {
               return;
@@ -8570,7 +8569,6 @@ document.addEventListener("alpine:init", function () {
             if (id) {
               var button = document.getElementById(id);
               if (button) {
-                button.focus(); //make sure the previous lazy input has synced its value
                 button.click();
               }
             }
@@ -9035,6 +9033,26 @@ document.addEventListener("alpine:init", function () {
         if (continuousSlider) {
           return;
         }
+        if (event && event.data) {
+          var keyToSelIdMap = {
+            'a': 'btn_loadAnswer_previous',
+            'd': 'btn_loadAnswer_next',
+            's': 'btn_loadQuestion_previous',
+            'w': 'btn_loadQuestion_next'
+          };
+
+          // Add a keyup event listener to the document
+
+          var id = keyToSelIdMap[event.data.toLowerCase()];
+          // If a mapping exists, "click" the corresponding button
+          if (id) {
+            var button = document.getElementById(id);
+            if (button) {
+              button.click();
+              return;
+            }
+          }
+        }
         if (this.score > this.maxScore) {
           this.score = this.maxScore;
         }
@@ -9090,7 +9108,6 @@ document.addEventListener("alpine:init", function () {
             }
           });
         }
-        this.initInvalidNumberBackupScore();
         this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
         this.$watch("score", function (value, oldValue) {
           _this55.markInputElementsClean();
@@ -9157,22 +9174,6 @@ document.addEventListener("alpine:init", function () {
       },
       hasMaxDecimalScoreWithHalfPoint: function hasMaxDecimalScoreWithHalfPoint() {
         return isFloat(this.maxScore);
-      },
-      handleInvalidNumberInput: function handleInvalidNumberInput() {
-        //chromium: (chromium transforms alphanumeric character to an empty string)
-        if (this.$event.data === "") {
-          this.score = this.$store.scoreSlider.currentBackupScore;
-          return;
-        }
-        //firefox: (firefox passes the alphanumeric character)
-        if (isNaN(this.$event.data) && this.$event.data !== undefined) {
-          this.score = this.$store.scoreSlider.currentBackupScore;
-          return;
-        }
-        this.$store.scoreSlider.currentBackupScore = parseFloat(this.$event.target.value);
-      },
-      initInvalidNumberBackupScore: function initInvalidNumberBackupScore() {
-        this.$store.scoreSlider.currentBackupScore = this.score;
       }
     };
   });
@@ -10830,8 +10831,8 @@ document.addEventListener("alpine:init", function () {
         }
       },
       active: function active(value) {
-        var _this$value2;
-        return value === ((_this$value2 = this.value) === null || _this$value2 === void 0 ? void 0 : _this$value2.toString());
+        var _this$value;
+        return value === ((_this$value = this.value) === null || _this$value === void 0 ? void 0 : _this$value.toString());
       },
       activateSelect: function activateSelect(element) {
         var value = element.dataset.value,
@@ -11005,171 +11006,18 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("constructionDrawer", function (emptyStateActive, showBank) {
-    return {
-      loadingOverlay: false,
-      collapse: false,
-      backdrop: false,
-      emptyStateActive: emptyStateActive,
-      showBank: showBank,
-      init: function init() {
-        var _this96 = this;
-        this.collapse = window.innerWidth < 1000;
-        if (this.emptyStateActive) {
-          this.$store.cms.emptyState = true;
-          this.backdrop = true;
-        }
-        this.$watch("emptyStateActive", function (value) {
-          _this96.backdrop = value;
-          _this96.$store.cms.emptyState = value;
-        });
-      },
-      handleBackdrop: function handleBackdrop() {
-        if (this.backdrop) {
-          this.$root.dataset.closedWithBackdrop = "true";
-          this.backdrop = !this.backdrop;
-        } else {
-          if (this.$root.dataset.closedWithBackdrop === "true") {
-            this.backdrop = true;
-          }
-        }
-      },
-      handleLoading: function handleLoading() {
-        this.loadingOverlay = this.$store.cms.loading;
-      },
-      handleSliderClick: function handleSliderClick(event) {
-        var _this97 = this;
-        if (!event.target.classList.contains("slider-option")) {
-          return;
-        }
-        document.querySelectorAll(".option-menu-active").forEach(function (el) {
-          return _this97.$dispatch(el.getAttribute("context") + "-context-menu-close");
-        });
-        this.$nextTick(function () {
-          return _this97.showBank = event.target.firstElementChild.dataset.id;
-        });
-      }
-    };
-  });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("constructionBody", function (loading, empty, dirty, questionEditorId, answerEditorId) {
-    return {
-      loading: loading,
-      empty: empty,
-      dirty: dirty,
-      loadTimeout: null,
-      questionEditorId: questionEditorId,
-      answerEditorId: answerEditorId,
-      init: function init() {
-        var _this98 = this;
-        this.$store.cms.processing = empty;
-        this.$watch("$store.cms.loading", function (value) {
-          return _this98.loadingTimeout(value);
-        });
-        this.$watch("loading", function (value) {
-          return _this98.loadingTimeout(value);
-        });
-        this.$watch("dirty", function (value) {
-          return _this98.$store.cms.dirty = value;
-        });
-      },
-      handleQuestionChange: function handleQuestionChange(evt) {
-        // this.$store.cms.loading = true;
-        // this.loading = true;
-        // this.$wire.set("loading", true);
-        if (typeof evt !== "undefined") this.empty = false;
-        this.removeDrawingLegacy();
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth"
-        });
-        this.$store.cms.dirty = false;
-      },
-      loadingTimeout: function loadingTimeout(value) {
-        var _this99 = this;
-        /*if (value !== true)*/return;
-        this.loadTimeout = setTimeout(function () {
-          _this99.$store.cms.loading = false;
-          _this99.$store.cms.processing = false;
-          _this99.$wire.set("loading", false);
-          clearTimeout(_this99.loadTimeout);
-        }, 500);
-      },
-      removeDrawingLegacy: function removeDrawingLegacy() {
-        var _this$$root$querySele4;
-        (_this$$root$querySele4 = this.$root.querySelector("#drawing-question-tool-container")) === null || _this$$root$querySele4 === void 0 ? void 0 : _this$$root$querySele4.remove();
-      },
-      changeEditorWscLanguage: function changeEditorWscLanguage(lang) {
-        if (document.getElementById(this.questionEditorId)) {
-          WebspellcheckerTlc.lang(ClassicEditors[this.questionEditorId], lang);
-        }
-        if (document.getElementById(this.answerEditorId)) {
-          WebspellcheckerTlc.lang(ClassicEditors[this.answerEditorId], lang);
-        }
-      },
-      forceSyncEditors: function forceSyncEditors() {
-        if (document.getElementById(this.questionEditorId)) {
-          this.$wire.sync("question.question", ClassicEditors[this.questionEditorId].getData());
-        }
-        if (document.getElementById(this.answerEditorId)) {
-          this.$wire.sync("question.answer", ClassicEditors[this.answerEditorId].getData());
-        }
-      },
-      isLoading: function isLoading() {
-        return this.$store.cms.loading || this.$store.cms.emptyState;
-      },
-      isProcessing: function isProcessing() {
-        return this.$store.cms.processing;
-      }
-    };
-  });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("constructionDirector", function () {
-    return {
-      init: function init() {
-        this.$store.cms.loading = false;
-      },
-      get drawer() {
-        return this.getLivewireComponent('cms-drawer');
-      },
-      get constructor() {
-        return this.getLivewireComponent('cms');
-      },
-      openQuestion: function openQuestion(questionProperties) {
-        var _this100 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee36() {
-          return _regeneratorRuntime().wrap(function _callee36$(_context36) {
-            while (1) switch (_context36.prev = _context36.next) {
-              case 0:
-                _this100.$dispatch('store-current-question');
-                _this100.$store.cms.scrollPos = document.querySelector('.drawer').scrollTop;
-                _this100.$store.cms.loading = true;
-                _context36.next = 5;
-                return _this100.constructor.showQuestion(questionProperties);
-              case 5:
-                _this100.$store.cms.loading = false;
-              case 6:
-              case "end":
-                return _context36.stop();
-            }
-          }, _callee36);
-        }))();
-      },
-      getLivewireComponent: function getLivewireComponent(attribute) {
-        return Livewire.find(document.querySelector("[".concat(attribute, "]")).getAttribute('wire:id'));
-      }
-    };
-  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("testTakePage", function (openTab, inGroup, inTestBankContext) {
     return {
       testCodePopup: false,
       urlCopied: false,
       urlCopiedTimeout: null,
       init: function init() {
-        var _this101 = this;
+        var _this96 = this;
         this.$watch("urlCopied", function (value) {
           if (value) {
-            clearTimeout(_this101.urlCopiedTimeout);
+            clearTimeout(_this96.urlCopiedTimeout);
             setTimeout(function () {
-              return _this101.urlCopied = false;
+              return _this96.urlCopied = false;
             }, 2000);
           }
         });
@@ -11181,51 +11029,51 @@ document.addEventListener("alpine:init", function () {
       participantPopupOpen: false,
       button: null,
       openPopup: function openPopup(event) {
-        var _this102 = this;
+        var _this97 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee36() {
+          return _regeneratorRuntime().wrap(function _callee36$(_context36) {
+            while (1) switch (_context36.prev = _context36.next) {
+              case 0:
+                if (!_this97.participantPopupOpen) {
+                  _context36.next = 3;
+                  break;
+                }
+                _context36.next = 3;
+                return _this97.closePopup(event);
+              case 3:
+                _this97.button = event.element;
+                _this97.button.dataset.open = "true";
+                _context36.next = 7;
+                return _this97.$wire.openPopup(event.participant);
+              case 7:
+                _this97.participantPopupOpen = true;
+                _this97.$nextTick(function () {
+                  _this97.$root.style.left = _this97.getLeft();
+                  _this97.$root.style.top = _this97.getTop();
+                });
+              case 9:
+              case "end":
+                return _context36.stop();
+            }
+          }, _callee36);
+        }))();
+      },
+      closePopup: function closePopup() {
+        var _this98 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee37() {
           return _regeneratorRuntime().wrap(function _callee37$(_context37) {
             while (1) switch (_context37.prev = _context37.next) {
               case 0:
-                if (!_this102.participantPopupOpen) {
-                  _context37.next = 3;
-                  break;
-                }
+                _this98.participantPopupOpen = false;
                 _context37.next = 3;
-                return _this102.closePopup(event);
+                return _this98.$wire.closePopup();
               case 3:
-                _this102.button = event.element;
-                _this102.button.dataset.open = "true";
-                _context37.next = 7;
-                return _this102.$wire.openPopup(event.participant);
-              case 7:
-                _this102.participantPopupOpen = true;
-                _this102.$nextTick(function () {
-                  _this102.$root.style.left = _this102.getLeft();
-                  _this102.$root.style.top = _this102.getTop();
-                });
-              case 9:
+                _this98.button.dataset.open = "false";
+              case 4:
               case "end":
                 return _context37.stop();
             }
           }, _callee37);
-        }))();
-      },
-      closePopup: function closePopup() {
-        var _this103 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee38() {
-          return _regeneratorRuntime().wrap(function _callee38$(_context38) {
-            while (1) switch (_context38.prev = _context38.next) {
-              case 0:
-                _this103.participantPopupOpen = false;
-                _context38.next = 3;
-                return _this103.$wire.closePopup();
-              case 3:
-                _this103.button.dataset.open = "false";
-              case 4:
-              case "end":
-                return _context38.stop();
-            }
-          }, _callee38);
         }))();
       },
       handleScroll: function handleScroll() {
@@ -11252,46 +11100,46 @@ document.addEventListener("alpine:init", function () {
       },
       fixPvalueContainerWidth: function fixPvalueContainerWidth() {
         var _document$querySelect,
-          _this104 = this;
+          _this99 = this;
         this.totalWidth = (_document$querySelect = document.querySelector(".pvalue-questions")) === null || _document$querySelect === void 0 ? void 0 : _document$querySelect.getBoundingClientRect().width;
         this.$root.querySelectorAll(".pvalue-container").forEach(function (el) {
-          el.style.width = _this104.totalWidth + "px";
+          el.style.width = _this99.totalWidth + "px";
         });
       },
       openRow: function openRow(attainment) {
-        var _this105 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee39() {
-          return _regeneratorRuntime().wrap(function _callee39$(_context39) {
-            while (1) switch (_context39.prev = _context39.next) {
+        var _this100 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee38() {
+          return _regeneratorRuntime().wrap(function _callee38$(_context38) {
+            while (1) switch (_context38.prev = _context38.next) {
               case 0:
-                if (!_this105.loadingData.includes(attainment)) {
-                  _context39.next = 2;
+                if (!_this100.loadingData.includes(attainment)) {
+                  _context38.next = 2;
                   break;
                 }
-                return _context39.abrupt("return");
+                return _context38.abrupt("return");
               case 2:
-                if (_this105.studentData[attainment]) {
-                  _context39.next = 8;
+                if (_this100.studentData[attainment]) {
+                  _context38.next = 8;
                   break;
                 }
-                _this105.loadingData.push(attainment);
-                _context39.next = 6;
-                return _this105.$wire.attainmentStudents(attainment);
+                _this100.loadingData.push(attainment);
+                _context38.next = 6;
+                return _this100.$wire.attainmentStudents(attainment);
               case 6:
-                _this105.studentData[attainment] = _context39.sent;
-                _this105.loadingData = _this105.loadingData.filter(function (key) {
+                _this100.studentData[attainment] = _context38.sent;
+                _this100.loadingData = _this100.loadingData.filter(function (key) {
                   return key !== attainment;
                 });
               case 8:
-                _this105.attainmentOpen.push(attainment);
-                _this105.$nextTick(function () {
-                  return _this105.fixPvalueContainerWidth();
+                _this100.attainmentOpen.push(attainment);
+                _this100.$nextTick(function () {
+                  return _this100.fixPvalueContainerWidth();
                 });
               case 10:
               case "end":
-                return _context39.stop();
+                return _context38.stop();
             }
-          }, _callee39);
+          }, _callee38);
         }))();
       },
       closeRow: function closeRow(attainment) {
@@ -11300,25 +11148,25 @@ document.addEventListener("alpine:init", function () {
         });
       },
       toggleRow: function toggleRow(attainment) {
-        var _this106 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee40() {
-          return _regeneratorRuntime().wrap(function _callee40$(_context40) {
-            while (1) switch (_context40.prev = _context40.next) {
+        var _this101 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee39() {
+          return _regeneratorRuntime().wrap(function _callee39$(_context39) {
+            while (1) switch (_context39.prev = _context39.next) {
               case 0:
-                if (!_this106.attainmentOpen.includes(attainment)) {
-                  _context40.next = 3;
+                if (!_this101.attainmentOpen.includes(attainment)) {
+                  _context39.next = 3;
                   break;
                 }
-                _this106.closeRow(attainment);
-                return _context40.abrupt("return");
+                _this101.closeRow(attainment);
+                return _context39.abrupt("return");
               case 3:
-                _context40.next = 5;
-                return _this106.openRow(attainment);
+                _context39.next = 5;
+                return _this101.openRow(attainment);
               case 5:
               case "end":
-                return _context40.stop();
+                return _context39.stop();
             }
-          }, _callee40);
+          }, _callee39);
         }))();
       },
       styles: function styles(pValue, multiplier) {
@@ -11349,43 +11197,13 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("pdfDownload", function (translation, links) {
-    return {
-      value: null,
-      waitingScreenHtml: PdfDownload.waitingScreenHtml(translation),
-      links: links,
-      select: function select(option) {
-        this.value = option;
-      },
-      selected: function selected(option) {
-        return option === this.value;
-      },
-      export_pdf: function export_pdf() {
-        if (!this.value) {
-          $wire.set('displayValueRequiredMessage', true);
-          return;
-        }
-        return this.export_now(this.links[this.value]);
-      },
-      export_now: function export_now(url) {
-        var isSafari = navigator.userAgent.indexOf('Safari') > -1 && navigator.userAgent.indexOf('Chrome') <= -1;
-        if (isSafari) {
-          window.open(url);
-          return;
-        }
-        var windowReference = window.open();
-        windowReference.document.write(this.waitingScreenHtml);
-        windowReference.location = url;
-      }
-    };
-  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref9) {
     var expression = _ref9.expression;
     var f = new Function("_", "$data", "_." + expression + " = $data;return;");
     f(window, el._x_dataStack[0]);
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("cms", {
-    loading: true,
+    loading: false,
     processing: false,
     dirty: false,
     scrollPos: 0,
@@ -11414,9 +11232,6 @@ document.addEventListener("alpine:init", function () {
       this.toggleCount = toggleCount;
     }
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("scoreSlider", {
-    currentBackupScore: null
-  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("editorMaxWords", {});
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("coLearningStudent", {
     drawerCollapsed: null,
@@ -11427,8 +11242,7 @@ document.addEventListener("alpine:init", function () {
       }
       return this.drawerCollapsed;
     }
-  });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("answerFeedback", {
+  }), alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("answerFeedback", {
     editingComment: null,
     creatingNewComment: false,
     navigationRoot: null,
@@ -11973,7 +11787,6 @@ window.plyrPlayer = {
     // disable element if not null
     try {
       elem.setAttribute("style", "pointer-events: none;");
-      elem.setAttribute('disabled', true);
     } catch (e) {}
   },
   noPause: function noPause(player) {
@@ -12065,7 +11878,6 @@ window.plyrPlayer = {
     }
     if (!audioCanBePlayedAgain) {
       this.disableElem(player.elements.buttons.play[0]);
-      this.disableElem(player.elements.progress.getElementsByTagName('input')[0]);
     }
     return player;
   },
@@ -12410,12 +12222,12 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "662d128370816e2bbb66",
+  key: "346b9b2cf30ab766e6a6",
   cluster: "eu",
   forceTLS: true
 });
 window.$ = window.jQuery = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
-window.MIX_CKEDITOR_LICENSE_KEY = "q11N5LxlUjUp2pDthuTmPmy/+cmatL0lY7nh6aX+nhhODyekK1g8YW5CKA==";
+window.MIX_CKEDITOR_LICENSE_KEY = process.env.MIX_CKEDITOR_LICENSE_KEY;
 window.FilePond = __webpack_require__(/*! filepond */ "./node_modules/filepond/dist/filepond.js");
 
 FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1___default()));
@@ -14468,11 +14280,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     var layerID = shapeGroup.parentElement.id;
     var layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
     if (!layerObject.props.id.includes(layerObject.Canvas.params.currentLayer)) return;
-    var selectedShape = rootElement.querySelector('.selected');
-    var selectedSvgShape = evt.target.closest("g.shape");
-    if (selectedShape) removeSelectState(selectedShape);
-    if (selectedShape === selectedSvgShape) return;
-    addSelectState(selectedSvgShape);
+    layerObject.shapes[shapeGroup.id].sidebar.toggleShapeSelect();
   }
   function removeSelectState(element) {
     element.classList.remove('selected');
@@ -14516,7 +14324,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
    * @param {Event} evt
    */
   function cursorStart(evt) {
-    var _evt$touches3;
+    var _evt$touches3, _evt$target$closest;
     evt.preventDefault();
     if (ShouldEditTextOnClick()) return;
     updateCursorPosition(evt);
@@ -14526,7 +14334,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     if (((_evt$touches3 = evt.touches) === null || _evt$touches3 === void 0 ? void 0 : _evt$touches3.length) === 2) {
       return startPan(evt);
     }
-    if (drawingApp.params.currentTool === "drag") {
+    if (drawingApp.params.currentTool === "drag" || (_evt$target$closest = evt.target.closest(".shape")) !== null && _evt$target$closest !== void 0 && _evt$target$closest.classList.contains("selected")) {
       if (evt.target.classList.contains("corner")) return startResize(evt);
       return startDrag(evt);
     }
@@ -14862,6 +14670,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       return;
     }
     Canvas.params.highlightedShape = newShape;
+    newShape.sidebar.toggleShapeSelect();
   }
   function stopDrag() {
     Canvas.params.drag.selectedSvgShape.onDragEnd();
@@ -15062,19 +14871,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       // Error callback.
       UI.submitBtn.disabled = false;
     }, function () {
-      drawMissingShapesOnSvg();
       // Progress callback.
     });
-  }
-
-  function drawMissingShapesOnSvg() {
-    for (var layerKey in Canvas.layers) {
-      var layer = Canvas.layers[layerKey];
-      for (var shapeKey in layer.shapes) {
-        var shape = layer.shapes[shapeKey];
-        shape.svg.redrawOnSvg();
-      }
-    }
   }
   function imageTypeIsAllowed(file) {
     if (file.size / (1024 * 1024) > 4) {
@@ -15657,7 +15455,6 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
     _this.entryTitle = templateCopy.querySelector(".shape-title");
     _this.btns = {
       "delete": templateCopy.querySelector(".remove-btn"),
-      edit: templateCopy.querySelector(".edit-btn"),
       lock: templateCopy.querySelector(".lock-btn"),
       hide: templateCopy.querySelector(".hide-btn"),
       drag: templateCopy.querySelector(".drag-btn"),
@@ -15671,7 +15468,6 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
     _this.drawingApp.bindEventListeners(_this.eventListenerSettings, _assertThisInitialized(_this));
     _this.updateLockState();
     _this.updateHideState();
-    _this.customizeButtonsAccordingToType();
     _this.deleteModal = _this.root.querySelector('#delete-confirm');
     return _this;
   }
@@ -15706,8 +15502,8 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
             }
           },
           "click": {
-            callback: function callback(evt) {
-              _this2.handleClick(evt);
+            callback: function callback() {
+              _this2.toggleShapeSelect();
             }
           }
         }
@@ -15731,15 +15527,6 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
           "click": {
             callback: function callback() {
               _this2.showConfirmDelete();
-            }
-          }
-        }
-      }, {
-        element: this.btns.edit,
-        events: {
-          "click": {
-            callback: function callback(evt) {
-              _this2.handleEditShape(evt);
             }
           }
         }
@@ -15866,8 +15653,8 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       this.entryContainer.classList.remove("highlight");
     }
   }, {
-    key: "handleClick",
-    value: function handleClick(evt) {
+    key: "toggleShapeSelect",
+    value: function toggleShapeSelect() {
       var selectedEl = this.getSelectedElement();
       if (selectedEl) this.unselect(selectedEl);
       if (selectedEl === this.entryContainer) return;
@@ -15883,6 +15670,7 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
     value: function select() {
       this.entryContainer.classList.add('selected');
       this.svgShape.shapeGroup.element.classList.add('selected');
+      this.startEditingShape();
     }
   }, {
     key: "unselect",
@@ -15894,12 +15682,6 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       element.closest('#canvas-sidebar-container').querySelector("#".concat(shapeId)).classList.remove('selected');
       this.removeAnyEditingShapes();
       document.activeElement.blur();
-    }
-  }, {
-    key: "toggleSelect",
-    value: function toggleSelect() {
-      this.entryContainer.classList.toggle('selected');
-      this.svgShape.shapeGroup.element.classList.toggle('selected');
     }
   }, {
     key: "updateLockState",
@@ -17722,7 +17504,7 @@ var svgShape = /*#__PURE__*/function () {
     key: "makeBorderElement",
     value: function makeBorderElement() {
       var bbox = this.mainElement.getBoundingBox();
-      var borderColor = this.isQuestionLayer() && this.drawingApp.isTeacher() ? "--purple-mid-dark" : "--primary";
+      var borderColor = this.isQuestionLayer() && this.drawingApp.isTeacher() ? '--purple-mid-dark' : '--primary';
       return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Rectangle({
         "class": "border",
         "x": bbox.x - this.offset,
@@ -17744,7 +17526,7 @@ var svgShape = /*#__PURE__*/function () {
   }, {
     key: "isQuestionLayer",
     value: function isQuestionLayer() {
-      return this.Canvas.layerID2Key(this.parent.id) === "question";
+      return this.Canvas.layerID2Key(this.parent.id) === 'question';
     }
   }, {
     key: "updateHelperElements",
@@ -17783,10 +17565,10 @@ var svgShape = /*#__PURE__*/function () {
   }, {
     key: "showBorderElement",
     value: function showBorderElement() {
-      if (this.elementBelongsToCurrentLayer() && this.drawingApp.currentToolIs("drag")) {
+      if (this.elementBelongsToCurrentLayer() && this.drawingApp.currentToolIs('drag')) {
         this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
-        this.borderElement.setAttribute("stroke-dasharray", "4,5");
-        this.borderElement.setAttribute("opacity", ".5");
+        this.borderElement.setAttribute("stroke-dasharray", '4,5');
+        this.borderElement.setAttribute("opacity", '.5');
       }
     }
   }, {
@@ -17797,11 +17579,14 @@ var svgShape = /*#__PURE__*/function () {
   }, {
     key: "showCornerElements",
     value: function showCornerElements() {
-      if (this.elementBelongsToCurrentLayer() && this.drawingApp.currentToolIs("drag")) {
-        this.cornerElements.forEach(function (cornerElement) {
-          cornerElement.show();
-        });
-      }
+      this.shapeCanBeResized() && this.cornerElements.forEach(function (cornerElement) {
+        cornerElement.show();
+      });
+    }
+  }, {
+    key: "shapeCanBeResized",
+    value: function shapeCanBeResized() {
+      return this.shapeGroup.element.classList.contains('selected') || this.elementBelongsToCurrentLayer() && this.drawingApp.currentToolIs('drag');
     }
   }, {
     key: "hideHelperElements",
@@ -17813,7 +17598,7 @@ var svgShape = /*#__PURE__*/function () {
     key: "hideBorderElement",
     value: function hideBorderElement() {
       this.borderElement.setAttribute("stroke", "none");
-      this.borderElement.setAttribute("opacity", "");
+      this.borderElement.setAttribute("opacity", '');
     }
   }, {
     key: "hideCornerElements",
@@ -17978,7 +17763,7 @@ var svgShape = /*#__PURE__*/function () {
   }, {
     key: "showExplainerForLayer",
     value: function showExplainerForLayer() {
-      this.sidebarEntry.entryContainer.parentElement.querySelector(".explainer").style.display = "inline-block";
+      this.sidebarEntry.entryContainer.parentElement.querySelector('.explainer').style.display = 'inline-block';
     }
   }, {
     key: "meetsMinRequirements",
@@ -17986,18 +17771,8 @@ var svgShape = /*#__PURE__*/function () {
       return true;
     }
   }, {
-    key: "redrawOnSvg",
-    value: function redrawOnSvg() {
-      if (this.parent.querySelector("#".concat(this.shapeGroup.element.id))) {
-        this.handleShapeNodes();
-        return;
-      }
-      this.parent.append(this.shapeGroup.element);
-      this.handleShapeNodes();
-    }
-  }, {
-    key: "handleShapeNodes",
-    value: function handleShapeNodes() {}
+    key: "setInputValuesOnEdit",
+    value: function setInputValuesOnEdit() {}
   }]);
   return svgShape;
 }();
@@ -18047,8 +17822,8 @@ var Rectangle = /*#__PURE__*/function (_svgShape) {
     key: "setOpacityInputValueOnEdit",
     value: function setOpacityInputValueOnEdit() {
       var input = this.UI.fillOpacityNumberRect;
-      input.value = this.mainElement.getAttribute("fill-opacity") * 100;
-      input.dispatchEvent(new Event("input"));
+      input.value = Math.round(this.mainElement.getAttribute("fill-opacity") * 100);
+      input.dispatchEvent(new Event('input'));
     }
   }, {
     key: "setStrokeWidthOnEdit",
@@ -18069,6 +17844,7 @@ var Rectangle = /*#__PURE__*/function (_svgShape) {
     key: "updateOpacity",
     value: function updateOpacity() {
       var opacity = parseFloat(this.UI.fillOpacityNumberRect.value / 100);
+      this.mainElement.setAttribute("opacity", opacity);
       this.mainElement.setAttribute("fill-opacity", opacity);
     }
   }, {
@@ -18094,7 +17870,7 @@ var Rectangle = /*#__PURE__*/function (_svgShape) {
         "fill-opacity": parseFloat(UI.fillOpacityNumberRect.value / 100),
         "stroke": UI.strokeColorRect.value,
         "stroke-width": UI.strokeWidthRect.value,
-        "opacity": 1
+        "opacity": parseFloat(UI.fillOpacityNumberRect.value / 100)
       };
     }
   }]);
@@ -18146,8 +17922,8 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
     key: "setOpacityInputValueOnEdit",
     value: function setOpacityInputValueOnEdit() {
       var input = this.UI.fillOpacityNumberCircle;
-      input.value = this.mainElement.getAttribute("fill-opacity") * 100;
-      input.dispatchEvent(new Event("input"));
+      input.value = Math.round(this.mainElement.getAttribute("fill-opacity") * 100);
+      input.dispatchEvent(new Event('input'));
     }
   }, {
     key: "setStrokeWidthOnEdit",
@@ -18168,6 +17944,7 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
     key: "updateOpacity",
     value: function updateOpacity() {
       var opacity = parseFloat(this.UI.fillOpacityNumberCircle.value / 100);
+      this.mainElement.setAttribute("opacity", opacity);
       this.mainElement.setAttribute("fill-opacity", opacity);
     }
   }, {
@@ -18191,7 +17968,7 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
         "fill-opacity": parseFloat(UI.fillOpacityNumberCircle.value / 100),
         "stroke": UI.strokeColorCircle.value,
         "stroke-width": UI.strokeWidthCircle.value,
-        "opacity": 1
+        "opacity": parseFloat(UI.fillOpacityNumberCircle.value / 100)
       };
     }
   }]);
@@ -18215,7 +17992,7 @@ var Line = /*#__PURE__*/function (_svgShape3) {
     var _this3;
     _classCallCheck(this, Line);
     _this3 = _super3.call(this, shapeId, "line", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
-    _this3.svgCanvas = drawingApp.params.root.querySelector("#svg-canvas");
+    _this3.svgCanvas = drawingApp.params.root.querySelector('#svg-canvas');
     _this3.makeOwnMarkerForThisShape();
     return _this3;
   }
@@ -18317,8 +18094,8 @@ var Line = /*#__PURE__*/function (_svgShape3) {
     value: function setEndMarkerOnEdit() {
       var _this$root$querySelec, _this$root$querySelec2;
       var markerType = this.getMarkerType();
-      (_this$root$querySelec = this.root.querySelector(".endmarker-type.active")) === null || _this$root$querySelec === void 0 ? void 0 : _this$root$querySelec.classList.remove("active");
-      (_this$root$querySelec2 = this.root.querySelector(".endmarker-type#".concat(markerType))) === null || _this$root$querySelec2 === void 0 ? void 0 : _this$root$querySelec2.classList.add("active");
+      (_this$root$querySelec = this.root.querySelector('.endmarker-type.active')) === null || _this$root$querySelec === void 0 ? void 0 : _this$root$querySelec.classList.remove('active');
+      (_this$root$querySelec2 = this.root.querySelector(".endmarker-type#".concat(markerType))) === null || _this$root$querySelec2 === void 0 ? void 0 : _this$root$querySelec2.classList.add('active');
     }
   }, {
     key: "updatePenWidth",
@@ -18335,13 +18112,6 @@ var Line = /*#__PURE__*/function (_svgShape3) {
     key: "meetsMinRequirements",
     value: function meetsMinRequirements() {
       return this.mainElement.element.getTotalLength() >= 10;
-    }
-  }, {
-    key: "handleShapeNodes",
-    value: function handleShapeNodes() {
-      if (this !== null && this !== void 0 && this.marker && !this.parent.querySelector("#".concat(this.marker.id))) {
-        this.parent.append(this.marker);
-      }
     }
   }], [{
     key: "getMainElementAttributes",
@@ -18378,7 +18148,7 @@ var Text = /*#__PURE__*/function (_svgShape4) {
     _classCallCheck(this, Text);
     _this4 = _super4.call(this, shapeId, "text", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
     _this4.mainElement.setTextContent(_this4.props.main["data-textcontent"]);
-    _this4.mainElement.setFontFamily("Nunito");
+    _this4.mainElement.setFontFamily('Nunito');
     _this4.registerEditingEvents();
     return _this4;
   }
@@ -18390,7 +18160,7 @@ var Text = /*#__PURE__*/function (_svgShape4) {
   }, {
     key: "updateBoldText",
     value: function updateBoldText() {
-      this.mainElement.element.style.fontWeight = this.drawingApp.params.boldText ? "bold" : "normal";
+      this.mainElement.element.style.fontWeight = this.drawingApp.params.boldText ? 'bold' : 'normal';
       this.updateHelperElements();
     }
   }, {
@@ -18424,13 +18194,13 @@ var Text = /*#__PURE__*/function (_svgShape4) {
       textInput.addEventListener("focusout", function () {
         var text = textInput.element.value;
         textInput.deleteElement();
-        textInput.element.style.display = "none";
+        textInput.element.style.display = 'none';
         if (text.length === 0) {
           _this5.cancelConstruction();
           return;
         }
         _this5.mainElement.setTextContent(text, false);
-        _this5.mainElement.setFontFamily("Nunito");
+        _this5.mainElement.setFontFamily('Nunito');
         _this5.updateBorderElement();
         _this5.updateCornerElements();
       });
@@ -18440,50 +18210,50 @@ var Text = /*#__PURE__*/function (_svgShape4) {
     value: function registerEditingEvents() {
       var _this6 = this;
       var element = this.shapeGroup.element;
-      ["touchenter", "mouseenter"].forEach(function (evt) {
+      ['touchenter', 'mouseenter'].forEach(function (evt) {
         return element.addEventListener(evt, function () {
-          var activeTool = _this6.root.querySelector("[data-button-group=tool].active");
-          var dragIsActive = activeTool.id.split("-")[0] === "drag";
-          if (element.classList.contains("editing") && !dragIsActive) {
+          var activeTool = _this6.root.querySelector('[data-button-group=tool].active');
+          var dragIsActive = activeTool.id.split('-')[0] === 'drag';
+          if (element.classList.contains('editing') && !dragIsActive) {
             activateTextEditing(_this6);
           } else {
             returnTextToNormal(_this6, dragIsActive);
           }
         }, false);
       });
-      ["touchleave", "mouseleave"].forEach(function (evt) {
+      ['touchleave', 'mouseleave'].forEach(function (evt) {
         return element.addEventListener(evt, function () {
           _this6.Canvas.params.editingTextInZone = false;
         }, false);
       });
-      ["touchstart", "mousedown"].forEach(function (evt) {
+      ['touchstart', 'mousedown'].forEach(function (evt) {
         return element.addEventListener(evt, function () {
-          if (!element.classList.contains("editing") || !_this6.Canvas.params.editingTextInZone) return;
+          if (!element.classList.contains('editing') || !_this6.Canvas.params.editingTextInZone) return;
           handleEditTextClick(_this6);
         }, false);
       });
       function returnTextToNormal(thisClass, dragIsActive) {
         if (dragIsActive) {
-          element.style.cursor = "move";
+          element.style.cursor = 'move';
         } else {
-          element.style.cursor = "crosshair";
+          element.style.cursor = 'crosshair';
         }
         thisClass.Canvas.params.editingTextInZone = false;
       }
       function activateTextEditing(thisClass) {
-        element.style.cursor = "text";
+        element.style.cursor = 'text';
         thisClass.Canvas.params.editingTextInZone = true;
       }
       function handleEditTextClick(thisClass) {
         var textElement = thisClass.mainElement.element;
         var coordinates = thisClass.drawingApp.convertCanvas2DomCoordinates({
-          x: textElement.getAttribute("x"),
-          y: textElement.getAttribute("y")
+          x: textElement.getAttribute('x'),
+          y: textElement.getAttribute('y')
         });
         var textInput = makeTextInput(thisClass, textElement, coordinates);
         textInput.element.value = textElement.textContent;
-        textElement.textContent = "";
-        textElement.parentElement.style.display = "none";
+        textElement.textContent = '';
+        textElement.parentElement.style.display = 'none';
         textInput.focus();
         addInputEventListeners(thisClass, textInput, textElement);
       }
@@ -18501,13 +18271,13 @@ var Text = /*#__PURE__*/function (_svgShape4) {
         return textInput;
       }
       function addInputEventListeners(thisClass, textInput, textElement) {
-        textInput.addEventListener("input", function () {
+        textInput.addEventListener('input', function () {
           textInput.element.style.width = "".concat(textInput.element.value.length + 1, "ch");
         }, false);
         textInput.addEventListener("focusout", function () {
           var text = textInput.element.value;
           textInput.deleteElement();
-          textInput.element.style.display = "none";
+          textInput.element.style.display = 'none';
           if (text.length === 0) {
             thisClass.cancelConstruction();
             return;
@@ -18515,7 +18285,7 @@ var Text = /*#__PURE__*/function (_svgShape4) {
           textElement.textContent = text;
           thisClass.updateBorderElement();
           thisClass.updateCornerElements();
-          textElement.parentElement.style = "";
+          textElement.parentElement.style = '';
         });
       }
     }
@@ -18543,20 +18313,20 @@ var Text = /*#__PURE__*/function (_svgShape4) {
   }, {
     key: "setBoldTextOnEdit",
     value: function setBoldTextOnEdit() {
-      var isBold = this.mainElement.element.style.fontWeight === "bold";
+      var isBold = this.mainElement.element.style.fontWeight === 'bold';
       this.drawingApp.params.boldText = this.UI.boldText.checked = isBold;
       if (isBold) {
-        this.UI.boldToggleButton.classList.add("active");
+        this.UI.boldToggleButton.classList.add('active');
       } else {
-        this.UI.boldToggleButton.classList.remove("active");
+        this.UI.boldToggleButton.classList.remove('active');
       }
     }
   }, {
     key: "setOpacityInputValueOnEdit",
     value: function setOpacityInputValueOnEdit() {
       var input = this.UI.elemOpacityNumber;
-      input.value = this.mainElement.getAttribute("opacity") * 100;
-      input.dispatchEvent(new Event("input"));
+      input.value = Math.round(this.mainElement.getAttribute("opacity") * 100);
+      input.dispatchEvent(new Event('input'));
     }
   }], [{
     key: "getMainElementAttributes",
@@ -19617,6 +19387,7 @@ readspeakerLoadCore = function (_readspeakerLoadCore) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ckeditor5_node_modules_ckeditor_ckeditor5_word_count_src_utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../ckeditor5/node_modules/@ckeditor/ckeditor5-word-count/src/utils.js */ "./resources/ckeditor5/node_modules/@ckeditor/ckeditor5-word-count/src/utils.js");
+/* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
@@ -19881,7 +19652,7 @@ window.RichTextEditor = {
     if (!parameterBag.enableCommentsPlugin) {
       config.removePlugins.push("Comments");
     } else {
-      config.licenseKey = "q11N5LxlUjUp2pDthuTmPmy/+cmatL0lY7nh6aX+nhhODyekK1g8YW5CKA==";
+      config.licenseKey = process.env.MIX_CKEDITOR_LICENSE_KEY;
     }
     if (parameterBag.commentThreads != undefined) {
       config.extraPlugins = [CommentsIntegration];
@@ -19955,7 +19726,7 @@ window.RichTextEditor = {
     if (!parameterBag.enableCommentsPlugin) {
       config.removePlugins.push("Comments");
     } else {
-      config.licenseKey = "q11N5LxlUjUp2pDthuTmPmy/+cmatL0lY7nh6aX+nhhODyekK1g8YW5CKA==";
+      config.licenseKey = process.env.MIX_CKEDITOR_LICENSE_KEY;
     }
     if (parameterBag.commentThreads != undefined) {
       config.extraPlugins = [CommentsIntegration];
