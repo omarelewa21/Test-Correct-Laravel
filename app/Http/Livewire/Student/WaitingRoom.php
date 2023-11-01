@@ -54,7 +54,8 @@ class WaitingRoom extends TCComponent
     public $participatingClasses = [];
 
     public $meetsAppRequirement = true;
-    public $needsApp;
+    public $needsAppForTestTake;
+    public $needsAppForCoLearning;
     public $appNeedsUpdate;
     public $appNeedsUpdateDeadline;
     public $appStatus;
@@ -236,17 +237,18 @@ class WaitingRoom extends TCComponent
 
     public function participantAppCheck()
     {
-        if ($this->testTakeStatusStage != 'planned') {
-            return $this->needsApp = false;
+        if (!in_array($this->testTakeStatusStage, ['planned', 'taken', 'discuss' ]) ) {
+            return $this->needsAppForTestTake = false;
         }
 
         $this->appStatus = AppVersionDetector::isVersionAllowed(session()->get('headers'));
 
-        $this->needsApp = !!(!$this->testParticipant->canUseBrowserTesting());
+        $this->needsAppForTestTake = !!(!$this->testParticipant->canUseBrowserTesting());
+        $this->needsAppForCoLearning = !!(!$this->waitingTestTake->allow_inbrowser_colearning);
         $this->meetsAppRequirement = !!($this->appStatus != AllowedAppType::NOTALLOWED);
         $this->appNeedsUpdate = !!($this->appStatus === AllowedAppType::NEEDSUPDATE);
 
-        if ($this->needsApp && $this->meetsAppRequirement && !AppVersionDetector::verifyKeyHeader()) {
+        if ($this->needsAppForTestTake && $this->meetsAppRequirement && !AppVersionDetector::verifyKeyHeader()) {
             // student is using a modified app since the tlckey header is incorrect
             $this->appStatus = AllowedAppType::NOTALLOWED;
         }

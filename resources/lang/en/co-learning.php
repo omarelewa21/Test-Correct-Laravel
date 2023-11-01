@@ -70,6 +70,8 @@ return [
     'navigation-for-students'       => 'Students can work at own pace',
     'navigation-for-students-tt'    => 'After starting CO-Learning, students can navigate questions on their own pace, instead of being guided by the teacher.',
     'student-at-different-question' => 'Student is reviewing a different question',
+    'allow-browser-access'          => 'Allow browser access',
+    'allow-browser-access-tt'       => 'This allows students to use not only the app, but also the browser to access CO-Learning',
     'real-time-saving'              => 'All changes are saved in real-time',
     'set-up-colearning-session'     => 'Customize your CO-Learning session',
     'start'                         => 'Start',

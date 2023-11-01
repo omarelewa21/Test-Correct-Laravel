@@ -51,7 +51,7 @@
                                                   :participatingClasses="$participatingClasses"/>
                 </div>
                 <div class="flex w-full items-center h-10">
-                    @if(!$needsApp)
+                    @if(!$needsAppForTestTake && !$needsAppForCoLearning)
                         <x-partials.waiting-room-action-button
                            :testTakeStatusStage="$this->testTakeStatusStage"
                            :isTakeOpen="$this->isTakeOpen"
@@ -69,7 +69,7 @@
                                     <x-button.download-app class="mx-4"/>
                                 @else
                                     <x-button.cta disabled class="mx-4">
-                                        <span>{{ __('Toets starten niet mogelijk') }}</span>
+                                        <span>{{ __('student.starting_not_possible') }}</span>
                                     </x-button.cta>
                                 @endif
                             </div>
@@ -86,7 +86,7 @@
             </div>
         </div>
         <div class="flex flex-col bg-light-grey items-center justify-center py-12">
-            @if($needsApp && !$meetsAppRequirement && !$this->testParticipant->isInBrowser())
+            @if($needsAppForTestTake && !$meetsAppRequirement && !$this->testParticipant->isInBrowser())
                 <div class="flex w-full justify-center transition-all duration-300 mb-4">
                     <div class="notification error stretched">
                         <div class="flex items-center space-x-3">
@@ -97,7 +97,7 @@
                     </div>
                 </div>
             @endif
-            @if($needsApp && $this->testParticipant->isInBrowser())
+            @if($needsAppForTestTake && $this->testParticipant->isInBrowser())
                 <div class="flex w-full justify-center transition-all duration-300 mb-4">
                     <div class="notification error stretched">
                         <div class="flex items-center space-x-3">
@@ -152,7 +152,7 @@
                         </div>
                     </div>
                 @endif
-                @if($needsApp && $appNeedsUpdate)
+                @if($needsAppForTestTake && $appNeedsUpdate)
                     <div class="flex w-full justify-center transition-all duration-300 mb-4">
                         <div class="notification warning stretched">
                             <div class="flex items-center space-x-3">

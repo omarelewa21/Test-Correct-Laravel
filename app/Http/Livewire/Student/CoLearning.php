@@ -582,6 +582,9 @@ class CoLearning extends TCComponent
 
     private function redirectIfTestTakeInIncorrectState(): Redirector|false
     {
+        if (session('isInBrowser') && !$this->testTake->allow_inbrowser_colearning) {
+            return $this->redirectToWaitingRoom();
+        }
         if ($this->getDiscussingQuestion()->getKey() === null) {
             return $this->redirectToWaitingRoom();
         }

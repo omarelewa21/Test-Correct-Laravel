@@ -128,6 +128,12 @@ class CoLearning extends TCComponent implements CollapsableHeader
         $this->testTake->save();
     }
 
+    public function toggleStudentAllowBrowserAccess(bool $boolean)
+    {
+        $this->testTake->allow_inbrowser_colearning = $boolean;
+        $this->testTake->save();
+    }
+
     public function joiningPresenceChannel($data)
     {
         $this->testParticipantsPresence = collect($this->testParticipantsPresence)->merge([$data['testparticipant_uuid'] => $data]);

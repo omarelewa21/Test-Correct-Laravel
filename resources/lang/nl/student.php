@@ -210,4 +210,5 @@ return [
     'info'                                                     => 'Info',
     'Verder in Test-Correct app'                               => 'Verder in Test-Correct app',
     'Deleted student'                                          => 'Verwijderde student',
+    'starting_not_possible'                                    => 'Toets starten niet mogelijk',
 ];
