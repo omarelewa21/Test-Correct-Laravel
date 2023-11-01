@@ -83,6 +83,16 @@
                     <div class="step-one-content ">
                         <div class="step-one-options">
 
+                            <x-input.toggle-row-with-title
+                                    :title="__('co-learning.allow-browser-access')"
+                                    :toolTip="__('co-learning.allow-browser-access-tt')"
+                                    :checked="$this->testTake->allow_inbrowser_colearning"
+                                    wire:click="toggleStudentAllowBrowserAccess($event.target.checked)"
+                            >
+                                <x-icon.web/>
+                                <span>@lang('co-learning.allow-browser-access')</span>
+                            </x-input.toggle-row-with-title>
+
                             @if(auth()->user()->schoolLocation->allow_wsc)
                                 <x-input.toggle-row-with-title
                                         :title="__('co-learning.spellchecker-for-students')"
