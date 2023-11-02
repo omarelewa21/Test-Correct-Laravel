@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Question\QuestionGatherer;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Ramsey\Uuid\Uuid;
+use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\TaxonomyRepository;
 use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
 use tcCore\Traits\ModelAttributePurifyTrait;
@@ -947,6 +949,68 @@ class Test extends BaseModel
                 ...$item,
             ]];
         })->toArray();
+    }
+
+    public function getQuestionOrderListExpanded($forgetCache = false)
+    {
+        $cacheKey = sprintf('test_questions_list_expanded-%s', $this->uuid);
+
+        //Cache forget to forget the cache, when still in the set-up phase?
+        if($forgetCache) {
+            Cache::forget($cacheKey);
+        }
+        //Cache Remember for store/retrieve, when past the set-up phase?
+        return Cache::remember($cacheKey, now()->addDays(3), function () {
+
+            $coLearningIndex = 0; // filters out 'discuss === false' questions
+            $testIndex = 0;
+
+            $this->testQuestions->loadMissing('question');
+
+            $orderList = $this->testQuestions->sortBy('order')->flatMap(function ($testQuestion) {
+                if ($testQuestion->question->type === 'GroupQuestion') {
+                    return $testQuestion->question->groupQuestionQuestions()->with('question')->get()->map(function ($item) use ($testQuestion) {
+                        return [
+                            'question_id' => $item->question->getKey(),
+                            'question_uuid' => $item->question->uuid,
+                            'question_type' => $item->question->type,
+                            'question_type_name' => $item->question->type_name,
+                            'question_title' => $item->question->title,
+                            'group_question_id' => $testQuestion->question->getKey(),
+                            'carousel_question' => $testQuestion->question->isCarouselQuestion(),
+                            'open_question' => !$item->question->canCheckAnswer(),
+                            //                        'discuss'       => (!$testQuestion->question->isCarouselQuestion()) && $item->discuss ? 1 : 0,
+                        ];
+                    });
+                }
+                return [[
+                            'question_id' => $testQuestion->question->getKey(),
+                            'question_uuid' => $testQuestion->question->uuid,
+                            'question_type' => $testQuestion->question->type,
+                            'question_type_name' => $testQuestion->question->type_name,
+                            'question_title' => $testQuestion->question->title,
+                            'group_question_id' => null,
+                            'carousel_question' => false,
+                            'open_question' => !$testQuestion->question->canCheckAnswer(),
+                            //                'discuss' => $testQuestion->discuss,
+                        ]];
+            });
+
+            $pValues = PValueRepository::getPValuesForQuestion($orderList->pluck('question_id')->toArray())
+                ->keyBy('question_id');
+
+            return $orderList->mapWithKeys(function ($item, $key) use (&$coLearningIndex, &$testIndex, &$pValues) {
+
+                return [$item['question_id'] => [
+                    'colearning_index' => ($item['question_type'] !== 'InfoscreenQuestion' && !$item['carousel_question']) ? ++$coLearningIndex : null,
+                    'test_index' => ++$testIndex,
+                    ...$item,
+                    'p_value' => ($item['question_type'] !== 'InfoscreenQuestion' && !$item['carousel_question'])
+                        ? $pValues->get($item['question_id'])?->p_value
+                        : null,
+                ]];
+            })->toArray();
+        });
     }
 
     public function canDuplicate()

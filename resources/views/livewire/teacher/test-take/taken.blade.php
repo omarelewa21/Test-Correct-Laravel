@@ -137,15 +137,9 @@
 
         <x-button.icon class="order-3"
                        :title="__('test-take.Exporteer cijferlijst')"
-                       x-on:click="
-
-                        let windowReference = window.open();
-                        windowReference.document.write(
-                            PdfDownload.waitingScreenHtml('{{  __('test-pdf.pdf_download_wait_text') }}')
-                        );
-
-                        windowReference.location = '{{ route('teacher.pdf.grade-list', ['test_take' => $this->testTake->uuid]) }}'
-                       "
+                       type="link"
+                       target="_blank"
+                       :href="route('teacher.test-take.export-grades-csv', ['test_take' => $this->testTake->uuid])"
         >
             <x-icon.grades-list />
         </x-button.icon>

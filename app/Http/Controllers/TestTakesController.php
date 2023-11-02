@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use tcCore\Answer;
 use tcCore\AnswerRating;
 use tcCore\DiscussingParentQuestion;
 use tcCore\Events\CoLearningForceTakenAway;
@@ -20,6 +22,7 @@ use tcCore\Http\Requests\NormalizeTestTakeRequest;
 use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\Question;
 use tcCore\SchoolClass;
+use tcCore\Services\GradesService;
 use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestTake;
@@ -862,7 +865,12 @@ class TestTakesController extends Controller
         return Response::make($normalize->testTake, 200);
     }
 
-    public function export(TestTake $testTake)
+    /**
+     * Exports the test take RTTI values to a csv file
+     * @param TestTake $testTake
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function exportRttiCsvFile(TestTake $testTake)
     {
         $questions = QuestionGatherer::getQuestionsOfTest($testTake->getAttribute('test_id'), true);
 
@@ -1067,6 +1075,22 @@ class TestTakesController extends Controller
         $export = new TestTakesExport($sheet);
 
         return Excel::download($export, 'export.csv');
+    }
+
+    /**
+     * Exports the test take grades to a csv file
+     * @param TestTake $testTake
+     * @return BinaryFileResponse
+     */
+    public function exportGradesCsvFile(TestTake $testTake)
+    {
+        $sheet = GradesService::getForTestTake($testTake);
+
+        return Excel::download(
+            new TestTakesExport($sheet->toArray()),
+            fileName: __('teacher.export_gradelist_csv_filename'),
+            writerType: \Maatwebsite\Excel\Excel::CSV,
+        );
     }
 
     /**

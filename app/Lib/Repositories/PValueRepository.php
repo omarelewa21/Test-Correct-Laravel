@@ -1,6 +1,7 @@
 <?php namespace tcCore\Lib\Repositories;
 
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -15,18 +16,17 @@ use tcCore\User;
 
 class PValueRepository
 {
-    public static function getPValuesForQuestion($dottedQuestionId)
+    public static function getPValuesForQuestion($questionIds)
     {
         return PValue::select(
-            'p_value.education_level_id',
-            'p_value.education_level_year',
-            DB::raw('SUM(score) / SUM(max_score) as p_value'),
+            'question_id',
+            DB::raw('ROUND(SUM(score) / SUM(max_score),2) as p_value'),
             DB::raw('COUNT(DISTINCT(test_participants.user_id)) as student_count')
         )
-            ->with('education_level')
-            ->join('test_participants', 'test_participants.id', '=', 'p_value.test_participant_id')
-            ->groupBy('question_id', 'education_level_id', 'education_level_year')
-            ->having('student_count', '>=', 50)->get();
+            ->join('test_participants', 'test_participants.id', '=', 'p_values.test_participant_id')
+            ->whereIn('p_values.question_id', Arr::wrap($questionIds))
+            ->groupBy('p_values.question_id')
+            ->get();
     }
 
     public static function getPValuesTeacher($teacherIds, $dottedQuestionIds = null)
