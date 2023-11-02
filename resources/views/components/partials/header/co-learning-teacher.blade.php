@@ -12,10 +12,6 @@
 @endsection
 
 @section('collapsedLeft')
-{{--    <div class="text-right text-[14px] mr-4">--}}
-{{--        {{ __('co-learning.questions_being_discussed') }}<br>--}}
-{{--        {{ $discussionTypeTranslation }}--}}
-{{--    </div>--}}
     <div class="flex items-center">
         <x-button.cta :disabled="!$atLastQuestion"
                       @class(['opacity-40' => !$atLastQuestion])
@@ -44,9 +40,15 @@
                     @lang('co-learning.set-up-colearning-session')
                 </h3>
                 <div class="flex space-x-4">
-                    <x-tooltip idle-classes="bg-transparent text-white border-white border">
-                        {{-- TODO this translation is not correct yet--}}
-                        <span class="text-left">@lang('assessment.continuously_saved_tooltip')</span>
+                    <x-tooltip idle-classes="bg-transparent text-white border-white border flex-col" active-classes="flex-col" tooltip-classes="flex-col">
+
+                        <span class="text-left">@lang('co-learning.co-learning-setup-tt')</span>
+                        <x-button.text type="link"
+                                       href="https://support.test-correct.nl/knowledge/co-learning-toets-bespreken"
+                                       size="sm"
+                        >
+                            @lang('co-learning.co-learning-setup-tt-link')
+                        </x-button.text>
                     </x-tooltip>
                 </div>
             @else
@@ -64,9 +66,15 @@
                     >
 
                     </x-button.slider>
-                    <x-tooltip idle-classes="bg-transparent text-white border-white border">
-                        {{-- TODO this translation is not correct yet--}}
-                        <span class="text-left">@lang('assessment.continuously_saved_tooltip')</span>
+                    <x-tooltip idle-classes="bg-transparent text-white border-white border flex-col" active-classes="flex-col" tooltip-classes="flex-col">
+
+                        <span class="text-left">@lang('co-learning.co-learning-setup-tt')</span>
+                        <x-button.text type="link"
+                                       href="https://support.test-correct.nl/knowledge/co-learning-toets-bespreken"
+                                       size="sm"
+                        >
+                            @lang('co-learning.co-learning-setup-tt-link')
+                        </x-button.text>
                     </x-tooltip>
                 </div>
             @endif
@@ -152,7 +160,7 @@
                                     {{-- TODO add text x/x questions, on date ... --}}
                                     {!!  __('co-learning.current_session', [
                                         'index' => $this->discussedQuestionsCount,
-                                        'totalQuestions' => $this->questionCount,
+                                        'totalQuestions' => $this->setupQuestionTotalCount,
                                         'date' => $this->testTake->updated_at->format('d/m/Y')
                                     ]) !!}
                                 @else
@@ -329,7 +337,7 @@
                                             </div>
                                         @endif
                                         {{-- Voorbeeld --}}
-                                        <div class="grid-item flex items-center pr-4 truncate justify-start gap-1.5">
+                                        <div class="grid-item flex items-center pr-4 justify-start gap-1.5">
 
                                             <x-button.text
                                                     size="md"

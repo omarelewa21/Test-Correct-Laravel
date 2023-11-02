@@ -7791,13 +7791,13 @@ input.datepicker {
 }
 
 .set-up-colearning .set-up-colearning-panel .step-two .co-learning-setup-grid {
-    grid-template-columns: 40px 50px minmax(106px, 120px) auto 60px;
+    grid-template-columns: 40px 50px minmax(106px, 120px) minmax(10px, 1000px) 60px;
     display: grid;
     position: relative;
 }
 
 .set-up-colearning .set-up-colearning-panel .step-two .co-learning-setup-grid.with-group-questions {
-    grid-template-columns: 40px 50px minmax(106px, 120px) 71px auto 60px;
+    grid-template-columns: 40px 50px minmax(106px, 120px) 71px minmax(10px, 1000px) 60px;
 }
 
 .set-up-colearning .set-up-colearning-panel .step-two .co-learning-setup-grid .grid-title {
@@ -12355,9 +12355,6 @@ video {
 .w-px{
   width: 1px;
 }
-.\!w-10{
-  width: 2.5rem !important;
-}
 .min-w-\[110px\]{
   min-width: 110px;
 }
@@ -13334,9 +13331,6 @@ video {
 .border-l-student{
   --tw-border-opacity: 1;
   border-left-color: rgb(236 219 0 / var(--tw-border-opacity));
-}
-.border-b-white\/25{
-  border-bottom-color: rgb(255 255 255 / 0.25);
 }
 .\!bg-primary{
   --tw-bg-opacity: 1 !important;

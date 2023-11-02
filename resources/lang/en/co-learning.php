@@ -79,4 +79,6 @@ return [
     'choose_questions_title'        => 'Choose which questions to discuss',
     'questions_to_discuss'          => 'questions to discuss',
     'present'                       => 'present',
+    'co-learning-setup-tt'          => 'CO-Learning is a peer-review method that allows you to discuss a test with your class.',
+    'co-learning-setup-tt-link'     => 'Read more on the Knowledge Base ->',
 ];

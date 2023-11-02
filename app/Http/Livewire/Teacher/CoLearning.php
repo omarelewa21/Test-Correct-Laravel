@@ -158,10 +158,9 @@ class CoLearning extends TCComponent implements CollapsableHeader
         $this->getStaticNavigationData();
 
         if ($this->testTakeHasNotYetBeenStartedBefore() || !$this->coLearningHasBeenStarted) {
-            //todo the check uses discussion_type, but when selecting questions we dont need this property anymore
-
-            $this->getSetUpData();
+            $this->getSetUpData(true);
         }
+
         if ($this->testTakeIsBeingRestarted()) {
             $this->coLearningRestart = true;
             return;
@@ -203,11 +202,6 @@ class CoLearning extends TCComponent implements CollapsableHeader
 
     public function startCoLearningSession() : bool|Redirector
     {
-        //todo remove all discussion type checks, we dont need them anymore
-//        if (!in_array($discussionType, [self::DISCUSSION_TYPE_OPEN_ONLY, self::DISCUSSION_TYPE_ALL])) {
-//            throw new \Exception('Wrong discussion type');
-//        }
-
         $testTakeUpdateData = [];
         if ($this->testTakeStatusNeedsToBeUpdated()) {
             $testTakeUpdateData['test_take_status_id'] = TestTakeStatus::STATUS_DISCUSSING;
@@ -544,11 +538,12 @@ class CoLearning extends TCComponent implements CollapsableHeader
         $this->questionsOrderList = $this->getQuestionList();
 
         $this->questionCount = $this->questionsOrderList->count('id');
-        $this->discussedQuestionsCount = $this->questionsOrderList->filter(fn($question) => (bool)$question['discussed'])->count();
+        $this->discussedQuestionsCount = $this->questionsOrderList
+            ->filter(fn($question) => isset($question['discussed']) && (bool)$question['discussed'])
+            ->count();
 
         //filter questions that have 'discuss in class' on false
         $this->questionsOrderList = $this->questionsOrderList->filter(fn($item) => (bool)$item['discuss']);
-
         $this->questionCountFiltered = $this->questionsOrderList->count('id');
 
         $this->firstQuestionId = $this->questionsOrderList->sortBy('order')->first()['id'];
@@ -735,14 +730,19 @@ class CoLearning extends TCComponent implements CollapsableHeader
 
     private function getQuestionList()
     {
-        $testTakeQuestions = TestTakeQuestion::whereTestTakeId($this->testTake->getKey())
-            ->get()
-            ->keyBy('question_id');
+        $testTakeQuestions = $this->getTestTakeQuestions()
+            ?->keyBy('question_id');
 
         $orderList = collect($this->testTake->test->getQuestionOrderListWithDiscussionType());
 
         if($testTakeQuestions->isEmpty()) {
             return $orderList;
+            $order = 1;
+            return $orderList->map(function ($question) use (&$order) {
+                $question['order'] = $order++;
+                $question['discussed'] = false;
+                return $question;
+            });;
         }
 
         //filters questions that are not checked at start screen

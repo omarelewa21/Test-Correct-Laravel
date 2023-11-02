@@ -26,7 +26,7 @@ trait CanSetUpCoLearning
     protected $questionsSetUpOrderList;
     public bool $testHasGroupQuestions;
 
-    protected $setupQuestionTotalCount;
+    public $setupQuestionTotalCount;
     protected $setupCheckedQuestionsCount;
 
     protected $queryStringCanSetUpCoLearning = [
@@ -74,10 +74,13 @@ trait CanSetUpCoLearning
         return $this->sortSetupQuestionOrderList();
     }
 
-    public function getTestTakeQuestions()
+    public function getTestTakeQuestions($withTrashed = false)
     {
         return TestTakeQuestion::where('test_take_id', $this->testTake->getKey())
-                       ->get();
+            ->when(value   : $withTrashed,
+                   callback: fn($query) => $query->withTrashed()
+            )
+            ->get();
     }
 
     public function updateQuestionsChecked($questionTypeFilter = 'all')
@@ -209,8 +212,12 @@ trait CanSetUpCoLearning
         return $this->setupCoLearningSortDirection;
     }
 
-    private function getSetUpData()
+    private function getSetUpData($firstRun = false)
     {
+        if($firstRun && $this->getTestTakeQuestions(withTrashed: true)->isEmpty()) {
+            //if first entering, select open questions as default
+            $this->updateQuestionsChecked('open');
+        }
 
         $setupQuestionData = $this->getExpandedQuestionList();
         $this->setupQuestionTotalCount = $setupQuestionData->count();

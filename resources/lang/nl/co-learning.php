@@ -79,4 +79,6 @@ return [
     'choose_questions_title'        => 'Kies welke vragen je wilt behandelen',
     'questions_to_discuss'          => 'vragen te behandelen',
     'present'                       => 'aanwezig',
+    'co-learning-setup-tt'          => 'CO-Learning is een peer-review methode waarmee je klassikaal toetsen kan bespreken.',
+    'co-learning-setup-tt-link'     => 'Lees meer op de Kennisbank ->',
 ];
