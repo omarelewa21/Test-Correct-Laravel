@@ -4,7 +4,7 @@
      x-on:keyup.escape="testCodePopup = false"
 >
     <div class="breadcrumbs | flex w-full border-b border-secondary sticky z-1 sticky-pseudo-bg  h-[50px] items-center">
-        <div class="w-full mx-auto px-[90px] z-1">
+        <div class="w-full mx-auto px-[2rem] lg:px-[90px]  z-1">
             <div class="flex w-full justify-between">
                 <div class="flex items-center gap-2.5 w-full">
                     <x-button.back-round class="shrink-0 card-shadow" wire:click="back" />
@@ -23,7 +23,7 @@
         </div>
     </div>
 
-    <div class="test-info | w-full mx-auto px-[90px] border-b border-secondary bg-gradient-to-t from-white to-lightGrey"
+    <div class="test-info | w-full mx-auto px-[2rem] lg:px-[90px]  border-b border-secondary bg-gradient-to-t from-white to-lightGrey"
          style="--tw-gradient-to: #F0F2F5 80%;--tw-gradient-from: #fff -20%;"
     >
         <div class="w-full">
@@ -55,7 +55,7 @@
         </div>
     </div>
 
-    <div class="page-content | flex flex-col w-full mx-auto px-[90px] py-10 gap-8">
+    <div class="page-content | flex flex-col w-full mx-auto px-[2rem] lg:px-[90px]  py-10 gap-8">
         <div class="flex flex-col gap-6">
             @yield('grade-change-notification')
             <div class="flex flex-wrap">

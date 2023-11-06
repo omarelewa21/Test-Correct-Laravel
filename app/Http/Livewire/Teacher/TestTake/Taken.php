@@ -53,8 +53,10 @@ class Taken extends TestTakeComponent
     public Collection $participantScoreOverrides;
     public bool $participantGradesChanged = false;
 
-    public ?string $standardizeTabDirection = null;
-    public ?string $resultsTabDirection = null;
+    public string $standardizeTabDirection = 'asc';
+    public string $resultsTabDirection = 'asc';
+
+    public ?int $gradingDiffKey = null;
 
 
     protected function getRules(): array
@@ -93,6 +95,7 @@ class Taken extends TestTakeComponent
         $this->participantScoreOverrides = collect();
 
         if ($this->showStandardization()) {
+            $this->gradingDiffKey = rand(11111,99999);
             $this->setStandardizationProperties();
         }
     }
@@ -120,7 +123,7 @@ class Taken extends TestTakeComponent
         }
 
         Session::put($this->resultSessionKey(), $this->participantResults);
-        $this->participantGradesChanged = true;
+        $this->setParticipantsGradeChangedNotification();
     }
 
     public function updatedGradingValue($value): void
@@ -129,13 +132,15 @@ class Taken extends TestTakeComponent
             GradingStandard::tryFrom($this->gradingStandard),
             $value
         );
-        $this->participantGradesChanged = true;
+        $this->setParticipantsGradeChangedNotification();
+        $this->gradingDiffKey = rand(11111,99999);
     }
 
     public function updatedGradingStandard($value): void
     {
         $this->standardizeResults(GradingStandard::tryFrom($value));
-        $this->participantGradesChanged = true;
+        $this->setParticipantsGradeChangedNotification();
+        $this->gradingDiffKey = rand(11111,99999);
     }
 
     public function updatedCesuurPercentage($value): void
@@ -147,7 +152,8 @@ class Taken extends TestTakeComponent
             $this->gradingValue
         );
 
-        $this->participantGradesChanged = true;
+        $this->setParticipantsGradeChangedNotification();
+        $this->gradingDiffKey = rand(11111,99999);
     }
 
     public function updatedShowGradeToStudent($value): void
@@ -194,8 +200,8 @@ class Taken extends TestTakeComponent
                 'Assessment'  => 'primary'
             ],
             TestTakeStatus::STATUS_DISCUSSED  => [
-                'CO-Learning' => 'cta',
-                'Assessment'  => 'primary'
+                'CO-Learning' => 'primary',
+                'Assessment'  => 'cta'
             ],
         ];
         return $contexts[$this->testTakeStatusId][$context];
@@ -347,7 +353,7 @@ class Taken extends TestTakeComponent
             GradingStandard::tryFrom($this->gradingStandard),
             $this->gradingValue
         );
-        $this->participantGradesChanged = true;
+        $this->setParticipantsGradeChangedNotification();
     }
 
     public function publishResults(): void
@@ -777,5 +783,12 @@ class Taken extends TestTakeComponent
             ->get()
             ->each
             ->calculateAndSaveFinalRating();
+    }
+
+    private function setParticipantsGradeChangedNotification(): void
+    {
+        if($this->testTake->results_published) {
+            $this->participantGradesChanged = true;
+        }
     }
 }

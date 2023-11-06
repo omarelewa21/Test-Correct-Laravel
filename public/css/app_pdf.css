@@ -8199,6 +8199,14 @@ video {
   padding-top: 1px;
   padding-bottom: 1px;
 }
+.px-\[40px\]{
+  padding-left: 40px;
+  padding-right: 40px;
+}
+.px-\[2rem\]{
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
 .pb-0{
   padding-bottom: 0px;
 }
@@ -10190,6 +10198,12 @@ h2.student-testtake-answers-separator span {
   .lg\:px-8{
     padding-left: 2rem;
     padding-right: 2rem;
+  }
+
+
+  .lg\:px-\[90px\]{
+    padding-left: 90px;
+    padding-right: 90px;
   }
 }
 
