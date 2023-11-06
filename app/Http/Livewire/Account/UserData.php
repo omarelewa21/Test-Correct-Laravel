@@ -2,6 +2,8 @@
 
 namespace tcCore\Http\Livewire\Account;
 
+use tcCore\Http\Requests\Request;
+
 class UserData implements \Livewire\Wireable
 {
     public string $username;
@@ -31,6 +33,7 @@ class UserData implements \Livewire\Wireable
     public function toLivewire()
     {
         foreach ($this as $property => $value) {
+            Request::filter($value);
             $this->$property = is_string($value) ? html_entity_decode($value) : $value;
         }
         return get_object_vars($this);
@@ -38,6 +41,7 @@ class UserData implements \Livewire\Wireable
 
     public static function fromLivewire($value)
     {
+        Request::filter($value);
         return new static($value);
     }
 }
