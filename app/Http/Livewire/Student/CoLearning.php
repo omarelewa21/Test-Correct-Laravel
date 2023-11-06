@@ -99,7 +99,7 @@ class CoLearning extends TCComponent
      */
     public function getAtLastQuestionProperty(): bool
     {
-        return $this->numberOfQuestions === $this->questionOrderNumber;
+        return collect($this->questionOrderList)->max('order') === $this->questionOrderNumber;
     }
 
     public function allAnswerRatingsFullyRated(): bool
@@ -143,10 +143,11 @@ class CoLearning extends TCComponent
                                                 ->first();
 
         $this->selfPacedNavigation = $this->testTake->enable_student_navigation_colearning;
-        $this->discussingQuestionId = $this->getDiscussingQuestion()->getKey();
-
 
         $this->questionOrderList = $this->getQuestionList()->toArray();
+
+        $this->discussingQuestionId = $this->getDiscussingQuestion()->getKey();
+
 
         $this->questionOrderNumber = $this->questionOrderList[$this->discussingQuestionId]['order'];
         $this->questionOrderAsInTestNumber = $this->questionOrderList[$this->discussingQuestionId]['order_in_test'];
@@ -231,27 +232,40 @@ class CoLearning extends TCComponent
         return redirect()->route('student.waiting-room', ['take' => $this->testTake->uuid]);
     }
 
-    public function isNextAnswerRatingButtonDisabled(): bool
+    public function isNextAnswerRatingButtonVisible(): bool
     {
-        return !$this->nextAnswerAvailable
-            || (!isset($this->answerRating->rating) && $this->answerRating->answer->isAnswered);
+        return $this->nextAnswerAvailable;
     }
 
-    public function isPreviousAnswerRatingButtonDisabled(): bool
+    public function isPreviousAnswerRatingButtonVisible(): bool
     {
-        return !$this->previousAnswerAvailable;
+        return $this->previousAnswerAvailable;
     }
 
-    public function isNextQuestionButtonDisabled(): bool
+    public function isNextQuestionButtonVisible(): bool
     {
-        return !$this->nextQuestionAvailable
-            || (collect($this->answerRatingsRated)->count() !== $this->answerRatingsCount);
+        if(!$this->selfPacedNavigation) {
+            return false;
+        }
+
+        return $this->nextQuestionAvailable && !$this->nextAnswerAvailable;
     }
 
-    public function isPreviousQuestionButtonDisabled(): bool
+    public function isPreviousQuestionButtonVisible(): bool
     {
-        return !$this->previousQuestionAvailable;
+        if(!$this->selfPacedNavigation) {
+            return false;
+        }
+
+        return $this->previousQuestionAvailable && !$this->previousAnswerAvailable;
     }
+
+    public function isNextButtonDisabled(): bool
+    {
+        return !isset($this->answerRating->rating)
+            && $this->answerRating->answer->isAnswered;
+    }
+
 
     protected function getPreviousQuestionData(): ?array
     {
@@ -291,9 +305,9 @@ class CoLearning extends TCComponent
         $this->getAnswerRatings('next');
     }
 
-    public function goToNextQuestion()
+    public function goToNextQuestion($forceNextQuestion = false)
     {
-        if(!$this->selfPacedNavigation) {
+        if(!$this->selfPacedNavigation && !$forceNextQuestion) {
             return;
         }
 
@@ -534,8 +548,9 @@ class CoLearning extends TCComponent
     private function checkIfStudentCanFinishCoLearning(): void
     {
         if (
-            $this->atLastQuestion &&
-            ($this->selfPacedNavigation ? $this->allAnswerRatingsFullyRated() : $this->shouldShowWaitForTeacherNotification() )
+            $this->atLastQuestion
+            && $this->allAnswerRatingsFullyRated()
+            && !$this->nextAnswerAvailable
         ) {
             $this->finishCoLearningButtonEnabled = true;
             return;
@@ -569,7 +584,7 @@ class CoLearning extends TCComponent
 
     private function shouldShowWaitForTeacherNotification(): bool
     {
-        if($this->finishCoLearningButtonEnabled) {
+        if($this->atLastQuestion) {
             return false;
         }
 
@@ -634,9 +649,23 @@ class CoLearning extends TCComponent
 
     public function getDiscussingQuestion()
     {
-        return $this->selfPacedNavigation
-            ? ($this->testParticipant->discussingQuestion ?? $this->testTake->discussingQuestion)
-            : $this->testTake->discussingQuestion;
+        if($this->selfPacedNavigation && $this->testParticipant->discussingQuestion) {
+            $discussingQuestion = $this->testParticipant->discussingQuestion;
+
+            if(collect($this->questionOrderList)->has($discussingQuestion->getKey())) {
+                return $discussingQuestion;
+            }
+            $this->testParticipant->update(['discussing_question_id' => null]);
+        }
+
+        $discussingQuestion = $this->testTake->discussingQuestion;
+
+        if(collect($this->questionOrderList)->has($discussingQuestion->getKey())) {
+            return $discussingQuestion;
+        }
+        $this->testTake->update(['discussing_question_id' => null]);
+
+        $this->goToNextQuestion(forceNextQuestion: true);
     }
 
     public function toggleValueUpdated(int $id, string $state, int|float $value): void
