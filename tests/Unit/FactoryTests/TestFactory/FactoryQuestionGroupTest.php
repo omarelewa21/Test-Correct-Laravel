@@ -10,6 +10,8 @@ use tcCore\Factories\Questions\FactoryQuestionRanking;
 use tcCore\GroupQuestion;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
+use tcCore\MultipleChoiceQuestion;
+use tcCore\Question;
 use Tests\ScenarioLoader;
 use Illuminate\Foundation\Testing\WithFaker;
 use tcCore\Factories\FactoryTest;
@@ -198,5 +200,53 @@ class FactoryQuestionGroupTest extends TestCase
             $questionString,
             OpenQuestion::orderByDesc('id')->first()->getQuestionInstance()->question
         );
+    }
+
+
+    /** @test */
+    public function can_add_a_multiple_choice_question_to_a_group_question()
+    {
+        $startCountQuestions = TestQuestion::count();
+        $startCountGroupQuestions = GroupQuestion::count();
+        $startCountOpenQuestions = OpenQuestion::count();
+
+        FactoryTest::create($this->user)
+            ->addQuestions(
+                [
+                    FactoryQuestionGroup::create()
+                        ->addQuestions(
+                            [
+                                FactoryQuestionMultipleChoice::create()
+                                    ->setProperties(['question' => '<p>Multiple choice sub question!</p>']),
+                            ]
+                        )
+                ]
+            );
+
+        $lastAddedMultipleChoiceQuestion = MultipleChoiceQuestion::orderByDesc('id')->first();
+
+        //main assertions:
+        $this->assertGreaterThan(
+            expected: 0,
+            actual: $lastAddedMultipleChoiceQuestion->selectable_answers,
+            message: 'Selectable answers is not greater than 0, so the multiple_choice_question was not properly created/saved'
+        );
+        $this->assertGreaterThan(
+            expected: 0,
+            actual  : $lastAddedMultipleChoiceQuestion->getQuestionInstance()->score,
+            message : "Score is not greater that 0, so the question properties were not properly calculated and saved"
+        );
+
+
+
+        $this->assertEquals($startCountQuestions + 1, TestQuestion::count(), "Two test questions should have been created");
+        $this->assertEquals($startCountGroupQuestions + 1, GroupQuestion::count());
+        $this->assertEquals($startCountOpenQuestions + 1, MultipleChoiceQuestion::count(),
+                            "Exactly one MultipleChoiceQuestion should have been created");
+        $this->assertEquals(
+            expected: GroupQuestion::orderByDesc('id')->first()->getKey(),
+            actual: GroupQuestionQuestion::whereQuestionId($lastAddedMultipleChoiceQuestion->getKey())->first()->group_question_id
+        );
+
     }
 }

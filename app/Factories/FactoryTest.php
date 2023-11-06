@@ -86,7 +86,17 @@ class FactoryTest
             $question->setTestModel($this->test);
             $question->store();
             $question->handleAttachments();
+
+            if($question->questionType() === 'GroupQuestion' && $question->subQuestions) {
+                $question->subQuestions->each(function($subQuestion) {
+                    $subQuestion->setTestModel($this->test);
+                    $subQuestion->store();
+                    $subQuestion->handleAttachments();
+                });
+            }
         });
+
+
 
         $this->test->refresh();
 
