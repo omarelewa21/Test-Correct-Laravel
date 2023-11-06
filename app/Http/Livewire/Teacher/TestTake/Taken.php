@@ -245,7 +245,7 @@ class Taken extends TestTakeComponent
 
     public function showResults(): bool
     {
-        return $this->testTakeStatusId >= TestTakeStatus::STATUS_DISCUSSED;
+        return $this->testTakeStatusId >= TestTakeStatus::STATUS_TAKEN;
     }
 
     public function changeStandardizeParticipantOrder(): void
