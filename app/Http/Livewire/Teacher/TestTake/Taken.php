@@ -11,6 +11,7 @@ use Livewire\Redirector;
 use tcCore\Answer;
 use tcCore\AnswerRating;
 use tcCore\Attainment;
+use tcCore\BaseAttainment;
 use tcCore\Http\Enums\GradingStandard;
 use tcCore\Http\Enums\TestTakeEventTypes;
 use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
@@ -329,7 +330,7 @@ class Taken extends TestTakeComponent
         );
     }
 
-    public function attainmentStudents(Attainment $attainment): array
+    public function attainmentStudents(BaseAttainment $attainment): array
     {
         return $this->addAdditionalPropertiesForRendering(
             $attainment->getStudentAnalysisDataForTestTake($this->testTake)
@@ -504,7 +505,7 @@ class Taken extends TestTakeComponent
 
     private function getAttainments(): Collection
     {
-        $attainments = Attainment::getAnalysisDataForTestTake($this->testTake);
+        $attainments = BaseAttainment::getAnalysisDataForTestTake($this->testTake);
         $this->setAttainmentAnalysisProperties($attainments);
         return $this->addAdditionalPropertiesForRendering($attainments);
     }
@@ -563,7 +564,7 @@ class Taken extends TestTakeComponent
         return $models;
     }
 
-    private function getLengthMultiplier(Attainment|User $model): mixed
+    private function getLengthMultiplier(Attainment|BaseAttainment|User $model): mixed
     {
         $section = $this->getValueSection($model);
         return $section['multiplierBase'] + (
@@ -571,7 +572,7 @@ class Taken extends TestTakeComponent
             );
     }
 
-    private function getValueSection(Attainment|User $model)
+    private function getValueSection(Attainment|BaseAttainment|User $model)
     {
         return $this->attainmentValueRatios->where('start', '<', $model->questions_per_attainment)
             ->where('end', '>=', $model->questions_per_attainment)

@@ -503,13 +503,13 @@
                                                 </x-button.text>
                                             </div>
                                             <div class="grid-item flex items-center group-hover/row:bg-offwhite px-3 justify-end">
-                                                <span>{{ $question->pValuePercentage ? $question->pValuePercentage . '%' : '-' }}</span>
+                                                <span>{{ $question->pValuePercentage ? round($question->pValuePercentage, 2) . '%' : '-' }}</span>
                                             </div>
                                             <div class="grid-item flex items-center group-hover/row:bg-offwhite px-3 justify-end">
-                                                <span>{{ $question->pValueAverage ?? '-' }}</span>
+                                                <span>{{ $question->pValueAverage ? round($question->pValueAverage, 2) : '-' }}</span>
                                             </div>
                                             <div class="grid-item flex items-center group-hover/row:bg-offwhite px-3 justify-end">
-                                                <span>{{ $question->pValueMaxScore ?? '-' }}</span>
+                                                <span>{{ $question->pValueMaxScore ? round($question->pValueMaxScore, 2) : '-' }}</span>
                                             </div>
                                             <div @class([
                                                   "grid-item flex items-center group-hover/row:bg-offwhite pl-3 pr-5 rounded-r-10 justify-end",
@@ -537,13 +537,13 @@
                                             <span>@lang('test-take.Gecombineerd gemiddelde'):</span>
                                         </div>
                                         <div class="grid-item flex items-center pt-6 px-3 justify-end">
-                                            <span>{{ round($this->questionsOfTest->map(fn($q) => $q->pValuePercentage)->avg(), 1) }}%</span>
+                                            <span>{{ round($this->questionsOfTest->map(fn($q) => $q->pValuePercentage)->avg(), 2) }}%</span>
                                         </div>
                                         <div class="grid-item flex items-center pt-6 px-3 justify-end">
-                                            <span>{{ round($this->questionsOfTest->map(fn($q) => $q->pValueAverage)->avg(), 1) }}</span>
+                                            <span>{{ round($this->questionsOfTest->map(fn($q) => $q->pValueAverage)->avg(), 2) }}</span>
                                         </div>
                                         <div class="grid-item flex items-center pt-6 px-3 justify-end">
-                                            <span>{{ round($this->questionsOfTest->map(fn($q) => $q->pValueMaxScore)->avg(), 1) }}</span>
+                                            <span>{{ round($this->questionsOfTest->map(fn($q) => $q->pValueMaxScore)->avg(), 2) }}</span>
                                         </div>
                                         <div class="grid-item flex items-center pt-6 pl-3 pr-5"></div>
                                     </div>
