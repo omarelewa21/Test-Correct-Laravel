@@ -90,18 +90,18 @@ class Onboarding extends TCComponent
     public function rules(): array
     {
         $default = [
-            'registration.school_location'              => 'sometimes',
+            'registration.school_location'              => 'sometimes|regex:/^[\pL\s\-]+$/u',
             'registration.website_url'                  => 'sometimes',
-            'registration.address'                      => 'sometimes',
+            'registration.address'                      => 'sometimes|regex:/^[\pL\s\-]+$/u',
             'registration.house_number'                 => 'sometimes',
             'registration.postcode'                     => 'sometimes',
             'registration.city'                         => 'sometimes',
             'registration.gender'                       => 'sometimes',
             'registration.gender_different'             => 'sometimes',
             'registration.username'                     => 'required|email:rfc,dns|unique:users,username',
-            'registration.name_first'                   => 'sometimes',
-            'registration.name'                         => 'sometimes',
-            'registration.name_suffix'                  => 'sometimes',
+            'registration.name_first'                   => 'sometimes|regex:/^[\pL\s\-]+$/u',
+            'registration.name'                         => 'sometimes|regex:/^[\pL\s\-]+$/u',
+            'registration.name_suffix'                  => 'sometimes|regex:/^[\pL\s\-]+$/u',
             'registration.registration_email_confirmed' => 'sometimes',
             'registration.invitee'                      => 'sometimes',
             'password'                                  => 'sometimes',
@@ -117,9 +117,9 @@ class Onboarding extends TCComponent
             return array_merge($default, [
                 'registration.gender'           => 'required|in:male,female,different',
                 'registration.gender_different' => 'sometimes',
-                'registration.name_first'       => 'required|string',
-                'registration.name'             => 'required|string',
-                'registration.name_suffix'      => 'sometimes',
+                'registration.name_first'       => 'required|string|regex:/^[\pL\s\-]+$/u',
+                'registration.name'             => 'required|string|regex:/^[\pL\s\-]+$/u',
+                'registration.name_suffix'      => 'sometimes|regex:/^[\pL\s\-]+$/u',
                 'password'                      => NistPasswordRules::register($this->registration['username']),
             ], $extra1);
         }
@@ -132,10 +132,10 @@ class Onboarding extends TCComponent
         return [
             'registration.school_location' => 'required',
             'registration.website_url'     => '',
-            'registration.address'         => 'required',
+            'registration.address'         => 'required|regex:/^[\pL\s\-]+$/u',
             'registration.house_number'    => 'required|regex:/\d/',
             'registration.postcode'        => 'required|min:6|regex:/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/',
-            'registration.city'            => 'required',
+            'registration.city'            => 'required|regex:/^[\pL\s\-]+$/u',
         ];
     }
 

@@ -16,11 +16,11 @@ class UserData implements \Livewire\Wireable
 
     public static $rules = [
         'userData.username'         => 'required|email',
-        'userData.name'             => 'required|string',
-        'userData.name_first'       => 'required|string',
-        'userData.name_suffix'      => 'sometimes',
+        'userData.name'             => 'required|string|regex:/^[\pL\s\-]+$/u',
+        'userData.name_first'       => 'required|string|regex:/^[\pL\s\-]+$/u',
+        'userData.name_suffix'      => 'sometimes|regex:/^[\pL\s\-]+$/u',
         'userData.gender'           => 'sometimes|string|in:Male,Female,Other',
-        'userData.gender_different' => 'sometimes|string',
+        'userData.gender_different' => 'sometimes|string|regex:/^[\pL\s\-]+$/u',
     ];
 
     public function __construct(array $userData)
