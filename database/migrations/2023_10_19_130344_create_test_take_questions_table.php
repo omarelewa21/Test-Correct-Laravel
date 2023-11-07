@@ -20,8 +20,6 @@ return new class extends Migration
             $table->boolean('discussed')->default(false);
             $table->efficientUuid('uuid')->index()->unique();
 
-            $table->foreign('test_take_id')->references('id')->on('test_takes');
-            $table->foreign('question_id')->references('id')->on('questions');
         });
     }
 
