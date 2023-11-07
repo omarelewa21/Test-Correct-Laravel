@@ -97,14 +97,14 @@
                     </div>
                 </div>
             @endif
-            @if($needsAppForTestTake && $this->testParticipant->isInBrowser())
+            @if(($needsAppForTestTake || $needsAppForCoLearning) && $this->testParticipant->isInBrowser())
                 <div class="flex w-full justify-center transition-all duration-300 mb-4">
                     <div class="notification error stretched">
                         <div class="flex items-center space-x-3">
                             <x-icon.exclamation/>
                             <span class="title">{{ __('auth.download_student_app') }}</span>
                         </div>
-                        <span class="body">{{ __('student.not_allowed_to_test_in_browser') }}</span>
+                        <span class="body">@if($needsAppForTestTake ){{ __('student.not_allowed_to_test_in_browser') }} @else @if($needsAppForTestTake ){{ __('student.not_allowed_to_do_co_learn_in_browser') }} @endif</span>
                     </div>
                 </div>
             @endif

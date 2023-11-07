@@ -95,6 +95,7 @@ return [
     'participant_already_taken'                                => 'This participant is already chosen.',
     'please_choose_a_different_participant'                    => 'Please choose a different participant.',
     'not_allowed_to_test_in_browser'                           => 'It\'s not allowed to make this test in the browser. Please start the Test-Correct app to make this test.',
+    'not_allowed_to_do_co_learning_in_browser'                 => 'It\'s not allowed to do CO-Learning in the browser. Please start the Test-Correct app to join this CO-Learning session.',
     'to_review_until'                                          => 'Review until',
     'cant_review_anymore'                                      => 'Can\'t review anymore',
     'reviewing_time_has_expired'                               => 'The possibility to review the test has expired.',

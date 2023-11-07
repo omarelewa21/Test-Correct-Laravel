@@ -133,6 +133,7 @@ return [
     'participant_already_taken'                                => 'Dit gastprofiel is reeds gekozen.',
     'please_choose_a_different_participant'                    => 'Kies een ander gastprofiel.',
     'not_allowed_to_test_in_browser'                           => 'Het is niet toegestaan om deze toets in de browser te maken. Gebruik de Test-Correct app om deze toets te maken.',
+    'not_allowed_to_do_co_learning_in_browser'                 => 'Het is niet toegestaan om deze CO-learning sessie te starten in de browser. Gebruik de Test-Correct app om aan de CO-learning sessie deel te nemen.',
     'to_review_until'                                          => 'Inzien t/m',
     'cant_review_anymore'                                      => 'Inzien niet meer mogelijk',
     'reviewing_time_has_expired'                               => 'De mogelijkheid tot inzien van de toets is verlopen.',
