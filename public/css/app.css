@@ -11340,6 +11340,10 @@ video {
   margin-top: 2rem;
   margin-bottom: 2rem;
 }
+.mx-0{
+  margin-left: 0px;
+  margin-right: 0px;
+}
 .-mb-2{
   margin-bottom: -0.5rem;
 }
@@ -15008,6 +15012,10 @@ ul ul ul {
 .focus\:border-indigo-700:focus{
   --tw-border-opacity: 1;
   border-color: rgb(67 56 202 / var(--tw-border-opacity));
+}
+
+.focus\:bg-primary\/10:focus{
+  background-color: rgb(0 77 245 / 0.1);
 }
 
 .focus\:bg-primary\/5:focus{
