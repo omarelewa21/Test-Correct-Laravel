@@ -5,9 +5,11 @@ use tcCore\Answer;
 use tcCore\AnswerRating;
 use tcCore\GroupQuestion;
 use tcCore\Lib\Question\QuestionInterface;
+use tcCore\Question;
 use tcCore\Test;
 use tcCore\TestParticipant;
 use tcCore\Http\Helpers\QuestionHelper;
+use tcCore\TestTakeQuestion;
 
 class QuestionGatherer {
     static protected $questions = [];
@@ -128,18 +130,35 @@ class QuestionGatherer {
         unset(static::$questions[$testId], static::$questionsDotted[$testId]);
     }
 
-    public static function getNextQuestionId($testId, $dottedQuestionId, $skipClosed = false, $skipDoNotDiscuss = false) {
+    public static function getNextQuestionId($testId, $dottedQuestionId, $skipClosed = false, $skipDoNotDiscuss = false, $testTakeId = null) {
         $questions = array_keys(static::getQuestionsOfTest($testId, true));
 
         if ($dottedQuestionId === '') {
             $dottedQuestionId = null;
         }
+        $testTakeQuestions = TestTakeQuestion::whereTestTakeId($testTakeId)->get();
+
+        //map groupquestions on the testTakeQuestions
+        $testTakeQuestions->map(function ($testTakeQuestion) {
+            $groupQuestionId = Question::find($testTakeQuestion->question_id)->getGroupQuestionIdByTest($testTakeQuestion->testTake->test_id);
+            if($groupQuestionId == null){
+                return $testTakeQuestion;
+            }
+            $testTakeQuestion->question_id = $groupQuestionId .'.'. $testTakeQuestion->question_id;
+            return $testTakeQuestion;
+        });
+
         foreach($questions as $questionId) {
             // If dottedQuestionId is null, return the questionId. The handles #1: getting the first question, #2: getting the next question because dottedQuestionId will be set to null
             if ($dottedQuestionId === null) {
                 if(self::questionIsPartOfCarousel($questionId,$testId)){
                     continue;
                 }
+                //todo not in testTakeQuestions, then skip/continue
+                if($testTakeQuestions->where('question_id',$questionId)->count() == 0){
+                    continue;
+                }
+
                 if($skipDoNotDiscuss){
                     $question = static::$questionsDotted[$testId][$questionId];
                     if($question->discuss === 0) {

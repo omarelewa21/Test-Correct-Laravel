@@ -57,7 +57,7 @@ button.button {
 :is(.text-button, .text-button-white) {
     isolation: isolate;
     position: relative;
-    color: var(--system-base);
+    /*color: var(--system-base);*/
     font-weight: bold;
     width: fit-content;
     padding: 0;
@@ -78,7 +78,7 @@ button.button {
     -webkit-filter: drop-shadow( 0 1px 2px rgba(var(--system-base-rgb), 0.3));
     filter: drop-shadow( 0 1px 2px rgba(var(--system-base-rgb), 0.3));
 }
-.text-button-white:where(:enabled, :not(:disabled)):is(:hover, :active, :focus, :focus-visible) svg {
+.text-button-white:where(:enabled, :not(:disabled)):is(:hover, :active, .active, :focus, :focus-visible) svg {
     -webkit-filter: drop-shadow( 0 1px 4px rgba(var(--system-base-rgb), 0.5));
     filter: drop-shadow( 0 1px 4px rgba(var(--system-base-rgb), 0.5));
 }
@@ -120,11 +120,11 @@ button.button {
     height: 24px;
 }
 
-.text-button-white:is(:hover, :active, :focus, :focus-visible)  {
+.text-button-white:is(:hover, :active, .active, :focus, :focus-visible)  {
     color: var(--all-White);
     outline: none;
 }
-.text-button:is(:hover, :active, :focus, :focus-visible) {
+.text-button:is(:hover, :active, .active, :focus, :focus-visible) {
     color: var(--primary);
     outline: none;
 }
@@ -139,11 +139,11 @@ button.button {
 .text-button-white:is(:focus, :hover)::after {
     background-color: rgba(255,255,255, 0.2);
 }
-.text-button-white:is(:active)::after {
+.text-button-white:is(:active, .active)::after {
     background-color: rgba(255,255,255, 0.3);
 }
 
-.text-button:is(:focus, :active)::after {
+.text-button:is(:focus, :active, .active)::after {
     background-color: rgba(var(--primary-rgb), 0.1);
 }
 
