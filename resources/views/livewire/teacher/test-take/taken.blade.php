@@ -15,7 +15,7 @@
             <x-button.text size="sm"
                            class="min-h-0 -mt-1"
                            wire:click="$emit('openModal', 'teacher.test-take.set-student-review-modal', {testTake: '{{ $this->testTakeUuid }}' });"
-                           :disabled="!$this->showResults()"
+                           :disabled="$this->testTakeStatusId < \tcCore\TestTakeStatus::STATUS_DISCUSSED"
             >
                 <x-icon.edit />
                 <span>{{ $this->showResultsButtonText() }}</span>
@@ -256,7 +256,7 @@
                         </x-slot:titleLeft>
 
                         <x-slot:body>
-                            <div class="flex flex-col w-full">
+                            <div class="flex flex-col w-full" >
                                 <div class="grid grid-cols-2 w-full gap-6 mb-4 mt-px">
                                     <div class="flex items-center gap-2 border-b border-bluegrey">
                                         <span class="bold">@lang('test-take.Normering'):</span>
@@ -313,7 +313,8 @@
                                             shadow.style.top = $root.querySelector(`[data-row='${value}'] .grid-item`)?.offsetTop + 'px'
                                         }
                                      })"
-                                     wire:ignore.self
+                                     wire:ignore
+                                     wire:key="grading-section-{{ $this->gradingDiffKey }}"
                                      x-on:clear-used-sliders.window="clearUsedSliders()"
                                 >
                                     <div x-ref="shadowBox"
@@ -326,13 +327,13 @@
 
                                     <div class="bold pr-3 pl-5">
                                         <x-button.text
-                                                class="group/button {{ $this->standardizeTabDirection === 'asc' ? 'rotate-svg-90' : 'rotate-svg-270' }}"
+                                                class="{{ $this->standardizeTabDirection === 'asc' ? 'rotate-svg-90' : 'rotate-svg-270' }}"
                                                 wire:click.stop="changeStandardizeParticipantOrder"
                                                 size="sm"
                                         >
                                             <span>@lang('test-take.Student')</span>
                                             <x-icon.chevron-small opacity="1"
-                                                                  class="transform transition-all duration-100 group-hover/button:opacity-100 {{ is_null($this->standardizeTabDirection) ? 'opacity-0' : '' }}"
+                                                                  class="transform transition-all duration-100"
                                             />
                                         </x-button.text>
                                     </div>
@@ -352,7 +353,7 @@
                                              x-on:mouseover="rowHover = $el.dataset.row"
                                              x-on:mouseout="rowHover = null"
                                              data-row="{{ $loop->iteration }}"
-                                             wire:key="participant-grading-row-{{ $participant->uuid }}-{{ $this->standardizeTabDirection }}"
+                                             wire:key="participant-grading-row-{{ $participant->uuid }}-{{ $this->standardizeTabDirection }}-{{ $this->gradingDiffKey }}"
                                         >
                                             <div class="grid-item flex items-center group-hover/row:bg-offwhite pr-3 pl-5 col-start-1 h-15 rounded-l-10">{{ $participant->name }}</div>
                                             <div class="grid-item flex items-center group-hover/row:bg-offwhite pr-3 ">
@@ -399,7 +400,7 @@
                                                                       :half-points="true"
                                                                       :title="false"
                                                                       :focus-input="false"
-                                                                      wire:key="rating-{{ $participant->uuid.$participant->rating }}"
+                                                                      wire:key="rating-{{ $participant->uuid.$participant->rating }}-{{ $this->gradingDiffKey }}"
                                                                       class="justify-end"
                                                                       :use-indicator="true"
                                                                       data-slider-key="{{ $participant->uuid }}"
@@ -502,13 +503,13 @@
                                                 </x-button.text>
                                             </div>
                                             <div class="grid-item flex items-center group-hover/row:bg-offwhite px-3 justify-end">
-                                                <span>{{ $question->pValuePercentage ? $question->pValuePercentage . '%' : '-' }}</span>
+                                                <span>{{ $question->pValuePercentage ? round($question->pValuePercentage, 2) . '%' : '-' }}</span>
                                             </div>
                                             <div class="grid-item flex items-center group-hover/row:bg-offwhite px-3 justify-end">
-                                                <span>{{ $question->pValueAverage ?? '-' }}</span>
+                                                <span>{{ $question->pValueAverage ? round($question->pValueAverage, 2) : '-' }}</span>
                                             </div>
                                             <div class="grid-item flex items-center group-hover/row:bg-offwhite px-3 justify-end">
-                                                <span>{{ $question->pValueMaxScore ?? '-' }}</span>
+                                                <span>{{ $question->pValueMaxScore ? round($question->pValueMaxScore, 2) : '-' }}</span>
                                             </div>
                                             <div @class([
                                                   "grid-item flex items-center group-hover/row:bg-offwhite pl-3 pr-5 rounded-r-10 justify-end",
@@ -536,13 +537,13 @@
                                             <span>@lang('test-take.Gecombineerd gemiddelde'):</span>
                                         </div>
                                         <div class="grid-item flex items-center pt-6 px-3 justify-end">
-                                            <span>{{ round($this->questionsOfTest->map(fn($q) => $q->pValuePercentage)->avg(), 1) }}%</span>
+                                            <span>{{ round($this->questionsOfTest->map(fn($q) => $q->pValuePercentage)->avg(), 2) }}%</span>
                                         </div>
                                         <div class="grid-item flex items-center pt-6 px-3 justify-end">
-                                            <span>{{ round($this->questionsOfTest->map(fn($q) => $q->pValueAverage)->avg(), 1) }}</span>
+                                            <span>{{ round($this->questionsOfTest->map(fn($q) => $q->pValueAverage)->avg(), 2) }}</span>
                                         </div>
                                         <div class="grid-item flex items-center pt-6 px-3 justify-end">
-                                            <span>{{ round($this->questionsOfTest->map(fn($q) => $q->pValueMaxScore)->avg(), 1) }}</span>
+                                            <span>{{ round($this->questionsOfTest->map(fn($q) => $q->pValueMaxScore)->avg(), 2) }}</span>
                                         </div>
                                         <div class="grid-item flex items-center pt-6 pl-3 pr-5"></div>
                                     </div>
@@ -619,13 +620,13 @@
 
                         <div class="bold pr-3 pl-5">
                             <x-button.text
-                                    class="group/button {{ $this->resultsTabDirection === 'asc' ? 'rotate-svg-90' : 'rotate-svg-270' }}"
+                                    class="{{ $this->resultsTabDirection === 'asc' ? 'rotate-svg-90' : 'rotate-svg-270' }}"
                                     wire:click.stop="changeResultsParticipantOrder"
                                     size="sm"
                             >
                                 <span>@lang('test-take.Student')</span>
                                 <x-icon.chevron-small opacity="1"
-                                                      class="transform transition-all ease-in-out duration-100 group-hover/button:opacity-100  {{ is_null($this->resultsTabDirection) ? 'opacity-0' : '' }}"
+                                                      class="transform transition-all ease-in-out duration-100"
                                 />
                             </x-button.text>
                         </div>
