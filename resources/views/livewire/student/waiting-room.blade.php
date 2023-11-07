@@ -104,7 +104,7 @@
                             <x-icon.exclamation/>
                             <span class="title">{{ __('auth.download_student_app') }}</span>
                         </div>
-                        <span class="body">@if($needsAppForTestTake ){{ __('student.not_allowed_to_test_in_browser') }} @else @if($needsAppForTestTake ){{ __('student.not_allowed_to_do_co_learn_in_browser') }} @endif</span>
+                        <span class="body">@if($needsAppForTestTake ){{ __('student.not_allowed_to_test_in_browser') }} @elseif($needsAppForTestTake ){{ __('student.not_allowed_to_do_co_learn_in_browser') }} @endif</span>
                     </div>
                 </div>
             @endif
