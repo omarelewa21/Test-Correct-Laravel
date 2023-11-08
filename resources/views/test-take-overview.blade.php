@@ -29,10 +29,10 @@
                         @foreach ($groupQuestions as $groupQuestion)
                             @if ($groupQuestion->id == $testQuestion->belongs_to_groupquestion_id)
                                     <livewire:student-player.attachments-group-preview
-                                    :question="$testQuestion"
-                                    :answers="$answers"
-                                    :number="++$key"
-                                    wire:key="'q-'.$testQuestion->uuid'q-'"
+                                        :question="$testQuestion"
+                                        :answers="$answers"
+                                        :number="++$key"
+                                        wire:key="'q-'.$testQuestion->uuid'q-'"
                                     />
                             @endif
                         @endforeach
@@ -118,9 +118,9 @@
                     @endif
                 </div>
                 @foreach ($groupedQuestions as $groupedQuestion)
-                @if (end($groupedQuestion) == $testQuestion->id )
-                    <hr style="background: var(--all-Base);">
-                @endif
+                    @if (end($groupedQuestion) == $testQuestion->id )
+                        <hr style="background: var(--all-Base);">
+                    @endif
                 @endforeach
                 @foreach ($nonGroupedQuestions as $nonGroupedQuestion)
                     @if ($nonGroupedQuestion === $testQuestion->id)

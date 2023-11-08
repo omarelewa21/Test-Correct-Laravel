@@ -4,7 +4,6 @@ namespace tcCore\Http\Livewire\StudentPlayer;
 
 use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithAttachments;
-use tcCore\Http\Traits\WithPreviewAttachments;
 use tcCore\Http\Traits\WithGroups;
 
 class AttachmentsGroupPreview extends TCComponent
@@ -13,7 +12,7 @@ class AttachmentsGroupPreview extends TCComponent
     public $answers;
     public $number;
 
-    use WithPreviewAttachments;
+    use WithAttachments;
     use WithGroups;
 
 

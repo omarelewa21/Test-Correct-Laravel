@@ -6,4 +6,5 @@
         </div>
         <div class="mb-5 questionContainer" questionHtml wire:ignore>{!! $this->group->question->converted_question_html !!}</div>
     @endif
+    <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>
 </div>
