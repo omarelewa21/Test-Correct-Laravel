@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use tcCore\EducationLevel;
 use tcCore\Period;
+use tcCore\SchoolLocation;
 use tcCore\SchoolLocationEducationLevel;
 use tcCore\Subject;
 use tcCore\Teacher;
@@ -23,14 +24,8 @@ trait ToetsenbakkerTestActions
                 ->get(['id', 'name'])
                 ->keyBy('id');
         }
-        if (filled($this->fileManagement->subject_id)) {
-            return Subject::where('id', $this->fileManagement->subject_id)->get(['id', 'name'])->keyBy('id');
-        }
-        return Subject::whereIn(
-            'id',
-            Teacher::select('subject_id')
-                ->where('user_id', $this->fileManagement->user_id)
-        )
+
+        return Subject::whereIn('section_id', $this->fileManagement->schoolLocation->schoolLocationSections()->select('section_id'))
             ->whereDemo(false)
             ->get(['id', 'name'])
             ->keyBy('id');
