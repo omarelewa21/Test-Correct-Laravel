@@ -5,10 +5,12 @@ namespace tcCore\Http\Livewire\StudentPlayer\Overview;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
 use tcCore\Http\Livewire\StudentPlayer\MatchingQuestion as AbstractMatchingQuestion;
+use tcCore\Http\Traits\WithAttachments;
 
 class MatchingQuestion extends AbstractMatchingQuestion
 {
     use WithGroups;
+    use WithAttachments;
 
     public $answered;
 

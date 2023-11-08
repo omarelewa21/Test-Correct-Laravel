@@ -28,7 +28,7 @@
             <x-not-answered/>
         @endif
     </div>
-    <div class="flex flex-wrap">
+    <div class="flex flex-wrap z-20">
         <x-attachment.student-buttons-container :questionAttachmentsExist="true" :question="$question"  :blockAttachments="false"/>
     </div>
     <div class="flex flex-1 overview">
