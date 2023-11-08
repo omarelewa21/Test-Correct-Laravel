@@ -136,6 +136,8 @@ class UsersController extends Controller
                         'abbreviation'       => $user->abbreviation,
                         'invited_by'         => $user->invited_by,
                         'account_verified'  => $user->account_verified,
+                        'is_examcoordinator' => $user->is_examcoordinator,
+                        'is_examcoordiantor_for' => $user->is_examcoordinator_for,
                     ]
                 )
             );
