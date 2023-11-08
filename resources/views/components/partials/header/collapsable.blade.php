@@ -39,7 +39,7 @@
             />
             @yield('title')
         </div>
-        <div class="flex" x-show="doneCollapsing" x-transition x-cloak>
+        <div class="flex device-dependent-margin" x-show="doneCollapsing" x-transition x-cloak>
             @if($this->headerCollapsed)
                 @hasSection('collapsedLeft')
                     @yield('collapsedLeft')

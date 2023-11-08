@@ -844,3 +844,11 @@ ul ul ul {
 .hide-scrollbar::-webkit-scrollbar {
     display: none;
 }
+
+body.using-ipad .device-dependent-margin {
+    margin-right: 4.375rem;
+}
+
+body.using-ipad .device-dependent-right {
+    right: 5.375rem;
+}

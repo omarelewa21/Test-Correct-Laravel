@@ -19,7 +19,7 @@
                 <x-icon.envelope/>
             </div>
         </div>
-        <div class="user-button-container" x-ref="user_button">
+        <div class="user-button-container device-dependent-margin" x-ref="user_button">
 
             @if(Auth::user()->hasMultipleSchools())
                 <span title="{{ Auth::user()->formal_name_with_current_school_location }}">{!!  Auth::user()->formal_name_with_current_school_location_short !!}</span>

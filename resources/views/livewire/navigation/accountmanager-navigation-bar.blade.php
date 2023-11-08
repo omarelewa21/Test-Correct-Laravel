@@ -10,7 +10,7 @@
                 <x-icon.envelope/>
             </div>
         </div>
-        <div class="user-button-container" x-ref="user_button">
+        <div class="user-button-container device-dependent-margin" x-ref="user_button">
             {{ Auth::user()->formal_name }}
             <svg height="9" width="12">
                 <polygon points="6,9 1,0 11,0" stroke="rgba(71, 129, 255, 1)" fill="rgba(71, 129, 255, 1)"/>
