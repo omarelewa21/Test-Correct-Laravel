@@ -192,6 +192,16 @@ class BaseHelper
         return $answer;
     }
 
+    public static function returnOnlyRegularAlphaNumeric($string, $allowedExtraCharsExpression = null)
+    {
+        if(is_string($string)) {
+            $string = strip_tags($string);
+            $charsExpression = 'a-zA-Z0-9 \-_' . $allowedExtraCharsExpression ?? '';
+            return preg_replace("/[^" . $charsExpression . "]+/", "", $string);
+        }
+        return $string;
+    }
+
     public static function getLoginUrlWithOptionalMessage($message = null, $isError = false)
     {
         $queryAr = [];
