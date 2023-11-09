@@ -6,13 +6,16 @@ use tcCore\Http\Traits\WithGroups;
 use tcCore\Question;
 use tcCore\Http\Livewire\StudentPlayer\MatchingQuestion as AbstractMatchingQuestion;
 use tcCore\Http\Traits\WithAttachments;
+use tcCore\Http\Traits\WithStudentPlayerOverview;
 
 class MatchingQuestion extends AbstractMatchingQuestion
 {
     use WithGroups;
     use WithAttachments;
+    use WithStudentPlayerOverview;
 
     public $answered;
+    private $skipMountStudentPlayerOverview;
 
     public function mount()
     {

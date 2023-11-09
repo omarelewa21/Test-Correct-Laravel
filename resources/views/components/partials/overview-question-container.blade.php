@@ -29,10 +29,12 @@
         @endif
     </div>
     <div class="flex flex-wrap z-20">
-        <x-attachment.student-buttons-container :questionAttachmentsExist="true" :question="$question"  :blockAttachments="false"/>
+        @if(!$this->isQuestionLocked)
+            <x-attachment.student-buttons-container :questionAttachmentsExist="true" :question="$question"  :blockAttachments="false"/>
+        @endif
     </div>
     <div class="flex flex-1 overview">
-        @if($question->closeable || ( !is_null($question->groupQuestion) && $question->groupQuestion->closeable) )
+        @if($this->isQuestionLocked)
             @if($this->closed)
                 <span>{{__('test_take.question_closed_text')}}</span>
             @else
