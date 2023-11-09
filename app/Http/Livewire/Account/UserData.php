@@ -2,6 +2,8 @@
 
 namespace tcCore\Http\Livewire\Account;
 
+use Illuminate\Support\Str;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Requests\Request;
 
 class UserData implements \Livewire\Wireable
@@ -34,6 +36,7 @@ class UserData implements \Livewire\Wireable
     {
         foreach ($this as $property => $value) {
             Request::filter($value);
+            $value = BaseHelper::returnOnlyRegularAlphaNumeric($value,'@\.');
             $this->$property = is_string($value) ? html_entity_decode($value) : $value;
         }
         return get_object_vars($this);
@@ -42,6 +45,7 @@ class UserData implements \Livewire\Wireable
     public static function fromLivewire($value)
     {
         Request::filter($value);
+        $value = BaseHelper::returnOnlyRegularAlphaNumeric($value,'@\.');
         return new static($value);
     }
 }

@@ -57,6 +57,10 @@ class Onboarding extends TCComponent
     protected $preventFieldTransformation = ['password', 'password_confirmation'];
 
     protected $queryString = ['step', 'email', 'confirmed', 'ref','entree_message', 'level'];
+
+    protected $stripTagsFields = [
+      'registration.name_first','registration_name','registration_school_location','registration_address','registration.city','registration.house_number','registration.postcode',
+    ];
     /**
      * @var true
      */
@@ -353,6 +357,7 @@ class Onboarding extends TCComponent
 
     public function updating(&$name, &$value): void
     {
+        $value = BaseHelper::returnOnlyRegularAlphaNumeric($value,'');
         Request::filter($value);
     }
 
