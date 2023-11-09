@@ -123,7 +123,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/test-take/planned/{testTake}', \tcCore\Http\Livewire\Teacher\TestTake\Planned::class)->name('test-take.planned')->middleware('testTakeStatus:1');
         Route::get('/test-take/taking/{testTake}', \tcCore\Http\Livewire\Teacher\TestTake\Taking::class)->name('test-take.taking')->middleware('testTakeStatus:3');
         Route::get('/test-take/taken/{testTake}', \tcCore\Http\Livewire\Teacher\TestTake\Taken::class)->name('test-take.taken')->middleware('testTakeStatus:6,7,8,9');
-        Route::get('/test-take/{test_take}/rtti-export-file', [\tcCore\Http\Controllers\TestTakesController::class, 'export'])->name('test-take.rtti-export-file');
+        Route::get('/test-take/{test_take}/rtti-export-file', [\tcCore\Http\Controllers\TestTakesController::class, 'exportRttiCsvFile'])->name('test-take.rtti-export-file');
+        Route::get('/test-take/{test_take}/export-grades-csv', [\tcCore\Http\Controllers\TestTakesController::class, 'exportGradesCsvFile'])->name('test-take.export-grades-csv');
     });
 
     Route::middleware(['dll', 'student'])->prefix('appapi')->name('appapi')->group(function () {

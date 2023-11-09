@@ -132,5 +132,6 @@ return [
     'Naar CO-Learning'                                                                                                                                 => 'To CO-Learning',
     're discuss test text'                                                                                                                             => 'Are you sure you want to discuss with CO-Learning? The student scores that result from this might give you different insights on your assessments. Previously done CO-Learning sessions will be overwritten by this session. You can also use CO-Learning as a tool to assess the test with your class when test results have already been published.',
     'Afname is niet mogelijk'                                                                                                                          => 'Starting test is not possible',
-    'CO-Learning niet mogelijk met alleen carrousel vragen'                                                                                             => 'CO-Learning not possible with only carousel questions'
+    'CO-Learning niet mogelijk met alleen carrousel vragen'                                                                                             => 'CO-Learning not possible with only carousel questions',
+    'grades'                                                                                                                                           => 'Grades',
 ];

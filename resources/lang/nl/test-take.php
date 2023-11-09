@@ -130,5 +130,6 @@ return [
     'Naar CO-Learning'                                                                                                                                 => 'Naar CO-Learning',
     're discuss test text'                                                                                                                             => 'Weet je zeker dat je wil bespreken met CO-Learning? De student beoordelingen die je hieruit voortkomen kunnen andere inzichten geven op jouw beoordelingen. Het is niet nodig om deze te verwerken als je dit niet wil. Als je al een CO-Learning sessie hebt afgerond, dan zal deze sessie deze overschrijven. Je kan CO-Learning ook als tool gebruiken om na te bespreken in de klas als de toetsresultaten al zijn gepubliceerd.',
     'Afname is niet mogelijk'                                                                                                                          => 'Afname is niet mogelijk',
-    'CO-Learning niet mogelijk met alleen carrousel vragen'                                                                                             => 'CO-Learning niet mogelijk met alleen carrousel vragen'
+    'CO-Learning niet mogelijk met alleen carrousel vragen'                                                                                             => 'CO-Learning niet mogelijk met alleen carrousel vragen',
+    'grades'                                                                                                                                           => 'Cijfers',
 ];

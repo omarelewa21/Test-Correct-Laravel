@@ -9,7 +9,9 @@ use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use tcCore\Console\Kernel;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\Http\Helpers\ActingAsHelper;
+use tcCore\Lib\Answer\AnswerChecker;
 use tcCore\Lib\Question\Factory;
+use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\Role;
 use tcCore\SchoolClass;
 use tcCore\Student;
@@ -83,6 +85,14 @@ abstract class TestCase extends BaseTestCase
         $this->beginDatabaseTransaction();
     }
 
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        //prevent static property values from leaking between tests
+        QuestionGatherer::invalidateAllCache();
+        AnswerChecker::invalidateAllCache();
+    }
 
     /**
      * If true, setup has run at least once.
