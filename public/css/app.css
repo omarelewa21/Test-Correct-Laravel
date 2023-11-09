@@ -15220,6 +15220,14 @@ ul ul ul {
     display: none;
 }
 
+body.using-ipad .device-dependent-margin {
+    margin-right: 4.375rem;
+}
+
+body.using-ipad .device-dependent-right {
+    right: 5.375rem;
+}
+
 .placeholder\:text-base::-moz-placeholder{
   font-size: 1rem;
   line-height: 1.5rem;
@@ -16256,4 +16264,3 @@ ul ul ul {
     max-width: 72rem;
   }
 }
-

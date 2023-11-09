@@ -26,8 +26,7 @@
 
 
 </head>
-<body id="body" class="ck-content flex flex-col min-h-screen {{ $bodyClass ?? '' }}">
-
+<body id="body" class="ck-content flex flex-col min-h-screen {{ $bodyClass ?? '' }} {{ Browser::isTablet() || Browser::deviceModel()  === 'iPad' ? 'using-ipad' : '' }}">
 {{ $slot }}
 
 @livewireScripts
