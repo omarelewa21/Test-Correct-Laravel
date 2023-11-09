@@ -1596,7 +1596,6 @@ document.addEventListener("alpine:init", () => {
                     });
                     return;
                 };
-
                 /* dispatch with a static (question score) value, not value/key of button-option, only works with true/false  */
                 this.$dispatch("slider-toggle-value-updated", {
                     value: this.$root.dataset.toggleValue,
@@ -2085,7 +2084,7 @@ document.addEventListener("alpine:init", () => {
         dispatchNewScoreToSlider() {
             const scoreSliderContainer = document.querySelector(".score-slider-container");
 
-            if(!scoreSliderContainer) return;
+            if (!scoreSliderContainer) return;
 
             scoreSliderContainer
                 .dispatchEvent(new CustomEvent(
@@ -2121,27 +2120,27 @@ document.addEventListener("alpine:init", () => {
             // - S will go to previous question
             // - W will go to next question
 
-            document.addEventListener('DOMContentLoaded', (event) => {
+            document.addEventListener("DOMContentLoaded", (event) => {
                 // disable tab key for all elements when in assessment mode because this corrupts the right tab drawer;
                 // document.querySelectorAll('textarea').forEach(element => element.tabIndex = -1);
                 // document.querySelectorAll('input').forEach(element => element.tabIndex = -1);
 
                 // Map each key to the corresponding button's selid
                 const keyToSelIdMap = {
-                    'a': 'btn_loadAnswer_previous',
-                    'd': 'btn_loadAnswer_next',
-                    's': 'btn_loadQuestion_previous',
-                    'w': 'btn_loadQuestion_next',
+                    "a": "btn_loadAnswer_previous",
+                    "d": "btn_loadAnswer_next",
+                    "s": "btn_loadQuestion_previous",
+                    "w": "btn_loadQuestion_next"
                 };
 
                 // Add a keyup event listener to the document
-                document.addEventListener('keyup', (event) => {
+                document.addEventListener("keyup", (event) => {
                     // If the target is an input or textarea, do nothing
-                    if ((event.target.tagName.toLowerCase() === 'input' && !event.target.classList.contains('js-allow-for-wasd-navigation')) || event.target.tagName.toLowerCase() === 'textarea') {
+                    if ((event.target.tagName.toLowerCase() === "input" && !event.target.classList.contains("js-allow-for-wasd-navigation")) || event.target.tagName.toLowerCase() === "textarea") {
                         return;
                     }
                     // Check if the event.target is a ckEditor
-                    if (event.target.classList.contains('ck')) {
+                    if (event.target.classList.contains("ck")) {
                         return;
                     }
                     const id = keyToSelIdMap[event.key.toLowerCase()];
@@ -2539,19 +2538,19 @@ document.addEventListener("alpine:init", () => {
         },
         handleInvalidNumberInput() {
             //chromium: (chromium transforms alphanumeric character to an empty string)
-            if(this.$event.data === "") {
+            if (this.$event.data === "") {
                 this.score = this.$store.scoreSlider.currentBackupScore;
                 return;
             }
             //firefox: (firefox passes the alphanumeric character)
-            if(isNaN(this.$event.data) && this.$event.data !== undefined) {
+            if (isNaN(this.$event.data) && this.$event.data !== undefined) {
                 this.score = this.$store.scoreSlider.currentBackupScore;
                 return;
             }
 
             this.$store.scoreSlider.currentBackupScore = parseFloat(this.$event.target.value);
         },
-        initInvalidNumberBackupScore () {
+        initInvalidNumberBackupScore() {
             this.$store.scoreSlider.currentBackupScore = this.score;
         }
     }));
@@ -2878,8 +2877,8 @@ document.addEventListener("alpine:init", () => {
                 comment_emoji: comment_emoji,
                 comment_color: comment_color
             });
-            const commentMarkerStyles = document.querySelector('#commentMarkerStyles');
-            if(commentMarkerStyles) commentMarkerStyles.innerHTML = commentStyles;
+            const commentMarkerStyles = document.querySelector("#commentMarkerStyles");
+            if (commentMarkerStyles) commentMarkerStyles.innerHTML = commentStyles;
         },
         async createCommentThread() {
             //somehow the editor id sometimes shows an old cached value, so we set it again here
@@ -2902,7 +2901,7 @@ document.addEventListener("alpine:init", () => {
 
             this.$nextTick(async () => {
 
-                if(answerEditor && answerEditor.plugins.get( "CommentsRepository" ).activeCommentThread) {
+                if (answerEditor && answerEditor.plugins.get("CommentsRepository").activeCommentThread) {
 
                     //created feedback record data
                     var feedback = await this.$wire.createNewComment([]);
@@ -2937,7 +2936,7 @@ document.addEventListener("alpine:init", () => {
                     });
 
                     const commentMarkerStyles = document.querySelector("#commentMarkerStyles");
-                    if(commentMarkerStyles) commentMarkerStyles.innerHTML = commentStyles;
+                    if (commentMarkerStyles) commentMarkerStyles.innerHTML = commentStyles;
 
                     this.hasFeedback = true;
 
@@ -2977,8 +2976,8 @@ document.addEventListener("alpine:init", () => {
 
                 feedbackEditor.setData("<p></p>");
 
-                const checkedRadioInput = document.querySelector('.answer-feedback-add-comment .emoji-picker-radio input:checked');
-                if(checkedRadioInput) {
+                const checkedRadioInput = document.querySelector(".answer-feedback-add-comment .emoji-picker-radio input:checked");
+                if (checkedRadioInput) {
                     checkedRadioInput.checked = false;
                 }
             });
@@ -3154,7 +3153,7 @@ document.addEventListener("alpine:init", () => {
         cancelEditingComment(threadId, AnswerFeedbackUuid, originalIconName = false, originalColor = false) {
             //reset temporary styling
             const temporaryStyleTag = document.querySelector("#temporaryCommentMarkerStyles");
-            if(temporaryStyleTag) temporaryStyleTag.innerHTML = '';
+            if (temporaryStyleTag) temporaryStyleTag.innerHTML = "";
 
             this.setEditingComment(null);
 
@@ -3189,8 +3188,8 @@ document.addEventListener("alpine:init", () => {
 
         },
         updateNewCommentMarkerStyles(color) {
-            const styleTag = document.querySelector('#addFeedbackMarkerStyles');
-            if(!styleTag) {
+            const styleTag = document.querySelector("#addFeedbackMarkerStyles");
+            if (!styleTag) {
                 return;
             }
 
@@ -3275,13 +3274,13 @@ document.addEventListener("alpine:init", () => {
             }
             const answerEditor = ClassicEditors[this.answerEditorId];
             const feedbackEditor = ClassicEditors[this.feedbackEditorId];
-            if(!answerEditor || !feedbackEditor) {
+            if (!answerEditor || !feedbackEditor) {
                 return;
             }
 
-            setTimeout(()=> {
+            setTimeout(() => {
                 try {
-                    answerEditor.ui.focusTracker.add( feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content') );
+                    answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector(".ck.ck-content"));
 
                     feedbackEditor.ui.focusTracker.add(answerEditor.sourceElement.parentElement.querySelector(".ck.ck-content"));
 
@@ -3333,7 +3332,7 @@ document.addEventListener("alpine:init", () => {
                     buttonWrapper.appendChild(saveButtonCta.element);
 
                     const answerEditor = ClassicEditors[this.answerEditorId];
-                    if(answerEditor) {
+                    if (answerEditor) {
                         answerEditor.ui.focusTracker.add(textCancelButton.element);
                         answerEditor.ui.focusTracker.add(saveButtonCta.element);
                     }
@@ -3369,7 +3368,7 @@ document.addEventListener("alpine:init", () => {
             radiobutton.render();
 
             const answerEditor = ClassicEditors[this.answerEditorId];
-            if(answerEditor) {
+            if (answerEditor) {
                 answerEditor.ui.focusTracker.add(radiobutton.element);
             }
 
@@ -3386,21 +3385,22 @@ document.addEventListener("alpine:init", () => {
                 this.fixSlideHeightByIndex(2, AnswerFeedbackUuid);
             }, 500);
         },
-        async toggleFeedbackAccordion (name, forceOpenAccordion = false) {
-            const addFeedbackAccordion = document.querySelector('.answer-feedback-add-comment button');
-            const givenFeedbackAccordion = document.querySelector('.answer-feedback-given-comments button');
+        async toggleFeedbackAccordion(name, forceOpenAccordion = false) {
+            const addFeedbackAccordion = document.querySelector(".answer-feedback-add-comment button");
+            const givenFeedbackAccordion = document.querySelector(".answer-feedback-given-comments button");
 
-            if(this.$store.answerFeedback.newFeedbackBeingCreated()) {
-                this.dropdownOpened ="add-feedback";
+            if (this.$store.answerFeedback.newFeedbackBeingCreated()) {
+                this.dropdownOpened = "add-feedback";
                 return;
             }
             ;
             if (this.$store.answerFeedback.feedbackBeingEdited()) {
                 this.dropdownOpened = "given-feedback";
                 return;
-            };
+            }
+            ;
 
-            if(givenFeedbackAccordion.disabled && name === "given-feedback") {
+            if (givenFeedbackAccordion.disabled && name === "given-feedback") {
                 this.dropdownOpened = null;
                 return;
             }
@@ -3474,14 +3474,14 @@ document.addEventListener("alpine:init", () => {
             this.$wire.goToNextAnswerRating();
         },
         async goToPreviousQuestion() {
-            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToPreviousQuestion');
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, "goToPreviousQuestion");
             }
             this.$wire.goToPreviousQuestion();
         },
         async goToNextQuestion() {
-            if(this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                return this.$store.answerFeedback.openConfirmationModal(this.$root, 'goToNextQuestion');
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                return this.$store.answerFeedback.openConfirmationModal(this.$root, "goToNextQuestion");
             }
             this.$wire.goToNextQuestion();
         },
@@ -3499,7 +3499,7 @@ document.addEventListener("alpine:init", () => {
             if (event.hasOwnProperty("identifier")) {
                 this.$wire.toggleValueUpdated(event.identifier, event.state, event.value);
             }
-        },
+        }
     }));
     Alpine.data("drawingQuestionImagePreview", () => ({
         maxTries: 10,
@@ -4192,7 +4192,7 @@ document.addEventListener("alpine:init", () => {
         }
 
     }));
-    Alpine.data("constructionBody", (loading, empty,dirty, questionEditorId, answerEditorId) => ({
+    Alpine.data("constructionBody", (loading, empty, dirty, questionEditorId, answerEditorId) => ({
         loading,
         empty,
         dirty,
@@ -4215,7 +4215,8 @@ document.addEventListener("alpine:init", () => {
             this.$store.cms.dirty = false;
         },
         loadingTimeout(value) {
-            /*if (value !== true)*/ return;
+            /*if (value !== true)*/
+            return;
             this.loadTimeout = setTimeout(() => {
                 this.$store.cms.loading = false;
                 this.$store.cms.processing = false;
@@ -4255,22 +4256,22 @@ document.addEventListener("alpine:init", () => {
             this.$store.cms.loading = false;
         },
         get drawer() {
-            return this.getLivewireComponent('cms-drawer');
+            return this.getLivewireComponent("cms-drawer");
         },
         get constructor() {
-            return this.getLivewireComponent('cms');
+            return this.getLivewireComponent("cms");
         },
         async openQuestion(questionProperties) {
-            this.$dispatch('store-current-question');
-            this.$store.cms.scrollPos = document.querySelector('.drawer').scrollTop;
+            this.$dispatch("store-current-question");
+            this.$store.cms.scrollPos = document.querySelector(".drawer").scrollTop;
             this.$store.cms.loading = true;
-            await this.constructor.showQuestion(questionProperties)
+            await this.constructor.showQuestion(questionProperties);
             this.$store.cms.loading = false;
 
         },
         getLivewireComponent(attribute) {
             return Livewire.find(
-                document.querySelector(`[${attribute}]`).getAttribute('wire:id')
+                document.querySelector(`[${attribute}]`).getAttribute("wire:id")
             );
         }
     }));
@@ -4401,34 +4402,134 @@ document.addEventListener("alpine:init", () => {
         }
     }));
     Alpine.data("pdfDownload", (translation, links) => ({
-        value : null,
+        value: null,
         waitingScreenHtml: PdfDownload.waitingScreenHtml(translation),
         links,
         select: function(option) {
             this.value = option;
         },
-        selected: function(option){
+        selected: function(option) {
             return option === this.value;
         },
-        export_pdf: function (){
-            if(!this.value){
-                $wire.set('displayValueRequiredMessage', true);
+        export_pdf: function() {
+            if (!this.value) {
+                $wire.set("displayValueRequiredMessage", true);
                 return;
             }
             return this.export_now(this.links[this.value]);
         },
         export_now: function(url) {
-            var isSafari = navigator.userAgent.indexOf('Safari') > -1 && navigator.userAgent.indexOf('Chrome') <= -1
-            if(isSafari){
+            var isSafari = navigator.userAgent.indexOf("Safari") > -1 && navigator.userAgent.indexOf("Chrome") <= -1;
+            if (isSafari) {
                 window.open(url);
                 return;
             }
             var windowReference = window.open();
             windowReference.document.write(this.waitingScreenHtml);
             windowReference.location = url;
-        },
+        }
     }));
+    Alpine.data("standardizationResultsGrid", () => ({
+        rowHover: null,
+        shadow: null,
+        usedSliders: [],
+        init() {
+            this.shadow = this.$refs.shadowBox;
+            this.$watch("rowHover", value => {
+                if (value !== null) {
+                    this.shadow.style.top = this.$root.querySelector(`[data-row='${value}'] .grid-item`)?.offsetTop + "px";
+                }
+            });
+        },
+        clearUsedSliders() {
+            this.usedSliders = [];
 
+            this.$root.querySelectorAll(".score-slider-container").forEach(el => el.classList.add("untouched"));
+        },
+        updateMarkBadge(row) {
+            let updates = {};
+            let rating = this.$root.querySelector(`.grid-row[data-row="${row}"] .score-slider-number-input`).value;
+            updates.new = {
+                rating: rating,
+                locator: `.grid-row[data-row="${row}"]`
+            };
+            updates.max = this.maxRating();
+            updates.avg = this.avgRating();
+            updates.min = this.minRating();
+
+            Object.keys(updates).forEach((value) => {
+                document.querySelector(`.standardize-block ${updates[value].locator} .mark-badge`)
+                    .dispatchEvent(
+                        new CustomEvent(
+                            "update-mark-badge",
+                            {
+                                detail: {
+                                    rating: updates[value].rating
+                                }
+                            }
+                        )
+                    );
+
+            });
+        },
+        getRatings() {
+            return Array.from(this.$root.querySelectorAll(`.grid-row .score-slider-number-input:not(:disabled)`)).map(input => input.value);
+        },
+        maxRating() {
+            return {
+                rating: Math.max(...this.getRatings()),
+                locator: '.max-rating'
+            }
+        },
+        avgRating() {
+            let ratings = this.getRatings();
+            const sum = ratings.reduce((acc, currentValue) => acc += parseFloat(currentValue), 0);
+
+            return {
+                rating: sum / ratings.length,
+                locator: '.avg-rating'
+            }
+        },
+        minRating() {
+            return {
+                rating: Math.min(...this.getRatings()),
+                locator: '.min-rating'
+            }
+        }
+    }));
+    Alpine.data("markBadge", (initialRating) => ({
+        markBadgeRating: initialRating,
+        displayMarkBadgeRating: '?',
+        color: null,
+        init() {
+            this.setDisplayRating();
+        },
+        hasValue() {
+            return ![null, '', 0, 0.0].includes(this.markBadgeRating)
+        },
+        setNewRating(rating) {
+            this.markBadgeRating = rating;
+            this.setDisplayRating();
+        },
+        setDisplayRating() {
+            if(!this.hasValue()) {
+                if(this.displayMarkBadgeRating !== '?') {
+                    this.displayMarkBadgeRating = '?';
+                }
+                return;
+            }
+
+            if (typeof this.markBadgeRating === 'string') {
+                this.markBadgeRating = parseFloat(this.markBadgeRating);
+            }
+
+            if (this.markBadgeRating.toString().includes('.')) {
+                this.displayMarkBadgeRating = this.markBadgeRating.toFixed(1).replace('.', ',');
+            } else {
+                this.displayMarkBadgeRating = this.markBadgeRating.toString();
+            }
+        }
+    }));
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");
         f(window, el._x_dataStack[0]);
@@ -4463,8 +4564,8 @@ document.addEventListener("alpine:init", () => {
         }
     });
     Alpine.store("scoreSlider", {
-        currentBackupScore: null,
-    })
+        currentBackupScore: null
+    });
     Alpine.store("editorMaxWords", {});
     Alpine.store("coLearningStudent", {
         drawerCollapsed: null,
@@ -4476,78 +4577,78 @@ document.addEventListener("alpine:init", () => {
         }
     });
     Alpine.store("answerFeedback", {
-            editingComment: null,
-            creatingNewComment: false,
-            navigationRoot: null,
-            navigationMethod: null,
-            navigationArgs: null,
-            feedbackBeingEditedOrCreated() {
-                if (this.navigationRoot) {
-                    this.navigationRoot = null;
-                    this.navigationMethod = null;
-                    this.creatingNewComment = false;
-                    this.editingComment = null;
-                    return false;
-                }
-                return this.feedbackBeingEdited() || this.newFeedbackBeingCreated();
-            },
-            feedbackBeingEdited() {
-                if (this.navigationRoot) {
-                    this.navigationRoot = null;
-                    this.navigationMethod = null;
-                    this.creatingNewComment = false;
-                    this.editingComment = null;
-                    return false;
-                }
-                if (this.editingComment === null) {
-                    return false;
-                }
-                return this.editingComment;
-            },
-            newFeedbackBeingCreated() {
-                if (this.navigationRoot) {
-                    this.navigationRoot = null;
-                    this.navigationMethod = null;
-                    this.creatingNewComment = false;
-                    this.editingComment = null;
-                    return false;
-                }
-                return this.creatingNewComment;
-            },
-            openConfirmationModal(navigatorRootElement, methodName, methodArgs = null) {
-                this.navigationRoot = navigatorRootElement;
-                this.navigationMethod = methodName;
-                this.navigationArgs = methodArgs;
-                Livewire.emit("openModal", "modal.confirm-still-editing-comment-modal", { "creatingNewComment": this.creatingNewComment });
-            },
-            continueAction() {
-                this.editingComment = null;
-                this.navigationRoot.dispatchEvent(new CustomEvent("continue-navigation", {
-                    detail: {
-                        method: this.navigationMethod,
-                        args: [this.navigationArgs]
-                    }
-                }));
-                Livewire.emit("closeModal");
-            },
-            cancelAction() {
+        editingComment: null,
+        creatingNewComment: false,
+        navigationRoot: null,
+        navigationMethod: null,
+        navigationArgs: null,
+        feedbackBeingEditedOrCreated() {
+            if (this.navigationRoot) {
                 this.navigationRoot = null;
                 this.navigationMethod = null;
-                window.dispatchEvent(new CustomEvent("answer-feedback-drawer-tab-update", {
-                    detail: {
-                        tab: 2,
-                        uuid: this.editingComment
-                    }
-                }));
-                Livewire.emit("closeModal");
-            },
-            resetEditingComment() {
-                this.setEditingComment(null);
-            },
-            setEditingComment(AnswerFeedbackUuid) {
-                this.editingComment = AnswerFeedbackUuid;
+                this.creatingNewComment = false;
+                this.editingComment = null;
+                return false;
             }
-        });
+            return this.feedbackBeingEdited() || this.newFeedbackBeingCreated();
+        },
+        feedbackBeingEdited() {
+            if (this.navigationRoot) {
+                this.navigationRoot = null;
+                this.navigationMethod = null;
+                this.creatingNewComment = false;
+                this.editingComment = null;
+                return false;
+            }
+            if (this.editingComment === null) {
+                return false;
+            }
+            return this.editingComment;
+        },
+        newFeedbackBeingCreated() {
+            if (this.navigationRoot) {
+                this.navigationRoot = null;
+                this.navigationMethod = null;
+                this.creatingNewComment = false;
+                this.editingComment = null;
+                return false;
+            }
+            return this.creatingNewComment;
+        },
+        openConfirmationModal(navigatorRootElement, methodName, methodArgs = null) {
+            this.navigationRoot = navigatorRootElement;
+            this.navigationMethod = methodName;
+            this.navigationArgs = methodArgs;
+            Livewire.emit("openModal", "modal.confirm-still-editing-comment-modal", { "creatingNewComment": this.creatingNewComment });
+        },
+        continueAction() {
+            this.editingComment = null;
+            this.navigationRoot.dispatchEvent(new CustomEvent("continue-navigation", {
+                detail: {
+                    method: this.navigationMethod,
+                    args: [this.navigationArgs]
+                }
+            }));
+            Livewire.emit("closeModal");
+        },
+        cancelAction() {
+            this.navigationRoot = null;
+            this.navigationMethod = null;
+            window.dispatchEvent(new CustomEvent("answer-feedback-drawer-tab-update", {
+                detail: {
+                    tab: 2,
+                    uuid: this.editingComment
+                }
+            }));
+            Livewire.emit("closeModal");
+        },
+        resetEditingComment() {
+            this.setEditingComment(null);
+        },
+        setEditingComment(AnswerFeedbackUuid) {
+            this.editingComment = AnswerFeedbackUuid;
+        }
+    });
     Alpine.store("studentPlayer", {
         playerComponent: null,
         getPlayer() {

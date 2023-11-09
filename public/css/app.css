@@ -13698,13 +13698,13 @@ video {
   padding-left: 2rem;
   padding-right: 2rem;
 }
+.px-\[2rem\]{
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
 .px-\[60px\]{
   padding-left: 60px;
   padding-right: 60px;
-}
-.px-\[90px\]{
-  padding-left: 90px;
-  padding-right: 90px;
 }
 .py-0{
   padding-top: 0px;
@@ -13781,14 +13781,6 @@ video {
 .py-px{
   padding-top: 1px;
   padding-bottom: 1px;
-}
-.px-\[40px\]{
-  padding-left: 40px;
-  padding-right: 40px;
-}
-.px-\[2rem\]{
-  padding-left: 2rem;
-  padding-right: 2rem;
 }
 .pb-0{
   padding-bottom: 0px;
@@ -15549,10 +15541,6 @@ body.using-ipad .device-dependent-right {
   color: rgb(0 77 245 / var(--tw-text-opacity));
 }
 
-.group\/button:hover .group-hover\/button\:opacity-100{
-  opacity: 1;
-}
-
 .group:hover .group-hover\:opacity-0{
   opacity: 0;
 }
@@ -16146,12 +16134,6 @@ body.using-ipad .device-dependent-right {
     padding-left: 2rem;
     padding-right: 2rem;
   }
-
-
-  .lg\:px-\[90px\]{
-    padding-left: 90px;
-    padding-right: 90px;
-  }
 }
 
 @media (min-width: 1280px){
@@ -16249,6 +16231,12 @@ body.using-ipad .device-dependent-right {
   .xl\:px-28{
     padding-left: 7rem;
     padding-right: 7rem;
+  }
+
+
+  .xl\:px-\[90px\]{
+    padding-left: 90px;
+    padding-right: 90px;
   }
 }
 
