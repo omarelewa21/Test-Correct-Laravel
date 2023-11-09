@@ -7965,7 +7965,7 @@ document.addEventListener("alpine:init", function () {
         this.value = target.firstElementChild.dataset.id;
         this.$root.dataset.hasValue = this.value !== null;
         if ((oldValue === null || oldValue === void 0 ? void 0 : oldValue.toString()) !== ((_this$value = this.value) === null || _this$value === void 0 ? void 0 : _this$value.toString())) {
-          if ([null, 'null'].includes(this.$root.dataset.toggleValue)) {
+          if ([null, "null"].includes(this.$root.dataset.toggleValue)) {
             this.$dispatch("multi-slider-toggle-value-updated", {
               value: target.firstElementChild.dataset.id,
               firstTick: oldValue === null
@@ -8541,27 +8541,27 @@ document.addEventListener("alpine:init", function () {
         // - S will go to previous question
         // - W will go to next question
 
-        document.addEventListener('DOMContentLoaded', function (event) {
+        document.addEventListener("DOMContentLoaded", function (event) {
           // disable tab key for all elements when in assessment mode because this corrupts the right tab drawer;
           // document.querySelectorAll('textarea').forEach(element => element.tabIndex = -1);
           // document.querySelectorAll('input').forEach(element => element.tabIndex = -1);
 
           // Map each key to the corresponding button's selid
           var keyToSelIdMap = {
-            'a': 'btn_loadAnswer_previous',
-            'd': 'btn_loadAnswer_next',
-            's': 'btn_loadQuestion_previous',
-            'w': 'btn_loadQuestion_next'
+            "a": "btn_loadAnswer_previous",
+            "d": "btn_loadAnswer_next",
+            "s": "btn_loadQuestion_previous",
+            "w": "btn_loadQuestion_next"
           };
 
           // Add a keyup event listener to the document
-          document.addEventListener('keyup', function (event) {
+          document.addEventListener("keyup", function (event) {
             // If the target is an input or textarea, do nothing
-            if (event.target.tagName.toLowerCase() === 'input' && !event.target.classList.contains('js-allow-for-wasd-navigation') || event.target.tagName.toLowerCase() === 'textarea') {
+            if (event.target.tagName.toLowerCase() === "input" && !event.target.classList.contains("js-allow-for-wasd-navigation") || event.target.tagName.toLowerCase() === "textarea") {
               return;
             }
             // Check if the event.target is a ckEditor
-            if (event.target.classList.contains('ck')) {
+            if (event.target.classList.contains("ck")) {
               return;
             }
             var id = keyToSelIdMap[event.key.toLowerCase()];
@@ -9583,7 +9583,7 @@ document.addEventListener("alpine:init", function () {
                 });
               case 11:
                 commentStyles = _context24.sent;
-                commentMarkerStyles = document.querySelector('#commentMarkerStyles');
+                commentMarkerStyles = document.querySelector("#commentMarkerStyles");
                 if (commentMarkerStyles) commentMarkerStyles.innerHTML = commentStyles;
               case 14:
               case "end":
@@ -9689,7 +9689,7 @@ document.addEventListener("alpine:init", function () {
                           }
                         }, 400);
                         feedbackEditor.setData("<p></p>");
-                        checkedRadioInput = document.querySelector('.answer-feedback-add-comment .emoji-picker-radio input:checked');
+                        checkedRadioInput = document.querySelector(".answer-feedback-add-comment .emoji-picker-radio input:checked");
                         if (checkedRadioInput) {
                           checkedRadioInput.checked = false;
                         }
@@ -9883,7 +9883,7 @@ document.addEventListener("alpine:init", function () {
         var originalColor = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
         //reset temporary styling
         var temporaryStyleTag = document.querySelector("#temporaryCommentMarkerStyles");
-        if (temporaryStyleTag) temporaryStyleTag.innerHTML = '';
+        if (temporaryStyleTag) temporaryStyleTag.innerHTML = "";
         this.setEditingComment(null);
 
         //reset radio buttons
@@ -9913,7 +9913,7 @@ document.addEventListener("alpine:init", function () {
         }
       },
       updateNewCommentMarkerStyles: function updateNewCommentMarkerStyles(color) {
-        var styleTag = document.querySelector('#addFeedbackMarkerStyles');
+        var styleTag = document.querySelector("#addFeedbackMarkerStyles");
         if (!styleTag) {
           return;
         }
@@ -9982,7 +9982,7 @@ document.addEventListener("alpine:init", function () {
         }
         setTimeout(function () {
           try {
-            answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
+            answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector(".ck.ck-content"));
             feedbackEditor.ui.focusTracker.add(answerEditor.sourceElement.parentElement.querySelector(".ck.ck-content"));
           } catch (exception) {
             // ignore focusTracker error when trying to add element that is already registered
@@ -10080,8 +10080,8 @@ document.addEventListener("alpine:init", function () {
             while (1) switch (_context28.prev = _context28.next) {
               case 0:
                 forceOpenAccordion = _arguments3.length > 1 && _arguments3[1] !== undefined ? _arguments3[1] : false;
-                addFeedbackAccordion = document.querySelector('.answer-feedback-add-comment button');
-                givenFeedbackAccordion = document.querySelector('.answer-feedback-given-comments button');
+                addFeedbackAccordion = document.querySelector(".answer-feedback-add-comment button");
+                givenFeedbackAccordion = document.querySelector(".answer-feedback-given-comments button");
                 if (!_this74.$store.answerFeedback.newFeedbackBeingCreated()) {
                   _context28.next = 6;
                   break;
@@ -10221,7 +10221,7 @@ document.addEventListener("alpine:init", function () {
                   _context31.next = 2;
                   break;
                 }
-                return _context31.abrupt("return", _this77.$store.answerFeedback.openConfirmationModal(_this77.$root, 'goToPreviousQuestion'));
+                return _context31.abrupt("return", _this77.$store.answerFeedback.openConfirmationModal(_this77.$root, "goToPreviousQuestion"));
               case 2:
                 _this77.$wire.goToPreviousQuestion();
               case 3:
@@ -10241,7 +10241,7 @@ document.addEventListener("alpine:init", function () {
                   _context32.next = 2;
                   break;
                 }
-                return _context32.abrupt("return", _this78.$store.answerFeedback.openConfirmationModal(_this78.$root, 'goToNextQuestion'));
+                return _context32.abrupt("return", _this78.$store.answerFeedback.openConfirmationModal(_this78.$root, "goToNextQuestion"));
               case 2:
                 _this78.$wire.goToNextQuestion();
               case 3:
@@ -11086,7 +11086,8 @@ document.addEventListener("alpine:init", function () {
       },
       loadingTimeout: function loadingTimeout(value) {
         var _this99 = this;
-        /*if (value !== true)*/return;
+        /*if (value !== true)*/
+        return;
         this.loadTimeout = setTimeout(function () {
           _this99.$store.cms.loading = false;
           _this99.$store.cms.processing = false;
@@ -11128,10 +11129,10 @@ document.addEventListener("alpine:init", function () {
         this.$store.cms.loading = false;
       },
       get drawer() {
-        return this.getLivewireComponent('cms-drawer');
+        return this.getLivewireComponent("cms-drawer");
       },
       get constructor() {
-        return this.getLivewireComponent('cms');
+        return this.getLivewireComponent("cms");
       },
       openQuestion: function openQuestion(questionProperties) {
         var _this100 = this;
@@ -11139,8 +11140,8 @@ document.addEventListener("alpine:init", function () {
           return _regeneratorRuntime().wrap(function _callee36$(_context36) {
             while (1) switch (_context36.prev = _context36.next) {
               case 0:
-                _this100.$dispatch('store-current-question');
-                _this100.$store.cms.scrollPos = document.querySelector('.drawer').scrollTop;
+                _this100.$dispatch("store-current-question");
+                _this100.$store.cms.scrollPos = document.querySelector(".drawer").scrollTop;
                 _this100.$store.cms.loading = true;
                 _context36.next = 5;
                 return _this100.constructor.showQuestion(questionProperties);
@@ -11154,7 +11155,7 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       getLivewireComponent: function getLivewireComponent(attribute) {
-        return Livewire.find(document.querySelector("[".concat(attribute, "]")).getAttribute('wire:id'));
+        return Livewire.find(document.querySelector("[".concat(attribute, "]")).getAttribute("wire:id"));
       }
     };
   });
@@ -11362,13 +11363,13 @@ document.addEventListener("alpine:init", function () {
       },
       export_pdf: function export_pdf() {
         if (!this.value) {
-          $wire.set('displayValueRequiredMessage', true);
+          $wire.set("displayValueRequiredMessage", true);
           return;
         }
         return this.export_now(this.links[this.value]);
       },
       export_now: function export_now(url) {
-        var isSafari = navigator.userAgent.indexOf('Safari') > -1 && navigator.userAgent.indexOf('Chrome') <= -1;
+        var isSafari = navigator.userAgent.indexOf("Safari") > -1 && navigator.userAgent.indexOf("Chrome") <= -1;
         if (isSafari) {
           window.open(url);
           return;
@@ -11376,6 +11377,107 @@ document.addEventListener("alpine:init", function () {
         var windowReference = window.open();
         windowReference.document.write(this.waitingScreenHtml);
         windowReference.location = url;
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("standardizationResultsGrid", function () {
+    return {
+      rowHover: null,
+      shadow: null,
+      usedSliders: [],
+      init: function init() {
+        var _this107 = this;
+        this.shadow = this.$refs.shadowBox;
+        this.$watch("rowHover", function (value) {
+          if (value !== null) {
+            var _this107$$root$queryS;
+            _this107.shadow.style.top = ((_this107$$root$queryS = _this107.$root.querySelector("[data-row='".concat(value, "'] .grid-item"))) === null || _this107$$root$queryS === void 0 ? void 0 : _this107$$root$queryS.offsetTop) + "px";
+          }
+        });
+      },
+      clearUsedSliders: function clearUsedSliders() {
+        this.usedSliders = [];
+        this.$root.querySelectorAll(".score-slider-container").forEach(function (el) {
+          return el.classList.add("untouched");
+        });
+      },
+      updateMarkBadge: function updateMarkBadge(row) {
+        var updates = {};
+        var rating = this.$root.querySelector(".grid-row[data-row=\"".concat(row, "\"] .score-slider-number-input")).value;
+        updates["new"] = {
+          rating: rating,
+          locator: ".grid-row[data-row=\"".concat(row, "\"]")
+        };
+        updates.max = this.maxRating();
+        updates.avg = this.avgRating();
+        updates.min = this.minRating();
+        Object.keys(updates).forEach(function (value) {
+          document.querySelector(".standardize-block ".concat(updates[value].locator, " .mark-badge")).dispatchEvent(new CustomEvent("update-mark-badge", {
+            detail: {
+              rating: updates[value].rating
+            }
+          }));
+        });
+      },
+      getRatings: function getRatings() {
+        return Array.from(this.$root.querySelectorAll(".grid-row .score-slider-number-input:not(:disabled)")).map(function (input) {
+          return input.value;
+        });
+      },
+      maxRating: function maxRating() {
+        return {
+          rating: Math.max.apply(Math, _toConsumableArray(this.getRatings())),
+          locator: '.max-rating'
+        };
+      },
+      avgRating: function avgRating() {
+        var ratings = this.getRatings();
+        var sum = ratings.reduce(function (acc, currentValue) {
+          return acc += parseFloat(currentValue);
+        }, 0);
+        return {
+          rating: sum / ratings.length,
+          locator: '.avg-rating'
+        };
+      },
+      minRating: function minRating() {
+        return {
+          rating: Math.min.apply(Math, _toConsumableArray(this.getRatings())),
+          locator: '.min-rating'
+        };
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("markBadge", function (initialRating) {
+    return {
+      markBadgeRating: initialRating,
+      displayMarkBadgeRating: '?',
+      color: null,
+      init: function init() {
+        this.setDisplayRating();
+      },
+      hasValue: function hasValue() {
+        return ![null, '', 0, 0.0].includes(this.markBadgeRating);
+      },
+      setNewRating: function setNewRating(rating) {
+        this.markBadgeRating = rating;
+        this.setDisplayRating();
+      },
+      setDisplayRating: function setDisplayRating() {
+        if (!this.hasValue()) {
+          if (this.displayMarkBadgeRating !== '?') {
+            this.displayMarkBadgeRating = '?';
+          }
+          return;
+        }
+        if (typeof this.markBadgeRating === 'string') {
+          this.markBadgeRating = parseFloat(this.markBadgeRating);
+        }
+        if (this.markBadgeRating.toString().includes('.')) {
+          this.displayMarkBadgeRating = this.markBadgeRating.toFixed(1).replace('.', ',');
+        } else {
+          this.displayMarkBadgeRating = this.markBadgeRating.toString();
+        }
       }
     };
   });

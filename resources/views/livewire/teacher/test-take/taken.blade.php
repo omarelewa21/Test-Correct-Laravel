@@ -256,7 +256,7 @@
                         </x-slot:titleLeft>
 
                         <x-slot:body>
-                            <div class="flex flex-col w-full" >
+                            <div class="standardize-block | flex flex-col w-full" >
                                 <div class="grid grid-cols-2 w-full gap-6 mb-4 mt-px">
                                     <div class="flex items-center gap-2 border-b border-bluegrey">
                                         <span class="bold">@lang('test-take.Normering'):</span>
@@ -296,23 +296,7 @@
                                 </div>
 
                                 <div class="results-grid setup grid -mx-5 relative"
-                                     x-data="{
-                                        rowHover: null,
-                                        shadow: null,
-                                        usedSliders: [],
-                                        clearUsedSliders() {
-                                          this.usedSliders = [];
-
-                                          this.$root.querySelectorAll('.score-slider-container').forEach(el => el.classList.add('untouched'))
-                                        },
-                                        }"
-                                     x-init="
-                                     shadow = $refs.shadowBox
-                                     $watch('rowHover', value => {
-                                        if(value !== null) {
-                                            shadow.style.top = $root.querySelector(`[data-row='${value}'] .grid-item`)?.offsetTop + 'px'
-                                        }
-                                     })"
+                                     x-data="standardizationResultsGrid"
                                      wire:ignore
                                      wire:key="grading-section-{{ $this->gradingDiffKey }}"
                                      x-on:clear-used-sliders.window="clearUsedSliders()"
@@ -355,7 +339,9 @@
                                              data-row="{{ $loop->iteration }}"
                                              wire:key="participant-grading-row-{{ $participant->uuid }}-{{ $this->standardizeTabDirection }}-{{ $this->gradingDiffKey }}"
                                         >
-                                            <div class="grid-item flex items-center group-hover/row:bg-offwhite pr-3 pl-5 col-start-1 h-15 rounded-l-10">{{ $participant->name }}</div>
+                                            <div class="grid-item flex items-center group-hover/row:bg-offwhite pr-3 pl-5 col-start-1 h-15 rounded-l-10 truncate">
+                                                <span class="truncate">{{ $participant->name }}</span>
+                                            </div>
                                             <div class="grid-item flex items-center group-hover/row:bg-offwhite pr-3 ">
                                                 <div class="flex items-center gap-2 truncate">
                                                     <div class="flex items-center gap-2 text-sysbase">
@@ -387,10 +373,10 @@
                                                 </div>
                                             </div>
                                             <div class="grid-item flex items-center group-hover/row:bg-offwhite px-3 justify-end">
-                                                {{ $participant->definitiveRating ? str(round($participant->definitiveRating, 1))->replace('.', ',') : '-' }}
+                                                {{ $participant->rating ? str(round($participant->rating, 1))->replace('.', ',') : '-' }}
                                             </div>
                                             <div @class(["grid-item flex items-center group-hover/row:bg-offwhite px-3 w-full"])
-                                                 x-on:change="usedSliders.push(@js($participant->uuid))"
+                                                 x-on:change="usedSliders.push(@js($participant->uuid)); updateMarkBadge($el.parentElement.dataset.row)"
                                             >
                                                 <x-input.score-slider model-name="participantResults.{{ $key }}.rating"
                                                                       mode="large"
@@ -400,6 +386,7 @@
                                                                       :half-points="true"
                                                                       :title="false"
                                                                       :focus-input="false"
+                                                                      :disabled="$participant->testNotTaken"
                                                                       wire:key="rating-{{ $participant->uuid.$participant->rating }}-{{ $this->gradingDiffKey }}"
                                                                       class="justify-end"
                                                                       :use-indicator="true"
@@ -407,7 +394,7 @@
                                                 />
                                             </div>
                                             <div class="grid-item flex items-center group-hover/row:bg-offwhite pl-3 pr-5 rounded-r-10 bold justify-end">
-                                                <x-mark-badge :rating="$participant->rating" />
+                                                <x-mark-badge :rating="$participant->rating"/>
                                             </div>
                                         </div>
                                         <div class="h-px bg-bluegrey mx-5 col-span-5 col-start-1"></div>
@@ -415,19 +402,19 @@
                                 </div>
                                 <div class="flex w-full bold pt-4 border-t-2 border-sysbase -mt-px z-1">
                                     <div class="flex w-1/3 justify-end">
-                                        <div class="flex gap-4 items-center">
+                                        <div class="max-rating flex gap-4 items-center">
                                             <span>@lang('test-take.Hoogste cijfer')</span>
                                             <x-mark-badge :rating="$this->participantResults->where('rating', '!=', 0)->max('rating')" />
                                         </div>
                                     </div>
                                     <div class="flex w-1/3 justify-end">
-                                        <div class="flex gap-4 items-center">
+                                        <div class="min-rating flex gap-4 items-center">
                                             <span>@lang('test-take.Laagste cijfer')</span>
                                             <x-mark-badge :rating="$this->participantResults->where('rating', '!=', 0)->min('rating')" />
                                         </div>
                                     </div>
                                     <div class="flex w-1/3 justify-end">
-                                        <div class="flex gap-4 items-center">
+                                        <div class="avg-rating flex gap-4 items-center">
                                             <span>@lang('test-take.Gemiddeld cijfer')</span>
                                             <x-mark-badge :rating="$this->participantResults->where('rating', '!=', 0)->avg('rating')" />
                                         </div>
