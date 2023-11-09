@@ -304,6 +304,7 @@ input:checked + .slider, .slider.checked {
 
 input:focus + .slider {
     box-shadow: 0 0 1px #3dbb56;
+    border: 1px solid var(--cta-primary-mid-dark);
 }
 
 input:disabled + .slider,

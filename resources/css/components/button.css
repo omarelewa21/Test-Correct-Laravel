@@ -322,6 +322,27 @@ button.button {
     padding: 15px;
 }
 
+.dropdown-button-class {
+    @apply space-x-1.5 justify-center bg-opacity-0 focus:outline-none focus:border-blue-300 active:bg-gray-50 active:text-gray-800 transition ease-in-out duration-150;
+    font-weight: bold;
+    display: inline;
+    width: 100%;
+    margin-left: 1rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 10px;
+}
+
+.dropdown-button-class.text-button::after {
+    inset: 0;
+}
+
+.dropdown-button {
+    font-size: 1.125rem;
+    /*line-height: 1.5rem;*/
+    font-family: Nunito;
+}
+
 .dropdown-button:hover {
     color: var(--primary);
 }
@@ -331,6 +352,10 @@ button.button {
 }
 
 .dropdown-item:active {
+    background: var(--primary-opacity-10);
+}
+
+.dropdown-item:is(:focus, :focus-within) {
     background: var(--primary-opacity-10);
 }
 
