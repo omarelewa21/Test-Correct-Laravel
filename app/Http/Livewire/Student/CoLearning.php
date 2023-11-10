@@ -748,7 +748,7 @@ class CoLearning extends TCComponent
 
     private function setDisableScoreSlider() : void
     {
-        $isQuestionNotAnswered = !$this->answerRating->answer->isAnswered;
+        $isQuestionNotAnswered = !$this->answerRating?->answer->isAnswered;
 
         $discussingQuestion = $this->getDiscussingQuestion();
         $isCompletionOrMatchingQuestion = $this->isCompletionOrMatchingQuestion($discussingQuestion);
