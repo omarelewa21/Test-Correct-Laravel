@@ -600,7 +600,9 @@ class Login extends TCComponent
     public function updating(&$name, &$value)
     {
         if (in_array($name, $this->xssPropsToClean)) {
+            $value = BaseHelper::returnOnlyRegularAlphaNumeric($value,'');
             Request::filter($value);
+
         }
     }
 
