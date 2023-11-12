@@ -10,11 +10,9 @@ class AttachmentsGroupPreview extends TCComponent
 {
     public $question;
     public $answers;
-    public $number;
 
     use WithAttachments;
     use WithGroups;
-
 
     public function render()
     {
