@@ -7872,18 +7872,18 @@ input.datepicker {
         width: fit-content;
     }
 
-    #co-learning-page :is(.next-question-btn, .previous-question-btn, .previous-answer-rating-btn, .next-answer-rating-btn, .finish-co-learning-btn ) {
+    #co-learning-page :is(.previous-question-btn, .previous-answer-rating-btn ) {
         padding: 0;
         width: 40px;
         max-width: 40px;
         min-width: 16px;
     }
 
-    #co-learning-page :is(.previous-answer-rating-btn, .next-answer-rating-btn, .finish-co-learning-btn) > span {
+    #co-learning-page :is(.previous-answer-rating-btn, .previous-question-btn) > span {
         display: none;
     }
 
-    #co-learning-page :is(.previous-answer-rating-btn, .finish-co-learning-btn, .next-question-btn, .previous-question-btn) > svg {
+    #co-learning-page :is(.previous-answer-rating-btn, .previous-question-btn) > svg {
         margin: auto;
     }
 

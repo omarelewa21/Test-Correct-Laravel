@@ -12,6 +12,7 @@ use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\Question;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
+use tcCore\TestTakeQuestion;
 
 class CoLearningHelper extends BaseHelper
 {
@@ -28,6 +29,20 @@ class CoLearningHelper extends BaseHelper
         return self::nextQuestionRefactor($testTake, $testParticipant);
     }
 
+    public static function getTestTakeQuestionsOrdered(TestTake $testTake, $withTrashed = false)
+    {
+        $orderList = collect($testTake->test->getQuestionOrderListWithDiscussionType());
+
+
+        $testTakeQuestions = TestTakeQuestion::whereTestTakeId($testTake->getKey())
+            ->when(value   : $withTrashed,
+                   callback: fn($query) => $query->withTrashed()
+            )
+            ->get()
+            ->sortBy(fn($item) => $orderList->get($item->question_id)["order"]);
+
+        return $testTakeQuestions;
+    }
 
     private static function buildTestParticipantsQuery($testTakeId, $discussingQuestionId)
     {
@@ -180,7 +195,7 @@ class CoLearningHelper extends BaseHelper
         $newQuestionIdParents = QuestionGatherer::getNextQuestionId(
             $testTake->getAttribute('test_id'),
             $testTake->getDottedDiscussingQuestionIdWithOptionalGroupQuestionId($selfPacingTestParticipant),
-            $testTake->isDiscussionTypeOpenOnly(),
+            false,//$testTake->isDiscussionTypeOpenOnly(),
             skipDoNotDiscuss: true,
             testTakeId: $testTake->getKey(),
         );

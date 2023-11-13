@@ -168,10 +168,7 @@ class CoLearning extends TCComponent
 
     private function getQuestionList()
     {
-        $testTakeQuestions = TestTakeQuestion::whereTestTakeId($this->testTake->getKey())
-            ->get()
-            ->map(fn($item) => $item->question->getKey());
-
+        $testTakeQuestions = CoLearningHelper::getTestTakeQuestionsOrdered($this->testTake);
         //todo cache testTake->test->getQuestionOrderListWithDiscussionType()
         $orderList = collect($this->testTake->test->getQuestionOrderListWithDiscussionType());
 
@@ -182,7 +179,7 @@ class CoLearning extends TCComponent
         //filters questions that are not checked at start screen
         // recalculates order of questionList
         $order = 1;
-        return $orderList->filter(fn($question) => $testTakeQuestions->contains($question['id']))
+        return $orderList->filter(fn($question) => $testTakeQuestions->contains('question_id', $question['id']))
             ->map(function ($question) use (&$order) {
                 $question['order'] = $order++;
                 return $question;

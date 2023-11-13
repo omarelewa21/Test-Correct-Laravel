@@ -3,6 +3,7 @@
 namespace tcCore\Traits;
 
 use Ramsey\Uuid\Uuid;
+use tcCore\Http\Helpers\CoLearningHelper;
 use tcCore\Http\Livewire\Student\TestTake;
 use tcCore\Http\Livewire\Teacher\Cms\TypeFactory;
 use tcCore\Question;
@@ -76,11 +77,10 @@ trait CanSetUpCoLearning
 
     public function getTestTakeQuestions($withTrashed = false)
     {
-        return TestTakeQuestion::where('test_take_id', $this->testTake->getKey())
-            ->when(value   : $withTrashed,
-                   callback: fn($query) => $query->withTrashed()
-            )
-            ->get();
+        return CoLearningHelper::getTestTakeQuestionsOrdered(
+            testTake: $this->testTake,
+            withTrashed: $withTrashed
+        );
     }
 
     public function updateQuestionsChecked($questionTypeFilter = 'all')
