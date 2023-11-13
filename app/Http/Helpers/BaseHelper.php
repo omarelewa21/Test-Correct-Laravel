@@ -196,7 +196,7 @@ class BaseHelper
     {
         if(is_string($string)) {
             $string = strip_tags($string);
-            $charsExpression = 'a-zA-Z0-9 \-_' . $allowedExtraCharsExpression ?? '';
+            $charsExpression = '\w \-À-ž' . $allowedExtraCharsExpression ?? '';
             return preg_replace("/[^" . $charsExpression . "]+/", "", $string);
         }
         return $string;
