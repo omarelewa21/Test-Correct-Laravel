@@ -76,7 +76,6 @@ class CoLearning extends TCComponent implements CollapsableHeader
     public int $questionIndex; // filtered question index (only discussed questions)
     public int $questionIndexAsInTest; // unfiltered question index (as in test)
     public int $discussedQuestionsCount;
-//    public int $questionIndexOpenOnly; //order exclusing not discussed questions and non-open questions
 
     protected $queryString = [
         'coLearningHasBeenStarted' => ['except' => true, 'as' => 'started']
@@ -695,14 +694,12 @@ class CoLearning extends TCComponent implements CollapsableHeader
     {
         return $this->coLearningHasBeenStarted === false
             && $this->testTake->discussing_question_id !== null
-//            && $this->testTake->discussion_type !== null
             && $this->testTake->test_take_status_id >= TestTakeStatus::STATUS_TAKEN;
     }
 
     private function testTakeHasNotYetBeenStartedBefore(): bool
     {
         return $this->testTake->discussing_question_id === null
-//            || $this->testTake->discussion_type === null
             || $this->testTake->test_take_status_id === TestTakeStatus::STATUS_TAKEN;
     }
 
@@ -710,11 +707,6 @@ class CoLearning extends TCComponent implements CollapsableHeader
     {
         return $this->testTake->test_take_status_id !== TestTakeStatus::STATUS_DISCUSSING;
     }
-
-//    private function discussionTypeNeedsToBeUpdated(string $testTakeDiscussionType): bool
-//    {
-//        return $this->testTake->discussion_type !== $testTakeDiscussionType;
-//    }
 
     private function deleteStudentAnswerRatings()
     {
@@ -725,7 +717,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
 
     public function handleHeaderCollapse($args): bool
     {
-        return $this->startCoLearningSession($args['discussionType']);
+        return $this->startCoLearningSession();
     }
 
     private function getQuestionList()

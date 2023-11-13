@@ -86,6 +86,7 @@ trait CanSetUpCoLearning
     public function updateQuestionsChecked($questionTypeFilter = 'all')
     {
         $this->setupQuestionSelector = $questionTypeFilter;
+        $this->testTake->update(['discussion_type' => $questionTypeFilter === "all" ? "ALL" : "OPEN_ONLY"]);
 
         $enabledQuestions = $this->getSetUpData()
             ->filter(fn($item) => !$item['disabled'])
@@ -218,6 +219,7 @@ trait CanSetUpCoLearning
             //if first entering, select open questions as default
             $this->updateQuestionsChecked('open');
         }
+        $this->testTake->discussion_type === "ALL" ? $this->setupQuestionSelector = "all" : $this->setupQuestionSelector = "open";
 
         $setupQuestionData = $this->getExpandedQuestionList();
         $this->setupQuestionTotalCount = $setupQuestionData->count();
