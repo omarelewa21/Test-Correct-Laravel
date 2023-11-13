@@ -28,6 +28,7 @@ use tcCore\Http\Middleware\AfterResponse;
 use tcCore\MatchingQuestion;
 use tcCore\MultipleChoiceQuestion;
 use tcCore\Question;
+use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TestTakeQuestion;
 use tcCore\TestTakeStatus;
@@ -200,6 +201,21 @@ class CoLearning extends TCComponent implements CollapsableHeader
             return;
         }
         $this->getTestParticipantsData();
+
+        if ($this->activeAnswerRating) {
+            $discussingAnswerRatingQuestionId = AnswerRating::whereIn(
+                'answer_ratings.id',
+                TestParticipant::select(
+                    'discussing_answer_rating_id'
+                )->where(['user_id' => $this->activeAnswerRating->user_id, 'test_take_id' => $this->testTake->id])
+            )
+                ->join('answers', 'answers.id', '=', 'answer_ratings.answer_id')
+                ->first()
+                ->question_id;
+            if ($discussingAnswerRatingQuestionId !== $this->activeAnswerRating->answer->question_id) {
+                $this->resetActiveAnswer();
+            }
+        }
     }
 
     public function render()
@@ -269,6 +285,8 @@ class CoLearning extends TCComponent implements CollapsableHeader
     /* start sidebar methods */
     public function goToNextQuestion()
     {
+        $this->setTestTakeQuestionDiscussed();
+
         $this->nextDiscussionQuestion();
         $this->getNavigationData();
 
@@ -277,6 +295,8 @@ class CoLearning extends TCComponent implements CollapsableHeader
 
     public function goToPreviousQuestion()
     {
+        $this->setTestTakeQuestionDiscussed();
+
         if (!$this->updateDiscussingQuestionIdOnTestTake()) {
             return false;
         }
@@ -786,7 +806,6 @@ class CoLearning extends TCComponent implements CollapsableHeader
     {
         $this->resetActiveAnswer();
         $this->discussingQuestion = $this->testTake->discussingQuestion()->first();
-        $this->setTestTakeQuestionDiscussed();
 
         $this->group = $this->discussingQuestion->getGroupQuestion($this->testTake);
         $this->getTestParticipantsData();

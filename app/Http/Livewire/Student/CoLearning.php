@@ -39,7 +39,6 @@ class CoLearning extends TCComponent
     const SESSION_KEY = 'co-learning-answer-options';
 
     public ?TestTake $testTake;
-    public bool $discussOpenQuestionsOnly = false;
     public bool $nextAnswerAvailable = false;
     public bool $previousAnswerAvailable = false;
     public $rating = null; //float or int depending on $questionAllowsDecimalScore
@@ -160,9 +159,6 @@ class CoLearning extends TCComponent
         if ($this->redirectIfTestTakeInIncorrectState() instanceof Redirector) {
             return false;
         };
-
-
-        $this->discussOpenQuestionsOnly = $this->testTake->discussion_type === 'OPEN_ONLY';
 
         if (!$this->coLearningFinished) {
             $this->getAnswerRatings();
@@ -531,14 +527,9 @@ class CoLearning extends TCComponent
         if ($this->answerRatings->isNotEmpty()) {
             $this->getQuestionAndAnswerNavigationData();
 
-            $this->previousQuestionAvailable = $this->discussOpenQuestionsOnly
-                ? collect($this->questionOrderList)->get($this->getDiscussingQuestion()->getKey())['order_open_only'] > 1
-                : collect($this->questionOrderList)->get($this->getDiscussingQuestion()->getKey())['order'] > 1;
+            $this->previousQuestionAvailable = collect($this->questionOrderList)->get($this->getDiscussingQuestion()->getKey())['order'] > 1;
 
-
-            $this->nextQuestionAvailable = $this->discussOpenQuestionsOnly
-                ? collect($this->questionOrderList)->get($this->getDiscussingQuestion()->getKey())['order_open_only'] < $this->numberOfQuestions
-                : collect($this->questionOrderList)->get($this->getDiscussingQuestion()->getKey())['order'] < $this->numberOfQuestions;
+            $this->nextQuestionAvailable = collect($this->questionOrderList)->get($this->getDiscussingQuestion()->getKey())['order'] < $this->numberOfQuestions;
         }
 
         $this->getSortedAnswerFeedback();
