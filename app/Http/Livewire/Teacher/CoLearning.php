@@ -111,12 +111,21 @@ class CoLearning extends TCComponent implements CollapsableHeader
 
     public function toggleStudentEnableQuestionText(bool $boolean)
     {
+        //if question text is disabled, also disable answer model and self pacing navigation
+        if(!$boolean) {
+            $this->testTake->enable_answer_model_colearning = $boolean;
+            $this->testTake->enable_student_navigation_colearning = $boolean;
+        }
         $this->testTake->enable_question_text_colearning = $boolean;
         $this->testTake->save();
     }
 
     public function toggleStudentEnableAnswerModel(bool $boolean)
     {
+        //if answer model is enabled, also disable self pacing navigation
+        if(!$boolean) {
+            $this->testTake->enable_student_navigation_colearning = $boolean;
+        }
         $this->testTake->enable_answer_model_colearning = $boolean;
         $this->testTake->save();
     }
