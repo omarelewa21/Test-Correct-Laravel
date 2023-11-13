@@ -237,7 +237,7 @@ class UpdateUserRequest extends Request {
 				}
 			}
 
-			if($data['is_examcoordinator'] == 0){
+			if(isset($data['is_examcoordinator']) && $data['is_examcoordinator'] == 0) {
 				$data['is_examcoordinator_for'] = NULL;
 			}
 
