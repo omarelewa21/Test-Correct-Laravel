@@ -357,7 +357,6 @@ class Onboarding extends TCComponent
 
     public function updating(&$name, &$value): void
     {
-        logger($name);
         if($name !== 'password' && $name !== 'password_confirmation') {
             $value = BaseHelper::returnOnlyRegularAlphaNumeric($value, '@&.');
             Request::filter($value);
