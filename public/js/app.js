@@ -19910,7 +19910,7 @@ window.RichTextEditor = {
       },
       image: {
         upload: {
-          types: ["jpeg", "png", "gif", "bmp", "webp", "tiff"]
+          types: ["jpeg", "png", "gif", "bmp", "webp"]
         },
         toolbar: ["imageTextAlternative",
         // 'toggleImageCaption',

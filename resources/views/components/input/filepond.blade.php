@@ -32,6 +32,8 @@
                                 }
                             })
                         } else {
+                            $nextTick(() => $dispatch('filepond-finished'));
+                            this.hasError = true;
                             Notify.notify('{{ __('cms.file type not allowed') }} {{ __('cms.bestand')}}: '+file.name, 'error');
                         }
                     },
@@ -44,7 +46,9 @@
                    this.post.currentBatchLength++;
                 },
                 onprocessfilestart: (file) => {
-                    $dispatch('filepond-start');
+                    if(!this.hasError) {
+                        $dispatch('filepond-start');
+                    }
                     let dummy = document.querySelector('#attachment-badges > #dummy');
                     dummy.querySelector('span').innerHTML = file.filename;
                 },
@@ -64,6 +68,8 @@
                 }
                 this.post.addFiles(files);
                 $dispatch('filepond-start');
+                console.log('newFilesReceived');
+
         }
     }
 "

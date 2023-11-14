@@ -240,4 +240,5 @@ return [
     'spell_check_available_tooltip'                                                          => 'This allows the students to use a spellchecker during their test. The spellchecker will automatically underline all words that are written incorrectly.',
     'Antwoord opties voor student'                                                           => 'Answer options for student',
     'resultaten'                                                                             => 'results',
+    'ckeditor_file_type_not_allowed'                                                         => 'This type of file is not allowed as inline image',
 ];
