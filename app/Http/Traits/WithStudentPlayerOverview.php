@@ -19,7 +19,7 @@ trait WithStudentPlayerOverview
 
     public function getIsQuestionLockedProperty(): bool
     {
-        return $this->question->closeable 
+        return $this->closed || $this->question->closeable
             || ($this->question->groupQuestion && $this->question->groupQuestion->closeable);
     }
 }
