@@ -139,8 +139,8 @@
                                     :checked="$this->testTake->enable_answer_model_colearning"
                                     wire:click="toggleStudentEnableAnswerModel($event.target.checked)"
                                     indented="true"
+                                    :disabled="!$this->testTake->enable_question_text_colearning"
                             >
-                                {{-- TODO create indent --}}
                                 <span>@lang('co-learning.answer-model-for-students')</span>
                             </x-input.toggle-row-with-title>
 
@@ -150,14 +150,13 @@
                                     :checked="$this->testTake->enable_student_navigation_colearning"
                                     wire:click="toggleStudentEnableNavigation($event.target.checked)"
                                     indented="true"
+                                    :disabled="!$this->testTake->enable_answer_model_colearning || !$this->testTake->enable_question_text_colearning"
                             >
-                                {{-- TODO create indent --}}
                                 <span>@lang('co-learning.navigation-for-students')</span>
                             </x-input.toggle-row-with-title>
 
                             <span class="text-note">
                                 @if($this->coLearningRestart)
-                                    {{-- TODO add text x/x questions, on date ... --}}
                                     {!!  __('co-learning.current_session', [
                                         'index' => $this->discussedQuestionsCount,
                                         'totalQuestions' => $this->setupQuestionTotalCount,
@@ -346,7 +345,7 @@
                                             >
                                                 <x-icon.preview class="" />
                                             </x-button.text>
-                                            <span class="truncate" title="a"> {{  $question['question_title'] }} </span>
+                                            <span class="truncate" title="{{  $question['question_title'] }}"> {{  $question['question_title'] }} </span>
                                         </div>
                                         {{-- P waarde --}}
                                         <div class="grid-item flex items-center justify-end">

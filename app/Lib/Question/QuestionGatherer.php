@@ -163,7 +163,6 @@ class QuestionGatherer
                 if (self::questionIsPartOfCarousel($questionId, $testId)) {
                     continue;
                 }
-                //todo not in testTakeQuestions, then skip/continue
                 if($testTakeQuestions->where('question_id',$questionId)->count() == 0){
                     continue;
                 }

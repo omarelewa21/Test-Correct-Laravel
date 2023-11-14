@@ -39,7 +39,6 @@ class CoLearning extends TCComponent
     const SESSION_KEY = 'co-learning-answer-options';
 
     public ?TestTake $testTake;
-    public bool $discussOpenQuestionsOnly = false;
     public bool $nextAnswerAvailable = false;
     public bool $previousAnswerAvailable = false;
     public $rating = null; //float or int depending on $questionAllowsDecimalScore
@@ -161,9 +160,6 @@ class CoLearning extends TCComponent
             return false;
         };
 
-
-        $this->discussOpenQuestionsOnly = $this->testTake->discussion_type === 'OPEN_ONLY';
-
         if (!$this->coLearningFinished) {
             $this->getAnswerRatings();
             $this->necessaryAmountOfAnswerRatings = $this->answerRatings->count() ?: 1;
@@ -172,10 +168,7 @@ class CoLearning extends TCComponent
 
     private function getQuestionList()
     {
-        $testTakeQuestions = TestTakeQuestion::whereTestTakeId($this->testTake->getKey())
-            ->get()
-            ->map(fn($item) => $item->question->getKey());
-
+        $testTakeQuestions = CoLearningHelper::getTestTakeQuestionsOrdered($this->testTake);
         //todo cache testTake->test->getQuestionOrderListWithDiscussionType()
         $orderList = collect($this->testTake->test->getQuestionOrderListWithDiscussionType());
 
@@ -186,7 +179,7 @@ class CoLearning extends TCComponent
         //filters questions that are not checked at start screen
         // recalculates order of questionList
         $order = 1;
-        return $orderList->filter(fn($question) => $testTakeQuestions->contains($question['id']))
+        return $orderList->filter(fn($question) => $testTakeQuestions->contains('question_id', $question['id']))
             ->map(function ($question) use (&$order) {
                 $question['order'] = $order++;
                 return $question;
@@ -328,11 +321,28 @@ class CoLearning extends TCComponent
 
         if ($previousQuestionId = $this->getPreviousQuestionData()['id']) {
             //set the previous question as the new discussing question
-            $this->selfPacedNavigation
-                ? $this->testParticipant->update(['discussing_question_id' => $previousQuestionId])
-                : $this->testTake->update(['discussing_question_id' => $previousQuestionId]);
+//            $this->selfPacedNavigation
+//                ? $this->testParticipant->update(['discussing_question_id' => $previousQuestionId])
+//                : $this->testTake->update(['discussing_question_id' => $previousQuestionId]);
+
+            $dottedQuestionId = $previousQuestionId;
+            $groupQuestionId = Question::find($previousQuestionId)->getGroupQuestionIdByTest($this->testTake->test_id);
+            if($groupQuestionId) {
+                $dottedQuestionId = $groupQuestionId .'.'. $previousQuestionId;
+            }
+
+            CoLearningHelper::createAnswerRatingsForDiscussingQuestion(
+                newQuestionIdParents: $dottedQuestionId,
+                testTake: $this->testTake,
+                selfPacingTestParticipant: $this->testParticipant,
+            );
         }
         $this->testParticipant->refresh();
+
+        //if group question give dotted question (eg. "329.330") instead of int "330"
+        //todo is $previousQuestionId part of a group?
+
+
 
         $this->getAnswerRatings();
     }
@@ -531,14 +541,9 @@ class CoLearning extends TCComponent
         if ($this->answerRatings->isNotEmpty()) {
             $this->getQuestionAndAnswerNavigationData();
 
-            $this->previousQuestionAvailable = $this->discussOpenQuestionsOnly
-                ? collect($this->questionOrderList)->get($this->getDiscussingQuestion()->getKey())['order_open_only'] > 1
-                : collect($this->questionOrderList)->get($this->getDiscussingQuestion()->getKey())['order'] > 1;
+            $this->previousQuestionAvailable = collect($this->questionOrderList)->get($this->getDiscussingQuestion()->getKey())['order'] > 1;
 
-
-            $this->nextQuestionAvailable = $this->discussOpenQuestionsOnly
-                ? collect($this->questionOrderList)->get($this->getDiscussingQuestion()->getKey())['order_open_only'] < $this->numberOfQuestions
-                : collect($this->questionOrderList)->get($this->getDiscussingQuestion()->getKey())['order'] < $this->numberOfQuestions;
+            $this->nextQuestionAvailable = collect($this->questionOrderList)->get($this->getDiscussingQuestion()->getKey())['order'] < $this->numberOfQuestions;
         }
 
         $this->getSortedAnswerFeedback();

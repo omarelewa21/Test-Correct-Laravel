@@ -3,6 +3,7 @@
 namespace tcCore\Traits;
 
 use Ramsey\Uuid\Uuid;
+use tcCore\Http\Helpers\CoLearningHelper;
 use tcCore\Http\Livewire\Student\TestTake;
 use tcCore\Http\Livewire\Teacher\Cms\TypeFactory;
 use tcCore\Question;
@@ -76,16 +77,16 @@ trait CanSetUpCoLearning
 
     public function getTestTakeQuestions($withTrashed = false)
     {
-        return TestTakeQuestion::where('test_take_id', $this->testTake->getKey())
-            ->when(value   : $withTrashed,
-                   callback: fn($query) => $query->withTrashed()
-            )
-            ->get();
+        return CoLearningHelper::getTestTakeQuestionsOrdered(
+            testTake: $this->testTake,
+            withTrashed: $withTrashed
+        );
     }
 
     public function updateQuestionsChecked($questionTypeFilter = 'all')
     {
         $this->setupQuestionSelector = $questionTypeFilter;
+        $this->testTake->update(['discussion_type' => $questionTypeFilter === "all" ? "ALL" : "OPEN_ONLY"]);
 
         $enabledQuestions = $this->getSetUpData()
             ->filter(fn($item) => !$item['disabled'])
@@ -218,6 +219,9 @@ trait CanSetUpCoLearning
             //if first entering, select open questions as default
             $this->updateQuestionsChecked('open');
         }
+        $this->testTake->discussion_type === "ALL"
+            ? $this->setupQuestionSelector = "all"
+            : $this->setupQuestionSelector = "open";
 
         $setupQuestionData = $this->getExpandedQuestionList();
         $this->setupQuestionTotalCount = $setupQuestionData->count();
@@ -225,7 +229,9 @@ trait CanSetUpCoLearning
         $groupNumberIterator = 1;
         $groupNumbers = $setupQuestionData->unique('group_question_id')
                              ->whereNotNull('group_question_id')
-                             ->mapWithKeys(fn($uniqueGroup) => [$uniqueGroup['group_question_id'] => "G" . $groupNumberIterator++]);
+                             ->mapWithKeys(function ($uniqueGroup) use (&$groupNumberIterator) {
+                                 return [$uniqueGroup['group_question_id'] => "G" . $groupNumberIterator++];
+                             });
 
         $testTakeQuestions = $this->getTestTakeQuestions();
 

@@ -257,15 +257,6 @@
                             />
                         </div>
                     @endif
-                    @if( $testTake->enable_comments_colearning && $this->currentQuestion->isType('OpenQuestion') )
-                        <div class="flex content-center justify-between">
-                            <x-button.secondary
-                                    x-on:click.stop="$dispatch('answer-feedback-drawer-tab-update', {tab: 2} )">
-                                <x-icon.feedback-text/>
-                                <span>@lang('assessment.Feedback')</span>
-                            </x-button.secondary>
-                        </div>
-                    @endif
                 </div>
                 <div class="flex items-center space-x-4 text-right">
                     <span><b class="bold">{{ __('co-learning.answer') }} {{ $this->answerFollowUpNumber }}</b>/{{ $this->numberOfAnswers }}</span>
