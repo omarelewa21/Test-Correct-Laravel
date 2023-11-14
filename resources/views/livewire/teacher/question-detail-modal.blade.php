@@ -132,7 +132,7 @@
                                                    :checked="$question->auto_check_answer_case_sensitive"
                     >
                         <x-icon.case-sensitive/>
-                        <span>{{ __('cms.Hoofdletter gevoelig nakijken') }}</span>
+                        <span>{{ __('cms.Hoofdlettergevoelig nakijken') }}</span>
                     </x-input.toggle-row-with-title>
                 @endif
                 @if($question->isType('Group'))

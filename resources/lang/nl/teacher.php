@@ -24,7 +24,7 @@ return [
     'periode'                                                                                  => 'Periode',
     'niveau-jaar'                                                                              => 'Niveau-jaar',
     'Shuffle vragen tijdens afname'                                                            => 'Shuffle vragen tijdens afname',
-    'introductie-tekst'                                                                        => 'Introductie-tekst',
+    'introductie-tekst'                                                                        => 'Introductietekst',
     'guest_accounts_tooltip'                                                                   => 'De student kan inloggen met een Test-Direct account (en de toetscode) om de toets te maken, beoordelen, in te zien, en het cijfer te bekijken.',
     'inbrowser_testing_tooltip'                                                                => 'Let op! Als browsertoetsen aanstaat, dan kan de student de toets maken zonder de beveiligde studenten app. In de browser kunnen wij het gebruik van andere apps niet blokkeren. Lees meer op de Kennisbank',
     'copy for schoollocation'                                                                  => 'Kopie maken: vak kiezen',

@@ -103,7 +103,7 @@ return [
     'cannot_review_test'                                       => 'Toets is niet in te zien',
     'teacher_introduction_title'                               => 'Introductie van de docent',
     'teacher_introduction_long'                                => 'Introductie van de docent wordt zichtbaar zodra de toets gemaakt kan worden. Wacht op de docent.',
-    'teacher_introduction_unavailable'                         => 'De docent heeft geen introductie tekst achtergelaten.',
+    'teacher_introduction_unavailable'                         => 'De docent heeft geen introductietekst achtergelaten.',
     'standard'                                                 => 'Standaard',
     'retake'                                                   => 'Inhaaltoets',
     'dashboard'                                                => 'Dashboard',
