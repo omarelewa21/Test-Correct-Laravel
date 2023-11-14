@@ -321,11 +321,28 @@ class CoLearning extends TCComponent
 
         if ($previousQuestionId = $this->getPreviousQuestionData()['id']) {
             //set the previous question as the new discussing question
-            $this->selfPacedNavigation
-                ? $this->testParticipant->update(['discussing_question_id' => $previousQuestionId])
-                : $this->testTake->update(['discussing_question_id' => $previousQuestionId]);
+//            $this->selfPacedNavigation
+//                ? $this->testParticipant->update(['discussing_question_id' => $previousQuestionId])
+//                : $this->testTake->update(['discussing_question_id' => $previousQuestionId]);
+
+            $dottedQuestionId = $previousQuestionId;
+            $groupQuestionId = Question::find($previousQuestionId)->getGroupQuestionIdByTest($this->testTake->test_id);
+            if($groupQuestionId) {
+                $dottedQuestionId = $groupQuestionId .'.'. $previousQuestionId;
+            }
+
+            CoLearningHelper::createAnswerRatingsForDiscussingQuestion(
+                newQuestionIdParents: $dottedQuestionId,
+                testTake: $this->testTake,
+                selfPacingTestParticipant: $this->testParticipant,
+            );
         }
         $this->testParticipant->refresh();
+
+        //if group question give dotted question (eg. "329.330") instead of int "330"
+        //todo is $previousQuestionId part of a group?
+
+
 
         $this->getAnswerRatings();
     }
