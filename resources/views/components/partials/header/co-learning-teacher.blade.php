@@ -345,7 +345,7 @@
                                             >
                                                 <x-icon.preview class="" />
                                             </x-button.text>
-                                            <span class="truncate" title="a"> {{  $question['question_title'] }} </span>
+                                            <span class="truncate" title="{{  $question['question_title'] }}"> {{  $question['question_title'] }} </span>
                                         </div>
                                         {{-- P waarde --}}
                                         <div class="grid-item flex items-center justify-end">

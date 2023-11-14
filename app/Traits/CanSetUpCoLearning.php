@@ -219,7 +219,9 @@ trait CanSetUpCoLearning
             //if first entering, select open questions as default
             $this->updateQuestionsChecked('open');
         }
-        $this->testTake->discussion_type === "ALL" ? $this->setupQuestionSelector = "all" : $this->setupQuestionSelector = "open";
+        $this->testTake->discussion_type === "ALL"
+            ? $this->setupQuestionSelector = "all"
+            : $this->setupQuestionSelector = "open";
 
         $setupQuestionData = $this->getExpandedQuestionList();
         $this->setupQuestionTotalCount = $setupQuestionData->count();
@@ -227,7 +229,9 @@ trait CanSetUpCoLearning
         $groupNumberIterator = 1;
         $groupNumbers = $setupQuestionData->unique('group_question_id')
                              ->whereNotNull('group_question_id')
-                             ->mapWithKeys(fn($uniqueGroup) => [$uniqueGroup['group_question_id'] => "G" . $groupNumberIterator++]);
+                             ->mapWithKeys(function ($uniqueGroup) use (&$groupNumberIterator) {
+                                 return [$uniqueGroup['group_question_id'] => "G" . $groupNumberIterator++];
+                             });
 
         $testTakeQuestions = $this->getTestTakeQuestions();
 

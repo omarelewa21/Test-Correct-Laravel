@@ -259,10 +259,8 @@ class CoLearningHelper extends BaseHelper
         $parents = implode('.', $newQuestionIdParentParts);
         $answerToRate = [];
         $testParticipantUserIds = [];
-        $temp = [];
         foreach ($testTake->testParticipants as $testParticipant) {
             foreach ($testParticipant->answers as $answer) {
-                $temp[] = $answer->getAttribute('question_id');
                 if ($answer->getAttribute('question_id') != $newQuestionId) {
                     continue;
                 }
