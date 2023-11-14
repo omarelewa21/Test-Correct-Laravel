@@ -94,9 +94,9 @@ class Onboarding extends TCComponent
     public function rules(): array
     {
         $default = [
-            'registration.school_location'              => 'sometimes|regex:/^[\pL\s\-]+$/u',
+            'registration.school_location'              => 'sometimes|nullable|regex:/^[\pL\s\-\']+$/u',
             'registration.website_url'                  => 'sometimes',
-            'registration.address'                      => 'sometimes|regex:/^[\pL\s\-]+$/u',
+            'registration.address'                      => 'sometimes|nullable|regex:/^[\pL\s\-]+$/u',
             'registration.house_number'                 => 'sometimes',
             'registration.postcode'                     => 'sometimes',
             'registration.city'                         => 'sometimes',
@@ -139,7 +139,7 @@ class Onboarding extends TCComponent
             'registration.address'         => 'required|regex:/^[\pL\s\-]+$/u',
             'registration.house_number'    => 'required|regex:/\d/',
             'registration.postcode'        => 'required|min:6|regex:/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/',
-            'registration.city'            => 'required|regex:/^[\pL\s\-]+$/u',
+            'registration.city'            => 'required|regex:/^[\pL\s\-\']+$/u',
         ];
     }
 
@@ -358,7 +358,7 @@ class Onboarding extends TCComponent
     public function updating(&$name, &$value): void
     {
         if($name !== 'password' && $name !== 'password_confirmation') {
-            $value = BaseHelper::returnOnlyRegularAlphaNumeric($value, '@&.');
+            $value = BaseHelper::returnOnlyRegularAlphaNumeric($value, '@&.+~\'');
             Request::filter($value);
         }
     }
