@@ -202,30 +202,25 @@ export class Rectangle extends svgElement {
      * @param {Cursor} cursor
      */
     onDraw(evt, cursor) {
-        let coords = this.calculateCoordsForDraw(cursor);
+        let coords = this.calculateCoordsForDraw(cursor, evt.shiftKey);
         this.updateAttributes(coords);
     }
 
     /**
      * Calculates values for the x, y, width and height properties of the rectangle.
      * @param {{x: number, y: number}} cursor
+     * @param {boolean} keepAspectRatio
      * @returns {RectangleCoords}
      */
-    calculateCoordsForDraw(cursor) {
+    calculateCoordsForDraw(cursor, keepAspectRatio=false) {
         const startingPosition = this.draw.startingPosition;
-        const coords = {
+        let coords = {
             x: startingPosition.x,
             y: startingPosition.y,
             width: cursor.x - startingPosition.x,
             height: cursor.y - startingPosition.y,
         };
-        const replacements = {
-            x: cursor.x,
-            y: cursor.y,
-            width: -coords.width,
-            height: -coords.height
-        };
-        return this.correctNegativeSizes(coords, replacements);
+        return this.getCorrectCords(cursor, coords, keepAspectRatio);
     }
 }
 
@@ -1004,6 +999,68 @@ const rectangularFunctionality = {
             coords.y = replacements.y;
             coords.height = replacements.height;
         }
+        return coords;
+    },
+
+    /**
+     * Calculates the new values for the x, y, width and height properties of the rectangle when the width or height are negative.
+     * @param {{x: number, y: number}} cursor 
+     * @param {RectangleCoords} coords
+     * @param {bool} keepAspectRatio
+     * @returns {RectangleCoords}
+     */
+    getReplacementCoordsForNegativeSizesCorrection(cursor, coords, keepAspectRatio) {
+        let replacements = {
+            x: cursor.x,
+            y: cursor.y,
+            width: -coords.width,
+            height: -coords.height
+        };
+
+        if(keepAspectRatio) {
+            if(coords.width < 0 && coords.height < 0) {
+                // Mouse direction is top left from starting point
+                if(-coords.width >= -coords.height) {
+                    replacements.x = coords.x + coords.height;
+                } else {
+                    replacements.y = coords.y + coords.width;
+                }
+            } else {
+                if(coords.width < 0 && -coords.width >= coords.height) {
+                    // Mouse direction is down left from starting point
+                    replacements.x = coords.x + -coords.height;
+                }
+                if(coords.height < 0 && -coords.height >= coords.width) {
+                    // Mouse direction is top right from starting point
+                    replacements.y = coords.y + -coords.width;
+                }
+            }
+        }
+
+        return replacements;
+    },
+
+    /**
+     * Checks if the aspect ratio should be kept and corrects the given coordinates if needed.
+     * @param {RectangleCoords} coords 
+     */
+    fixCoordsToKeepAspectRatio(coords) {
+        coords.width < coords.height
+            ? coords.height = coords.width
+            : coords.width = coords.height;        
+    },
+
+    /**
+     * Check if the aspect ratio should be kept and corrects the given coordinates if needed.
+     * @param {{x: number, y: number}} cursor
+     * @param {RectangleCoords} coords
+     * @param {bool} keepAspectRatio
+     * @returns {RectangleCoords}
+     */
+    getCorrectCords(cursor, coords, keepAspectRatio) {
+        const replacements = this.getReplacementCoordsForNegativeSizesCorrection(cursor, coords, keepAspectRatio);
+        this.correctNegativeSizes(coords, replacements);
+        keepAspectRatio && this.fixCoordsToKeepAspectRatio(coords);
         return coords;
     }
 };

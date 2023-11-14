@@ -12410,12 +12410,12 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "662d128370816e2bbb66",
+  key: "346b9b2cf30ab766e6a6",
   cluster: "eu",
   forceTLS: true
 });
 window.$ = window.jQuery = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
-window.MIX_CKEDITOR_LICENSE_KEY = "q11N5LxlUjUp2pDthuTmPmy/+cmatL0lY7nh6aX+nhhODyekK1g8YW5CKA==";
+window.MIX_CKEDITOR_LICENSE_KEY = process.env.MIX_CKEDITOR_LICENSE_KEY;
 window.FilePond = __webpack_require__(/*! filepond */ "./node_modules/filepond/dist/filepond.js");
 
 FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1___default()));
@@ -16626,18 +16626,20 @@ var Rectangle = /*#__PURE__*/function (_svgElement) {
   }, {
     key: "onDraw",
     value: function onDraw(evt, cursor) {
-      var coords = this.calculateCoordsForDraw(cursor);
+      var coords = this.calculateCoordsForDraw(cursor, evt.shiftKey);
       this.updateAttributes(coords);
     }
 
     /**
      * Calculates values for the x, y, width and height properties of the rectangle.
      * @param {{x: number, y: number}} cursor
+     * @param {boolean} keepAspectRatio
      * @returns {RectangleCoords}
      */
   }, {
     key: "calculateCoordsForDraw",
     value: function calculateCoordsForDraw(cursor) {
+      var keepAspectRatio = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       var startingPosition = this.draw.startingPosition;
       var coords = {
         x: startingPosition.x,
@@ -16645,13 +16647,7 @@ var Rectangle = /*#__PURE__*/function (_svgElement) {
         width: cursor.x - startingPosition.x,
         height: cursor.y - startingPosition.y
       };
-      var replacements = {
-        x: cursor.x,
-        y: cursor.y,
-        width: -coords.width,
-        height: -coords.height
-      };
-      return this.correctNegativeSizes(coords, replacements);
+      return this.getCorrectCords(cursor, coords, keepAspectRatio);
     }
   }]);
   return Rectangle;
@@ -17559,6 +17555,61 @@ var rectangularFunctionality = {
       coords.y = replacements.y;
       coords.height = replacements.height;
     }
+    return coords;
+  },
+  /**
+   * Calculates the new values for the x, y, width and height properties of the rectangle when the width or height are negative.
+   * @param {{x: number, y: number}} cursor 
+   * @param {RectangleCoords} coords
+   * @param {bool} keepAspectRatio
+   * @returns {RectangleCoords}
+   */
+  getReplacementCoordsForNegativeSizesCorrection: function getReplacementCoordsForNegativeSizesCorrection(cursor, coords, keepAspectRatio) {
+    var replacements = {
+      x: cursor.x,
+      y: cursor.y,
+      width: -coords.width,
+      height: -coords.height
+    };
+    if (keepAspectRatio) {
+      if (coords.width < 0 && coords.height < 0) {
+        // Mouse direction is top left from starting point
+        if (-coords.width >= -coords.height) {
+          replacements.x = coords.x + coords.height;
+        } else {
+          replacements.y = coords.y + coords.width;
+        }
+      } else {
+        if (coords.width < 0 && -coords.width >= coords.height) {
+          // Mouse direction is down left from starting point
+          replacements.x = coords.x + -coords.height;
+        }
+        if (coords.height < 0 && -coords.height >= coords.width) {
+          // Mouse direction is top right from starting point
+          replacements.y = coords.y + -coords.width;
+        }
+      }
+    }
+    return replacements;
+  },
+  /**
+   * Checks if the aspect ratio should be kept and corrects the given coordinates if needed.
+   * @param {RectangleCoords} coords 
+   */
+  fixCoordsToKeepAspectRatio: function fixCoordsToKeepAspectRatio(coords) {
+    coords.width < coords.height ? coords.height = coords.width : coords.width = coords.height;
+  },
+  /**
+   * Check if the aspect ratio should be kept and corrects the given coordinates if needed.
+   * @param {{x: number, y: number}} cursor
+   * @param {RectangleCoords} coords
+   * @param {bool} keepAspectRatio
+   * @returns {RectangleCoords}
+   */
+  getCorrectCords: function getCorrectCords(cursor, coords, keepAspectRatio) {
+    var replacements = this.getReplacementCoordsForNegativeSizesCorrection(cursor, coords, keepAspectRatio);
+    this.correctNegativeSizes(coords, replacements);
+    keepAspectRatio && this.fixCoordsToKeepAspectRatio(coords);
     return coords;
   }
 };
@@ -19617,6 +19668,7 @@ readspeakerLoadCore = function (_readspeakerLoadCore) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ckeditor5_node_modules_ckeditor_ckeditor5_word_count_src_utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../ckeditor5/node_modules/@ckeditor/ckeditor5-word-count/src/utils.js */ "./resources/ckeditor5/node_modules/@ckeditor/ckeditor5-word-count/src/utils.js");
+/* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
@@ -19881,7 +19933,7 @@ window.RichTextEditor = {
     if (!parameterBag.enableCommentsPlugin) {
       config.removePlugins.push("Comments");
     } else {
-      config.licenseKey = "q11N5LxlUjUp2pDthuTmPmy/+cmatL0lY7nh6aX+nhhODyekK1g8YW5CKA==";
+      config.licenseKey = process.env.MIX_CKEDITOR_LICENSE_KEY;
     }
     if (parameterBag.commentThreads != undefined) {
       config.extraPlugins = [CommentsIntegration];
@@ -19955,7 +20007,7 @@ window.RichTextEditor = {
     if (!parameterBag.enableCommentsPlugin) {
       config.removePlugins.push("Comments");
     } else {
-      config.licenseKey = "q11N5LxlUjUp2pDthuTmPmy/+cmatL0lY7nh6aX+nhhODyekK1g8YW5CKA==";
+      config.licenseKey = process.env.MIX_CKEDITOR_LICENSE_KEY;
     }
     if (parameterBag.commentThreads != undefined) {
       config.extraPlugins = [CommentsIntegration];
