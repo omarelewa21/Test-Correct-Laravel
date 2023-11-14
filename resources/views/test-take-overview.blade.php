@@ -31,6 +31,7 @@
                                     <livewire:student-player.attachments-group-preview
                                         :question="$testQuestion"
                                         :answers="$answers"
+                                        :number="++$key"
                                         wire:key="'q-'.$testQuestion->uuid'q-'"
                                     />
                             @endif
