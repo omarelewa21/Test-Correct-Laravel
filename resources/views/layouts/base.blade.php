@@ -26,7 +26,9 @@
 
 
 </head>
-<body id="body" class="ck-content flex flex-col min-h-screen {{ $bodyClass ?? '' }} {{ \tcCore\Http\Helpers\AppVersionDetector::osIsIOS() ? 'using-ipad' : '' }}">
+<body id="body" class="ck-content flex flex-col min-h-screen {{ $bodyClass ?? '' }} {{ \tcCore\Http\Helpers\AppVersionDetector::osIsIOS() ? 'using-ipad' : '' }}"
+        {{ \tcCore\Http\Helpers\AppVersionDetector::osIsIOS() ? 'device="ipad"' : '' }}
+>
 {{ $slot }}
 
 @livewireScripts
