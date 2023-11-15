@@ -26,7 +26,7 @@
 
 
 </head>
-<body id="body" class="ck-content flex flex-col min-h-screen {{ $bodyClass ?? '' }} {{ Browser::isTablet() || Browser::deviceModel()  === 'iPad' ? 'using-ipad' : '' }}">
+<body id="body" class="ck-content flex flex-col min-h-screen {{ $bodyClass ?? '' }} {{ \tcCore\Http\Helpers\AppVersionDetector::osIsIOS() ? 'using-ipad' : '' }}">
 {{ $slot }}
 
 @livewireScripts
