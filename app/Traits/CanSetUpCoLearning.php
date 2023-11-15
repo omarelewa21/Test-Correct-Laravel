@@ -120,11 +120,13 @@ trait CanSetUpCoLearning
 
         // check if it needs to be restored
         TestTakeQuestion::onlyTrashed()
+            ->where('test_take_id', $this->testTake->getKey())
             ->whereIn('question_id', $questionIds)
             ->restore();
 
         // get all existing records
         $existingRecords = TestTakeQuestion::withTrashed()
+            ->where('test_take_id', $this->testTake->getKey())
             ->whereIn('question_id', $questionIds)
             ->pluck('question_id')
             ->keyBy(fn($item) => $item);
@@ -148,6 +150,7 @@ trait CanSetUpCoLearning
     protected function deleteTestTakeQuestions($questionList)
     {
         TestTakeQuestion::whereIn('question_id', $questionList->pluck('question_id'))
+            ->where('test_take_id', $this->testTake->getKey())
             ->delete();
     }
 
