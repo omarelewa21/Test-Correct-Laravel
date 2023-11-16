@@ -17487,15 +17487,17 @@ var rectangularFunctionality = {
    * @param {Cursor} cursor
    */
   onResize: function onResize(evt, cursor) {
-    var coords = this.calculateCoordsForResize(cursor);
+    var coords = this.calculateCoordsForResize(cursor, evt.shiftKey);
     this.updateAttributes(coords);
   },
   /**
    * Calculates new values for the x, y, width and height properties of the rectangle.
    * @param {{x: number, y: number}} cursor
+   * @param {boolean} keepAspectRatio
    * @returns {RectangleCoords}
    */
   calculateCoordsForResize: function calculateCoordsForResize(cursor) {
+    var keepAspectRatio = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
     var startingCoords = this.resize.startingCoords;
     var coords = {
       x: startingCoords.x,
@@ -17537,7 +17539,12 @@ var rectangularFunctionality = {
     }
     replacements.width = -coords.width;
     replacements.height = -coords.height;
-    return this.correctNegativeSizes(coords, replacements);
+    this.correctNegativeSizes(coords, replacements);
+    if (keepAspectRatio) {
+      this.fixCoordsToKeepAspectRatio(coords);
+      this.fixCoordsCoordinatesOnResize(coords, replacements);
+    }
+    return coords;
   },
   /**
    * Inverts the width and height and changes x and y when the width or height
@@ -17573,21 +17580,14 @@ var rectangularFunctionality = {
     };
     if (keepAspectRatio) {
       if (coords.width < 0 && coords.height < 0) {
-        // Mouse direction is top left from starting point
-        if (-coords.width >= -coords.height) {
-          replacements.x = coords.x + coords.height;
-        } else {
-          replacements.y = coords.y + coords.width;
-        }
-      } else {
-        if (coords.width < 0 && -coords.width >= coords.height) {
-          // Mouse direction is down left from starting point
-          replacements.x = coords.x + -coords.height;
-        }
-        if (coords.height < 0 && -coords.height >= coords.width) {
-          // Mouse direction is top right from starting point
-          replacements.y = coords.y + -coords.width;
-        }
+        // Mouse direction is up left from starting point
+        -coords.width >= -coords.height ? replacements.x = coords.x + coords.height : replacements.y = coords.y + coords.width;
+      } else if (coords.width < 0 && -coords.width >= coords.height) {
+        // Mouse direction is down left from starting point
+        replacements.x = coords.x + -coords.height;
+      } else if (coords.height < 0 && -coords.height >= coords.width) {
+        // Mouse direction is up right from starting point
+        replacements.y = coords.y + -coords.width;
       }
     }
     return replacements;
@@ -17611,6 +17611,21 @@ var rectangularFunctionality = {
     this.correctNegativeSizes(coords, replacements);
     keepAspectRatio && this.fixCoordsToKeepAspectRatio(coords);
     return coords;
+  },
+  fixCoordsCoordinatesOnResize: function fixCoordsCoordinatesOnResize(coords, replacements) {
+    switch (this.resize.selectedCorner) {
+      case "side-se":
+        if (replacements.height > 0) {
+          var difference = replacements.height - coords.height;
+          coords.y = coords.y + difference;
+        }
+        if (replacements.width > 0) {
+          var _difference = replacements.width - coords.width;
+          coords.x = coords.x + _difference;
+        }
+        break;
+      case "side-ne":
+    }
   }
 };
 Object.assign(Rectangle.prototype, rectangularFunctionality);

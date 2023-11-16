@@ -929,16 +929,17 @@ const rectangularFunctionality = {
      * @param {Cursor} cursor
      */
     onResize(evt, cursor) {
-        const coords = this.calculateCoordsForResize(cursor);
+        const coords = this.calculateCoordsForResize(cursor, evt.shiftKey);
         this.updateAttributes(coords);
     },
 
     /**
      * Calculates new values for the x, y, width and height properties of the rectangle.
      * @param {{x: number, y: number}} cursor
+     * @param {boolean} keepAspectRatio
      * @returns {RectangleCoords}
      */
-    calculateCoordsForResize(cursor) {
+    calculateCoordsForResize(cursor, keepAspectRatio=false) {
         const startingCoords = this.resize.startingCoords;
         const coords = {
             x: startingCoords.x,
@@ -980,7 +981,13 @@ const rectangularFunctionality = {
         }
         replacements.width = -coords.width;
         replacements.height = -coords.height;
-        return this.correctNegativeSizes(coords, replacements);
+
+        this.correctNegativeSizes(coords, replacements);
+        if(keepAspectRatio) {
+            this.fixCoordsToKeepAspectRatio(coords);
+            this.fixCoordsCoordinatesOnResize(coords, replacements);
+        }
+        return coords;
     },
 
     /**
@@ -1019,21 +1026,18 @@ const rectangularFunctionality = {
 
         if(keepAspectRatio) {
             if(coords.width < 0 && coords.height < 0) {
-                // Mouse direction is top left from starting point
-                if(-coords.width >= -coords.height) {
-                    replacements.x = coords.x + coords.height;
-                } else {
-                    replacements.y = coords.y + coords.width;
-                }
-            } else {
-                if(coords.width < 0 && -coords.width >= coords.height) {
-                    // Mouse direction is down left from starting point
-                    replacements.x = coords.x + -coords.height;
-                }
-                if(coords.height < 0 && -coords.height >= coords.width) {
-                    // Mouse direction is top right from starting point
-                    replacements.y = coords.y + -coords.width;
-                }
+                // Mouse direction is up left from starting point
+                -coords.width >= -coords.height
+                    ? replacements.x = coords.x + coords.height
+                    : replacements.y = coords.y + coords.width;
+            }
+            else if (coords.width < 0 && -coords.width >= coords.height) {
+                // Mouse direction is down left from starting point
+                replacements.x = coords.x + -coords.height;
+            }
+            else if (coords.height < 0 && -coords.height >= coords.width) {
+                // Mouse direction is up right from starting point
+                replacements.y = coords.y + -coords.width;
             }
         }
 
@@ -1062,7 +1066,25 @@ const rectangularFunctionality = {
         this.correctNegativeSizes(coords, replacements);
         keepAspectRatio && this.fixCoordsToKeepAspectRatio(coords);
         return coords;
-    }
+    },
+
+    fixCoordsCoordinatesOnResize(coords, replacements) {
+        switch(this.resize.selectedCorner){
+            case "side-se":
+                if(replacements.height > 0) {
+                    const difference = replacements.height - coords.height;
+                    coords.y = coords.y + difference;
+                }
+                if(replacements.width > 0) {
+                    const difference = replacements.width - coords.width;
+                    coords.x = coords.x + difference;
+                }
+                break;
+            case "side-ne":
+                
+        }
+        
+    },
 };
 
 Object.assign(Rectangle.prototype, rectangularFunctionality);
