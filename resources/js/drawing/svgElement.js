@@ -1068,6 +1068,11 @@ const rectangularFunctionality = {
         return coords;
     },
 
+    /**
+     * Fixes the coordinates of the rectangle when the aspect ratio is kept.
+     * @param {RectangleCoords} coords 
+     * @param {RectangleCoords} replacements 
+     */
     fixCoordsCoordinatesOnResize(coords, replacements) {
         switch(this.resize.selectedCorner){
             case "side-se":
@@ -1091,8 +1096,26 @@ const rectangularFunctionality = {
                 }
                 break;
             case "side-sw":
+                if(replacements.height > 0) {
+                    const difference = replacements.height - coords.height;
+                    coords.y = coords.y + difference;
+                }
+                if(replacements.width < 0) {
+                    const difference = replacements.width + coords.width;
+                    coords.x = coords.x - difference;
+                }
+                break;
+            case "side-nw":
+                if(replacements.height < 0) {
+                    const difference = replacements.height + coords.height;
+                    coords.y = coords.y - difference;
+                }
+                if(replacements.width < 0) {
+                    const difference = replacements.width + coords.width;
+                    coords.x = coords.x - difference;
+                }
+                break;
         }
-        
     },
 };
 

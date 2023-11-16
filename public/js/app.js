@@ -17612,6 +17612,11 @@ var rectangularFunctionality = {
     keepAspectRatio && this.fixCoordsToKeepAspectRatio(coords);
     return coords;
   },
+  /**
+   * Fixes the coordinates of the rectangle when the aspect ratio is kept.
+   * @param {RectangleCoords} coords 
+   * @param {RectangleCoords} replacements 
+   */
   fixCoordsCoordinatesOnResize: function fixCoordsCoordinatesOnResize(coords, replacements) {
     switch (this.resize.selectedCorner) {
       case "side-se":
@@ -17635,6 +17640,25 @@ var rectangularFunctionality = {
         }
         break;
       case "side-sw":
+        if (replacements.height > 0) {
+          var _difference4 = replacements.height - coords.height;
+          coords.y = coords.y + _difference4;
+        }
+        if (replacements.width < 0) {
+          var _difference5 = replacements.width + coords.width;
+          coords.x = coords.x - _difference5;
+        }
+        break;
+      case "side-nw":
+        if (replacements.height < 0) {
+          var _difference6 = replacements.height + coords.height;
+          coords.y = coords.y - _difference6;
+        }
+        if (replacements.width < 0) {
+          var _difference7 = replacements.width + coords.width;
+          coords.x = coords.x - _difference7;
+        }
+        break;
     }
   }
 };
