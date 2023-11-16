@@ -1081,7 +1081,16 @@ const rectangularFunctionality = {
                 }
                 break;
             case "side-ne":
-                
+                if(replacements.height < 0) {
+                    const difference = replacements.height + coords.height;
+                    coords.y = coords.y - difference;
+                }
+                if(replacements.width > 0) {
+                    const difference = replacements.width - coords.width;
+                    coords.x = coords.x + difference;
+                }
+                break;
+            case "side-sw":
         }
         
     },

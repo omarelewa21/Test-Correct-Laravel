@@ -17625,6 +17625,16 @@ var rectangularFunctionality = {
         }
         break;
       case "side-ne":
+        if (replacements.height < 0) {
+          var _difference2 = replacements.height + coords.height;
+          coords.y = coords.y - _difference2;
+        }
+        if (replacements.width > 0) {
+          var _difference3 = replacements.width - coords.width;
+          coords.x = coords.x + _difference3;
+        }
+        break;
+      case "side-sw":
     }
   }
 };
