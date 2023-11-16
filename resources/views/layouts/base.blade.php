@@ -33,8 +33,7 @@
         "using-ipad" => \tcCore\Http\Helpers\AppVersionDetector::osIsIOS() || request()->query('device') === 'ipad',
   ])
         {{ \tcCore\Http\Helpers\AppVersionDetector::osIsIOS() || request()->query('device') === 'ipad' ? 'device="ipad"' : '' }}
->
-@if(\tcCore\Http\Helpers\AppVersionDetector::osIsIOS() || request()->query('device') === 'ipad') is iPad! @else geen ipad :( @endif
+>s
 {{ $slot }}
 
 @livewireScripts
