@@ -105,7 +105,7 @@ class Onboarding extends TCComponent
             'registration.username'                     => 'required|email:rfc,dns|unique:users,username',
             'registration.name_first'                   => 'sometimes|regex:/^[\pL\s\-]+$/u',
             'registration.name'                         => 'sometimes|regex:/^[\pL\s\-]+$/u',
-            'registration.name_suffix'                  => 'sometimes|regex:/^[\pL\s\-]+$/u',
+            'registration.name_suffix'                  => 'sometimes',
             'registration.registration_email_confirmed' => 'sometimes',
             'registration.invitee'                      => 'sometimes',
             'password'                                  => 'sometimes',
@@ -123,7 +123,7 @@ class Onboarding extends TCComponent
                 'registration.gender_different' => 'sometimes',
                 'registration.name_first'       => 'required|string|regex:/^[\pL\s\-]+$/u',
                 'registration.name'             => 'required|string|regex:/^[\pL\s\-]+$/u',
-                'registration.name_suffix'      => 'sometimes|regex:/^[\pL\s\-]+$/u',
+                'registration.name_suffix'      => 'sometimes',
                 'password'                      => NistPasswordRules::register($this->registration['username']),
             ], $extra1);
         }
