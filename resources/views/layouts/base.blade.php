@@ -27,8 +27,12 @@
 
 </head>
 <body id="body"
-        @class(["ck-content flex flex-col min-h-screen", $bodyClass ?? '', "using-ipad" => \tcCore\Http\Helpers\AppVersionDetector::osIsIOS()])
-        {{ \tcCore\Http\Helpers\AppVersionDetector::osIsIOS() ? 'device="ipad"' : '' }}
+        @class([
+        "ck-content flex flex-col min-h-screen",
+        $bodyClass ?? '',
+        "using-ipad" => \tcCore\Http\Helpers\AppVersionDetector::osIsIOS() || request()->query('device') === 'ipad',
+  ])
+        {{ \tcCore\Http\Helpers\AppVersionDetector::osIsIOS() || request()->query('device') === 'ipad' ? 'device="ipad"' : '' }}
 >
 <pre>{{ print_r(\tcCore\Http\Helpers\AppVersionDetector::getAllHeaders()) }}</pre>
 <pre>{{ print_r([
@@ -38,6 +42,10 @@
 
 <pre>{{                                   print_r([
   'app version detector detect' => \tcCore\Http\Helpers\AppVersionDetector::detect(),
+  'app version detector detect os' => \tcCore\Http\Helpers\AppVersionDetector::detect()['os'],
+  'app version detector detect os is "iOS"' => \tcCore\Http\Helpers\AppVersionDetector::detect()['os'] == "iOS",
+  'browser platform family' => Browser::platformFamily(),
+'query device' => request()->query('device'),
 'TLCVersion' => session()->get('TLCVersion') ?? 'not set',
 'TLCPlatform' => session()->get('TLCPlatform') ?? 'not set',
 'TLCPlatformVersion' => session()->get('TLCPlatformVersion') ?? 'not set',
