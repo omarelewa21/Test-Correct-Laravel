@@ -34,35 +34,7 @@
   ])
         {{ \tcCore\Http\Helpers\AppVersionDetector::osIsIOS() || request()->query('device') === 'ipad' ? 'device="ipad"' : '' }}
 >
-<pre>{{ print_r(\tcCore\Http\Helpers\AppVersionDetector::getAllHeaders()) }}</pre>
-<pre>{{ print_r([
-  'isIOS' => \tcCore\Http\Helpers\AppVersionDetector::osIsIOS() ? 'true' : 'false',
-  'isMac' => \tcCore\Http\Helpers\AppVersionDetector::osIsMac() ? 'true' : 'false'
-]) }}</pre>
-
-<pre>{{                                   print_r([
-  'app version detector detect' => \tcCore\Http\Helpers\AppVersionDetector::detect(),
-  'app version detector detect os' => \tcCore\Http\Helpers\AppVersionDetector::detect()['os'],
-  'app version detector detect os is "iOS"' => \tcCore\Http\Helpers\AppVersionDetector::detect()['os'] == "iOS",
-  'browser platform family' => Browser::platformFamily(),
-'query device' => request()->query('device'),
-'TLCVersion' => session()->get('TLCVersion') ?? 'not set',
-'TLCPlatform' => session()->get('TLCPlatform') ?? 'not set',
-'TLCPlatformVersion' => session()->get('TLCPlatformVersion') ?? 'not set',
-'TLCPlatformVersionMajor' => session()->get('TLCPlatformVersionMajor') ?? 'not set',
-'TLCPlatformVersionMinor' => session()->get('TLCPlatformVersionMinor') ?? 'not set',
-'TLCPlatformVersionPatch' => session()->get('TLCPlatformVersionPatch') ?? 'not set',
-'TLCPlatformType' => session()->get('TLCPlatformType') ?? 'not set',
-'TLCBrowserType' => session()->get('TLCBrowserType') ?? 'not set',
-'TLCBrowserVersionMajor' => session()->get('TLCBrowserVersionMajor') ?? 'not set',
-'TLCBrowserVersionMinor' => session()->get('TLCBrowserVersionMinor') ?? 'not set',
-'TLCBrowserVersionPatch' => session()->get('TLCBrowserVersionPatch') ?? 'not set',
-'TLCIsIos12' => session()->get('TLCIsIos12') ?? 'not set',
-                                           ])
- }}
-</pre>
-<pre>{{ request()->fullUrl() }}</pre>
-
+@if(\tcCore\Http\Helpers\AppVersionDetector::osIsIOS() || request()->query('device') === 'ipad') is iPad! @else geen ipad :( @endif
 {{ $slot }}
 
 @livewireScripts
