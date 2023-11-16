@@ -68,9 +68,10 @@ class GradesService
             return $result;
 
         });
-
-        $questionNumberTitles = $questionOrderList->map(function ($question) {
-            return "Score #" . $question['question_id'];
+        $questionOrderNumber = 0;
+        $questionNumberTitles = $questionOrderList->map(function ($question) use (&$questionOrderNumber) {
+            $questionOrderNumber++;
+            return sprintf("Score #%d (%s)",$questionOrderNumber, $question['question_id']);
         })->toArray();
 
         $gradeListPerTestParticipant->prepend([__('test-take.Studenten'), __('test-take.grades'), ...$questionNumberTitles]);
