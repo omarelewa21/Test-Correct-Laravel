@@ -356,7 +356,7 @@
                              wire:ignore
                              x-init="createFocusableButtons(); $dispatch('reinitialize-editor-{{ 'feedback-editor-'. $this->questionOrderNumber .'-'. $this->answerFollowUpNumber }}')"
                         >
-                            @if($testTake->discussingQuestion->isType('OpenQuestion'))
+                            @if($this->getDiscussingQuestion()->isType('OpenQuestion'))
                                 <x-input.comment-color-picker
                                         commentThreadId="new-comment"
                                         uuid="new-comment"

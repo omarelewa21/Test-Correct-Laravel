@@ -7949,7 +7949,7 @@ document.addEventListener("alpine:init", function () {
         if (this.value === null) {
           return;
         }
-        this.$el.querySelector(".group").firstElementChild.classList.add("text-primary");
+        this.$el.querySelector(".group").classList.add("active-slider-option");
         if (this.value !== "" && Object.keys(this.sources).includes(String(this.value))) {
           this.activateButton(this.$el.querySelector("[data-id='" + this.value + "']").parentElement);
         } else {
@@ -7958,12 +7958,14 @@ document.addEventListener("alpine:init", function () {
         this.preventFractionalPixels();
       },
       clickButton: function clickButton(target) {
+        var _this$value;
+        var allowClickingCurrentValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         this.activateButton(target);
         this.markInputElementsClean();
         var oldValue = this.value;
         this.value = target.firstElementChild.dataset.id;
         this.$root.dataset.hasValue = this.value !== null;
-        if (oldValue !== this.value) {
+        if ((oldValue === null || oldValue === void 0 ? void 0 : oldValue.toString()) !== ((_this$value = this.value) === null || _this$value === void 0 ? void 0 : _this$value.toString()) || allowClickingCurrentValue) {
           if ([null, 'null'].includes(this.$root.dataset.toggleValue)) {
             this.$dispatch("multi-slider-toggle-value-updated", {
               value: target.firstElementChild.dataset.id,
@@ -7991,14 +7993,14 @@ document.addEventListener("alpine:init", function () {
           _this27.buttonPosition = target.offsetLeft + "px";
           _this27.buttonWidth = target.offsetWidth + "px";
           target.dataset.active = true;
-          target.firstElementChild.classList.add("text-primary");
+          target.classList.add("active-slider-option");
           _this27.handle.classList.remove("hidden");
           _this27.handle.classList.add("block");
         });
       },
       resetButtons: function resetButtons(target) {
         Array.from(target.parentElement.children).forEach(function (button) {
-          button.firstElementChild.classList.remove("text-primary");
+          button.classList.remove("active-slider-option");
         });
       },
       setHandle: function setHandle() {
@@ -8540,27 +8542,27 @@ document.addEventListener("alpine:init", function () {
         // - S will go to previous question
         // - W will go to next question
 
-        document.addEventListener('DOMContentLoaded', function (event) {
+        document.addEventListener("DOMContentLoaded", function (event) {
           // disable tab key for all elements when in assessment mode because this corrupts the right tab drawer;
           // document.querySelectorAll('textarea').forEach(element => element.tabIndex = -1);
           // document.querySelectorAll('input').forEach(element => element.tabIndex = -1);
 
           // Map each key to the corresponding button's selid
           var keyToSelIdMap = {
-            'a': 'btn_loadAnswer_previous',
-            'd': 'btn_loadAnswer_next',
-            's': 'btn_loadQuestion_previous',
-            'w': 'btn_loadQuestion_next'
+            "a": "btn_loadAnswer_previous",
+            "d": "btn_loadAnswer_next",
+            "s": "btn_loadQuestion_previous",
+            "w": "btn_loadQuestion_next"
           };
 
           // Add a keyup event listener to the document
-          document.addEventListener('keyup', function (event) {
+          document.addEventListener("keyup", function (event) {
             // If the target is an input or textarea, do nothing
-            // if (event.target.tagName.toLowerCase() === 'input' || event.target.tagName.toLowerCase() === 'textarea') {
-            //     return;
-            // }
+            if (event.target.tagName.toLowerCase() === "input" && !event.target.classList.contains("js-allow-for-wasd-navigation") || event.target.tagName.toLowerCase() === "textarea") {
+              return;
+            }
             // Check if the event.target is a ckEditor
-            if (event.target.classList.contains('ck')) {
+            if (event.target.classList.contains("ck")) {
               return;
             }
             var id = keyToSelIdMap[event.key.toLowerCase()];
@@ -8569,6 +8571,7 @@ document.addEventListener("alpine:init", function () {
             if (id) {
               var button = document.getElementById(id);
               if (button) {
+                button.focus(); //make sure the previous lazy input has synced its value
                 button.click();
               }
             }
@@ -9033,26 +9036,6 @@ document.addEventListener("alpine:init", function () {
         if (continuousSlider) {
           return;
         }
-        if (event && event.data) {
-          var keyToSelIdMap = {
-            'a': 'btn_loadAnswer_previous',
-            'd': 'btn_loadAnswer_next',
-            's': 'btn_loadQuestion_previous',
-            'w': 'btn_loadQuestion_next'
-          };
-
-          // Add a keyup event listener to the document
-
-          var id = keyToSelIdMap[event.data.toLowerCase()];
-          // If a mapping exists, "click" the corresponding button
-          if (id) {
-            var button = document.getElementById(id);
-            if (button) {
-              button.click();
-              return;
-            }
-          }
-        }
         if (this.score > this.maxScore) {
           this.score = this.maxScore;
         }
@@ -9108,6 +9091,7 @@ document.addEventListener("alpine:init", function () {
             }
           });
         }
+        this.initInvalidNumberBackupScore();
         this.inputBox = this.$root.querySelector("[x-ref='scoreInput']");
         this.$watch("score", function (value, oldValue) {
           _this55.markInputElementsClean();
@@ -9174,6 +9158,22 @@ document.addEventListener("alpine:init", function () {
       },
       hasMaxDecimalScoreWithHalfPoint: function hasMaxDecimalScoreWithHalfPoint() {
         return isFloat(this.maxScore);
+      },
+      handleInvalidNumberInput: function handleInvalidNumberInput() {
+        //chromium: (chromium transforms alphanumeric character to an empty string)
+        if (this.$event.data === "") {
+          this.score = this.$store.scoreSlider.currentBackupScore;
+          return;
+        }
+        //firefox: (firefox passes the alphanumeric character)
+        if (isNaN(this.$event.data) && this.$event.data !== undefined) {
+          this.score = this.$store.scoreSlider.currentBackupScore;
+          return;
+        }
+        this.$store.scoreSlider.currentBackupScore = parseFloat(this.$event.target.value);
+      },
+      initInvalidNumberBackupScore: function initInvalidNumberBackupScore() {
+        this.$store.scoreSlider.currentBackupScore = this.score;
       }
     };
   });
@@ -9584,7 +9584,7 @@ document.addEventListener("alpine:init", function () {
                 });
               case 11:
                 commentStyles = _context24.sent;
-                commentMarkerStyles = document.querySelector('#commentMarkerStyles');
+                commentMarkerStyles = document.querySelector("#commentMarkerStyles");
                 if (commentMarkerStyles) commentMarkerStyles.innerHTML = commentStyles;
               case 14:
               case "end":
@@ -9690,7 +9690,7 @@ document.addEventListener("alpine:init", function () {
                           }
                         }, 400);
                         feedbackEditor.setData("<p></p>");
-                        checkedRadioInput = document.querySelector('.answer-feedback-add-comment .emoji-picker-radio input:checked');
+                        checkedRadioInput = document.querySelector(".answer-feedback-add-comment .emoji-picker-radio input:checked");
                         if (checkedRadioInput) {
                           checkedRadioInput.checked = false;
                         }
@@ -9884,7 +9884,7 @@ document.addEventListener("alpine:init", function () {
         var originalColor = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
         //reset temporary styling
         var temporaryStyleTag = document.querySelector("#temporaryCommentMarkerStyles");
-        if (temporaryStyleTag) temporaryStyleTag.innerHTML = '';
+        if (temporaryStyleTag) temporaryStyleTag.innerHTML = "";
         this.setEditingComment(null);
 
         //reset radio buttons
@@ -9914,7 +9914,7 @@ document.addEventListener("alpine:init", function () {
         }
       },
       updateNewCommentMarkerStyles: function updateNewCommentMarkerStyles(color) {
-        var styleTag = document.querySelector('#addFeedbackMarkerStyles');
+        var styleTag = document.querySelector("#addFeedbackMarkerStyles");
         if (!styleTag) {
           return;
         }
@@ -9983,7 +9983,7 @@ document.addEventListener("alpine:init", function () {
         }
         setTimeout(function () {
           try {
-            answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector('.ck.ck-content'));
+            answerEditor.ui.focusTracker.add(feedbackEditor.sourceElement.parentElement.querySelector(".ck.ck-content"));
             feedbackEditor.ui.focusTracker.add(answerEditor.sourceElement.parentElement.querySelector(".ck.ck-content"));
           } catch (exception) {
             // ignore focusTracker error when trying to add element that is already registered
@@ -10081,8 +10081,8 @@ document.addEventListener("alpine:init", function () {
             while (1) switch (_context28.prev = _context28.next) {
               case 0:
                 forceOpenAccordion = _arguments3.length > 1 && _arguments3[1] !== undefined ? _arguments3[1] : false;
-                addFeedbackAccordion = document.querySelector('.answer-feedback-add-comment button');
-                givenFeedbackAccordion = document.querySelector('.answer-feedback-given-comments button');
+                addFeedbackAccordion = document.querySelector(".answer-feedback-add-comment button");
+                givenFeedbackAccordion = document.querySelector(".answer-feedback-given-comments button");
                 if (!_this74.$store.answerFeedback.newFeedbackBeingCreated()) {
                   _context28.next = 6;
                   break;
@@ -10222,7 +10222,7 @@ document.addEventListener("alpine:init", function () {
                   _context31.next = 2;
                   break;
                 }
-                return _context31.abrupt("return", _this77.$store.answerFeedback.openConfirmationModal(_this77.$root, 'goToPreviousQuestion'));
+                return _context31.abrupt("return", _this77.$store.answerFeedback.openConfirmationModal(_this77.$root, "goToPreviousQuestion"));
               case 2:
                 _this77.$wire.goToPreviousQuestion();
               case 3:
@@ -10242,7 +10242,7 @@ document.addEventListener("alpine:init", function () {
                   _context32.next = 2;
                   break;
                 }
-                return _context32.abrupt("return", _this78.$store.answerFeedback.openConfirmationModal(_this78.$root, 'goToNextQuestion'));
+                return _context32.abrupt("return", _this78.$store.answerFeedback.openConfirmationModal(_this78.$root, "goToNextQuestion"));
               case 2:
                 _this78.$wire.goToNextQuestion();
               case 3:
@@ -10831,8 +10831,8 @@ document.addEventListener("alpine:init", function () {
         }
       },
       active: function active(value) {
-        var _this$value;
-        return value === ((_this$value = this.value) === null || _this$value === void 0 ? void 0 : _this$value.toString());
+        var _this$value2;
+        return value === ((_this$value2 = this.value) === null || _this$value2 === void 0 ? void 0 : _this$value2.toString());
       },
       activateSelect: function activateSelect(element) {
         var value = element.dataset.value,
@@ -11006,18 +11006,172 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("constructionDrawer", function (emptyStateActive, showBank) {
+    return {
+      loadingOverlay: false,
+      collapse: false,
+      backdrop: false,
+      emptyStateActive: emptyStateActive,
+      showBank: showBank,
+      init: function init() {
+        var _this96 = this;
+        this.collapse = window.innerWidth < 1000;
+        if (this.emptyStateActive) {
+          this.$store.cms.emptyState = true;
+          this.backdrop = true;
+        }
+        this.$watch("emptyStateActive", function (value) {
+          _this96.backdrop = value;
+          _this96.$store.cms.emptyState = value;
+        });
+      },
+      handleBackdrop: function handleBackdrop() {
+        if (this.backdrop) {
+          this.$root.dataset.closedWithBackdrop = "true";
+          this.backdrop = !this.backdrop;
+        } else {
+          if (this.$root.dataset.closedWithBackdrop === "true") {
+            this.backdrop = true;
+          }
+        }
+      },
+      handleLoading: function handleLoading() {
+        this.loadingOverlay = this.$store.cms.loading;
+      },
+      handleSliderClick: function handleSliderClick(event) {
+        var _this97 = this;
+        if (!event.target.classList.contains("slider-option")) {
+          return;
+        }
+        document.querySelectorAll(".option-menu-active").forEach(function (el) {
+          return _this97.$dispatch(el.getAttribute("context") + "-context-menu-close");
+        });
+        this.$nextTick(function () {
+          return _this97.showBank = event.target.firstElementChild.dataset.id;
+        });
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("constructionBody", function (loading, empty, dirty, questionEditorId, answerEditorId) {
+    return {
+      loading: loading,
+      empty: empty,
+      dirty: dirty,
+      loadTimeout: null,
+      questionEditorId: questionEditorId,
+      answerEditorId: answerEditorId,
+      init: function init() {
+        var _this98 = this;
+        this.$store.cms.processing = empty;
+        this.$watch("$store.cms.loading", function (value) {
+          return _this98.loadingTimeout(value);
+        });
+        this.$watch("loading", function (value) {
+          return _this98.loadingTimeout(value);
+        });
+        this.$watch("dirty", function (value) {
+          return _this98.$store.cms.dirty = value;
+        });
+      },
+      handleQuestionChange: function handleQuestionChange(evt) {
+        // this.$store.cms.loading = true;
+        // this.loading = true;
+        // this.$wire.set("loading", true);
+        if (typeof evt !== "undefined") this.empty = false;
+        this.removeDrawingLegacy();
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
+        this.$store.cms.dirty = false;
+      },
+      loadingTimeout: function loadingTimeout(value) {
+        var _this99 = this;
+        /*if (value !== true)*/
+        return;
+        this.loadTimeout = setTimeout(function () {
+          _this99.$store.cms.loading = false;
+          _this99.$store.cms.processing = false;
+          _this99.$wire.set("loading", false);
+          clearTimeout(_this99.loadTimeout);
+        }, 500);
+      },
+      removeDrawingLegacy: function removeDrawingLegacy() {
+        var _this$$root$querySele4;
+        (_this$$root$querySele4 = this.$root.querySelector("#drawing-question-tool-container")) === null || _this$$root$querySele4 === void 0 ? void 0 : _this$$root$querySele4.remove();
+      },
+      changeEditorWscLanguage: function changeEditorWscLanguage(lang) {
+        if (document.getElementById(this.questionEditorId)) {
+          WebspellcheckerTlc.lang(ClassicEditors[this.questionEditorId], lang);
+        }
+        if (document.getElementById(this.answerEditorId)) {
+          WebspellcheckerTlc.lang(ClassicEditors[this.answerEditorId], lang);
+        }
+      },
+      forceSyncEditors: function forceSyncEditors() {
+        if (document.getElementById(this.questionEditorId)) {
+          this.$wire.sync("question.question", ClassicEditors[this.questionEditorId].getData());
+        }
+        if (document.getElementById(this.answerEditorId)) {
+          this.$wire.sync("question.answer", ClassicEditors[this.answerEditorId].getData());
+        }
+      },
+      isLoading: function isLoading() {
+        return this.$store.cms.loading || this.$store.cms.emptyState;
+      },
+      isProcessing: function isProcessing() {
+        return this.$store.cms.processing;
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("constructionDirector", function () {
+    return {
+      init: function init() {
+        this.$store.cms.loading = false;
+      },
+      get drawer() {
+        return this.getLivewireComponent("cms-drawer");
+      },
+      get constructor() {
+        return this.getLivewireComponent("cms");
+      },
+      openQuestion: function openQuestion(questionProperties) {
+        var _this100 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee36() {
+          return _regeneratorRuntime().wrap(function _callee36$(_context36) {
+            while (1) switch (_context36.prev = _context36.next) {
+              case 0:
+                _this100.$dispatch("store-current-question");
+                _this100.$store.cms.scrollPos = document.querySelector(".drawer").scrollTop;
+                _this100.$store.cms.loading = true;
+                _context36.next = 5;
+                return _this100.constructor.showQuestion(questionProperties);
+              case 5:
+                _this100.$store.cms.loading = false;
+              case 6:
+              case "end":
+                return _context36.stop();
+            }
+          }, _callee36);
+        }))();
+      },
+      getLivewireComponent: function getLivewireComponent(attribute) {
+        return Livewire.find(document.querySelector("[".concat(attribute, "]")).getAttribute("wire:id"));
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("testTakePage", function (openTab, inGroup, inTestBankContext) {
     return {
       testCodePopup: false,
       urlCopied: false,
       urlCopiedTimeout: null,
       init: function init() {
-        var _this96 = this;
+        var _this101 = this;
         this.$watch("urlCopied", function (value) {
           if (value) {
-            clearTimeout(_this96.urlCopiedTimeout);
+            clearTimeout(_this101.urlCopiedTimeout);
             setTimeout(function () {
-              return _this96.urlCopied = false;
+              return _this101.urlCopied = false;
             }, 2000);
           }
         });
@@ -11029,51 +11183,51 @@ document.addEventListener("alpine:init", function () {
       participantPopupOpen: false,
       button: null,
       openPopup: function openPopup(event) {
-        var _this97 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee36() {
-          return _regeneratorRuntime().wrap(function _callee36$(_context36) {
-            while (1) switch (_context36.prev = _context36.next) {
-              case 0:
-                if (!_this97.participantPopupOpen) {
-                  _context36.next = 3;
-                  break;
-                }
-                _context36.next = 3;
-                return _this97.closePopup(event);
-              case 3:
-                _this97.button = event.element;
-                _this97.button.dataset.open = "true";
-                _context36.next = 7;
-                return _this97.$wire.openPopup(event.participant);
-              case 7:
-                _this97.participantPopupOpen = true;
-                _this97.$nextTick(function () {
-                  _this97.$root.style.left = _this97.getLeft();
-                  _this97.$root.style.top = _this97.getTop();
-                });
-              case 9:
-              case "end":
-                return _context36.stop();
-            }
-          }, _callee36);
-        }))();
-      },
-      closePopup: function closePopup() {
-        var _this98 = this;
+        var _this102 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee37() {
           return _regeneratorRuntime().wrap(function _callee37$(_context37) {
             while (1) switch (_context37.prev = _context37.next) {
               case 0:
-                _this98.participantPopupOpen = false;
+                if (!_this102.participantPopupOpen) {
+                  _context37.next = 3;
+                  break;
+                }
                 _context37.next = 3;
-                return _this98.$wire.closePopup();
+                return _this102.closePopup(event);
               case 3:
-                _this98.button.dataset.open = "false";
-              case 4:
+                _this102.button = event.element;
+                _this102.button.dataset.open = "true";
+                _context37.next = 7;
+                return _this102.$wire.openPopup(event.participant);
+              case 7:
+                _this102.participantPopupOpen = true;
+                _this102.$nextTick(function () {
+                  _this102.$root.style.left = _this102.getLeft();
+                  _this102.$root.style.top = _this102.getTop();
+                });
+              case 9:
               case "end":
                 return _context37.stop();
             }
           }, _callee37);
+        }))();
+      },
+      closePopup: function closePopup() {
+        var _this103 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee38() {
+          return _regeneratorRuntime().wrap(function _callee38$(_context38) {
+            while (1) switch (_context38.prev = _context38.next) {
+              case 0:
+                _this103.participantPopupOpen = false;
+                _context38.next = 3;
+                return _this103.$wire.closePopup();
+              case 3:
+                _this103.button.dataset.open = "false";
+              case 4:
+              case "end":
+                return _context38.stop();
+            }
+          }, _callee38);
         }))();
       },
       handleScroll: function handleScroll() {
@@ -11100,46 +11254,46 @@ document.addEventListener("alpine:init", function () {
       },
       fixPvalueContainerWidth: function fixPvalueContainerWidth() {
         var _document$querySelect,
-          _this99 = this;
+          _this104 = this;
         this.totalWidth = (_document$querySelect = document.querySelector(".pvalue-questions")) === null || _document$querySelect === void 0 ? void 0 : _document$querySelect.getBoundingClientRect().width;
         this.$root.querySelectorAll(".pvalue-container").forEach(function (el) {
-          el.style.width = _this99.totalWidth + "px";
+          el.style.width = _this104.totalWidth + "px";
         });
       },
       openRow: function openRow(attainment) {
-        var _this100 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee38() {
-          return _regeneratorRuntime().wrap(function _callee38$(_context38) {
-            while (1) switch (_context38.prev = _context38.next) {
+        var _this105 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee39() {
+          return _regeneratorRuntime().wrap(function _callee39$(_context39) {
+            while (1) switch (_context39.prev = _context39.next) {
               case 0:
-                if (!_this100.loadingData.includes(attainment)) {
-                  _context38.next = 2;
+                if (!_this105.loadingData.includes(attainment)) {
+                  _context39.next = 2;
                   break;
                 }
-                return _context38.abrupt("return");
+                return _context39.abrupt("return");
               case 2:
-                if (_this100.studentData[attainment]) {
-                  _context38.next = 8;
+                if (_this105.studentData[attainment]) {
+                  _context39.next = 8;
                   break;
                 }
-                _this100.loadingData.push(attainment);
-                _context38.next = 6;
-                return _this100.$wire.attainmentStudents(attainment);
+                _this105.loadingData.push(attainment);
+                _context39.next = 6;
+                return _this105.$wire.attainmentStudents(attainment);
               case 6:
-                _this100.studentData[attainment] = _context38.sent;
-                _this100.loadingData = _this100.loadingData.filter(function (key) {
+                _this105.studentData[attainment] = _context39.sent;
+                _this105.loadingData = _this105.loadingData.filter(function (key) {
                   return key !== attainment;
                 });
               case 8:
-                _this100.attainmentOpen.push(attainment);
-                _this100.$nextTick(function () {
-                  return _this100.fixPvalueContainerWidth();
+                _this105.attainmentOpen.push(attainment);
+                _this105.$nextTick(function () {
+                  return _this105.fixPvalueContainerWidth();
                 });
               case 10:
               case "end":
-                return _context38.stop();
+                return _context39.stop();
             }
-          }, _callee38);
+          }, _callee39);
         }))();
       },
       closeRow: function closeRow(attainment) {
@@ -11148,25 +11302,25 @@ document.addEventListener("alpine:init", function () {
         });
       },
       toggleRow: function toggleRow(attainment) {
-        var _this101 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee39() {
-          return _regeneratorRuntime().wrap(function _callee39$(_context39) {
-            while (1) switch (_context39.prev = _context39.next) {
+        var _this106 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee40() {
+          return _regeneratorRuntime().wrap(function _callee40$(_context40) {
+            while (1) switch (_context40.prev = _context40.next) {
               case 0:
-                if (!_this101.attainmentOpen.includes(attainment)) {
-                  _context39.next = 3;
+                if (!_this106.attainmentOpen.includes(attainment)) {
+                  _context40.next = 3;
                   break;
                 }
-                _this101.closeRow(attainment);
-                return _context39.abrupt("return");
+                _this106.closeRow(attainment);
+                return _context40.abrupt("return");
               case 3:
-                _context39.next = 5;
-                return _this101.openRow(attainment);
+                _context40.next = 5;
+                return _this106.openRow(attainment);
               case 5:
               case "end":
-                return _context39.stop();
+                return _context40.stop();
             }
-          }, _callee39);
+          }, _callee40);
         }))();
       },
       styles: function styles(pValue, multiplier) {
@@ -11197,13 +11351,164 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("coLearningSetup", function () {
+    return {
+      init: function init() {
+        var _this107 = this;
+        window.addEventListener("multi-slider-toggle-value-updated", function (event) {
+          switch (event.detail.value) {
+            case "open":
+              _this107.$wire.updateQuestionsChecked("open");
+              break;
+            case "all":
+              _this107.$wire.updateQuestionsChecked("all");
+              break;
+          }
+        });
+      },
+      toggleQuestionChecked: function toggleQuestionChecked(questionUuid) {
+        this.$wire.toggleQuestionChecked(questionUuid);
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("pdfDownload", function (translation, links) {
+    return {
+      value: null,
+      waitingScreenHtml: PdfDownload.waitingScreenHtml(translation),
+      links: links,
+      select: function select(option) {
+        this.value = option;
+      },
+      selected: function selected(option) {
+        return option === this.value;
+      },
+      export_pdf: function export_pdf() {
+        if (!this.value) {
+          $wire.set("displayValueRequiredMessage", true);
+          return;
+        }
+        return this.export_now(this.links[this.value]);
+      },
+      export_now: function export_now(url) {
+        var isSafari = navigator.userAgent.indexOf("Safari") > -1 && navigator.userAgent.indexOf("Chrome") <= -1;
+        if (isSafari) {
+          window.open(url);
+          return;
+        }
+        var windowReference = window.open();
+        windowReference.document.write(this.waitingScreenHtml);
+        windowReference.location = url;
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("standardizationResultsGrid", function () {
+    return {
+      rowHover: null,
+      shadow: null,
+      usedSliders: [],
+      init: function init() {
+        var _this108 = this;
+        this.shadow = this.$refs.shadowBox;
+        this.$watch("rowHover", function (value) {
+          if (value !== null) {
+            var _this108$$root$queryS;
+            _this108.shadow.style.top = ((_this108$$root$queryS = _this108.$root.querySelector("[data-row='".concat(value, "'] .grid-item"))) === null || _this108$$root$queryS === void 0 ? void 0 : _this108$$root$queryS.offsetTop) + "px";
+          }
+        });
+      },
+      clearUsedSliders: function clearUsedSliders() {
+        this.usedSliders = [];
+        this.$root.querySelectorAll(".score-slider-container").forEach(function (el) {
+          return el.classList.add("untouched");
+        });
+      },
+      updateMarkBadge: function updateMarkBadge(row) {
+        var updates = {};
+        var rating = this.$root.querySelector(".grid-row[data-row=\"".concat(row, "\"] .score-slider-number-input")).value;
+        updates["new"] = {
+          rating: rating,
+          locator: ".grid-row[data-row=\"".concat(row, "\"]")
+        };
+        updates.max = this.maxRating();
+        updates.avg = this.avgRating();
+        updates.min = this.minRating();
+        Object.keys(updates).forEach(function (value) {
+          document.querySelector(".standardize-block ".concat(updates[value].locator, " .mark-badge")).dispatchEvent(new CustomEvent("update-mark-badge", {
+            detail: {
+              rating: updates[value].rating
+            }
+          }));
+        });
+      },
+      getRatings: function getRatings() {
+        return Array.from(this.$root.querySelectorAll(".grid-row .score-slider-number-input:not(:disabled)")).map(function (input) {
+          return input.value;
+        });
+      },
+      maxRating: function maxRating() {
+        return {
+          rating: Math.max.apply(Math, _toConsumableArray(this.getRatings())),
+          locator: '.max-rating'
+        };
+      },
+      avgRating: function avgRating() {
+        var ratings = this.getRatings();
+        var sum = ratings.reduce(function (acc, currentValue) {
+          return acc += parseFloat(currentValue);
+        }, 0);
+        return {
+          rating: sum / ratings.length,
+          locator: '.avg-rating'
+        };
+      },
+      minRating: function minRating() {
+        return {
+          rating: Math.min.apply(Math, _toConsumableArray(this.getRatings())),
+          locator: '.min-rating'
+        };
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("markBadge", function (initialRating) {
+    return {
+      markBadgeRating: initialRating,
+      displayMarkBadgeRating: '?',
+      color: null,
+      init: function init() {
+        this.setDisplayRating();
+      },
+      hasValue: function hasValue() {
+        return ![null, '', 0, 0.0].includes(this.markBadgeRating);
+      },
+      setNewRating: function setNewRating(rating) {
+        this.markBadgeRating = rating;
+        this.setDisplayRating();
+      },
+      setDisplayRating: function setDisplayRating() {
+        if (!this.hasValue()) {
+          if (this.displayMarkBadgeRating !== '?') {
+            this.displayMarkBadgeRating = '?';
+          }
+          return;
+        }
+        if (typeof this.markBadgeRating === 'string') {
+          this.markBadgeRating = parseFloat(this.markBadgeRating);
+        }
+        if (this.markBadgeRating.toString().includes('.')) {
+          this.displayMarkBadgeRating = this.markBadgeRating.toFixed(1).replace('.', ',');
+        } else {
+          this.displayMarkBadgeRating = this.markBadgeRating.toString();
+        }
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref9) {
     var expression = _ref9.expression;
     var f = new Function("_", "$data", "_." + expression + " = $data;return;");
     f(window, el._x_dataStack[0]);
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("cms", {
-    loading: false,
+    loading: true,
     processing: false,
     dirty: false,
     scrollPos: 0,
@@ -11232,6 +11537,9 @@ document.addEventListener("alpine:init", function () {
       this.toggleCount = toggleCount;
     }
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("scoreSlider", {
+    currentBackupScore: null
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("editorMaxWords", {});
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("coLearningStudent", {
     drawerCollapsed: null,
@@ -11242,7 +11550,8 @@ document.addEventListener("alpine:init", function () {
       }
       return this.drawerCollapsed;
     }
-  }), alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("answerFeedback", {
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store("answerFeedback", {
     editingComment: null,
     creatingNewComment: false,
     navigationRoot: null,
@@ -11787,6 +12096,7 @@ window.plyrPlayer = {
     // disable element if not null
     try {
       elem.setAttribute("style", "pointer-events: none;");
+      elem.setAttribute('disabled', true);
     } catch (e) {}
   },
   noPause: function noPause(player) {
@@ -11878,6 +12188,7 @@ window.plyrPlayer = {
     }
     if (!audioCanBePlayedAgain) {
       this.disableElem(player.elements.buttons.play[0]);
+      this.disableElem(player.elements.progress.getElementsByTagName('input')[0]);
     }
     return player;
   },
@@ -12222,12 +12533,12 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "346b9b2cf30ab766e6a6",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });
 window.$ = window.jQuery = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
-window.MIX_CKEDITOR_LICENSE_KEY = process.env.MIX_CKEDITOR_LICENSE_KEY;
+window.MIX_CKEDITOR_LICENSE_KEY = "q11N5LxlUjUp2pDthuTmPmy/+cmatL0lY7nh6aX+nhhODyekK1g8YW5CKA==";
 window.FilePond = __webpack_require__(/*! filepond */ "./node_modules/filepond/dist/filepond.js");
 
 FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MODULE_1___default()));
@@ -14871,8 +15182,19 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       // Error callback.
       UI.submitBtn.disabled = false;
     }, function () {
+      drawMissingShapesOnSvg();
       // Progress callback.
     });
+  }
+
+  function drawMissingShapesOnSvg() {
+    for (var layerKey in Canvas.layers) {
+      var layer = Canvas.layers[layerKey];
+      for (var shapeKey in layer.shapes) {
+        var shape = layer.shapes[shapeKey];
+        shape.svg.redrawOnSvg();
+      }
+    }
   }
   function imageTypeIsAllowed(file) {
     if (file.size / (1024 * 1024) > 4) {
@@ -17504,7 +17826,7 @@ var svgShape = /*#__PURE__*/function () {
     key: "makeBorderElement",
     value: function makeBorderElement() {
       var bbox = this.mainElement.getBoundingBox();
-      var borderColor = this.isQuestionLayer() && this.drawingApp.isTeacher() ? '--purple-mid-dark' : '--primary';
+      var borderColor = this.isQuestionLayer() && this.drawingApp.isTeacher() ? "--purple-mid-dark" : "--primary";
       return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Rectangle({
         "class": "border",
         "x": bbox.x - this.offset,
@@ -17526,7 +17848,7 @@ var svgShape = /*#__PURE__*/function () {
   }, {
     key: "isQuestionLayer",
     value: function isQuestionLayer() {
-      return this.Canvas.layerID2Key(this.parent.id) === 'question';
+      return this.Canvas.layerID2Key(this.parent.id) === "question";
     }
   }, {
     key: "updateHelperElements",
@@ -17565,10 +17887,10 @@ var svgShape = /*#__PURE__*/function () {
   }, {
     key: "showBorderElement",
     value: function showBorderElement() {
-      if (this.elementBelongsToCurrentLayer() && this.drawingApp.currentToolIs('drag')) {
+      if (this.elementBelongsToCurrentLayer() && this.drawingApp.currentToolIs("drag")) {
         this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
-        this.borderElement.setAttribute("stroke-dasharray", '4,5');
-        this.borderElement.setAttribute("opacity", '.5');
+        this.borderElement.setAttribute("stroke-dasharray", "4,5");
+        this.borderElement.setAttribute("opacity", ".5");
       }
     }
   }, {
@@ -17598,7 +17920,7 @@ var svgShape = /*#__PURE__*/function () {
     key: "hideBorderElement",
     value: function hideBorderElement() {
       this.borderElement.setAttribute("stroke", "none");
-      this.borderElement.setAttribute("opacity", '');
+      this.borderElement.setAttribute("opacity", "");
     }
   }, {
     key: "hideCornerElements",
@@ -17763,13 +18085,26 @@ var svgShape = /*#__PURE__*/function () {
   }, {
     key: "showExplainerForLayer",
     value: function showExplainerForLayer() {
-      this.sidebarEntry.entryContainer.parentElement.querySelector('.explainer').style.display = 'inline-block';
+      this.sidebarEntry.entryContainer.parentElement.querySelector(".explainer").style.display = "inline-block";
     }
   }, {
     key: "meetsMinRequirements",
     value: function meetsMinRequirements() {
       return true;
     }
+  }, {
+    key: "redrawOnSvg",
+    value: function redrawOnSvg() {
+      if (this.parent.querySelector("#".concat(this.shapeGroup.element.id))) {
+        this.handleShapeNodes();
+        return;
+      }
+      this.parent.append(this.shapeGroup.element);
+      this.handleShapeNodes();
+    }
+  }, {
+    key: "handleShapeNodes",
+    value: function handleShapeNodes() {}
   }, {
     key: "setInputValuesOnEdit",
     value: function setInputValuesOnEdit() {}
@@ -17823,7 +18158,7 @@ var Rectangle = /*#__PURE__*/function (_svgShape) {
     value: function setOpacityInputValueOnEdit() {
       var input = this.UI.fillOpacityNumberRect;
       input.value = Math.round(this.mainElement.getAttribute("fill-opacity") * 100);
-      input.dispatchEvent(new Event('input'));
+      input.dispatchEvent(new Event("input"));
     }
   }, {
     key: "setStrokeWidthOnEdit",
@@ -17844,7 +18179,6 @@ var Rectangle = /*#__PURE__*/function (_svgShape) {
     key: "updateOpacity",
     value: function updateOpacity() {
       var opacity = parseFloat(this.UI.fillOpacityNumberRect.value / 100);
-      this.mainElement.setAttribute("opacity", opacity);
       this.mainElement.setAttribute("fill-opacity", opacity);
     }
   }, {
@@ -17870,7 +18204,7 @@ var Rectangle = /*#__PURE__*/function (_svgShape) {
         "fill-opacity": parseFloat(UI.fillOpacityNumberRect.value / 100),
         "stroke": UI.strokeColorRect.value,
         "stroke-width": UI.strokeWidthRect.value,
-        "opacity": parseFloat(UI.fillOpacityNumberRect.value / 100)
+        "opacity": 1
       };
     }
   }]);
@@ -17923,7 +18257,7 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
     value: function setOpacityInputValueOnEdit() {
       var input = this.UI.fillOpacityNumberCircle;
       input.value = Math.round(this.mainElement.getAttribute("fill-opacity") * 100);
-      input.dispatchEvent(new Event('input'));
+      input.dispatchEvent(new Event("input"));
     }
   }, {
     key: "setStrokeWidthOnEdit",
@@ -17944,7 +18278,6 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
     key: "updateOpacity",
     value: function updateOpacity() {
       var opacity = parseFloat(this.UI.fillOpacityNumberCircle.value / 100);
-      this.mainElement.setAttribute("opacity", opacity);
       this.mainElement.setAttribute("fill-opacity", opacity);
     }
   }, {
@@ -17968,7 +18301,7 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
         "fill-opacity": parseFloat(UI.fillOpacityNumberCircle.value / 100),
         "stroke": UI.strokeColorCircle.value,
         "stroke-width": UI.strokeWidthCircle.value,
-        "opacity": parseFloat(UI.fillOpacityNumberCircle.value / 100)
+        "opacity": 1
       };
     }
   }]);
@@ -17992,7 +18325,7 @@ var Line = /*#__PURE__*/function (_svgShape3) {
     var _this3;
     _classCallCheck(this, Line);
     _this3 = _super3.call(this, shapeId, "line", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
-    _this3.svgCanvas = drawingApp.params.root.querySelector('#svg-canvas');
+    _this3.svgCanvas = drawingApp.params.root.querySelector("#svg-canvas");
     _this3.makeOwnMarkerForThisShape();
     return _this3;
   }
@@ -18094,8 +18427,8 @@ var Line = /*#__PURE__*/function (_svgShape3) {
     value: function setEndMarkerOnEdit() {
       var _this$root$querySelec, _this$root$querySelec2;
       var markerType = this.getMarkerType();
-      (_this$root$querySelec = this.root.querySelector('.endmarker-type.active')) === null || _this$root$querySelec === void 0 ? void 0 : _this$root$querySelec.classList.remove('active');
-      (_this$root$querySelec2 = this.root.querySelector(".endmarker-type#".concat(markerType))) === null || _this$root$querySelec2 === void 0 ? void 0 : _this$root$querySelec2.classList.add('active');
+      (_this$root$querySelec = this.root.querySelector(".endmarker-type.active")) === null || _this$root$querySelec === void 0 ? void 0 : _this$root$querySelec.classList.remove("active");
+      (_this$root$querySelec2 = this.root.querySelector(".endmarker-type#".concat(markerType))) === null || _this$root$querySelec2 === void 0 ? void 0 : _this$root$querySelec2.classList.add("active");
     }
   }, {
     key: "updatePenWidth",
@@ -18112,6 +18445,13 @@ var Line = /*#__PURE__*/function (_svgShape3) {
     key: "meetsMinRequirements",
     value: function meetsMinRequirements() {
       return this.mainElement.element.getTotalLength() >= 10;
+    }
+  }, {
+    key: "handleShapeNodes",
+    value: function handleShapeNodes() {
+      if (this !== null && this !== void 0 && this.marker && !this.parent.querySelector("#".concat(this.marker.id))) {
+        this.parent.append(this.marker);
+      }
     }
   }], [{
     key: "getMainElementAttributes",
@@ -18148,7 +18488,7 @@ var Text = /*#__PURE__*/function (_svgShape4) {
     _classCallCheck(this, Text);
     _this4 = _super4.call(this, shapeId, "text", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
     _this4.mainElement.setTextContent(_this4.props.main["data-textcontent"]);
-    _this4.mainElement.setFontFamily('Nunito');
+    _this4.mainElement.setFontFamily("Nunito");
     _this4.registerEditingEvents();
     return _this4;
   }
@@ -18160,7 +18500,7 @@ var Text = /*#__PURE__*/function (_svgShape4) {
   }, {
     key: "updateBoldText",
     value: function updateBoldText() {
-      this.mainElement.element.style.fontWeight = this.drawingApp.params.boldText ? 'bold' : 'normal';
+      this.mainElement.element.style.fontWeight = this.drawingApp.params.boldText ? "bold" : "normal";
       this.updateHelperElements();
     }
   }, {
@@ -18194,13 +18534,13 @@ var Text = /*#__PURE__*/function (_svgShape4) {
       textInput.addEventListener("focusout", function () {
         var text = textInput.element.value;
         textInput.deleteElement();
-        textInput.element.style.display = 'none';
+        textInput.element.style.display = "none";
         if (text.length === 0) {
           _this5.cancelConstruction();
           return;
         }
         _this5.mainElement.setTextContent(text, false);
-        _this5.mainElement.setFontFamily('Nunito');
+        _this5.mainElement.setFontFamily("Nunito");
         _this5.updateBorderElement();
         _this5.updateCornerElements();
       });
@@ -18210,50 +18550,50 @@ var Text = /*#__PURE__*/function (_svgShape4) {
     value: function registerEditingEvents() {
       var _this6 = this;
       var element = this.shapeGroup.element;
-      ['touchenter', 'mouseenter'].forEach(function (evt) {
+      ["touchenter", "mouseenter"].forEach(function (evt) {
         return element.addEventListener(evt, function () {
-          var activeTool = _this6.root.querySelector('[data-button-group=tool].active');
-          var dragIsActive = activeTool.id.split('-')[0] === 'drag';
-          if (element.classList.contains('editing') && !dragIsActive) {
+          var activeTool = _this6.root.querySelector("[data-button-group=tool].active");
+          var dragIsActive = activeTool.id.split("-")[0] === "drag";
+          if (element.classList.contains("editing") && !dragIsActive) {
             activateTextEditing(_this6);
           } else {
             returnTextToNormal(_this6, dragIsActive);
           }
         }, false);
       });
-      ['touchleave', 'mouseleave'].forEach(function (evt) {
+      ["touchleave", "mouseleave"].forEach(function (evt) {
         return element.addEventListener(evt, function () {
           _this6.Canvas.params.editingTextInZone = false;
         }, false);
       });
-      ['touchstart', 'mousedown'].forEach(function (evt) {
+      ["touchstart", "mousedown"].forEach(function (evt) {
         return element.addEventListener(evt, function () {
-          if (!element.classList.contains('editing') || !_this6.Canvas.params.editingTextInZone) return;
+          if (!element.classList.contains("editing") || !_this6.Canvas.params.editingTextInZone) return;
           handleEditTextClick(_this6);
         }, false);
       });
       function returnTextToNormal(thisClass, dragIsActive) {
         if (dragIsActive) {
-          element.style.cursor = 'move';
+          element.style.cursor = "move";
         } else {
-          element.style.cursor = 'crosshair';
+          element.style.cursor = "crosshair";
         }
         thisClass.Canvas.params.editingTextInZone = false;
       }
       function activateTextEditing(thisClass) {
-        element.style.cursor = 'text';
+        element.style.cursor = "text";
         thisClass.Canvas.params.editingTextInZone = true;
       }
       function handleEditTextClick(thisClass) {
         var textElement = thisClass.mainElement.element;
         var coordinates = thisClass.drawingApp.convertCanvas2DomCoordinates({
-          x: textElement.getAttribute('x'),
-          y: textElement.getAttribute('y')
+          x: textElement.getAttribute("x"),
+          y: textElement.getAttribute("y")
         });
         var textInput = makeTextInput(thisClass, textElement, coordinates);
         textInput.element.value = textElement.textContent;
-        textElement.textContent = '';
-        textElement.parentElement.style.display = 'none';
+        textElement.textContent = "";
+        textElement.parentElement.style.display = "none";
         textInput.focus();
         addInputEventListeners(thisClass, textInput, textElement);
       }
@@ -18271,13 +18611,13 @@ var Text = /*#__PURE__*/function (_svgShape4) {
         return textInput;
       }
       function addInputEventListeners(thisClass, textInput, textElement) {
-        textInput.addEventListener('input', function () {
+        textInput.addEventListener("input", function () {
           textInput.element.style.width = "".concat(textInput.element.value.length + 1, "ch");
         }, false);
         textInput.addEventListener("focusout", function () {
           var text = textInput.element.value;
           textInput.deleteElement();
-          textInput.element.style.display = 'none';
+          textInput.element.style.display = "none";
           if (text.length === 0) {
             thisClass.cancelConstruction();
             return;
@@ -18285,7 +18625,7 @@ var Text = /*#__PURE__*/function (_svgShape4) {
           textElement.textContent = text;
           thisClass.updateBorderElement();
           thisClass.updateCornerElements();
-          textElement.parentElement.style = '';
+          textElement.parentElement.style = "";
         });
       }
     }
@@ -18313,12 +18653,12 @@ var Text = /*#__PURE__*/function (_svgShape4) {
   }, {
     key: "setBoldTextOnEdit",
     value: function setBoldTextOnEdit() {
-      var isBold = this.mainElement.element.style.fontWeight === 'bold';
+      var isBold = this.mainElement.element.style.fontWeight === "bold";
       this.drawingApp.params.boldText = this.UI.boldText.checked = isBold;
       if (isBold) {
-        this.UI.boldToggleButton.classList.add('active');
+        this.UI.boldToggleButton.classList.add("active");
       } else {
-        this.UI.boldToggleButton.classList.remove('active');
+        this.UI.boldToggleButton.classList.remove("active");
       }
     }
   }, {
@@ -18326,7 +18666,7 @@ var Text = /*#__PURE__*/function (_svgShape4) {
     value: function setOpacityInputValueOnEdit() {
       var input = this.UI.elemOpacityNumber;
       input.value = Math.round(this.mainElement.getAttribute("opacity") * 100);
-      input.dispatchEvent(new Event('input'));
+      input.dispatchEvent(new Event("input"));
     }
   }], [{
     key: "getMainElementAttributes",
@@ -19387,7 +19727,6 @@ readspeakerLoadCore = function (_readspeakerLoadCore) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ckeditor5_node_modules_ckeditor_ckeditor5_word_count_src_utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../ckeditor5/node_modules/@ckeditor/ckeditor5-word-count/src/utils.js */ "./resources/ckeditor5/node_modules/@ckeditor/ckeditor5-word-count/src/utils.js");
-/* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
@@ -19652,7 +19991,7 @@ window.RichTextEditor = {
     if (!parameterBag.enableCommentsPlugin) {
       config.removePlugins.push("Comments");
     } else {
-      config.licenseKey = process.env.MIX_CKEDITOR_LICENSE_KEY;
+      config.licenseKey = "q11N5LxlUjUp2pDthuTmPmy/+cmatL0lY7nh6aX+nhhODyekK1g8YW5CKA==";
     }
     if (parameterBag.commentThreads != undefined) {
       config.extraPlugins = [CommentsIntegration];
@@ -19726,7 +20065,7 @@ window.RichTextEditor = {
     if (!parameterBag.enableCommentsPlugin) {
       config.removePlugins.push("Comments");
     } else {
-      config.licenseKey = process.env.MIX_CKEDITOR_LICENSE_KEY;
+      config.licenseKey = "q11N5LxlUjUp2pDthuTmPmy/+cmatL0lY7nh6aX+nhhODyekK1g8YW5CKA==";
     }
     if (parameterBag.commentThreads != undefined) {
       config.extraPlugins = [CommentsIntegration];

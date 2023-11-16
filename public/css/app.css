@@ -11651,6 +11651,10 @@ video {
   margin-left: -1.25rem;
   margin-right: -1.25rem;
 }
+.mx-0{
+  margin-left: 0px;
+  margin-right: 0px;
+}
 .mx-1{
   margin-left: 0.25rem;
   margin-right: 0.25rem;
@@ -11718,10 +11722,6 @@ video {
 .my-8{
   margin-top: 2rem;
   margin-bottom: 2rem;
-}
-.mx-0{
-  margin-left: 0px;
-  margin-right: 0px;
 }
 .-mb-2{
   margin-bottom: -0.5rem;
@@ -15539,6 +15539,10 @@ body.using-ipad .device-dependent-right {
 .group:hover .group-hover\:text-primary{
   --tw-text-opacity: 1;
   color: rgb(0 77 245 / var(--tw-text-opacity));
+}
+
+.group\/button:hover .group-hover\/button\:opacity-100{
+  opacity: 1;
 }
 
 .group:hover .group-hover\:opacity-0{
