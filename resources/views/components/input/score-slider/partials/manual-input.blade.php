@@ -8,7 +8,7 @@
        x-ref="scoreInput"
        x-on:focusout="syncInput($el.value)"
        x-on:input="handleInvalidNumberInput(); setThumbOffset(document.querySelector('.score-slider-input'), score, maxScore)"
-       x-on:keydown="if (!$event.target.value.match(/^[0-9]$/)) { $event.preventDefault();}"
+       x-on:keydown="if ([65,83,87,68].includes($event.keyCode)) { $event.preventDefault(); }"
        @if($focusInput) autofocus @endif
        @disabled($disabled)
 >

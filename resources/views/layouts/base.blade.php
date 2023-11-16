@@ -33,7 +33,7 @@
         "using-ipad" => \tcCore\Http\Helpers\AppVersionDetector::osIsIOS() || request()->query('device') === 'ipad',
   ])
         {{ \tcCore\Http\Helpers\AppVersionDetector::osIsIOS() || request()->query('device') === 'ipad' ? 'device="ipad"' : '' }}
->s
+>
 {{ $slot }}
 
 @livewireScripts
