@@ -46,6 +46,7 @@
                         <x-button.text type="link"
                                        href="https://support.test-correct.nl/knowledge/co-learning-toets-bespreken"
                                        size="sm"
+                                       target="_blank"
                         >
                             @lang('co-learning.co-learning-setup-tt-link')
                         </x-button.text>
