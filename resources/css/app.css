@@ -845,10 +845,10 @@ ul ul ul {
     display: none;
 }
 
-body.using-ipad .device-dependent-margin {
-    margin-right: 4.375rem;
+body:is(.using-ipad, [device="ipad"]) .device-dependent-margin {
+    margin-right: 4.375rem !important;
 }
 
-body.using-ipad .device-dependent-right {
-    right: 5.375rem;
+body:is(.using-ipad, [device="ipad"]) .device-dependent-right {
+    right: 5.375rem !important;
 }
