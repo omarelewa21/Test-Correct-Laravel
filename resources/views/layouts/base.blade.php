@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport"
+          content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta charset="UTF-8">
     <meta name="_token" content="{{ csrf_token() }}">
     <meta http-equiv="refresh" content="{{ config('session.lifetime') * 60 }}">
     <title version="{{ \tcCore\Http\Helpers\BaseHelper::getCurrentVersion() }}">Test-Correct</title>
     <link rel="icon" href="{{ asset('img/icons/Logo-Test-Correct-recolored-icon-only.svg') }}" />
-
 
 
     @livewireStyles
@@ -17,18 +17,42 @@
         <script>
             Bugsnag.start({
                 apiKey: '{{ config('bugsnag.browser_key') }}',
-                enabledBreadcrumbTypes: ['error', 'log'],
+                enabledBreadcrumbTypes: ["error", "log"],
                 autoTrackSessions: false
-            })
+            });
         </script>
     @endif
     @stack('styling')
 
 
 </head>
-<body id="body" class="ck-content flex flex-col min-h-screen {{ $bodyClass ?? '' }} {{ \tcCore\Http\Helpers\AppVersionDetector::osIsIOS() ? 'using-ipad' : '' }}"
+<body id="body"
+        @class(["ck-content flex flex-col min-h-screen", $bodyClass ?? '', "using-ipad" => \tcCore\Http\Helpers\AppVersionDetector::osIsIOS()])
         {{ \tcCore\Http\Helpers\AppVersionDetector::osIsIOS() ? 'device="ipad"' : '' }}
 >
+<pre>{{ print_r(\tcCore\Http\Helpers\AppVersionDetector::getAllHeaders()) }}</pre>
+<pre>{{ print_r([
+  'isIOS' => \tcCore\Http\Helpers\AppVersionDetector::osIsIOS() ? 'true' : 'false',
+  'isMac' => \tcCore\Http\Helpers\AppVersionDetector::osIsMac()? 'true' : 'false'
+]) }}</pre>
+
+<pre>
+    {{                                   print_r([
+'TLCVersion' => session()->get('TLCVersion') ?? 'not set',
+'TLCPlatform' => session()->get('TLCPlatform') ?? 'not set',
+'TLCPlatformVersion' => session()->get('TLCPlatformVersion') ?? 'not set',
+'TLCPlatformVersionMajor' => session()->get('TLCPlatformVersionMajor') ?? 'not set',
+'TLCPlatformVersionMinor' => session()->get('TLCPlatformVersionMinor') ?? 'not set',
+'TLCPlatformVersionPatch' => session()->get('TLCPlatformVersionPatch') ?? 'not set',
+'TLCPlatformType' => session()->get('TLCPlatformType') ?? 'not set',
+'TLCBrowserType' => session()->get('TLCBrowserType') ?? 'not set',
+'TLCBrowserVersionMajor' => session()->get('TLCBrowserVersionMajor') ?? 'not set',
+'TLCBrowserVersionMinor' => session()->get('TLCBrowserVersionMinor') ?? 'not set',
+'TLCBrowserVersionPatch' => session()->get('TLCBrowserVersionPatch') ?? 'not set',
+'TLCIsIos12' => session()->get('TLCIsIos12') ?? 'not set',
+                                           ])
+ }}
+</pre>
 {{ $slot }}
 
 @livewireScripts
@@ -43,16 +67,16 @@
     window.livewire.onError(statusCode => {
 
         if (statusCode === 406) {
-            Livewire.emit('set-force-taken-away');
+            Livewire.emit("set-force-taken-away");
 
             return false;
         }
         if (statusCode === 440 || statusCode === 419 || statusCode === 401 || statusCode === 403) {
             location.href = '{{ \tcCore\Http\Helpers\BaseHelper::getLoginUrl() }}';
 
-            return false
+            return false;
         }
-    })
+    });
 </script>
 <script src="{{ mix('/js/app.js') }}"></script>
 <script src="{{ mix('/js/ckeditor.js') }}" type="text/javascript"></script>
@@ -71,32 +95,31 @@
     Alpine.start();
     Core.init();
     @if (!is_null(Auth::user()) && Auth::user()->isA('teacher') && Auth::user()->getUseAutoLogOutAttribute())
-        Core.startUserLogoutInterval(true, @js(Auth::user()->sessionLength) )
+    Core.startUserLogoutInterval(true, @js(Auth::user()->sessionLength) );
     @endif
-    window.processingRequest = false;
+        window.processingRequest = false;
     window.cmsProcessTally = 0;
-    Livewire.hook('message.sent', (message, component) => {
-        window.processingRequest = true
+    Livewire.hook("message.sent", (message, component) => {
+        window.processingRequest = true;
 
     });
-    Livewire.hook('message.processed', (message, component) => {
-        window.processingRequest = false
+    Livewire.hook("message.processed", (message, component) => {
+        window.processingRequest = false;
     });
 </script>
 <script>
     {{-- Place custom styles at the end of the head to overload default ckeditor styling --}}
     var loadDeferredStyles = function() {
-        document.querySelector('head').appendChild(document.querySelector('#app-css-stylesheet'))
+        document.querySelector("head").appendChild(document.querySelector("#app-css-stylesheet"));
     };
     var raf = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
         window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
     if (raf) {
-        raf(function () {
+        raf(function() {
             window.setTimeout(loadDeferredStyles, 0);
         });
-    }
-    else {
-        window.addEventListener('load', loadDeferredStyles);
+    } else {
+        window.addEventListener("load", loadDeferredStyles);
     }
 </script>
 </body>
