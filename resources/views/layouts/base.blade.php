@@ -33,11 +33,11 @@
 <pre>{{ print_r(\tcCore\Http\Helpers\AppVersionDetector::getAllHeaders()) }}</pre>
 <pre>{{ print_r([
   'isIOS' => \tcCore\Http\Helpers\AppVersionDetector::osIsIOS() ? 'true' : 'false',
-  'isMac' => \tcCore\Http\Helpers\AppVersionDetector::osIsMac()? 'true' : 'false'
+  'isMac' => \tcCore\Http\Helpers\AppVersionDetector::osIsMac() ? 'true' : 'false'
 ]) }}</pre>
 
-<pre>
-    {{                                   print_r([
+<pre>{{                                   print_r([
+  'app version detector detect' => \tcCore\Http\Helpers\AppVersionDetector::detect(),
 'TLCVersion' => session()->get('TLCVersion') ?? 'not set',
 'TLCPlatform' => session()->get('TLCPlatform') ?? 'not set',
 'TLCPlatformVersion' => session()->get('TLCPlatformVersion') ?? 'not set',
@@ -53,6 +53,8 @@
                                            ])
  }}
 </pre>
+<pre>{{ request()->fullUrl() }}</pre>
+
 {{ $slot }}
 
 @livewireScripts

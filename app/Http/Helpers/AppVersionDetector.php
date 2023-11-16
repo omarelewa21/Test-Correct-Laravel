@@ -306,6 +306,7 @@ class AppVersionDetector
     }
 
     public static function osIsIOS() {
+        return Browser::platformFamily() ===  'iOS';
         return self::detect()['os'] == 'iOS';
     }
 
