@@ -56,6 +56,10 @@ class GradesService
             });
 
             foreach($result as $key => $value) {
+                if(!in_array($key, ['full_name', 'final_grade'])  && strtolower($questionOrderList->get($key)['question_type']) == 'infoscreenquestion') {
+                    $result[$key] = "X";
+                }
+
                 if(in_array($key, ['full_name', 'final_grade']) || !in_array($value, [null, '-'])) {
                     continue;
                 }
