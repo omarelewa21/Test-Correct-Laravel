@@ -94,7 +94,7 @@ return [
     'Halve puntenbeoordeling mogelijk'                                                                     => 'Allow halve points review',
     'Taalcontrole beschikbaar tijdens nakijken'                                                            => 'Spelling and grammar check available during assessing answers',
     'Automatisch nakijken'                                                                                 => 'Automatic review',
-    'Hoofdletter gevoelig nakijken'                                                                        => 'Case sensitive review',
+    'Hoofdlettergevoelig nakijken'                                                                         => 'Case sensitive review',
     'Taxonomie'                                                                                            => 'Taxonomy',
     'methode'                                                                                              => 'method',
     'Deel de vraag taxonomisch in per methode. Je kunt meerder methodes tegelijk gebruiken.'               => 'Assign a taxonomy method to this question. You can use multiple methods at once.',
@@ -256,5 +256,4 @@ return [
     'add_from_word_bank_explainer'                                                                         => 'Choose from the enriched word bank',
     'Excel bestand toevoegen'                                                                              => 'Add from Excel',
     'excel_import_explainer'                                                                               => 'Je kan ook de gewenste cellen kopiëren en plakken uit jouw Excel bestand.',
-
 ];

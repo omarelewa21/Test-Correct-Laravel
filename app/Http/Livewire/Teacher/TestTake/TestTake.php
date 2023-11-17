@@ -87,7 +87,7 @@ abstract class TestTake extends TCComponent
 
     public function leavingPresenceChannel($event): void
     {
-        $this->handlePresenceEventUpdate(collect($event)->where('student', true)->pluck('uuid'));
+        $this->handlePresenceEventUpdate($this->activeParticipantUuids->reject(fn ($uuid) => $uuid === $event['uuid']));
     }
 
     private function handlePresenceEventUpdate(Collection $presentUserUuids): void

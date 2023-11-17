@@ -18,7 +18,7 @@
         <h6 class="flex ml-4">@lang('review.Inzien'): </h6>
         <h4 class="flex ml-2 mr-4 line-clamp-1" title="{!!  clean($testName) !!}">{!!  clean($testName) !!}</h4>
 
-        <div class="flex flex-col ml-auto items-end text-sm min-w-fit">
+        <div class="flex flex-col ml-auto items-end text-sm min-w-fit device-dependent-margin">
             <span class="inline-flex ">@lang('review.in te zien tot'):</span>
             <span class="inline-flex ">{{ $this->reviewableUntil }}</span>
         </div>

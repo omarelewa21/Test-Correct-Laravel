@@ -42,14 +42,17 @@ class TeachersController extends Controller
                 return Response::make($teachers->get(['teachers.*']), 200);
                 break;
             case 'import_data':
+                $user = Auth::user();
                 return Response::make(
                     $teachers
                         ->leftJoin('teacher_import_logs as log', 'teachers.id', 'teacher_id')
+                        ->join('school_classes','school_classes.id','class_id')
                         ->select(
                             'teachers.*',
                             'log.checked_by_teacher as checked_by_teacher'
                         )
-                        ->where('teachers.user_id', Auth::id())
+                        ->where('teachers.user_id', $user->getKey())
+                        ->where('school_classes.school_location_id',$user->school_location_id)
                         ->get()
                         ->toArray()
                 );

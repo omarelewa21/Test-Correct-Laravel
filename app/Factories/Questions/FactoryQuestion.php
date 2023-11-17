@@ -15,6 +15,7 @@ use tcCore\Lib\Question\Factory;
 use tcCore\Lib\Repositories\PValueTaxonomyBloomRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyMillerRepository;
 use tcCore\Lib\Repositories\PValueTaxonomyRTTIRepository;
+use tcCore\Question;
 use tcCore\Test;
 use tcCore\TestQuestion;
 use tcCore\User;
@@ -116,10 +117,13 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
             $this->calculatedQuestionProperties(),
         );
 
-        //store when all properties and answers are added
-        $this->lastTestQuestion = $this->doWhileLoggedIn(function () {
-            return TestQuestion::store($this->questionProperties);
-        }, User::find($this->testModel->author_id));
+        //don't store subquestions as testQuestion:
+        if(!isset($this->questionProperties['is_subquestion']) || !$this->questionProperties['is_subquestion']) {
+            //store when all properties and answers are added
+            $this->lastTestQuestion = $this->doWhileLoggedIn(function () {
+                return TestQuestion::store($this->questionProperties);
+            }, User::find($this->testModel->author_id));
+        }
 
         $this->handleAfterStoreActions();
     }
@@ -306,6 +310,8 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
 
     public function getQuestionProperties(): array
     {
+        $this->questionProperties = array_merge($this->questionProperties, $this->calculatedQuestionProperties());
+
         return $this->questionProperties;
     }
 

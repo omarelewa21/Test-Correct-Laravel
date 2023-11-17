@@ -381,6 +381,16 @@ class Question extends MtiBaseModel
         return $this->belongsTo('tcCore\SchoolLocation', 'owner_id');
     }
 
+    /**
+     * This relation is NOT ment to be used to get the test_questions,
+     * but to get the questions of the test_take that are being discussed.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function testTakeQuestions()
+    {
+        return $this->hasMany('tcCore\TestTakeQuestion', 'test_take_id');
+    }
+
     public function getChangedIds()
     {
         return ['oldId' => $this->changedId, 'newId' => $this->getKey(), 'children' => $this->changedChildrenIds];

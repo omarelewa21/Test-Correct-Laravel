@@ -57,6 +57,10 @@ class Onboarding extends TCComponent
     protected $preventFieldTransformation = ['password', 'password_confirmation'];
 
     protected $queryString = ['step', 'email', 'confirmed', 'ref','entree_message', 'level'];
+
+    protected $stripTagsFields = [
+      'registration.name_first','registration_name','registration_school_location','registration_address','registration.city','registration.house_number','registration.postcode',
+    ];
     /**
      * @var true
      */
@@ -90,17 +94,17 @@ class Onboarding extends TCComponent
     public function rules(): array
     {
         $default = [
-            'registration.school_location'              => 'sometimes',
+            'registration.school_location'              => 'sometimes|nullable|regex:/^[\pL\s\-\']+$/u',
             'registration.website_url'                  => 'sometimes',
-            'registration.address'                      => 'sometimes',
+            'registration.address'                      => 'sometimes|nullable|regex:/^[\pL\s\-]+$/u',
             'registration.house_number'                 => 'sometimes',
             'registration.postcode'                     => 'sometimes',
             'registration.city'                         => 'sometimes',
             'registration.gender'                       => 'sometimes',
             'registration.gender_different'             => 'sometimes',
             'registration.username'                     => 'required|email:rfc,dns|unique:users,username',
-            'registration.name_first'                   => 'sometimes',
-            'registration.name'                         => 'sometimes',
+            'registration.name_first'                   => 'sometimes|regex:/^[\pL\s\-]+$/u',
+            'registration.name'                         => 'sometimes|regex:/^[\pL\s\-]+$/u',
             'registration.name_suffix'                  => 'sometimes',
             'registration.registration_email_confirmed' => 'sometimes',
             'registration.invitee'                      => 'sometimes',
@@ -117,8 +121,8 @@ class Onboarding extends TCComponent
             return array_merge($default, [
                 'registration.gender'           => 'required|in:male,female,different',
                 'registration.gender_different' => 'sometimes',
-                'registration.name_first'       => 'required|string',
-                'registration.name'             => 'required|string',
+                'registration.name_first'       => 'required|string|regex:/^[\pL\s\-]+$/u',
+                'registration.name'             => 'required|string|regex:/^[\pL\s\-]+$/u',
                 'registration.name_suffix'      => 'sometimes',
                 'password'                      => NistPasswordRules::register($this->registration['username']),
             ], $extra1);
@@ -132,10 +136,10 @@ class Onboarding extends TCComponent
         return [
             'registration.school_location' => 'required',
             'registration.website_url'     => '',
-            'registration.address'         => 'required',
+            'registration.address'         => 'required|regex:/^[\pL\s\-]+$/u',
             'registration.house_number'    => 'required|regex:/\d/',
             'registration.postcode'        => 'required|min:6|regex:/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/',
-            'registration.city'            => 'required',
+            'registration.city'            => 'required|regex:/^[\pL\s\-\']+$/u',
         ];
     }
 
@@ -353,7 +357,10 @@ class Onboarding extends TCComponent
 
     public function updating(&$name, &$value): void
     {
-        Request::filter($value);
+        if($name !== 'password' && $name !== 'password_confirmation') {
+            $value = BaseHelper::returnOnlyRegularAlphaNumeric($value, '@&.+~\'');
+            Request::filter($value);
+        }
     }
 
     public function updated($propertyName): void

@@ -279,7 +279,7 @@
                             >
                                 <x-icon.case-sensitive/>
                                 <span @class(["bold", "disabled" => $this->isSettingsGeneralPropertyDisabled('autoCheckAnswerCaseSensitive')])>
-                                    {{ __('cms.Hoofdletter gevoelig nakijken') }}
+                                    {{ __('cms.Hoofdlettergevoelig nakijken') }}
                                 </span>
                             </x-input.toggle-row-with-title>
                         @endif

@@ -11,6 +11,7 @@ use Livewire\Redirector;
 use tcCore\Answer;
 use tcCore\AnswerRating;
 use tcCore\Attainment;
+use tcCore\BaseAttainment;
 use tcCore\Http\Enums\GradingStandard;
 use tcCore\Http\Enums\TestTakeEventTypes;
 use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
@@ -53,8 +54,10 @@ class Taken extends TestTakeComponent
     public Collection $participantScoreOverrides;
     public bool $participantGradesChanged = false;
 
-    public ?string $standardizeTabDirection = null;
-    public ?string $resultsTabDirection = null;
+    public string $standardizeTabDirection = 'asc';
+    public string $resultsTabDirection = 'asc';
+
+    public ?int $gradingDiffKey = null;
 
 
     protected function getRules(): array
@@ -93,6 +96,7 @@ class Taken extends TestTakeComponent
         $this->participantScoreOverrides = collect();
 
         if ($this->showStandardization()) {
+            $this->gradingDiffKey = rand(11111,99999);
             $this->setStandardizationProperties();
         }
     }
@@ -120,7 +124,7 @@ class Taken extends TestTakeComponent
         }
 
         Session::put($this->resultSessionKey(), $this->participantResults);
-        $this->participantGradesChanged = true;
+        $this->setParticipantsGradeChangedNotification();
     }
 
     public function updatedGradingValue($value): void
@@ -129,13 +133,15 @@ class Taken extends TestTakeComponent
             GradingStandard::tryFrom($this->gradingStandard),
             $value
         );
-        $this->participantGradesChanged = true;
+        $this->setParticipantsGradeChangedNotification();
+        $this->gradingDiffKey = rand(11111,99999);
     }
 
     public function updatedGradingStandard($value): void
     {
         $this->standardizeResults(GradingStandard::tryFrom($value));
-        $this->participantGradesChanged = true;
+        $this->setParticipantsGradeChangedNotification();
+        $this->gradingDiffKey = rand(11111,99999);
     }
 
     public function updatedCesuurPercentage($value): void
@@ -147,7 +153,8 @@ class Taken extends TestTakeComponent
             $this->gradingValue
         );
 
-        $this->participantGradesChanged = true;
+        $this->setParticipantsGradeChangedNotification();
+        $this->gradingDiffKey = rand(11111,99999);
     }
 
     public function updatedShowGradeToStudent($value): void
@@ -194,8 +201,8 @@ class Taken extends TestTakeComponent
                 'Assessment'  => 'primary'
             ],
             TestTakeStatus::STATUS_DISCUSSED  => [
-                'CO-Learning' => 'cta',
-                'Assessment'  => 'primary'
+                'CO-Learning' => 'primary',
+                'Assessment'  => 'cta'
             ],
         ];
         return $contexts[$this->testTakeStatusId][$context];
@@ -245,7 +252,7 @@ class Taken extends TestTakeComponent
 
     public function showResults(): bool
     {
-        return $this->testTakeStatusId >= TestTakeStatus::STATUS_DISCUSSED;
+        return $this->testTakeStatusId >= TestTakeStatus::STATUS_TAKEN;
     }
 
     public function changeStandardizeParticipantOrder(): void
@@ -285,6 +292,11 @@ class Taken extends TestTakeComponent
     /* Button actions */
     public function startCoLearning(): Redirector|RedirectResponse|bool
     {
+        if(!$this->takenTestData['colearnable']){
+            $this->dispatchBrowserEvent('notify', ['message' => __('test-take.CO-Learning niet mogelijk met alleen carrousel vragen'), 'type' => 'error']);
+            return true;
+        }
+
         if (!$this->showWaitingRoom) {
             return $this->showWaitingRoom = true;
         }
@@ -323,7 +335,7 @@ class Taken extends TestTakeComponent
         );
     }
 
-    public function attainmentStudents(Attainment $attainment): array
+    public function attainmentStudents(BaseAttainment $attainment): array
     {
         return $this->addAdditionalPropertiesForRendering(
             $attainment->getStudentAnalysisDataForTestTake($this->testTake)
@@ -347,7 +359,7 @@ class Taken extends TestTakeComponent
             GradingStandard::tryFrom($this->gradingStandard),
             $this->gradingValue
         );
-        $this->participantGradesChanged = true;
+        $this->setParticipantsGradeChangedNotification();
     }
 
     public function publishResults(): void
@@ -388,8 +400,16 @@ class Taken extends TestTakeComponent
             'discussedQuestions' => $this->discussedQuestions(),
             'assessedQuestions'  => $this->assessedQuestions(),
             'questionsToAssess'  => $this->questionsOfTest->count(),
-            'maxScore'           => $this->questionsOfTest->sum('score')
+            'maxScore'           => $this->questionsOfTest->sum('score'),
+            'colearnable'        => $this->isColearnable(),
         ];
+    }
+
+    private function isColearnable(): bool
+    {
+        return $this->questionsOfTest->contains(function($question){
+          return $question->colearnable === true;
+        });
     }
 
     private function discussedQuestions(): int
@@ -498,7 +518,7 @@ class Taken extends TestTakeComponent
 
     private function getAttainments(): Collection
     {
-        $attainments = Attainment::getAnalysisDataForTestTake($this->testTake);
+        $attainments = BaseAttainment::getAnalysisDataForTestTake($this->testTake);
         $this->setAttainmentAnalysisProperties($attainments);
         return $this->addAdditionalPropertiesForRendering($attainments);
     }
@@ -557,7 +577,7 @@ class Taken extends TestTakeComponent
         return $models;
     }
 
-    private function getLengthMultiplier(Attainment|User $model): mixed
+    private function getLengthMultiplier(Attainment|BaseAttainment|User $model): mixed
     {
         $section = $this->getValueSection($model);
         return $section['multiplierBase'] + (
@@ -565,7 +585,7 @@ class Taken extends TestTakeComponent
             );
     }
 
-    private function getValueSection(Attainment|User $model)
+    private function getValueSection(Attainment|BaseAttainment|User $model)
     {
         return $this->attainmentValueRatios->where('start', '<', $model->questions_per_attainment)
             ->where('end', '>=', $model->questions_per_attainment)
@@ -669,7 +689,8 @@ class Taken extends TestTakeComponent
 
     private function getQuestionList(): Collection
     {
-        return $this->testTake
+        $hasCarousel = false;
+        $allQuestions = $this->testTake
             ->loadMissing([
                 'test',
                 'test.testQuestions',
@@ -677,12 +698,18 @@ class Taken extends TestTakeComponent
                 'test.testQuestions.question.pValue',
             ])
             ->test
-            ->getFlatQuestionList(function ($connection) {
+            ->getFlatQuestionList(function ($connection, $groupQuestion = null) use(&$hasCarousel) {
                 $connection->question->pValues = $connection->question
                     ->pValue
                     ->filter(
                         fn($pValue) => $this->participantResults->pluck('id')->contains($pValue->test_participant_id)
                     );
+                $colearnable = true;
+                if($groupQuestion && $groupQuestion->isCarouselQuestion()){
+                    $colearnable = false;
+                    $hasCarousel = true;
+                }
+                $connection->question->colearnable = $colearnable;
             })
             ->when($this->testTakeStatusId >= TestTakeStatus::STATUS_DISCUSSED, function ($collection) {
                 $collection->each(function ($question, $key) {
@@ -699,6 +726,19 @@ class Taken extends TestTakeComponent
                     }
                 });
             });
+
+        if($hasCarousel) {
+            // we need to remove the ones that are not given to test participants as some carousel
+            // questions can be left out
+            $testParticipantIdQueryBuilder = $this->testTake->testParticipants()
+                ->where('test_take_status_id', '>', TestTakeStatus::STATUS_TEST_NOT_TAKEN)
+                ->select('id');
+            $questionIdsUsed = Answer::whereIn('test_participant_id', $testParticipantIdQueryBuilder)->groupBy('question_id')->pluck('question_id');
+            return $allQuestions->filter(function ($question) use ($questionIdsUsed) {
+                return $questionIdsUsed->contains($question->getKey());
+            });
+        }
+        return $allQuestions;
     }
 
     private function hasIgnoredAllQuestions(): bool
@@ -777,5 +817,12 @@ class Taken extends TestTakeComponent
             ->get()
             ->each
             ->calculateAndSaveFinalRating();
+    }
+
+    private function setParticipantsGradeChangedNotification(): void
+    {
+        if($this->testTake->results_published) {
+            $this->participantGradesChanged = true;
+        }
     }
 }

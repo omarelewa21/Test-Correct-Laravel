@@ -1571,7 +1571,7 @@ document.addEventListener("alpine:init", () => {
             if (this.value === null) {
                 return;
             }
-            this.$el.querySelector(".group").firstElementChild.classList.add("text-primary");
+            this.$el.querySelector(".group").classList.add("active-slider-option");
 
             if (this.value !== "" && Object.keys(this.sources).includes(String(this.value))) {
                 this.activateButton(this.$el.querySelector("[data-id='" + this.value + "']").parentElement);
@@ -1580,7 +1580,7 @@ document.addEventListener("alpine:init", () => {
             }
             this.preventFractionalPixels();
         },
-        clickButton(target) {
+        clickButton(target, allowClickingCurrentValue = false) {
             this.activateButton(target);
             this.markInputElementsClean();
 
@@ -1588,8 +1588,8 @@ document.addEventListener("alpine:init", () => {
             this.value = target.firstElementChild.dataset.id;
 
             this.$root.dataset.hasValue = this.value !== null;
-            if (oldValue?.toString() !== this.value?.toString()) {
-                if ([null, "null"].includes(this.$root.dataset.toggleValue)) {
+            if (oldValue?.toString() !== this.value?.toString() || allowClickingCurrentValue) {
+                if([null, "null"].includes(this.$root.dataset.toggleValue)) {
                     this.$dispatch("multi-slider-toggle-value-updated", {
                         value: target.firstElementChild.dataset.id,
                         firstTick: oldValue === null
@@ -1616,14 +1616,14 @@ document.addEventListener("alpine:init", () => {
                 this.buttonPosition = target.offsetLeft + "px";
                 this.buttonWidth = target.offsetWidth + "px";
                 target.dataset.active = true;
-                target.firstElementChild.classList.add("text-primary");
+                target.classList.add("active-slider-option");
                 this.handle.classList.remove("hidden");
                 this.handle.classList.add("block");
             });
         },
         resetButtons(target) {
             Array.from(target.parentElement.children).forEach(button => {
-                button.firstElementChild.classList.remove("text-primary");
+                button.classList.remove("active-slider-option");
             });
         },
         setHandle() {
@@ -4393,6 +4393,24 @@ document.addEventListener("alpine:init", () => {
             this.loadingData = [];
         }
     }));
+    Alpine.data("coLearningSetup", () => ({
+
+        init() {
+            window.addEventListener("multi-slider-toggle-value-updated", (event) => {
+                switch (event.detail.value) {
+                    case "open":
+                        this.$wire.updateQuestionsChecked("open");
+                        break;
+                    case "all":
+                        this.$wire.updateQuestionsChecked("all");
+                        break;
+                }
+            });
+        },
+        toggleQuestionChecked(questionUuid) {
+            this.$wire.toggleQuestionChecked(questionUuid);
+        }
+    }));
     Alpine.data("pdfDownload", (translation, links) => ({
         value: null,
         waitingScreenHtml: PdfDownload.waitingScreenHtml(translation),
@@ -4419,6 +4437,107 @@ document.addEventListener("alpine:init", () => {
             var windowReference = window.open();
             windowReference.document.write(this.waitingScreenHtml);
             windowReference.location = url;
+        }
+    }));
+    Alpine.data("standardizationResultsGrid", () => ({
+        rowHover: null,
+        shadow: null,
+        usedSliders: [],
+        init() {
+            this.shadow = this.$refs.shadowBox;
+            this.$watch("rowHover", value => {
+                if (value !== null) {
+                    this.shadow.style.top = this.$root.querySelector(`[data-row='${value}'] .grid-item`)?.offsetTop + "px";
+                }
+            });
+        },
+        clearUsedSliders() {
+            this.usedSliders = [];
+
+            this.$root.querySelectorAll(".score-slider-container").forEach(el => el.classList.add("untouched"));
+        },
+        updateMarkBadge(row) {
+            let updates = {};
+            let rating = this.$root.querySelector(`.grid-row[data-row="${row}"] .score-slider-number-input`).value;
+            updates.new = {
+                rating: rating,
+                locator: `.grid-row[data-row="${row}"]`
+            };
+            updates.max = this.maxRating();
+            updates.avg = this.avgRating();
+            updates.min = this.minRating();
+
+            Object.keys(updates).forEach((value) => {
+                document.querySelector(`.standardize-block ${updates[value].locator} .mark-badge`)
+                    .dispatchEvent(
+                        new CustomEvent(
+                            "update-mark-badge",
+                            {
+                                detail: {
+                                    rating: updates[value].rating
+                                }
+                            }
+                        )
+                    );
+
+            });
+        },
+        getRatings() {
+            return Array.from(this.$root.querySelectorAll(`.grid-row .score-slider-number-input:not(:disabled)`)).map(input => input.value);
+        },
+        maxRating() {
+            return {
+                rating: Math.max(...this.getRatings()),
+                locator: '.max-rating'
+            }
+        },
+        avgRating() {
+            let ratings = this.getRatings();
+            const sum = ratings.reduce((acc, currentValue) => acc += parseFloat(currentValue), 0);
+
+            return {
+                rating: sum / ratings.length,
+                locator: '.avg-rating'
+            }
+        },
+        minRating() {
+            return {
+                rating: Math.min(...this.getRatings()),
+                locator: '.min-rating'
+            }
+        }
+    }));
+    Alpine.data("markBadge", (initialRating) => ({
+        markBadgeRating: initialRating,
+        displayMarkBadgeRating: '?',
+        color: null,
+        init() {
+            this.setDisplayRating();
+        },
+        hasValue() {
+            return ![null, '', 0, 0.0].includes(this.markBadgeRating)
+        },
+        setNewRating(rating) {
+            this.markBadgeRating = rating;
+            this.setDisplayRating();
+        },
+        setDisplayRating() {
+            if(!this.hasValue()) {
+                if(this.displayMarkBadgeRating !== '?') {
+                    this.displayMarkBadgeRating = '?';
+                }
+                return;
+            }
+
+            if (typeof this.markBadgeRating === 'string') {
+                this.markBadgeRating = parseFloat(this.markBadgeRating);
+            }
+
+            if (this.markBadgeRating.toString().includes('.')) {
+                this.displayMarkBadgeRating = this.markBadgeRating.toFixed(1).replace('.', ',');
+            } else {
+                this.displayMarkBadgeRating = this.markBadgeRating.toString();
+            }
         }
     }));
     Alpine.directive("global", function(el, { expression }) {

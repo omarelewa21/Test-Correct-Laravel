@@ -13,6 +13,7 @@ class Tooltip extends Component
         public $idleIcon = '',
         public $iconWidth = null,
         public $iconHeight = null,
+        public $tooltipClasses = '',
     ) {}
 
     public function render()

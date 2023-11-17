@@ -30,7 +30,9 @@
         x-collapse.min.70px.duration.1500ms
         @endif
 >
-    <div class="py-2.5 px-6 flex h-[var(--header-height)] items-center justify-between">
+    <div class="py-2.5 px-6 flex h-[var(--header-height)] items-center justify-between  @hasSection('set-up-colearning') border-bottom-05-secondary @endif"
+
+         >
         <div class="flex items-center space-x-4 truncate">
             <x-button.back-round x-on:click="redirectBack()"
                                  background-class="bg-white/20"
@@ -39,7 +41,7 @@
             />
             @yield('title')
         </div>
-        <div class="flex" x-show="doneCollapsing" x-transition x-cloak>
+        <div class="flex device-dependent-margin" x-show="doneCollapsing" x-transition x-cloak>
             @if($this->headerCollapsed)
                 @hasSection('collapsedLeft')
                     @yield('collapsedLeft')
@@ -48,7 +50,12 @@
         </div>
     </div>
     @unless($this->headerCollapsed)
-        <div id="start-screen-content" class="h-[90vh] flex justify-center overflow-y-auto">
+        <div id="start-screen-content" class="h-[calc(100vh-70px)] flex justify-center overflow-y-auto">
+        @hasSection('set-up-colearning')
+            <div class="flex flex-col w-full">
+                @yield('set-up-colearning')
+            </div>
+        @else
             <div class="flex flex-col mb-[110px]">
                 <div class="flex flex-col gap-2 items-center justify-center mb-4">
                     <h3 class="text-center text-white">
@@ -65,6 +72,8 @@
                     @yield('additionalInfo')
                 @endif
             </div>
+
+        @endif
         </div>
     @endif
 </header>

@@ -31,7 +31,6 @@ export class Entry extends sidebarComponent {
 
         this.btns = {
             delete: templateCopy.querySelector(".remove-btn"),
-            edit: templateCopy.querySelector(".edit-btn"),
             lock: templateCopy.querySelector(".lock-btn"),
             hide: templateCopy.querySelector(".hide-btn"),
             drag: templateCopy.querySelector(".drag-btn"),
@@ -49,7 +48,6 @@ export class Entry extends sidebarComponent {
         this.drawingApp.bindEventListeners(this.eventListenerSettings, this);
         this.updateLockState();
         this.updateHideState();
-        this.customizeButtonsAccordingToType();
 
         this.deleteModal = this.root.querySelector('#delete-confirm');
     }
@@ -82,8 +80,8 @@ export class Entry extends sidebarComponent {
                         },
                     },
                     "click": {
-                        callback: (evt) => {
-                            this.handleClick(evt);
+                        callback: () => {
+                            this.toggleShapeSelect();
                         },
                     },
                 },
@@ -112,16 +110,6 @@ export class Entry extends sidebarComponent {
                         },
                     },
                 },
-            },
-            {
-                element: this.btns.edit,
-                events: {
-                    "click": {
-                        callback: (evt) => {
-                            this.handleEditShape(evt);
-                        }
-                    }
-                }
             },
             {
                 element: this.btns.lock,
@@ -248,7 +236,7 @@ export class Entry extends sidebarComponent {
         this.entryContainer.classList.remove("highlight");
     }
 
-    handleClick(evt) {
+    toggleShapeSelect() {
         const selectedEl = this.getSelectedElement();
         if (selectedEl) this.unselect(selectedEl);
         if (selectedEl === this.entryContainer) return;
@@ -262,6 +250,7 @@ export class Entry extends sidebarComponent {
     select() {
         this.entryContainer.classList.add('selected');
         this.svgShape.shapeGroup.element.classList.add('selected');
+        this.startEditingShape();
     }
     unselect(element) {
         element = element ?? this.getSelectedElement();
@@ -270,10 +259,6 @@ export class Entry extends sidebarComponent {
         element.closest('#canvas-sidebar-container').querySelector(`#${shapeId}`).classList.remove('selected');
         this.removeAnyEditingShapes();
         document.activeElement.blur();
-    }
-    toggleSelect() {
-        this.entryContainer.classList.toggle('selected');
-        this.svgShape.shapeGroup.element.classList.toggle('selected');
     }
 
     updateLockState() {

@@ -290,6 +290,13 @@ class Subject extends BaseModel implements AccessCheckable
         return $this->filterByUserAndSchoolLocation($query, Auth::user(), $olympiadeSchoolLocation);
     }
 
+    public function scopeOlympiadeArchiveFiltered($query, $filters = [], $sorting = [])
+    {
+        $olympiadeArchiveSchoolLocation = SchoolLocation::where('customer_code', config('custom.olympiade_archive_school_customercode'))->first();
+
+        return $this->filterByUserAndSchoolLocation($query, Auth::user(), $olympiadeArchiveSchoolLocation);
+    }
+
     private function filterByUserAndSchoolLocation($query, User $user, $schoolLocations)
     {
         if (!$schoolLocations) { // slower but as a fallback in case there's no cito school

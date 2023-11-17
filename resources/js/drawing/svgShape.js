@@ -187,13 +187,16 @@ class svgShape {
     }
 
     showCornerElements() {
-        if (this.elementBelongsToCurrentLayer() && this.drawingApp.currentToolIs("drag")) {
-            this.cornerElements.forEach((cornerElement) => {
-                cornerElement.show();
-            });
-        }
+        this.shapeCanBeResized() &&
+        this.cornerElements.forEach((cornerElement) => {
+            cornerElement.show();
+        });
     }
 
+    shapeCanBeResized() {
+        return this.shapeGroup.element.classList.contains('selected') ||
+            (this.elementBelongsToCurrentLayer() && this.drawingApp.currentToolIs('drag'))
+    }
 
     hideHelperElements() {
         this.hideBorderElement();
@@ -362,8 +365,9 @@ class svgShape {
         this.handleShapeNodes();
     }
 
-    handleShapeNodes() {
-    }
+    handleShapeNodes() {}
+
+    setInputValuesOnEdit() {}
 }
 
 export class Rectangle extends svgShape {
@@ -405,7 +409,7 @@ export class Rectangle extends svgShape {
 
     setOpacityInputValueOnEdit() {
         const input = this.UI.fillOpacityNumberRect;
-        input.value = this.mainElement.getAttribute("fill-opacity") * 100;
+        input.value = Math.round(this.mainElement.getAttribute("fill-opacity") * 100);
         input.dispatchEvent(new Event("input"));
     }
 
@@ -490,7 +494,7 @@ export class Circle extends svgShape {
 
     setOpacityInputValueOnEdit() {
         const input = this.UI.fillOpacityNumberCircle;
-        input.value = this.mainElement.getAttribute("fill-opacity") * 100;
+        input.value = Math.round(this.mainElement.getAttribute("fill-opacity") * 100);
         input.dispatchEvent(new Event("input"));
     }
 
@@ -909,7 +913,7 @@ export class Text extends svgShape {
 
     setOpacityInputValueOnEdit() {
         const input = this.UI.elemOpacityNumber;
-        input.value = this.mainElement.getAttribute("opacity") * 100;
+        input.value = Math.round(this.mainElement.getAttribute("opacity") * 100);
         input.dispatchEvent(new Event("input"));
     }
 }

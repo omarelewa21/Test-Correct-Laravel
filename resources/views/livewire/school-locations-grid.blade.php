@@ -183,7 +183,7 @@
                             </x-table.cell>
                             <x-table.cell :slim="true" :button-cell="true">
                                 @if($administrator)
-                                    <x-dropdown :chevron="false" style="z-index: unset !important;">
+                                    <x-dropdown :chevron="false" style="z-index: unset !important;" class="px-2 mx-0">
                                         <x-slot name="label">
                                             <x-icon.options/>
                                         </x-slot>
