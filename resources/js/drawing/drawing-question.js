@@ -1642,7 +1642,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         const layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
         if (!shapeMayBeDragged(shapeGroup, layerObject)) return;
 
-        const selectedSvgShape = layerObject.shapes[shapeGroup.id].svg;
+        const selectedSvgShape = layerObject.shapes[drawingApp.correctShapeId(shapeGroup.id)].svg;
 
         Canvas.params.drag = {
             enabled: true,
@@ -1660,7 +1660,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         const layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
         if (!shapeMayBeDragged(shapeGroup, layerObject)) return;
 
-        const selectedSvgShape = layerObject.shapes[shapeGroup.id].svg;
+        const selectedSvgShape = layerObject.shapes[drawingApp.correctShapeId(shapeGroup.id)].svg;
         if (!shapeIsResizable(selectedSvgShape)) return;
 
         Canvas.params.resize = {

@@ -70,5 +70,5 @@ export const elementClassNameForType = {
 };
 
 export const resizableSvgShapes = [
-  "rect", "circle", "image"
+  "rect", "circle", "image", "ellipse"
 ];

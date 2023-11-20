@@ -12851,7 +12851,7 @@ var elementClassNameForType = {
   "image": "Image",
   "path": "Path"
 };
-var resizableSvgShapes = ["rect", "circle", "image"];
+var resizableSvgShapes = ["rect", "circle", "image", "ellipse"];
 
 /***/ }),
 
@@ -14543,7 +14543,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     var layerID = shapeGroup.parentElement.id;
     var layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
     if (!shapeMayBeDragged(shapeGroup, layerObject)) return;
-    var selectedSvgShape = layerObject.shapes[shapeGroup.id].svg;
+    var selectedSvgShape = layerObject.shapes[drawingApp.correctShapeId(shapeGroup.id)].svg;
     Canvas.params.drag = {
       enabled: true,
       selectedSvgShape: selectedSvgShape
@@ -14556,7 +14556,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     var layerID = shapeGroup.parentElement.id;
     var layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
     if (!shapeMayBeDragged(shapeGroup, layerObject)) return;
-    var selectedSvgShape = layerObject.shapes[shapeGroup.id].svg;
+    var selectedSvgShape = layerObject.shapes[drawingApp.correctShapeId(shapeGroup.id)].svg;
     if (!shapeIsResizable(selectedSvgShape)) return;
     Canvas.params.resize = {
       enabled: true,
