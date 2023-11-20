@@ -66,9 +66,9 @@ class CmsTestsOverview extends TestsOverview
         ];
     }
 
-    public function clearFilters(): void
+    public function clearFilters(?bool $clearSystemSettings = false): void
     {
-        parent::clearFilters();
+        parent::clearFilters($clearSystemSettings);
         $this->notifySharedFilterComponents();
     }
 }

@@ -294,19 +294,20 @@ class Constructor extends TCComponent implements QuestionCms
     }
 
     protected $listeners = [
-        'new-tags-for-question' => 'handleExternalUpdatedProperty',
-        'updated-attainment'    => 'handleExternalUpdatedProperty',
-        'updated-learning-goal' => 'handleExternalUpdatedProperty',
-        'new-video-attachment'  => 'handleNewVideoAttachment',
-        'drawing_data_updated'  => 'handleUpdateDrawingData',
-        'refresh'               => 'render',
-        'showQuestion'          => 'showQuestion',
-        'addQuestion'           => 'addQuestion',
-        'showEmpty'             => 'showEmpty',
-        'questionDeleted'       => '$refresh',
-        'addQuestionFromDirty'  => 'addQuestionFromDirty',
-        'testSettingsUpdated'   => 'handleUpdatedTestSettings',
-        'test-updated'          => 'testPublished',
+        'new-tags-for-question'           => 'handleExternalUpdatedProperty',
+        'updated-attainment'              => 'handleExternalUpdatedProperty',
+        'updated-learning-goal'           => 'handleExternalUpdatedProperty',
+        'new-video-attachment'            => 'handleNewVideoAttachment',
+        'drawing_data_updated'            => 'handleUpdateDrawingData',
+        'refresh'                         => 'render',
+        'showQuestion'                    => 'showQuestion',
+        'addQuestion'                     => 'addQuestion',
+        'showEmpty'                       => 'showEmpty',
+        'questionDeleted'                 => '$refresh',
+        'addQuestionFromDirty'            => 'addQuestionFromDirty',
+        'testSettingsUpdated'             => 'handleUpdatedTestSettings',
+        'test-updated'                    => 'testPublished',
+        'relation-question-words-updated' => 'newWords'
     ];
 
 
@@ -1529,4 +1530,12 @@ class Constructor extends TCComponent implements QuestionCms
         }
         return __('cms.Antwoordmodel');
     }
+
+    public function newWords($data): void
+    {
+        if ($this->obj instanceof Relation) {
+            $this->obj->newWords($data);
+        }
+    }
+
 }

@@ -1,19 +1,16 @@
 <?php namespace tcCore;
 
-use Illuminate\Support\Facades\Log;
 use tcCore\Exceptions\QuestionException;
-use tcCore\Http\Requests\UpdateTestQuestionRequest;
+use tcCore\Http\Traits\Questions\WithQuestionDuplicating;
 use tcCore\Lib\Question\QuestionInterface;
 use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
-use Ramsey\Uuid\Uuid;
 use tcCore\Traits\UuidTrait;
 use Illuminate\Support\Str;
 
 class MatchingQuestion extends Question implements QuestionInterface
 {
-
     use UuidTrait;
+    use WithQuestionDuplicating;
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
@@ -71,20 +68,7 @@ class MatchingQuestion extends Question implements QuestionInterface
 
     public function duplicate(array $attributes, $ignore = null)
     {
-        $question = $this->replicate();
-
-        $question->parentInstance = $this->parentInstance->duplicate($attributes, $ignore);
-        if ($question->parentInstance === false) {
-            return false;
-        }
-
-        $question->fill($attributes);
-
-        $question->setAttribute('uuid', Uuid::uuid4());
-
-        if ($question->save() === false) {
-            return false;
-        }
+        $question = $this->specificDuplication($attributes, $ignore);
 
         $skipped = [];
         foreach ($this->matchingQuestionAnswerLinks as $matchingQuestionAnswerLink) {
@@ -327,7 +311,7 @@ class MatchingQuestion extends Question implements QuestionInterface
 
     public function getStudentPlayerComponent($context = 'question'): string
     {
-        return str(parent::getStudentPlayerComponent())
+        return str(parent::getStudentPlayerComponent($context))
             ->when(
                 strtolower($this->subtype) === 'classify',
                 fn($value) => $value->append('-classify')

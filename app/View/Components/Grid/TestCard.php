@@ -3,17 +3,15 @@
 namespace tcCore\View\Components\Grid;
 
 use Illuminate\View\Component;
+use tcCore\Test;
 
 class TestCard extends Component
 {
-    public $test;
-    public $mode;
-
-    public function __construct($test, $mode = 'page')
-    {
-        $this->test = $test;
-        $this->mode = $mode;
-    }
+    public function __construct(
+        public Test    $test,
+        public string  $mode = 'page',
+        public ?string $openTab = 'personal'
+    ) {}
 
     public function render(): string
     {

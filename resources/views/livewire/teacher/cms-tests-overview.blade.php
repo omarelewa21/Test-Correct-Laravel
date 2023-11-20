@@ -67,7 +67,7 @@
 @section('clear-filters-button')
     <x-button.text class="ml-auto text-base"
                           size="sm"
-                          wire:click="clearFilters()"
+                          wire:click="clearFilters(true)"
                           x-on:click="clearFilterPillsFromElement($refs.questionbank);"
                           :disabled="!$this->hasActiveFilters()"
     >

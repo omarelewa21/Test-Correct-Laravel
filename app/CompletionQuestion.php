@@ -7,12 +7,13 @@ use Ramsey\Uuid\Uuid;
 use tcCore\Exceptions\QuestionException;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\QuestionHelper;
+use tcCore\Http\Traits\Questions\WithQuestionDuplicating;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\Traits\UuidTrait;
 
 class CompletionQuestion extends Question implements QuestionInterface
 {
-
+    use WithQuestionDuplicating;
     use UuidTrait;
 
     protected $casts = [
@@ -89,20 +90,7 @@ class CompletionQuestion extends Question implements QuestionInterface
 
     public function duplicate(array $attributes, $ignore = null)
     {
-        $question = $this->replicate();
-
-        $question->parentInstance = $this->parentInstance->duplicate($attributes, $ignore);
-        if ($question->parentInstance === false) {
-            return false;
-        }
-
-        $question->fill($attributes);
-
-        $question->setAttribute('uuid', Uuid::uuid4());
-
-        if ($question->save() === false) {
-            return false;
-        }
+        $question = $this->specificDuplication($attributes, $ignore);
 
         foreach ($this->completionQuestionAnswerLinks as $completionQuestionAnswerLink) {
             if ($ignore instanceof CompletionQuestionAnswer && $ignore->getKey() == $completionQuestionAnswerLink->getAttribute('completion_question_answer_id')) {

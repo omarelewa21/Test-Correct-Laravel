@@ -68,7 +68,7 @@ class FactoryWordListTest extends TestCase
 
 
         $this->assertDatabaseCount(Word::class, 2);
-        $this->assertEquals(1, $wordList->rows()->count());
+        $this->assertEquals(1, $wordList->rows(true)->count());
         $this->assertEquals(2, $wordList->words()->count());
         $this->assertEquals(
             $subjectWord->getKey(),
@@ -96,7 +96,7 @@ class FactoryWordListTest extends TestCase
         $wordList = $wordListFactory->addRow([$subjectWord])->wordList;
 
         $this->assertDatabaseCount(Word::class, 2);
-        $this->assertEquals(1, $wordList->rows()->count());
+        $this->assertEquals(1, $wordList->rows(true)->count());
         $this->assertEquals(2, $wordList->words()->count());
 
         $this->assertEquals(
@@ -121,7 +121,7 @@ class FactoryWordListTest extends TestCase
         $wordList = $wordListFactory->addRow([$translation])->wordList;
 
         $this->assertDatabaseCount(Word::class, 2);
-        $this->assertEquals(1, $wordList->rows()->count());
+        $this->assertEquals(1, $wordList->rows(true)->count());
         $this->assertEquals(2, $wordList->words()->count());
 
         $this->assertEquals(
@@ -144,7 +144,7 @@ class FactoryWordListTest extends TestCase
         $this->assertDatabaseCount(Word::class, $numberOfRows * 2);
         $this->assertEquals(
             $numberOfRows,
-            $wordList->rows()->count()
+            $wordList->rows(true)->count()
         );
         $this->assertEquals(
             $numberOfRows * 2,
@@ -168,7 +168,7 @@ class FactoryWordListTest extends TestCase
         $this->assertDatabaseCount(Word::class, $numberOfRows * $typesPerRow);
         $this->assertEquals(
             $numberOfRows,
-            $wordList->rows()->count()
+            $wordList->rows(true)->count()
         );
         $this->assertEquals(
             $numberOfRows * $typesPerRow,

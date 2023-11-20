@@ -9,8 +9,9 @@ class OverviewContentSection extends Component
 {
     public function __construct(
         public \Countable $results,
-        public bool $pagination
-    ){}
+        public bool       $pagination,
+        public int        $maxColumns = 3,
+    ) {}
 
     public function render(): View
     {

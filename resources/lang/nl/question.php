@@ -56,6 +56,7 @@ return [
     'groupquestion'                        => 'Groep',
     'Vraaggroep'                           => 'Vraaggroep',
     'selected_words'                       => 'Geselecteerde woorden',
+    'relation'                             => 'Relatie',
     'relationquestion'                     => 'Relatievraag',
     'relationquestionrelation'             => 'Relatievraag',
     'relation_description'                 => 'Geef korte antwoorden in een lange lijst, zoals vocabulaire',

@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class WordListWord extends Model
 {
+
+    protected $table = 'word_list_word';
+
     public function word(): BelongsTo
     {
         return $this->belongsTo(Word::class);

@@ -12,12 +12,16 @@
 
     {{--CONTENT--}}
     <div class="flex overflow-auto flex-1 z-1">
-        <div class="word-list-container | flex flex-col flex-1 px-10 py-4 gap-4"
+        <div class="word-list-container | flex flex-col flex-1 px-10 py-4"
              x-data="compileWordListContainer(@js($this->wordLists))"
+             x-on:add-new="addNewWordList();"
+             x-on:open-add-existing-panel="openAddExistingWordListPanel()"
+             x-on:upload="console.log('upl')"
+             x-on:add-list="addExistingWordList($event.detail.uuid)"
              wire:ignore
         >
             <template x-for="(wordList, wordListIndex) in wordLists">
-                <div class="word-list | flex flex-col"
+                <div class="word-list | flex flex-col isolate border-b border-bluegrey pb-4 pt-4 first:pt-0"
                      x-data="compileList(wordList, @js($this->columnHeads))"
                 >
                     <div class=" | flex flex-col ">
@@ -78,7 +82,7 @@
                                                         <x-input.checkbox />
                                                     </span>
                                                     <template x-for="(word, wordIndex) in row">
-                                                        <div>
+                                                        <div x-on:click.stop="$el.firstElementChild.focus()">
                                                             <span x-model="word.text"
                                                                   x-bind="gridcell"
                                                                   x-bind:data-row-value="rowIndex"
@@ -102,21 +106,21 @@
 
                                 <div class="flex justify-between text-center">
                                     <div class="flex flex-col w-min">
-                                        <x-button.primary class="whitespace-nowrap">
+                                        <x-button.primary class="whitespace-nowrap" x-on:click="addFromWordListBank()">
                                             <x-icon.plus />
                                             <span>@lang('cms.Uit woordenlijstenbank toevoegen')</span>
                                         </x-button.primary>
                                         <span class="note text-sm">@lang('cms.add_from_word_list_bank_explainer')</span>
                                     </div>
                                     <div class="flex flex-col w-min">
-                                        <x-button.primary class="whitespace-nowrap">
+                                        <x-button.primary class="whitespace-nowrap" x-on:click="addFromWordBank()">
                                             <x-icon.plus />
                                             <span>@lang('cms.Uit woordenbank toevoegen')</span>
                                         </x-button.primary>
                                         <span class="note text-sm">@lang('cms.add_from_word_bank_explainer')</span>
                                     </div>
                                     <div class="flex flex-col w-min">
-                                        <x-button.primary class="whitespace-nowrap">
+                                        <x-button.primary class="whitespace-nowrap" x-on:click="addFromUpload()">
                                             <x-icon.plus />
                                             <span>@lang('cms.Excel bestand toevoegen')</span>
                                         </x-button.primary>
@@ -130,12 +134,13 @@
                 </div>
             </template>
 
-            <div class="flex w-full border-t border-b border-bluegrey items-center gap-2.5 py-2.5 hover:text-primary hover:bg-primary/5 active:bg-primary/10 cursor-pointer transition-colors"
+            <div class="flex w-full border-b border-bluegrey items-center gap-2.5 py-2.5 hover:text-primary hover:bg-primary/5 active:bg-primary/10 cursor-pointer transition-colors"
                  x-on:click="addWordList();"
             >
                 <x-icon.plus-in-circle />
                 <span class="bold">Woordenlijst toevoegen</span>
             </div>
+            <div class="flex w-full"><span class="h-4"></span></div>
 
             <template x-teleport=".footer-numbers">
                 <div class="flex items-center gap-4 bold">
@@ -180,4 +185,6 @@
             </div>
         </div>
     </div>
+
+    <x-modal.compile-word-list-add-list-modal/>
 </div>

@@ -20,6 +20,10 @@
         <div class="flex w-full flex-col sticky top-[var(--header-height)] bg-lightGrey z-10">
             <div class="flex w-full border-b border-secondary mt-2.5 py-2.5">
                 <div class="flex w-full items-center px-4 sm:px-6 lg:px-8 justify-between">
+
+                    <button wire:click="$emit('openPanel', 'teacher.versionable-side-panel-container', {addable: true, sliderButtonDisabled: false}, {offsetTop: 70, width: '95vw'} )">klikme</button>
+
+
                     <div class="flex items-center">
                         @if(!$this->isGroupQuestion())
                             <span class="w-8 h-8 rounded-full bg-sysbase text-white text-sm flex items-center justify-center">
@@ -434,6 +438,11 @@
             @endif
         </div>
     </div>
+
+    <div class="absolute">
+        @livewire('side-panel')
+    </div>
+
     <x-modal.question-editor-delete-modal/>
     <x-after-planning-toast/>
     <x-modal.question-editor-dirty-question-modal

@@ -56,6 +56,7 @@ return [
     'groupquestion'                        => 'Group',
     'Vraaggroep'                           => 'Group question',
     'selected_words'                       => 'Words selected',
+    'relation'                             => 'Relation',
     'relationquestion'                     => 'Relation question',
     'relationquestionrelation'             => 'Relation question',
     'relation_description'                 => 'Give short answers in a longer list, f.i. vocabulary',

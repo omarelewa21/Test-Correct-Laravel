@@ -28,10 +28,10 @@ return new class extends Migration
             $table->string('type');
             $table->integer('user_id')->foreign('user_id')->references('id')->on('users');
 
-            $table->integer('subject_id')->foreign('subject_id')->references('id')->on('subjects');
-            $table->integer('education_level_id')->foreign('education_level_id')->references('id')->on('education_levels');
+            $table->integer('subject_id');//->foreign('subject_id')->references('id')->on('subjects');
+            $table->integer('education_level_id');//->foreign('education_level_id')->references('id')->on('education_levels');
             $table->integer('education_level_year');
-            $table->integer('school_location_id')->foreign('school_location_id')->references('id')->on('school_locations');
+            $table->integer('school_location_id');//->foreign('school_location_id')->references('id')->on('school_locations');
         });
 
     }

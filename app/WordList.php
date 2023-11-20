@@ -2,15 +2,19 @@
 
 namespace tcCore;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\UnauthorizedException;
 use InvalidArgumentException;
 use tcCore\Http\Enums\WordType;
+use tcCore\Observers\VersionableObserver;
 
 class WordList extends Versionable
 {
+    protected const TEXT_FILTERS = ['name'];
     protected $fillable = [
         'name',
         'subject_id',
@@ -26,13 +30,17 @@ class WordList extends Versionable
             ->withTimestamps();
     }
 
-    public function rows()
+    public function rows(bool $fresh = false): Collection
     {
-        return $this->belongsToMany(Word::class, 'word_list_word')
-            ->whereNull('words.word_id')
-            ->with('associations')
-            ->withPivot('version')
-            ->withTimestamps();
+        if ($fresh) {
+            $this->load('words');
+        }
+
+        return $this
+            ->words
+            ->groupBy(fn($word) => $word->word_id ?? $word->id)
+            ->map(fn($group) => $group->sortBy(fn($word) => $word->type->getOrder()))
+            ->values();
     }
 
     public function questions(): BelongsToMany
@@ -43,6 +51,11 @@ class WordList extends Versionable
             'word_list_id',
             'relation_question_id',
         )->distinct();
+    }
+
+    public function subject(): BelongsTo
+    {
+        return $this->belongsTo(Subject::class);
     }
 
     /* Word CRUD actions */
@@ -107,7 +120,6 @@ class WordList extends Versionable
         $list = static::resolveVersionableInstance($this);
 
         $list->words()->detach($word);
-
 
         if ($word->wordLists()->doesntExist() && $word->isUnused()) {
             $word->delete();
@@ -181,6 +193,10 @@ class WordList extends Versionable
 
     public function isUsed($exclusions = null): bool
     {
+        if (VersionableObserver::isMassUpdating($this->getKey(), self::class)) {
+            return false;
+        }
+
         return $this
             ->questions()
             ->when(
@@ -219,6 +235,7 @@ class WordList extends Versionable
         }
 
         $list = static::resolveVersionableInstance($this);
+        $list->load('words');
 
         $subjectWord = $list->addWord($subjectWord);
         $subjectWord->associations->each(function ($word) use ($list) {
@@ -275,7 +292,7 @@ class WordList extends Versionable
             ->join('versions', 'versions.versionable_id', '=', 'word_lists.id')
             ->where('versions.original_id', $this->getKey())
             ->whereRaw('versions.original_id != versions.versionable_id')
-            ->with(['words', 'words.versions', 'rows'])
+            ->with(['words', 'words.versions'])
             ->first();
 
         $updatedList

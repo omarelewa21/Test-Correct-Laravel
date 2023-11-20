@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Teacher\Cms\Providers;
 
 use tcCore\Http\Enums\WordType;
+use tcCore\RelationQuestionWord;
 
 class Relation extends TypeProvider
 {
@@ -30,19 +31,13 @@ class Relation extends TypeProvider
 
         $this->instance->cmsPropertyBag['word_count'] = $q->questionWords->count();
         $this->instance->cmsPropertyBag['rows'] = $q->questionWords
-            ->groupBy(fn($relation) => $relation->word->word_id ?? $relation->word->id)
+            ->sortBy(fn($relation) => $relation->word->type->getOrder())
+            ->groupBy(function ($relation) {
+                return $relation->word->word_id ?? $relation->word->id;
+            })
             ->map(fn($row) => $this->buildRow($row));
 
-        if (count($this->instance->cmsPropertyBag['rows']) > 0) {
-            $this->instance->question['answer'] = 'not empty';
-        }
-
-        if (count($this->instance->cmsPropertyBag['rows']) < 18) {
-            $rowsToAdd = 18 - count($this->instance->cmsPropertyBag['rows']);
-            $this->instance->cmsPropertyBag['rows'] = $this->instance->cmsPropertyBag['rows']
-                ->concat($this->getEmptyGridRows($rowsToAdd))
-                ->values();
-        }
+        $this->handleRowCountDependentAttributes();
     }
 
     public function getTranslationKey(): string
@@ -137,7 +132,7 @@ class Relation extends TypeProvider
     {
         $wordData = collect($this->instance->cmsPropertyBag['rows'])
             ->map(function ($row) {
-                if($row['subject']['text'] !== null) {
+                if ($row['subject']['text'] !== null) {
                     return $row;
                 }
             })
@@ -147,9 +142,48 @@ class Relation extends TypeProvider
             'openModal',
             'teacher.cms.compile-word-list-modal',
             [
-                'wordData' => $wordData,
-                'relationQuestion' => $this->instance->question['uuid']
+                'wordData'         => $wordData,
+                'testUuid'         => $this->instance->testId,
+                'relationQuestion' => $this->instance->question['uuid'],
             ]
         );
+    }
+
+    public function newWords($data): void
+    {
+        $this->instance->dirty = true;
+        /*TODO Figure out if the new words contain already existing words with a selected property*/
+        $this->instance->cmsPropertyBag['rows'] = collect($data)->map(function ($row) {
+            $convertedRow = collect($row)->map(function ($word) {
+                $questionWord = (object)$word;
+                $questionWord->type = WordType::tryFrom($questionWord->type);
+                $questionWord->word = $questionWord;
+                return $questionWord;
+            });
+
+            return $this->buildRow($convertedRow);
+        });
+
+        $this->handleRowCountDependentAttributes();
+
+        $this->instance->dispatchBrowserEvent(
+            'relation-rows-updated',
+            $this->instance->cmsPropertyBag['rows']
+        );
+    }
+
+
+    private function handleRowCountDependentAttributes(): void
+    {
+        if (count($this->instance->cmsPropertyBag['rows']) > 0) {
+            $this->instance->question['answer'] = 'not empty';
+        }
+
+        if (count($this->instance->cmsPropertyBag['rows']) < 18) {
+            $rowsToAdd = 18 - count($this->instance->cmsPropertyBag['rows']);
+            $this->instance->cmsPropertyBag['rows'] = $this->instance->cmsPropertyBag['rows']
+                ->concat($this->getEmptyGridRows($rowsToAdd))
+                ->values();
+        }
     }
 }

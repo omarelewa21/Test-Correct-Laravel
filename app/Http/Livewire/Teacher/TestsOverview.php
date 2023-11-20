@@ -120,61 +120,6 @@ class TestsOverview extends OverviewComponent
         }
     }
 
-    public function getEducationLevelProperty()
-    {
-        return $this->filterableEducationLevelsBasedOnTab();
-    }
-
-    public function getBasesubjectsProperty()
-    {
-        if ($this->isExternalContentTab($this->openTab)) {
-            return $this->getBaseSubjectsOptions();
-        }
-        return [];
-    }
-
-    private function getBaseSubjectsOptions()
-    {
-        if (Auth::user()->isValidExamCoordinator()) {
-            return BaseSubject::optionList();
-        }
-
-        return BaseSubject::whereIn('id', Subject::filtered(['user_current' => Auth::id()], [])->select('base_subject_id'))
-            ->optionList();
-    }
-
-    public function getSubjectsProperty()
-    {
-        return $this->filterSubjectsByTabName($this->openTab)
-            ->optionList();
-    }
-
-    private function filterSubjectsByTabName(string $tab)
-    {
-        return Subject::filtered(['imp' => 0, 'user_id' => Auth::id()], ['name' => 'asc']);
-    }
-
-    public function getEducationLevelYearProperty()
-    {
-        return collect(range(1, 6))->map(function ($item) {
-            return ['value' => (int)$item, 'label' => (string)$item];
-        })->toArray();
-    }
-
-    public function getSharedSectionsAuthorsProperty()
-    {
-        return TestAuthor::schoolLocationAndSharedSectionsAuthorUsers(Auth::user())
-            ->get()
-            ->reject(function ($user) {
-                return ($user->school_location_id === Auth::user()->school_location_id && $user->getKey() !== Auth::id());
-            })
-            ->map(function ($author) {
-                return ['value' => $author->id, 'label' => trim($author->name_first . ' ' . $author->name)];
-            })
-            ->values()
-            ->toArray();
-    }
-
     public function getAuthorsProperty()
     {
         return TestAuthor::schoolLocationAuthorUsers(Auth::user())
@@ -201,13 +146,6 @@ class TestsOverview extends OverviewComponent
     public function openTestDetail($testUuid)
     {
         redirect()->to(route('teacher.test-detail', ['uuid' => $testUuid]));
-    }
-
-    public function clearFilters(): void
-    {
-        parent::clearFilters();
-
-        UserSystemSetting::setSetting(auth()->user(), $this->getFilterSessionKey(), $this->filters);
     }
 
     public function hasActiveFilters(): bool
@@ -247,11 +185,6 @@ class TestsOverview extends OverviewComponent
             $this->dispatchBrowserEvent('notify', ['message' => __('teacher.Test is verwijderd')]);
             $this->referrerAction = '';
         }
-    }
-
-    public function canFilterOnAuthors(): bool
-    {
-        return collect($this->canFilterOnAuthorTabs)->contains($this->openTab);
     }
 
     protected function tabNeedsDefaultFilters($tab): bool

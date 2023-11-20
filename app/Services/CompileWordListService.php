@@ -4,19 +4,21 @@ namespace tcCore\Services;
 
 use Illuminate\Support\Collection;
 use tcCore\Http\Enums\WordType;
+use tcCore\Observers\VersionableObserver;
 use tcCore\RelationQuestion;
 use tcCore\Lib\Models\VersionManager;
 use tcCore\User;
-use tcCore\Versionable;
 use tcCore\Word;
 use tcCore\WordList;
 
-use function Composer\Autoload\includeFile;
 
 class CompileWordListService
 {
 
+    private array $incomingUpdates = [];
     private array $wordUpdates = [];
+    private array $relationQuestionWords = [];
+    private array $newSubjectWords = [];
 
     public function __construct(
         private readonly User     $user,
@@ -28,84 +30,97 @@ class CompileWordListService
         }
     }
 
-    public function categorizeUpdates($updates): static
+    public static function buildWordItem($word, $list): array
     {
-        $this->wordLists
-            ->each(function ($list) use ($updates) {
-                $updateRows = collect($updates[$list->getKey()]['rows']);
+        return [
+            'text'         => $word->text,
+            'word_id'      => $word->getKey(),
+            'word_list_id' => $list->getKey(),
+            'type'         => $word->type
+        ];
+    }
 
-                $updateRows->each(function ($row) use ($list) {
-                    $row = collect($row);
-                    if ($this->isEntireNewRow($row)) {
-                        $this->wordUpdates[$list->getKey()]['newRows'][] = $row->map(function ($word) {
-                            return ['text' => $word['text'], 'type' => WordType::tryFrom($word['type'])];
-                        });
+    public function categorizeWordUpdatesInActions(): static
+    {
+        $this->wordLists->each(function ($list) {
+            foreach ($this->incomingUpdates[$list->getKey()]['rows'] as $rowKey => $row) {
+                $row = $this->prepareRowForCategorizing($row, $rowKey);
 
-                        return true;
-                    }
+                if ($this->isEntireNewRow($row)) {
+                    $this->wordUpdates[$list->getKey()]['newRows'][] = $row->map(function ($word) {
+                        return ['text' => $word['text'], 'type' => $word['type']];
+                    });
 
-                    $this->sortProposalsInCategory($row, $list);
-                });
-            });
+                    return true;
+                }
+
+                $this->sortProposalsInCategory($row, $list);
+            }
+        });
 
 
         return $this;
     }
 
-    public function performChanges(): static
+    public function performWordActions(): static
     {
         if (collect($this->wordUpdates)->flatten()->isEmpty()) {
             return $this;
         };
 
         foreach ($this->wordUpdates as $listId => $updates) {
-            $list = VersionManager::getVersionable(
-                $this->wordLists->where('id', $listId)->first(),
-                $this->user
-            );
-            if ($list->needsDuplication($this->relationQuestion)) {
-                $list = $list->handleDuplication();
-            };
+            $list = $this->getListToUpdate($listId);
+            VersionableObserver::setMassUpdating($list->getKey(), WordList::class);
 
-            if (!empty($updates['added'])) {
-                foreach ($updates['added'] as $word) {
-                    $list->createWord($word['text'], $word['type'], $word['subject_word_id'] ?? null);
-                }
-            }
+            $this->createWords($updates, $list);
+            $this->editWords($updates, $list);
+            $this->deleteWords($updates, $list);
+            $this->createRows($updates, $list);
 
-            if (!empty($updates['edited'])) {
-                foreach ($updates['edited'] as $editUpdate) {
-                    $wordUpdate = [];
-                    if ($editUpdate['existing_word']->text !== $editUpdate['word']['text']) {
-                        $wordUpdate['text'] = $editUpdate['word']['text'];
-                    }
-                    if ($editUpdate['existing_word']->type !== $editUpdate['word']['type']) {
-                        $wordUpdate['type'] = $editUpdate['word']['type'];
-                    }
-
-                    $list->editWord(
-                        $editUpdate['existing_word'],
-                        $wordUpdate
-                    );
-                }
-            }
-
-            if (!empty($updates['deleted'])) {
-                foreach ($updates['deleted'] as $word) {
-                    $list->removeWord(Word::find($word['word_id']));
-                }
-            }
-            if (!empty($updates['newRows'])) {
-                foreach ($updates['newRows'] as $newRow) {
-                    $list->createRow(...$newRow);
-                }
-            }
+            VersionableObserver::clearMassUpdating($list->getKey(), WordList::class);
         }
 
         return $this;
     }
 
-    public function syncWordsToRelationQuestion() {}
+    public function compileRelationQuestionAnswersList(): static
+    {
+        $this->wordLists
+            ->each(function ($list) {
+                try {
+                    $enabled = collect($this->incomingUpdates[$list->getKey()]['enabled']);
+                } catch (\Throwable $e) {
+                    logger($e);
+                }
+
+                $items = $list->rows(true)
+                    ->map(function ($row, $key) use ($list, $enabled) {
+                        if ($enabled->doesntContain($key)) {
+                            return null;
+                        }
+
+                        return $row->map(function ($word) use ($list) {
+                            return [
+                                'text'         => $word->text,
+                                'word_id'      => $word->getKey(),
+                                'word_list_id' => $list->getKey(),
+                                'selected'     => $word->type === WordType::SUBJECT,
+                                'type'         => $word->type
+                            ];
+                        });
+                    })
+                    ->filter()
+                    ->toArray();
+                array_push($this->relationQuestionWords, ...$items);
+            });
+
+        return $this;
+    }
+
+    public function getRelationQuestionAnswerList(): array
+    {
+        return $this->relationQuestionWords;
+    }
 
     private function isDeleted($word, WordList $list): bool
     {
@@ -123,8 +138,13 @@ class CompileWordListService
             return false;
         }
 
-        if ($word['type'] !== WordType::SUBJECT) {
-            $word['subject_word_id'] = $row->first()['word_id'];
+        if ($word['type'] === WordType::SUBJECT) {
+            $this->newSubjectWords[$word['row_key']] = true;
+        }
+
+        if ($word['type'] !== WordType::SUBJECT
+            && $subjectWord = $row->first(fn($word) => $word['type'] === WordType::SUBJECT)) {
+            $word['subject_word_id'] = $subjectWord['word_id'];
         }
 
         $this->wordUpdates[$list->getKey()]['added'][] = $word;
@@ -134,8 +154,12 @@ class CompileWordListService
     private function isEdited($word, WordList $list): bool
     {
         $existingWordInList = $list->words->where('id', $word['word_id'])?->first();
-        if (!$word['word_id'] || ($word['text'] === $existingWordInList?->text && $word['type'] === $existingWordInList->type)) {
+        if ($this->wordIsNotEdited($existingWordInList, $word)) {
             return false;
+        }
+
+        if ($word['type'] === WordType::SUBJECT && $existingWordInList->type !== WordType::SUBJECT) {
+            $this->newSubjectWords[$word['row_key']] = $existingWordInList->getKey();
         }
 
         $this->wordUpdates[$list->getKey()]['edited'][] = [
@@ -150,30 +174,207 @@ class CompileWordListService
         return $row->count() >= 2 && $row->whereNull('word_id')->count() === $row->count();
     }
 
-    private function sortProposalsInCategory(Collection $row, $list): void
+    private function sortProposalsInCategory(Collection $row, WordList $list): void
     {
-        collect($row)
-            ->sortBy(fn($word) => WordType::tryFrom($word['type'])?->getOrder() ?? 10)
-            ->each(function ($word) use (&$added, &$edited, &$deleted, $row, $list) {
-                if (!$word['type']) {
-                    return true;
-                }
-
-                $word['type'] = WordType::tryFrom($word['type']);
-                if ($this->isDeleted($word, $list)) {
-                    return true;
-                };
-
-                if ($this->isAdded($word, $row, $list)) {
-                    return true;
-                }
-
-                if ($this->isEdited($word, $list/*VersionManager::getVersionable($list, $this->user)*/)) {
-                    return true;
-                };
-
-                /* No change detected */
+        $row->each(function ($word) use ($row, $list) {
+            if ($this->isDeleted($word, $list)) {
                 return true;
-            });
+            };
+
+            if ($this->isAdded($word, $row, $list)) {
+                return true;
+            }
+
+            if ($this->isEdited($word, $list)) {
+                return true;
+            };
+
+            /* No change detected */
+            return true;
+        });
+    }
+
+
+    private function getListToUpdate($listId): WordList
+    {
+        $list = VersionManager::getVersionable(
+            $this->wordLists->where('id', $listId)->first(),
+            $this->user
+        );
+
+        if ($list->needsDuplication($this->relationQuestion)) {
+            $list = $list->handleDuplication();
+        }
+
+        if ($listId !== $list->getKey()) {
+            $this->wordLists = $this->wordLists->replace([
+                $this->wordLists->search(fn($list) => $list->getKey() === $listId) => $list
+            ]);
+
+            $this->incomingUpdates[$list->getKey()] = $this->incomingUpdates[$listId];
+            unset($this->incomingUpdates[$listId]);
+        }
+
+        return $list;
+    }
+
+
+    private function wordIsNotEdited(?Word $existingWordInList, $word): bool
+    {
+        if (isset($this->newSubjectWords[$word['row_key']])) {
+            return false;
+        }
+
+        if (!$existingWordInList) {
+            return true;
+        }
+
+        if (!$word['word_id']) {
+            return true;
+        }
+
+        if ($word['text'] === $existingWordInList->text && $word['type'] === $existingWordInList->type) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function getWordUpdatesForEditing(array $editUpdate): array
+    {
+        $wordUpdate = [];
+        $existingWord = $editUpdate['existing_word'];
+        $newWord = $editUpdate['word'];
+
+        if ($existingWord->text !== $newWord['text']) {
+            $wordUpdate['text'] = $newWord['text'];
+        }
+        if ($existingWord->type !== $newWord['type']) {
+            $wordUpdate['type'] = $newWord['type'];
+        }
+        if ($existingWord->type !== WordType::SUBJECT && $newWord['type'] === WordType::SUBJECT) {
+            $wordUpdate['word_id'] = null;
+        }
+        if (isset($this->newSubjectWords[$newWord['row_key']]) && $newWord['type'] !== WordType::SUBJECT) {
+            $wordUpdate['word_id'] = $this->newSubjectWords[$newWord['row_key']];
+        }
+
+        return $wordUpdate;
+    }
+
+    private function getSubjectWordForCreating(array $word, WordList $list): ?Word
+    {
+        $subjectWord = null;
+        if (isset($word['subject_word_id'])) {
+            $subjectWord = $list->words->where('id', $word['subject_word_id'])?->first();
+        }
+        return $subjectWord;
+    }
+
+    private function createWords(array $updates, WordList $list): void
+    {
+        if (empty($updates['added'])) {
+            return;
+        }
+        foreach ($updates['added'] as $word) {
+            $newWord = $list->createWord(
+                $word['text'],
+                $word['type'],
+                $this->getSubjectWordForCreating($word, $list)
+            );
+            $this->newSubjectWords[$word['row_key']] = $newWord->getKey();
+        }
+    }
+
+    private function editWords(array $updates, WordList $list): void
+    {
+        if (empty($updates['edited'])) {
+            return;
+        }
+        foreach ($updates['edited'] as $editUpdate) {
+            $list->editWord(
+                $editUpdate['existing_word'],
+                $this->getWordUpdatesForEditing($editUpdate)
+            );
+        }
+    }
+
+    private function deleteWords(array $updates, WordList $list): void
+    {
+        if (empty($updates['deleted'])) {
+            return;
+        }
+
+        foreach ($updates['deleted'] as $word) {
+            $list->removeWord(Word::find($word['word_id']));
+        }
+    }
+
+    private function createRows(array $updates, WordList $list): void
+    {
+        if (empty($updates['newRows'])) {
+            return;
+        }
+
+        foreach ($updates['newRows'] as $newRow) {
+            $list->createRow(...$newRow);
+        }
+    }
+
+    private function prepareRowForCategorizing(array|Collection $row, int $rowKey): Collection
+    {
+        return collect($row)
+            ->map(function ($word) use ($rowKey) {
+                $word['type'] = WordType::tryFrom($word['type']);
+                $word['row_key'] = $rowKey;
+                return $word;
+            })
+            ->sortBy(fn($word) => $word['type']->getOrder() ?? 10)
+            ->values();
+    }
+
+    public function updatesToProcess($updates): static
+    {
+        /*
+         * $updates should contain an array of the following structure:
+         *  [
+         *      <list_id> => [
+         *          'name'      => <name>,
+         *          'rows'      => [<word rows>],
+         *          'enabled'   => [<enabled row indexes>]
+         *      ]
+         *      ...
+         *  ]
+         *
+         * */
+
+        $this->incomingUpdates = array_filter($updates);
+
+        return $this;
+    }
+
+    private function updateName(WordList $list): void
+    {
+        $name = trim($this->incomingUpdates[$list->getKey()]['name']);
+        if ($name === $list->name) {
+            return;
+        }
+
+        $list->name = $name;
+        $list->save();
+    }
+
+    public function handleNameChanges(): static
+    {
+        foreach ($this->incomingUpdates as $listId => $update) {
+            $existingList = $this->wordLists->first(fn($wl) => $wl->getKey() === $listId);
+            if ($existingList->name !== $update['name']) {
+                $listToUpdate = $this->getListToUpdate($listId);
+                $listToUpdate->name = $update['name'];
+                $listToUpdate->save();
+            }
+        }
+
+        return $this;
     }
 }

@@ -144,7 +144,23 @@ document.addEventListener("alpine:init", () => {
         async init() {
             this.rows = await this.$wire.retrieveWords();
             this.setDisabledColumns();
-            this.$wire.call("openCompileListsModal");
+
+            // let activeColumn = [];
+            // for (const row of this.loopRows()) {
+            //      let selected = Object.values(row).filter(word => word.selected === true);
+            //      if (!activeColumn.includes(selected.type)) {
+            //          activeColumn.push(selected.type)
+            //      }
+            //      if (activeColumn.length > 1) {
+            //          break;
+            //      }
+            // }
+            //
+            // if (activeColumn.length === 1) {
+            //
+            // }
+
+            // this.$wire.call("openCompileListsModal");
         },
         selectColumn(column) {
             this.selectedColumn = column;
@@ -209,10 +225,10 @@ document.addEventListener("alpine:init", () => {
             }, 750);
         },
         getText(word, rowIndex) {
-            if (word?.text === null) {
-                return "";
-            }
-            return `r: ${rowIndex}, w: ${word.word_id}; ${word.text}`;
+            return word?.text ?? "";
+        },
+        handleIncomingUpdatedRows(rows) {
+            this.rows = rows;
         }
     }));
 
@@ -226,6 +242,7 @@ document.addEventListener("alpine:init", () => {
         originalRows: [],
         errorstate: false,
         init() {
+            this.list.rows = Object.values(this.list.rows);
             this.buildGrid();
 
             this.countWords();
@@ -244,7 +261,7 @@ document.addEventListener("alpine:init", () => {
             }
 
             this.rows = this.list
-                .wordRows
+                .rows
                 .map(row => this.buildRow(row));
 
             if (this.rows.length < 10) {
@@ -279,6 +296,7 @@ document.addEventListener("alpine:init", () => {
         toggleAll(element) {
             let enabled = element.checked;
             this.$root.querySelectorAll(".word-row .checkbox-container input").forEach((check, row) => {
+                if (this.wordsInRow(this.rows[row]) === 0) return true;
                 check.checked = enabled;
                 this.toggleRow(check, row);
             });
@@ -286,6 +304,10 @@ document.addEventListener("alpine:init", () => {
         toggleRow(checkbox, row) {
             let columnCheckbox = this.$root.querySelector(".head-checkmark .checkbox-container input");
             let availableBoxes = Array.from(this.$root.querySelectorAll(".word-row .checkbox-container input"));
+
+            if (this.wordsInRow(this.rows[this.rows.length - 1]) === 0) {
+                availableBoxes.pop();
+            }
 
             if (checkbox.checked === false) {
                 this.list.enabledRows = this.list.enabledRows.filter(value => value !== row);
@@ -316,7 +338,7 @@ document.addEventListener("alpine:init", () => {
             });
         },
         getUsedTypes() {
-            return _.uniq(this.list.wordRows.flatMap(r => Object.keys(r)));
+            return _.uniq(this.list.rows.flatMap(r => Object.keys(r)));
         },
         getUsedColumnHeads() {
             return this.cols.filter(c => c !== null);
@@ -448,6 +470,7 @@ document.addEventListener("alpine:init", () => {
         },
         getUpdatesForCompiling() {
             return {
+                name: this.list.name,
                 rows: this.rows.map((row, rowIndex) => {
                     if (this.wordsInRow(row) === 0) {
                         return null;
@@ -458,9 +481,7 @@ document.addEventListener("alpine:init", () => {
                             return null;
                         }
 
-                        if (word.type !== this.cols[index]) {
-                            word.type = this.cols[index];
-                        }
+                        word.type = this.cols[index];
                         if (word.word_list_id === null) {
                             word.word_list_id = this.list.id;
                         }
@@ -468,8 +489,17 @@ document.addEventListener("alpine:init", () => {
                         return word;
                     }).filter(Boolean);
                 }).filter(Boolean),
-                enabled: this.list.enabledRows
+                enabled: Array.from(this.list.enabledRows)
             };
+        },
+        addFromWordListBank() {
+            this.openVersionablePanel({ sliderButtonSelected: "lists" });
+        },
+        addFromWordBank() {
+            this.openVersionablePanel({ sliderButtonSelected: "words" });
+        },
+        addFromUpload() {
+            console.log("uploodjes trekken");
         }
     }));
 
@@ -478,11 +508,12 @@ document.addEventListener("alpine:init", () => {
         globalWordCount: 0,
         globalSelectedWordCount: 0,
         compiling: false,
+        showAddListModal: false,
         blueprint() {
             return {
-                name: `Woordenlijst ${wordLists.length + 1}`,
-                id: `new-${wordLists.length}`,
-                wordRows: [],
+                name: ``,
+                id: ``,
+                rows: {},
                 enabledRows: []
             };
         },
@@ -498,7 +529,35 @@ document.addEventListener("alpine:init", () => {
             return property;
         },
         addWordList() {
-            this.wordLists.push(Object.assign({}, this.blueprint()));
+            this.$root.closest(".compile-list-modal")
+                .querySelector("#add-list-modal")
+                .dispatchEvent(
+                    new CustomEvent("open-modal")
+                );
+        },
+        async addNewWordList() {
+            this.wordLists.push(await this.$wire.call("createNewList"));
+        },
+        openAddExistingWordListPanel() {
+            this.openVersionablePanel({
+                sliderButtonDisabled: true,
+                sliderButtonSelected: "lists",
+                showSliderButtons: false,
+                closeOnFirstAdd: true
+            });
+        },
+        async addExistingWordList(uuid) {
+            const list = await this.$wire.call("addExistingWordList", uuid);
+            if (!list.id) {
+                this.$dispatch("notify", { message: "Er is iets misgegaan...", type: "error" });
+                return;
+            }
+            this.wordLists.push(list);
+            this.$dispatch("notify", { message: "Gelukt!" });
+
+        },
+        uploadWordList() {
+
         },
         async compileLists() {
             this.compiling = true;
@@ -534,6 +593,29 @@ document.addEventListener("alpine:init", () => {
             }
 
             return failedValidation;
+        },
+        hideModal() {
+            document.querySelector("#LivewireUIModal").dispatchEvent(
+                new CustomEvent("hide-modal")
+            );
+        },
+        openVersionablePanel(config) {
+            const defaultConfig = {
+                sliderButtonDisabled: false,
+                sliderButtonSelected: "lists",
+                showSliderButtons: true,
+                closeOnFirstAdd: false
+            };
+
+            this.hideModal();
+            this.$store.sidePanel.reopenModal = true;
+
+            this.$wire.emit(
+                "openPanel",
+                "teacher.versionable-side-panel-container",
+                Object.assign({}, defaultConfig, config),
+                { offsetTop: 70, width: "95vw" }
+            );
         }
     }));
 

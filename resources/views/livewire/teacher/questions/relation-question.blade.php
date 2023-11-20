@@ -1,14 +1,14 @@
 @extends($preview ?? 'livewire.teacher.questions.cms-layout')
 @section('question-cms-question')
-    <x-input.textarea wire:model.debounce.1000ms="question.question"></x-input.textarea>
-    {{--    <x-input.rich-textarea--}}
-    {{--            wire:model.debounce.1000ms="question.question"--}}
-    {{--            editorId="{{ $questionEditorId }}"--}}
-    {{--            type="cms"--}}
-    {{--            lang="{{ $lang }}"--}}
-    {{--            :allowWsc="$allowWsc"--}}
-    {{--            :disabled="isset($preview)"--}}
-    {{--    />--}}
+{{--    <x-input.textarea wire:model.debounce.1000ms="question.question"></x-input.textarea>--}}
+        <x-input.rich-textarea
+                wire:model.debounce.1000ms="question.question"
+                editorId="{{ $questionEditorId }}"
+                type="cms"
+                lang="{{ $lang }}"
+                :allowWsc="$allowWsc"
+                :disabled="isset($preview)"
+        />
 @endsection
 
 @section('question-cms-answer')
@@ -41,6 +41,7 @@
                  class="relation-question-grid | "
                  style="--relation-grid-cols: @js(count(\tcCore\Http\Enums\WordType::cases()))"
                  x-data="relationQuestionGrid"
+                 x-on:relation-rows-updated.window="handleIncomingUpdatedRows($event.detail)"
                  wire:ignore
             >
                 <div class="grid-head-container contents"

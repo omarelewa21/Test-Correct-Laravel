@@ -3,6 +3,7 @@
 namespace tcCore;
 
 use Dyrynda\Database\Casts\EfficientUuid;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -73,7 +74,7 @@ abstract class Versionable extends BaseModel
                 ->groupBy(['original_id', 'user_id']);
         });
 
-        collect($filters)->each(fn($value, $filter) => $query->whereIn($filter, Arr::wrap($value)));
+        collect($filters)->each(fn($value, $filter) => $this->applyFilter($query, $value, $filter));
         collect($sorting)->each(fn($direction, $key) => $query->orderBy($key, $direction));
 
         return $query;
@@ -179,5 +180,15 @@ abstract class Versionable extends BaseModel
         }
 
         return $this;
+    }
+
+    private function applyFilter(Builder $query, mixed $value, string $filterName): Builder
+    {
+        if (in_array($filterName, static::TEXT_FILTERS ?? [])) {
+            $value = (string)$value;
+            return $query->where($filterName, 'LIKE', "%$value%");
+        }
+
+        return $query->whereIn($filterName, Arr::wrap($value));
     }
 }

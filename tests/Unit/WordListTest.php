@@ -238,7 +238,7 @@ class WordListTest extends TestCase
 
         $wordList1->addRow($subjectWord);
 
-        $this->assertEquals(1, $wordList1->rows()->count());
+        $this->assertEquals(1, $wordList1->rows(true)->count());
         $this->assertEquals(4, $wordList1->words()->count());
     }
 

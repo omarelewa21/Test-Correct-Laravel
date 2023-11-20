@@ -1,12 +1,14 @@
 <?php namespace tcCore;
 
 use tcCore\Exceptions\QuestionException;
+use tcCore\Http\Traits\Questions\WithQuestionDuplicating;
 use tcCore\Lib\Question\QuestionInterface;
 use Dyrynda\Database\Casts\EfficientUuid;
-use Ramsey\Uuid\Uuid;
 
 class RankingQuestion extends Question implements QuestionInterface
 {
+    use WithQuestionDuplicating;
+
     protected $casts = [
         'uuid'       => EfficientUuid::class,
         'deleted_at' => 'datetime',
@@ -62,20 +64,7 @@ class RankingQuestion extends Question implements QuestionInterface
 
     public function duplicate(array $attributes, $ignore = null)
     {
-        $question = $this->replicate();
-
-        $question->parentInstance = $this->parentInstance->duplicate($attributes, $ignore);
-        if ($question->parentInstance === false) {
-            return false;
-        }
-
-        $question->fill($attributes);
-
-        $question->setAttribute('uuid', Uuid::uuid4());
-
-        if ($question->save() === false) {
-            return false;
-        }
+        $question = $this->specificDuplication($attributes, $ignore);
 
         foreach ($this->rankingQuestionAnswerLinks as $rankingQuestionAnswerLink) {
             if ($ignore instanceof RankingQuestionAnswer && $ignore->getKey() == $rankingQuestionAnswerLink->getAttribute('ranking_question_answer_id')) {

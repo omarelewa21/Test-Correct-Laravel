@@ -8,9 +8,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use tcCore\Http\Enums\WordType;
+use tcCore\Observers\VersionableObserver;
 
 class Word extends Versionable
 {
+    protected const TEXT_FILTERS = ['text'];
+
     protected $fillable = [
         'text',
         'type',
@@ -21,9 +24,17 @@ class Word extends Versionable
         'school_location_id',
     ];
 
-    protected $casts = [
+    /* Attribute to merge with parent $casts property */
+    private array $wordCasts = [
         'type' => WordType::class,
     ];
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $this->mergeCasts($this->wordCasts);
+    }
 
     public function wordLists(): BelongsToMany
     {
@@ -49,6 +60,11 @@ class Word extends Versionable
             'word_id',
             'relation_question_id',
         );
+    }
+
+    public function subject(): BelongsTo
+    {
+        return $this->belongsTo(Subject::class);
     }
 
     public static function build(
@@ -110,6 +126,9 @@ class Word extends Versionable
 
     public function isUsed(): bool
     {
+        if (VersionableObserver::isMassUpdating($this->pivot?->word_list_id, WordList::class)) {
+            return false;
+        }
         if ($this->wordLists()->where('word_lists.id', '!=', $this->pivot?->word_list_id)->exists()) {
             return true;
         }

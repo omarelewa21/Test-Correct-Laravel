@@ -2,12 +2,14 @@
 
 namespace tcCore\Http\Livewire\Teacher\Cms;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use tcCore\Http\Enums\WordType;
 use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Lib\Models\VersionManager;
 use tcCore\RelationQuestion;
 use tcCore\Services\CompileWordListService;
+use tcCore\Test;
 use tcCore\Versionable;
 use tcCore\Word;
 use tcCore\WordList;
@@ -19,12 +21,14 @@ class CompileWordListModal extends TCModalComponent
 
     private Collection $wordLists;
     public array $wordData;
+    public string $testUuid;
 
     public ?RelationQuestion $relationQuestion = null;
 
     public function mount(
         array             $wordData,
-        ?RelationQuestion $relationQuestion = null
+        string            $testUuid,
+        ?RelationQuestion $relationQuestion = null,
     ) {
         $this->columnHeads = WordType::casesWithDescription()->toArray();
         $this->relationQuestion = $relationQuestion;
@@ -53,87 +57,105 @@ class CompileWordListModal extends TCModalComponent
         return 'modal-full-screen';
     }
 
-    public function buildWordItem($word, $list)
-    {
-        return [
-            'text'         => $word->text,
-            'word_id'      => $word->getKey(),
-            'word_list_id' => $list->getKey(),
-            'type'         => $word->type
-        ];
-    }
-
-    private function setWordLists($lists, array $wordData): void
+    private function setWordLists(Builder $lists, array $wordData): void
     {
         $wordData = collect($wordData);
         $enabledRows = $wordData->pluck('subject.word_id');
 
         $this->wordLists = $lists
-            ->with('rows')
+            ->with('words')
             ->get()
-            ->each(function ($list) use ($enabledRows) {
-                $list->wordRows = $list->rows->map(function ($row, $key) use ($list, $enabledRows) {
-                    $this->addToEnabledRowsWhenUsed($enabledRows, $row, $list, $key);
-
-                    return collect(WordType::cases())
-                        ->mapWithKeys(function ($type) use ($row, $list) {
-                            $word = $type === WordType::SUBJECT
-                                ? $row
-                                : $row->associations->first(fn($word) => $word->type === $type);
-
-                            return $word ? [$type->value => $this->buildWordItem($word, $list)] : [];
-                        })
-                        ->filter();
-                });
-                unset($list['rows']);
-            });
+            ->each(fn($list) => $this->setRowPropertyOnList($list, $enabledRows));
 
         $this->wordListUuids = $this->wordLists->pluck('uuid')->toArray();
     }
 
-    private function addToEnabledRowsWhenUsed(Collection $enabledRows, Word $row, WordList $list, int $key): void
+    private function addToEnabledRowsWhenUsed(Collection $enabledRows, $row, WordList $list, int $key): void
     {
-        if ($enabledRows->contains($row->getKey())) {
+        if ($enabledRows->contains($row->first()->getKey())) {
             $list->enabledRows = array_merge($list->enabledRows ?? [], [$key]);
         }
     }
 
-    public function compile($updates)
+    public function createNewList(): array
     {
-        /* Compile moet 2 dingen doen:
-        1: Voer de verandering aan de lijsten toe
-            a.
-        2: Update de vraag woorden met de geselecteerde woorden
-        */
-
-        $compileService = new CompileWordListService(
-            auth()->user(),
-            $this->wordLists,
-            $this->relationQuestion
+        $test = Test::whereUuid($this->testUuid)->first();
+        $newList = WordList::build(
+            name              : sprintf('Woordenlijst %s', $test->name),
+            author            : auth()->user(),
+            subjectId         : $test->subject_id,
+            educationLevelId  : $test->education_level_id,
+            educationLevelYear: $test->education_level_year,
+            schoolLocationId  : auth()->user()->school_location_id
         );
 
-        $compileService->categorizeUpdates($updates)
-            ->performChanges()
-            ->syncWordsToRelationQuestion();
+        $this->setRowPropertyOnList($newList, collect());
+        $this->wordListUuids[] = $newList->uuid;
 
-        /* stap 1 */
-;
+        return $newList->toArray();
+    }
 
+    public function compile($updates): bool
+    {
+        $compileService = (new CompileWordListService(
+            auth()->user(),
+            $this->cleanWordLists(),
+            $this->relationQuestion
+        ))
+            ->updatesToProcess($updates)
+            ->handleNameChanges()
+            ->categorizeWordUpdatesInActions()
+            ->performWordActions()
+            ->compileRelationQuestionAnswersList();
 
-
-
-
-//                                VersionManager::getVersionable($list, auth()->user())->removeWord();
-
-//                                VersionManager::getVersionable($list, auth()->user())->createWord(
-//                                    $word['text'],
-//                                    $type,
-//                                    $subjectWord
-//                                );
-        /* TODO: stap 2 */
+        /*Stap 2*/
+        $this->closeModalWithEvents([
+            Constructor::class => [
+                'relation-question-words-updated',
+                [$compileService->getRelationQuestionAnswerList()]
+            ]
+        ]);
 
         return true;
     }
 
+    private function setRowPropertyOnList(WordList $list, Collection $enabledRows): void
+    {
+        $list->enabledRows = [];
+        $list->rows = $list->rows()->map(function ($row, $key) use ($list, $enabledRows) {
+            $this->addToEnabledRowsWhenUsed($enabledRows, $row, $list, $key);
 
+            return collect(WordType::cases())
+                ->mapWithKeys(function ($type) use ($row, $list) {
+                    $word = $row->first(fn($word) => $word->type === $type);
+
+                    return $word ? [$type->value => CompileWordListService::buildWordItem($word, $list)] : [];
+                })
+                ->filter();
+        });
+    }
+
+    private function cleanWordLists(): Collection
+    {
+        $this->wordLists->each(function ($list) {
+            unset($list->enabledRows);
+            unset($list->rows);
+        });
+
+        return $this->wordLists;
+    }
+
+    public function addExistingWordList(string $uuid): array
+    {
+        $list = WordList::whereUuid($uuid)->first();
+        if (!$list) {
+            return [];
+        }
+
+        $list = VersionManager::getVersionable($list, auth()->user());
+        $this->setRowPropertyOnList($list, collect());
+        $this->wordListUuids[] = $list->uuid;
+
+        return $list->toArray();
+    }
 }

@@ -1,6 +1,7 @@
 <?php namespace tcCore;
 
 use Illuminate\Support\Facades\Log;
+use tcCore\Http\Traits\Questions\WithQuestionDuplicating;
 use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\Lib\Question\QuestionInterface;
 use Dyrynda\Database\Casts\EfficientUuid;
@@ -11,8 +12,8 @@ use tcCore\Http\Helpers\QuestionHelper;
 
 class GroupQuestion extends Question implements QuestionInterface
 {
-
     use UuidTrait;
+    use WithQuestionDuplicating;
 
     protected $casts = [
         'uuid'                   => EfficientUuid::class,
@@ -45,21 +46,7 @@ class GroupQuestion extends Question implements QuestionInterface
 
     public function duplicate(array $attributes, $ignore = null, $callbacks = true)
     {
-        $question = $this->replicate();
-
-
-        $question->parentInstance = $this->parentInstance->duplicate($attributes, $ignore);
-        if ($question->parentInstance === false) {
-            return false;
-        }
-
-        $question->fill($attributes);
-
-        $question->setAttribute('uuid', Uuid::uuid4());
-
-        if ($question->save() === false) {
-            return false;
-        }
+        $question = $this->specificDuplication($attributes, $ignore);
 
         foreach ($this->groupQuestionQuestions as $groupQuestionQuestions) {
             if ($ignore instanceof Question && $ignore->getKey() == $groupQuestionQuestions->getAttribute('question_id')) {

@@ -6,11 +6,15 @@ use Dyrynda\Database\Casts\EfficientUuid;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
+use Ramsey\Uuid\Uuid;
 use tcCore\Http\Enums\WordType;
 use tcCore\Lib\Question\QuestionInterface;
+use tcCore\Http\Traits\Questions\WithQuestionDuplicating;
 
 class RelationQuestion extends Question implements QuestionInterface
 {
+    use WithQuestionDuplicating;
+
     protected $fillable = [
         'uuid',
     ];
@@ -236,4 +240,20 @@ class RelationQuestion extends Question implements QuestionInterface
         });
     }
 
+    public function duplicate(array $attributes, $ignore = null): static
+    {
+        $question = $this->specificDuplication($attributes, $ignore);
+
+        $question->questionWords()->createMany(
+            $this->questionWords()
+                ->get()
+                ->map(function ($relation) use ($question) {
+                    $newRelation = $relation->replicate();
+                    $newRelation->relation_question_id = $question->getKey();
+                    return $newRelation->toArray();
+                })
+        );
+
+        return $question;
+    }
 }
