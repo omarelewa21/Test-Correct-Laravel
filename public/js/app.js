@@ -13047,7 +13047,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       return this.getElementShapeType(shape) === this.params.currentTool;
     },
     getElementShapeType: function getElementShapeType(shape) {
-      return shape.id.split("-")[0];
+      return this.correctShapeId(shape.id).split("-")[0];
+    },
+    correctShapeId: function correctShapeId(shapeId) {
+      return shapeId.replace("ellipse", "circle");
     },
     isTeacher: function isTeacher() {
       return this.params.isTeacher;
@@ -13226,11 +13229,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         }
       },
       /**
-       * @param {*} g element 
+       * @param {HTML element} shape 
        * @returns object containing element svg (svgShape class) and its sidebar (Entry class)
        */
       getShapeDataObject: function getShapeDataObject(shape) {
-        return Canvas.layers[Canvas.layerID2Key(shape.parentElement.id)].shapes[shape.id];
+        return Canvas.layers[Canvas.layerID2Key(shape.parentElement.id)].shapes[drawingApp.correctShapeId(shape.id)];
       }
     };
     Obj.initCanvas();
@@ -14050,9 +14053,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
           group: copyAllAttributesFromElementToObject(groupElement),
           main: copyAllAttributesFromElementToObject(mainElement)
         };
-        var shapeID = groupElement.id;
+        var shapeID = drawingApp.correctShapeId(groupElement.id);
         var shapeType = shapeID.substring(0, shapeID.indexOf("-"));
-        if (shapeType === 'ellipse') shapeType = 'circle';
         var newShape = makeNewSvgShapeWithSidebarEntry(shapeType, props, layerName, true, !(!drawingApp.isTeacher() && layerName === "question"));
         // Convert old dragging system (using SVGTransforms)
         // to new dragging system (all done with the SVG attributes of the element itself)
