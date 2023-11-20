@@ -180,6 +180,8 @@ class svgElement {
             dy: currentPosition.y - previousPosition.y,
         };
     }
+    
+    onResizeStart () {}
 }
 
 export class Rectangle extends svgElement {
@@ -250,10 +252,10 @@ export class Ellipse extends svgElement {
         const properties = {
             cx: cursor.x,
             cy: cursor.y,
-            rx: this.calculateRX(cursor),
-            ry: this.calculateRY(cursor),
+            rx: this.calculateRX(cursor, this.startingPosition),
+            ry: this.calculateRY(cursor, this.startingPosition),
         }
-        keepAspectRatio && this.fixPropertiesToKeepAspectRatio(properties);
+        keepAspectRatio && this.fixPropertiesToKeepAspectRatioOnDraw(properties);
         this.updateProperties(properties);
     }
 
@@ -261,24 +263,13 @@ export class Ellipse extends svgElement {
      * fix the properties to keep the aspect ratio
      * @param {EllipseCoords} properties
      */
-    fixPropertiesToKeepAspectRatio(properties) {
-        if(properties.rx < properties.ry) {
-            const difference = properties.ry - properties.rx;
-            properties.ry -= difference;
-            if(properties.cy < this.startingPosition.cy) {
-                properties.cy += difference;
-            } else {
-                properties.cy -= difference;
-            }
-        } else {
-            const difference = properties.rx - properties.ry;
-            properties.rx -= difference;
-            if(properties.cx < this.startingPosition.cx) {
-                properties.cx += difference;
-            } else {
-                properties.cx -= difference;
-            }
-        }
+    fixPropertiesToKeepAspectRatioOnDraw(properties) {
+        properties.rx < properties.ry
+            ? properties.ry = properties.rx
+            : properties.rx = properties.ry;
+
+        properties.cy = this.startingPosition.cy;
+        properties.cx = this.startingPosition.cx;
     }
 
     /**
@@ -345,19 +336,21 @@ export class Ellipse extends svgElement {
     /**
      * Sets the RX attribute on the shape and in the props.
      * @param {Cursor} cursor
+     * @param {{cx: number, cy: number}} previousPosition
      * @return {number} The value to be set.
      */
-    calculateRX(cursor) {
-        return Math.abs(cursor.x - this.startingPosition.cx);
+    calculateRX(cursor, previousPosition) {
+        return Math.abs(cursor.x - previousPosition.cx);
     }
 
     /**
      * Sets the RY attribute on the shape and in the props.
      * @param {{x: number, y: number}} cursor
+     * @param {{cx: number, cy: number}} previousPosition
      * @return {number} The value to be set.
      */
-    calculateRY(cursor) {
-        return Math.abs(cursor.y - this.startingPosition.cy);
+    calculateRY(cursor, previousPosition) {
+        return Math.abs(cursor.y - previousPosition.cy);
     }
 
     /**
@@ -437,6 +430,32 @@ export class Ellipse extends svgElement {
     updatePosition(position) {
         this.setCX(position.x);
         this.setCY(position.y);
+    }
+
+    /**
+     * Event handler called during resize.
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
+    onResize(evt, cursor) {
+        this.thisSetPropertiesOnResize(cursor, evt.shiftKey);
+    }
+
+    thisSetPropertiesOnResize(cursor, keepAspectRatio) {
+        const properties = {
+            cx: this.props.cx,
+            cy: this.props.cy,
+            rx: this.calculateRX(cursor, this.props),
+            ry: this.calculateRY(cursor, this.props),
+        }
+        keepAspectRatio && this.fixPropertiesToKeepAspectRatioOnResize(properties);
+        this.updateProperties(properties);
+    }
+
+    fixPropertiesToKeepAspectRatioOnResize(properties) {
+        properties.rx > properties.ry
+            ? properties.ry = properties.rx
+            : properties.rx = properties.ry;
     }
 }
 

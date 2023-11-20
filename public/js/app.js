@@ -16607,6 +16607,9 @@ var svgElement = /*#__PURE__*/function () {
         dy: currentPosition.y - previousPosition.y
       };
     }
+  }, {
+    key: "onResizeStart",
+    value: function onResizeStart() {}
   }]);
   return svgElement;
 }();
@@ -16700,10 +16703,10 @@ var Ellipse = /*#__PURE__*/function (_svgElement2) {
       var properties = {
         cx: cursor.x,
         cy: cursor.y,
-        rx: this.calculateRX(cursor),
-        ry: this.calculateRY(cursor)
+        rx: this.calculateRX(cursor, this.startingPosition),
+        ry: this.calculateRY(cursor, this.startingPosition)
       };
-      keepAspectRatio && this.fixPropertiesToKeepAspectRatio(properties);
+      keepAspectRatio && this.fixPropertiesToKeepAspectRatioOnDraw(properties);
       this.updateProperties(properties);
     }
 
@@ -16712,25 +16715,11 @@ var Ellipse = /*#__PURE__*/function (_svgElement2) {
      * @param {EllipseCoords} properties
      */
   }, {
-    key: "fixPropertiesToKeepAspectRatio",
-    value: function fixPropertiesToKeepAspectRatio(properties) {
-      if (properties.rx < properties.ry) {
-        var difference = properties.ry - properties.rx;
-        properties.ry -= difference;
-        if (properties.cy < this.startingPosition.cy) {
-          properties.cy += difference;
-        } else {
-          properties.cy -= difference;
-        }
-      } else {
-        var _difference = properties.rx - properties.ry;
-        properties.rx -= _difference;
-        if (properties.cx < this.startingPosition.cx) {
-          properties.cx += _difference;
-        } else {
-          properties.cx -= _difference;
-        }
-      }
+    key: "fixPropertiesToKeepAspectRatioOnDraw",
+    value: function fixPropertiesToKeepAspectRatioOnDraw(properties) {
+      properties.rx < properties.ry ? properties.ry = properties.rx : properties.rx = properties.ry;
+      properties.cy = this.startingPosition.cy;
+      properties.cx = this.startingPosition.cx;
     }
 
     /**
@@ -16811,23 +16800,25 @@ var Ellipse = /*#__PURE__*/function (_svgElement2) {
     /**
      * Sets the RX attribute on the shape and in the props.
      * @param {Cursor} cursor
+     * @param {{cx: number, cy: number}} previousPosition
      * @return {number} The value to be set.
      */
   }, {
     key: "calculateRX",
-    value: function calculateRX(cursor) {
-      return Math.abs(cursor.x - this.startingPosition.cx);
+    value: function calculateRX(cursor, previousPosition) {
+      return Math.abs(cursor.x - previousPosition.cx);
     }
 
     /**
      * Sets the RY attribute on the shape and in the props.
      * @param {{x: number, y: number}} cursor
+     * @param {{cx: number, cy: number}} previousPosition
      * @return {number} The value to be set.
      */
   }, {
     key: "calculateRY",
-    value: function calculateRY(cursor) {
-      return Math.abs(cursor.y - this.startingPosition.cy);
+    value: function calculateRY(cursor, previousPosition) {
+      return Math.abs(cursor.y - previousPosition.cy);
     }
 
     /**
@@ -16928,6 +16919,34 @@ var Ellipse = /*#__PURE__*/function (_svgElement2) {
     value: function updatePosition(position) {
       this.setCX(position.x);
       this.setCY(position.y);
+    }
+
+    /**
+     * Event handler called during resize.
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
+  }, {
+    key: "onResize",
+    value: function onResize(evt, cursor) {
+      this.thisSetPropertiesOnResize(cursor, evt.shiftKey);
+    }
+  }, {
+    key: "thisSetPropertiesOnResize",
+    value: function thisSetPropertiesOnResize(cursor, keepAspectRatio) {
+      var properties = {
+        cx: this.props.cx,
+        cy: this.props.cy,
+        rx: this.calculateRX(cursor, this.props),
+        ry: this.calculateRY(cursor, this.props)
+      };
+      keepAspectRatio && this.fixPropertiesToKeepAspectRatioOnResize(properties);
+      this.updateProperties(properties);
+    }
+  }, {
+    key: "fixPropertiesToKeepAspectRatioOnResize",
+    value: function fixPropertiesToKeepAspectRatioOnResize(properties) {
+      properties.rx > properties.ry ? properties.ry = properties.rx : properties.rx = properties.ry;
     }
   }]);
   return Ellipse;
@@ -17967,38 +17986,38 @@ var rectangularFunctionality = {
           coords.y = coords.y + difference;
         }
         if (replacements.width > 0) {
-          var _difference2 = replacements.width - coords.width;
-          coords.x = coords.x + _difference2;
+          var _difference = replacements.width - coords.width;
+          coords.x = coords.x + _difference;
         }
         break;
       case "side-ne":
         if (replacements.height < 0) {
-          var _difference3 = replacements.height + coords.height;
-          coords.y = coords.y - _difference3;
+          var _difference2 = replacements.height + coords.height;
+          coords.y = coords.y - _difference2;
         }
         if (replacements.width > 0) {
-          var _difference4 = replacements.width - coords.width;
-          coords.x = coords.x + _difference4;
+          var _difference3 = replacements.width - coords.width;
+          coords.x = coords.x + _difference3;
         }
         break;
       case "side-sw":
         if (replacements.height > 0) {
-          var _difference5 = replacements.height - coords.height;
-          coords.y = coords.y + _difference5;
+          var _difference4 = replacements.height - coords.height;
+          coords.y = coords.y + _difference4;
         }
         if (replacements.width < 0) {
-          var _difference6 = replacements.width + coords.width;
-          coords.x = coords.x - _difference6;
+          var _difference5 = replacements.width + coords.width;
+          coords.x = coords.x - _difference5;
         }
         break;
       case "side-nw":
         if (replacements.height < 0) {
-          var _difference7 = replacements.height + coords.height;
-          coords.y = coords.y - _difference7;
+          var _difference6 = replacements.height + coords.height;
+          coords.y = coords.y - _difference6;
         }
         if (replacements.width < 0) {
-          var _difference8 = replacements.width + coords.width;
-          coords.x = coords.x - _difference8;
+          var _difference7 = replacements.width + coords.width;
+          coords.x = coords.x - _difference7;
         }
         break;
     }
