@@ -629,6 +629,12 @@ window.RichTextEditor = {
                 if (typeof resolveCallback === "function") {
                     resolveCallback(editor);
                 }
+
+                editor.editing.view.on('change', (event, data) => {
+                    //remove the aria-label from the root element for readspeaker
+                    editor.editing.view.document.getRoot()._removeAttribute('aria-label');
+                });
+
                 // editor.ui.view.editableElement.tabIndex = -1;
             })
             .catch(error => {

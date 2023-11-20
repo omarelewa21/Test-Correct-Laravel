@@ -46,7 +46,7 @@ ReadspeakerTlc = function(){
             if(rspkr.rs_tlc_prevent_ckeditor_focus){
                 return;
             }
-            ClassicEditors[editorId].ui.getEditableElement().setAttribute('aria-label', 'kaas is lekker');
+
             handleFocusForReadspeaker();
             ckeditorNode.editorId = editorId;
             var correction = {x:-15,y:2};
