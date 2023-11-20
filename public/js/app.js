@@ -16891,6 +16891,44 @@ var Ellipse = /*#__PURE__*/function (_svgElement2) {
     value: function setRYProperty(value) {
       this.props.ry = value;
     }
+
+    /**
+     * Event handler called at start of dragging
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
+  }, {
+    key: "onDragStart",
+    value: function onDragStart(evt, cursor) {
+      this.drag.previousCursorPosition = cursor;
+      this.drag.startingPosition = {
+        x: this.props.cx,
+        y: this.props.cy
+      };
+    }
+
+    /**
+     * Sets the cx and cy values to the old values plus
+     * the offset specified by distance.dx and distance.dy
+     * @param {{dx: number, dy: number}} distance
+     */
+  }, {
+    key: "move",
+    value: function move(distance) {
+      this.setCX(parseFloat(this.props.cx) + distance.dx);
+      this.setCY(parseFloat(this.props.cy) + distance.dy);
+    }
+
+    /**
+     * Sets the specified position
+     * @param {{x: number, y: number}} position
+     */
+  }, {
+    key: "updatePosition",
+    value: function updatePosition(position) {
+      this.setCX(position.x);
+      this.setCY(position.y);
+    }
   }]);
   return Ellipse;
 }(svgElement);
