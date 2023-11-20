@@ -238,10 +238,58 @@ export class Ellipse extends svgElement {
      * @param {Cursor} cursor
      */
     onDraw(evt, cursor) {
-        this.setCX(cursor.x);
-        this.setCY(cursor.y);
-        this.setRX(this.calculateRX(cursor));
-        this.setRY(this.calculateRY(cursor));
+        this.thisSetPropertiesOnDraw(cursor, evt.shiftKey);
+    }
+
+    /** 
+     * Sets the properties of the ellipse on draw.
+     * @param {Cursor} cursor
+     * @param {boolean} keepAspectRatio
+    */
+    thisSetPropertiesOnDraw(cursor, keepAspectRatio) {
+        const properties = {
+            cx: cursor.x,
+            cy: cursor.y,
+            rx: this.calculateRX(cursor),
+            ry: this.calculateRY(cursor),
+        }
+        keepAspectRatio && this.fixPropertiesToKeepAspectRatio(properties);
+        this.updateProperties(properties);
+    }
+
+    /**
+     * fix the properties to keep the aspect ratio
+     * @param {EllipseCoords} properties
+     */
+    fixPropertiesToKeepAspectRatio(properties) {
+        if(properties.rx < properties.ry) {
+            const difference = properties.ry - properties.rx;
+            properties.ry -= difference;
+            if(properties.cy < this.startingPosition.cy) {
+                properties.cy += difference;
+            } else {
+                properties.cy -= difference;
+            }
+        } else {
+            const difference = properties.rx - properties.ry;
+            properties.rx -= difference;
+            if(properties.cx < this.startingPosition.cx) {
+                properties.cx += difference;
+            } else {
+                properties.cx -= difference;
+            }
+        }
+    }
+
+    /**
+     * Sets the properties of the ellipse.
+     * @param {EllipseCoords} properties
+    */
+    updateProperties(properties) {
+        this.setCX(properties.cx);
+        this.setCY(properties.cy);
+        this.setRX(properties.rx);
+        this.setRY(properties.ry);
     }
 
     /**

@@ -16684,10 +16684,64 @@ var Ellipse = /*#__PURE__*/function (_svgElement2) {
   _createClass(Ellipse, [{
     key: "onDraw",
     value: function onDraw(evt, cursor) {
-      this.setCX(cursor.x);
-      this.setCY(cursor.y);
-      this.setRX(this.calculateRX(cursor));
-      this.setRY(this.calculateRY(cursor));
+      this.thisSetPropertiesOnDraw(cursor, evt.shiftKey);
+    }
+
+    /** 
+     * Sets the properties of the ellipse on draw.
+     * @param {Cursor} cursor
+     * @param {boolean} keepAspectRatio
+    */
+  }, {
+    key: "thisSetPropertiesOnDraw",
+    value: function thisSetPropertiesOnDraw(cursor, keepAspectRatio) {
+      var properties = {
+        cx: cursor.x,
+        cy: cursor.y,
+        rx: this.calculateRX(cursor),
+        ry: this.calculateRY(cursor)
+      };
+      keepAspectRatio && this.fixPropertiesToKeepAspectRatio(properties);
+      this.updateProperties(properties);
+    }
+
+    /**
+     * fix the properties to keep the aspect ratio
+     * @param {EllipseCoords} properties
+     */
+  }, {
+    key: "fixPropertiesToKeepAspectRatio",
+    value: function fixPropertiesToKeepAspectRatio(properties) {
+      if (properties.rx < properties.ry) {
+        var difference = properties.ry - properties.rx;
+        properties.ry -= difference;
+        if (properties.cy < this.startingPosition.cy) {
+          properties.cy += difference;
+        } else {
+          properties.cy -= difference;
+        }
+      } else {
+        var _difference = properties.rx - properties.ry;
+        properties.rx -= _difference;
+        if (properties.cx < this.startingPosition.cx) {
+          properties.cx += _difference;
+        } else {
+          properties.cx -= _difference;
+        }
+      }
+    }
+
+    /**
+     * Sets the properties of the ellipse.
+     * @param {EllipseCoords} properties
+    */
+  }, {
+    key: "updateProperties",
+    value: function updateProperties(properties) {
+      this.setCX(properties.cx);
+      this.setCY(properties.cy);
+      this.setRX(properties.rx);
+      this.setRY(properties.ry);
     }
 
     /**
@@ -17873,38 +17927,38 @@ var rectangularFunctionality = {
           coords.y = coords.y + difference;
         }
         if (replacements.width > 0) {
-          var _difference = replacements.width - coords.width;
-          coords.x = coords.x + _difference;
+          var _difference2 = replacements.width - coords.width;
+          coords.x = coords.x + _difference2;
         }
         break;
       case "side-ne":
         if (replacements.height < 0) {
-          var _difference2 = replacements.height + coords.height;
-          coords.y = coords.y - _difference2;
+          var _difference3 = replacements.height + coords.height;
+          coords.y = coords.y - _difference3;
         }
         if (replacements.width > 0) {
-          var _difference3 = replacements.width - coords.width;
-          coords.x = coords.x + _difference3;
+          var _difference4 = replacements.width - coords.width;
+          coords.x = coords.x + _difference4;
         }
         break;
       case "side-sw":
         if (replacements.height > 0) {
-          var _difference4 = replacements.height - coords.height;
-          coords.y = coords.y + _difference4;
+          var _difference5 = replacements.height - coords.height;
+          coords.y = coords.y + _difference5;
         }
         if (replacements.width < 0) {
-          var _difference5 = replacements.width + coords.width;
-          coords.x = coords.x - _difference5;
+          var _difference6 = replacements.width + coords.width;
+          coords.x = coords.x - _difference6;
         }
         break;
       case "side-nw":
         if (replacements.height < 0) {
-          var _difference6 = replacements.height + coords.height;
-          coords.y = coords.y - _difference6;
+          var _difference7 = replacements.height + coords.height;
+          coords.y = coords.y - _difference7;
         }
         if (replacements.width < 0) {
-          var _difference7 = replacements.width + coords.width;
-          coords.x = coords.x - _difference7;
+          var _difference8 = replacements.width + coords.width;
+          coords.x = coords.x - _difference8;
         }
         break;
     }
