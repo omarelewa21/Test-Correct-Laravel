@@ -12805,6 +12805,7 @@ var validSvgElementKeys = {
   global: ["style", "class", "id", "stroke", "stroke-width", "stroke-dasharray", "fill", "fill-opacity", "opacity", "marker-start", "marker-mid", "marker-end"],
   rect: ["x", "y", "width", "height", "rx", "ry", "pathLength"],
   circle: ["cx", "cy", "r", "pathLength"],
+  ellipse: ["cx", "cy", "rx", "ry", "r", "pathLength"],
   line: ["x1", "y1", "x2", "y2", "pathLength"],
   path: ["d"],
   image: ["x", "y", "width", "height", "href", "preserveAspectRatio", "identifier"],
@@ -12844,6 +12845,7 @@ var panParams = {
 var elementClassNameForType = {
   "rect": "Rectangle",
   "circle": "Circle",
+  "ellipse": "Ellipse",
   "line": "Line",
   "text": "Text",
   "image": "Image",
@@ -14048,8 +14050,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
           group: copyAllAttributesFromElementToObject(groupElement),
           main: copyAllAttributesFromElementToObject(mainElement)
         };
-        var shapeID = groupElement.id,
-          shapeType = shapeID.substring(0, shapeID.indexOf("-"));
+        var shapeID = groupElement.id;
+        var shapeType = shapeID.substring(0, shapeID.indexOf("-"));
+        if (shapeType === 'ellipse') shapeType = 'circle';
         var newShape = makeNewSvgShapeWithSidebarEntry(shapeType, props, layerName, true, !(!drawingApp.isTeacher() && layerName === "question"));
         // Convert old dragging system (using SVGTransforms)
         // to new dragging system (all done with the SVG attributes of the element itself)
@@ -15963,9 +15966,15 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
     key: "showRelevantShapeMenu",
     value: function showRelevantShapeMenu() {
       var shapeType = this.svgShape.type;
-      if (shapeType === 'image') return;
-      if (shapeType === 'path') {
-        shapeType = 'freehand';
+      switch (shapeType) {
+        case 'image':
+          return;
+        case 'path':
+          shapeType = 'freehand';
+          break;
+        case 'ellipse':
+          shapeType = 'circle';
+          break;
       }
       document.querySelector("#add-".concat(shapeType, "-btn")).click();
     }
@@ -16362,6 +16371,7 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Circle: () => (/* binding */ Circle),
+/* harmony export */   Ellipse: () => (/* binding */ Ellipse),
 /* harmony export */   Group: () => (/* binding */ Group),
 /* harmony export */   Image: () => (/* binding */ Image),
 /* harmony export */   Line: () => (/* binding */ Line),
@@ -16652,13 +16662,189 @@ var Rectangle = /*#__PURE__*/function (_svgElement) {
   }]);
   return Rectangle;
 }(svgElement);
-var Circle = /*#__PURE__*/function (_svgElement2) {
-  _inherits(Circle, _svgElement2);
-  var _super2 = _createSuper(Circle);
+var Ellipse = /*#__PURE__*/function (_svgElement2) {
+  _inherits(Ellipse, _svgElement2);
+  var _super2 = _createSuper(Ellipse);
+  function Ellipse() {
+    var _this;
+    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    _classCallCheck(this, Ellipse);
+    _this = _super2.call(this, "ellipse", props);
+    _this.startingPosition = {};
+    _this.startingPosition.cx = _this.props.cx;
+    _this.startingPosition.cy = _this.props.cy;
+    return _this;
+  }
+
+  /**
+   * Event handler called during drawing.
+   * @param {Event} evt
+   * @param {Cursor} cursor
+   */
+  _createClass(Ellipse, [{
+    key: "onDraw",
+    value: function onDraw(evt, cursor) {
+      this.setCX(cursor.x);
+      this.setCY(cursor.y);
+      this.setRX(this.calculateRX(cursor));
+      this.setRY(this.calculateRY(cursor));
+    }
+
+    /**
+     * Sets the CX attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+  }, {
+    key: "setCX",
+    value: function setCX(value) {
+      this.setCXAttribute(value);
+      this.setCXProperty(value);
+    }
+
+    /**
+     * Sets the CX attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+  }, {
+    key: "setCXAttribute",
+    value: function setCXAttribute(value) {
+      this.setAttributeOnElementWithValidation("cx", value);
+    }
+
+    /**
+     * Sets the CX attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+  }, {
+    key: "setCXProperty",
+    value: function setCXProperty(value) {
+      this.props.cx = value;
+    }
+
+    /**
+     * Sets the CY attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+  }, {
+    key: "setCY",
+    value: function setCY(value) {
+      this.setCYAttribute(value);
+      this.setCYProperty(value);
+    }
+
+    /**
+     * Sets the CY attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+  }, {
+    key: "setCYAttribute",
+    value: function setCYAttribute(value) {
+      this.setAttributeOnElementWithValidation("cy", value);
+    }
+
+    /**
+     * Sets the CY attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+  }, {
+    key: "setCYProperty",
+    value: function setCYProperty(value) {
+      this.props.cy = value;
+    }
+
+    /**
+     * Sets the RX attribute on the shape and in the props.
+     * @param {Cursor} cursor
+     * @return {number} The value to be set.
+     */
+  }, {
+    key: "calculateRX",
+    value: function calculateRX(cursor) {
+      return Math.abs(cursor.x - this.startingPosition.cx);
+    }
+
+    /**
+     * Sets the RY attribute on the shape and in the props.
+     * @param {{x: number, y: number}} cursor
+     * @return {number} The value to be set.
+     */
+  }, {
+    key: "calculateRY",
+    value: function calculateRY(cursor) {
+      return Math.abs(cursor.y - this.startingPosition.cy);
+    }
+
+    /**
+     * Sets the RX attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+  }, {
+    key: "setRX",
+    value: function setRX(value) {
+      this.setRXAttribute(value);
+      this.setRXProperty(value);
+    }
+
+    /** 
+     * Sets the RX attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+  }, {
+    key: "setRXAttribute",
+    value: function setRXAttribute(value) {
+      this.setAttributeOnElementWithValidation("rx", value);
+    }
+
+    /**
+     * Sets the RX attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+  }, {
+    key: "setRXProperty",
+    value: function setRXProperty(value) {
+      this.props.rx = value;
+    }
+
+    /**
+     * Sets the RY attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+  }, {
+    key: "setRY",
+    value: function setRY(value) {
+      this.setRYAttribute(value);
+      this.setRYProperty(value);
+    }
+
+    /**
+     * Sets the RY attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+  }, {
+    key: "setRYAttribute",
+    value: function setRYAttribute(value) {
+      this.setAttributeOnElementWithValidation("ry", value);
+    }
+
+    /**
+     * Sets the RY attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+  }, {
+    key: "setRYProperty",
+    value: function setRYProperty(value) {
+      this.props.ry = value;
+    }
+  }]);
+  return Ellipse;
+}(svgElement);
+var Circle = /*#__PURE__*/function (_svgElement3) {
+  _inherits(Circle, _svgElement3);
+  var _super3 = _createSuper(Circle);
   function Circle() {
     var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     _classCallCheck(this, Circle);
-    return _super2.call(this, "circle", props);
+    return _super3.call(this, "circle", props);
   }
 
   /**
@@ -16756,29 +16942,6 @@ var Circle = /*#__PURE__*/function (_svgElement2) {
     }
 
     /**
-     * Sets the cx and cy values to the old values plus
-     * the offset specified by distance.dx and distance.dy
-     * @param {{dx: number, dy: number}} distance
-     */
-  }, {
-    key: "move",
-    value: function move(distance) {
-      this.setCX(parseFloat(this.props.cx) + distance.dx);
-      this.setCY(parseFloat(this.props.cy) + distance.dy);
-    }
-
-    /**
-     * Sets the specified position
-     * @param {{x: number, y: number}} position
-     */
-  }, {
-    key: "updatePosition",
-    value: function updatePosition(position) {
-      this.setCX(position.x);
-      this.setCY(position.y);
-    }
-
-    /**
      * Sets the CX attribute on the shape and in the props.
      * @param {number} value The value to be set.
      */
@@ -16839,16 +17002,101 @@ var Circle = /*#__PURE__*/function (_svgElement2) {
     value: function setCYProperty(value) {
       this.props.cy = value;
     }
+
+    /**
+     * Sets the RX attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+  }, {
+    key: "setRX",
+    value: function setRX(value) {
+      this.setRXAttribute(value);
+      this.setRXProperty(value);
+    }
+
+    /** 
+     * Sets the RX attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+  }, {
+    key: "setRXAttribute",
+    value: function setRXAttribute(value) {
+      this.setAttributeOnElementWithValidation("rx", value);
+    }
+
+    /**
+     * Sets the RX attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+  }, {
+    key: "setRXProperty",
+    value: function setRXProperty(value) {
+      this.props.rx = value;
+    }
+
+    /**
+     * Sets the RY attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+  }, {
+    key: "setRY",
+    value: function setRY(value) {
+      this.setRYAttribute(value);
+      this.setRYProperty(value);
+    }
+
+    /**
+     * Sets the RY attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+  }, {
+    key: "setRYAttribute",
+    value: function setRYAttribute(value) {
+      this.setAttributeOnElementWithValidation("ry", value);
+    }
+
+    /**
+     * Sets the RY attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+  }, {
+    key: "setRYProperty",
+    value: function setRYProperty(value) {
+      this.props.ry = value;
+    }
+
+    /**
+     * Sets the cx and cy values to the old values plus
+     * the offset specified by distance.dx and distance.dy
+     * @param {{dx: number, dy: number}} distance
+     */
+  }, {
+    key: "move",
+    value: function move(distance) {
+      this.setCX(parseFloat(this.props.cx) + distance.dx);
+      this.setCY(parseFloat(this.props.cy) + distance.dy);
+    }
+
+    /**
+     * Sets the specified position
+     * @param {{x: number, y: number}} position
+     */
+  }, {
+    key: "updatePosition",
+    value: function updatePosition(position) {
+      this.setCX(position.x);
+      this.setCY(position.y);
+    }
   }]);
   return Circle;
 }(svgElement);
-var Line = /*#__PURE__*/function (_svgElement3) {
-  _inherits(Line, _svgElement3);
-  var _super3 = _createSuper(Line);
+var Line = /*#__PURE__*/function (_svgElement4) {
+  _inherits(Line, _svgElement4);
+  var _super4 = _createSuper(Line);
   function Line() {
     var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     _classCallCheck(this, Line);
-    return _super3.call(this, "line", props);
+    return _super4.call(this, "line", props);
   }
 
   /**
@@ -17020,13 +17268,13 @@ var Line = /*#__PURE__*/function (_svgElement3) {
   }]);
   return Line;
 }(svgElement);
-var Image = /*#__PURE__*/function (_svgElement4) {
-  _inherits(Image, _svgElement4);
-  var _super4 = _createSuper(Image);
+var Image = /*#__PURE__*/function (_svgElement5) {
+  _inherits(Image, _svgElement5);
+  var _super5 = _createSuper(Image);
   function Image() {
     var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     _classCallCheck(this, Image);
-    return _super4.call(this, "image", props);
+    return _super5.call(this, "image", props);
   }
 
   /**
@@ -17062,13 +17310,13 @@ var Image = /*#__PURE__*/function (_svgElement4) {
   }]);
   return Image;
 }(svgElement);
-var Path = /*#__PURE__*/function (_svgElement5) {
-  _inherits(Path, _svgElement5);
-  var _super5 = _createSuper(Path);
+var Path = /*#__PURE__*/function (_svgElement6) {
+  _inherits(Path, _svgElement6);
+  var _super6 = _createSuper(Path);
   function Path() {
     var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     _classCallCheck(this, Path);
-    return _super5.call(this, "path", props);
+    return _super6.call(this, "path", props);
   }
 
   /**
@@ -17175,13 +17423,13 @@ var Path = /*#__PURE__*/function (_svgElement5) {
   }]);
   return Path;
 }(svgElement);
-var Text = /*#__PURE__*/function (_svgElement6) {
-  _inherits(Text, _svgElement6);
-  var _super6 = _createSuper(Text);
+var Text = /*#__PURE__*/function (_svgElement7) {
+  _inherits(Text, _svgElement7);
+  var _super7 = _createSuper(Text);
   function Text() {
     var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     _classCallCheck(this, Text);
-    return _super6.call(this, "text", props);
+    return _super7.call(this, "text", props);
   }
 
   /**
@@ -17316,23 +17564,23 @@ var Text = /*#__PURE__*/function (_svgElement6) {
   }]);
   return Text;
 }(svgElement);
-var Textbox = /*#__PURE__*/function (_svgElement7) {
-  _inherits(Textbox, _svgElement7);
-  var _super7 = _createSuper(Textbox);
+var Textbox = /*#__PURE__*/function (_svgElement8) {
+  _inherits(Textbox, _svgElement8);
+  var _super8 = _createSuper(Textbox);
   function Textbox() {
     var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     _classCallCheck(this, Textbox);
-    return _super7.call(this, "text", props);
+    return _super8.call(this, "text", props);
   }
   return _createClass(Textbox);
 }(svgElement);
-var Group = /*#__PURE__*/function (_svgElement8) {
-  _inherits(Group, _svgElement8);
-  var _super8 = _createSuper(Group);
+var Group = /*#__PURE__*/function (_svgElement9) {
+  _inherits(Group, _svgElement9);
+  var _super9 = _createSuper(Group);
   function Group() {
     var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     _classCallCheck(this, Group);
-    return _super8.call(this, "g", props);
+    return _super9.call(this, "g", props);
   }
   return _createClass(Group);
 }(svgElement);
@@ -18216,7 +18464,7 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
    */
   function Circle(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Circle);
-    return _super2.call(this, shapeId, "circle", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+    return _super2.call(this, shapeId, "ellipse", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
   }
   _createClass(Circle, [{
     key: "setInputValuesOnEdit",
@@ -18278,7 +18526,7 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
   }, {
     key: "meetsMinRequirements",
     value: function meetsMinRequirements() {
-      return this.mainElement.getAttribute("r") >= 4;
+      return this.mainElement.getAttribute("rx") >= 4 && this.mainElement.getAttribute("ry") >= 4;
     }
   }], [{
     key: "getMainElementAttributes",
@@ -18287,6 +18535,8 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
         "cx": cursorPosition.x,
         "cy": cursorPosition.y,
         "r": 0,
+        "rx": 0,
+        "ry": 0,
         "fill": UI.fillOpacityNumberCircle.value === 0 ? "none" : UI.fillColorCircle.value,
         "fill-opacity": parseFloat(UI.fillOpacityNumberCircle.value / 100),
         "stroke": UI.strokeColorCircle.value,

@@ -224,6 +224,145 @@ export class Rectangle extends svgElement {
     }
 }
 
+export class Ellipse extends svgElement {
+    constructor(props = null) {
+        super("ellipse", props);
+        this.startingPosition = {};
+        this.startingPosition.cx = this.props.cx;
+        this.startingPosition.cy = this.props.cy;
+    }
+
+    /**
+     * Event handler called during drawing.
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
+    onDraw(evt, cursor) {
+        this.setCX(cursor.x);
+        this.setCY(cursor.y);
+        this.setRX(this.calculateRX(cursor));
+        this.setRY(this.calculateRY(cursor));
+    }
+
+    /**
+     * Sets the CX attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+    setCX(value) {
+        this.setCXAttribute(value);
+        this.setCXProperty(value);
+    }
+
+    /**
+     * Sets the CX attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+    setCXAttribute(value) {
+        this.setAttributeOnElementWithValidation("cx", value);
+    }
+
+    /**
+     * Sets the CX attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+    setCXProperty(value) {
+        this.props.cx = value;
+    }
+
+    /**
+     * Sets the CY attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+    setCY(value) {
+        this.setCYAttribute(value);
+        this.setCYProperty(value);
+    }
+
+    /**
+     * Sets the CY attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+    setCYAttribute(value) {
+        this.setAttributeOnElementWithValidation("cy", value);
+    }
+
+    /**
+     * Sets the CY attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+    setCYProperty(value) {
+        this.props.cy = value;
+    }
+
+    /**
+     * Sets the RX attribute on the shape and in the props.
+     * @param {Cursor} cursor
+     * @return {number} The value to be set.
+     */
+    calculateRX(cursor) {
+        return Math.abs(cursor.x - this.startingPosition.cx);
+    }
+
+    /**
+     * Sets the RY attribute on the shape and in the props.
+     * @param {{x: number, y: number}} cursor
+     * @return {number} The value to be set.
+     */
+    calculateRY(cursor) {
+        return Math.abs(cursor.y - this.startingPosition.cy);
+    }
+
+    /**
+     * Sets the RX attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+    setRX(value) {
+        this.setRXAttribute(value);
+        this.setRXProperty(value);
+    }
+
+    /** 
+     * Sets the RX attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+    setRXAttribute(value) {
+        this.setAttributeOnElementWithValidation("rx", value);
+    }
+
+    /**
+     * Sets the RX attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+    setRXProperty(value) {
+        this.props.rx = value;
+    }
+
+    /**
+     * Sets the RY attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+    setRY(value) {
+        this.setRYAttribute(value);
+        this.setRYProperty(value);
+    }
+
+    /**
+     * Sets the RY attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+    setRYAttribute(value) {
+        this.setAttributeOnElementWithValidation("ry", value);
+    }
+
+    /**
+     * Sets the RY attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+    setRYProperty(value) {
+        this.props.ry = value;
+    }
+}
+
 export class Circle extends svgElement {
     constructor(props = null) {
         super("circle", props);
@@ -305,25 +444,6 @@ export class Circle extends svgElement {
     }
 
     /**
-     * Sets the cx and cy values to the old values plus
-     * the offset specified by distance.dx and distance.dy
-     * @param {{dx: number, dy: number}} distance
-     */
-    move(distance) {
-        this.setCX(parseFloat(this.props.cx) + distance.dx);
-        this.setCY(parseFloat(this.props.cy) + distance.dy);
-    }
-
-    /**
-     * Sets the specified position
-     * @param {{x: number, y: number}} position
-     */
-    updatePosition(position) {
-        this.setCX(position.x);
-        this.setCY(position.y);
-    }
-
-    /**
      * Sets the CX attribute on the shape and in the props.
      * @param {number} value The value to be set.
      */
@@ -371,6 +491,75 @@ export class Circle extends svgElement {
      */
     setCYProperty(value) {
         this.props.cy = value;
+    }
+
+    /**
+     * Sets the RX attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+    setRX(value) {
+        this.setRXAttribute(value);
+        this.setRXProperty(value);
+    }
+
+    /** 
+     * Sets the RX attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+    setRXAttribute(value) {
+        this.setAttributeOnElementWithValidation("rx", value);
+    }
+
+    /**
+     * Sets the RX attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+    setRXProperty(value) {
+        this.props.rx = value;
+    }
+
+    /**
+     * Sets the RY attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+    setRY(value) {
+        this.setRYAttribute(value);
+        this.setRYProperty(value);
+    }
+
+    /**
+     * Sets the RY attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+    setRYAttribute(value) {
+        this.setAttributeOnElementWithValidation("ry", value);
+    }
+
+    /**
+     * Sets the RY attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+    setRYProperty(value) {
+        this.props.ry = value;
+    }
+
+    /**
+     * Sets the cx and cy values to the old values plus
+     * the offset specified by distance.dx and distance.dy
+     * @param {{dx: number, dy: number}} distance
+     */
+    move(distance) {
+        this.setCX(parseFloat(this.props.cx) + distance.dx);
+        this.setCY(parseFloat(this.props.cy) + distance.dy);
+    }
+
+    /**
+     * Sets the specified position
+     * @param {{x: number, y: number}} position
+     */
+    updatePosition(position) {
+        this.setCX(position.x);
+        this.setCY(position.y);
     }
 }
 

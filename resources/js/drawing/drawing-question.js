@@ -1181,8 +1181,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 group: copyAllAttributesFromElementToObject(groupElement),
                 main: copyAllAttributesFromElementToObject(mainElement),
             };
-            const shapeID = groupElement.id,
-                shapeType = shapeID.substring(0, shapeID.indexOf("-"));
+            const shapeID = groupElement.id;
+            let shapeType = shapeID.substring(0, shapeID.indexOf("-"));
+            if(shapeType === 'ellipse') shapeType = 'circle';
             let newShape = makeNewSvgShapeWithSidebarEntry(
                 shapeType,
                 props,

@@ -464,7 +464,7 @@ export class Circle extends svgShape {
      * @param withHighlightEvents
      */
     constructor(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
-        super(shapeId, "circle", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+        super(shapeId, "ellipse", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
     }
 
     setInputValuesOnEdit() {
@@ -503,6 +503,8 @@ export class Circle extends svgShape {
             "cx": cursorPosition.x,
             "cy": cursorPosition.y,
             "r": 0,
+            "rx": 0,
+            "ry": 0,
             "fill":
                 UI.fillOpacityNumberCircle.value === 0 ? "none" : UI.fillColorCircle.value,
             "fill-opacity": parseFloat(UI.fillOpacityNumberCircle.value / 100),
@@ -530,7 +532,7 @@ export class Circle extends svgShape {
     }
 
     meetsMinRequirements() {
-        return this.mainElement.getAttribute("r") >= 4;
+        return this.mainElement.getAttribute("rx") >= 4 && this.mainElement.getAttribute("ry") >= 4;
     }
 }
 
