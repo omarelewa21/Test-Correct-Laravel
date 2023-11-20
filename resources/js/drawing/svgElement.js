@@ -104,6 +104,7 @@ class svgElement {
      * Loops over all attributes given and calls setAttributeOnElementWithValidation() on each.
      */
     setAllAttributesOnElement() {
+        this.modifyPropsBeforeSettingAttributes();
         for (const [key, value] of Object.entries(this.props)) {
             this.setAttributeOnElementWithValidation(key, value);
         }
@@ -182,6 +183,8 @@ class svgElement {
     }
     
     onResizeStart () {}
+
+    modifyPropsBeforeSettingAttributes() {}
 }
 
 export class Rectangle extends svgElement {
@@ -456,6 +459,13 @@ export class Ellipse extends svgElement {
         properties.rx > properties.ry
             ? properties.ry = properties.rx
             : properties.rx = properties.ry;
+    }
+
+    modifyPropsBeforeSettingAttributes() {
+        if(this.props.hasOwnProperty("r") && this.props.r > 0) {
+            this.props.rx = this.props.ry = this.props.r;
+            this.props.r = "0";
+        }
     }
 }
 

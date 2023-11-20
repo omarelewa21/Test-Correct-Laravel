@@ -16511,6 +16511,7 @@ var svgElement = /*#__PURE__*/function () {
   }, {
     key: "setAllAttributesOnElement",
     value: function setAllAttributesOnElement() {
+      this.modifyPropsBeforeSettingAttributes();
       for (var _i = 0, _Object$entries = Object.entries(this.props); _i < _Object$entries.length; _i++) {
         var _Object$entries$_i = _slicedToArray(_Object$entries[_i], 2),
           key = _Object$entries$_i[0],
@@ -16610,6 +16611,9 @@ var svgElement = /*#__PURE__*/function () {
   }, {
     key: "onResizeStart",
     value: function onResizeStart() {}
+  }, {
+    key: "modifyPropsBeforeSettingAttributes",
+    value: function modifyPropsBeforeSettingAttributes() {}
   }]);
   return svgElement;
 }();
@@ -16947,6 +16951,14 @@ var Ellipse = /*#__PURE__*/function (_svgElement2) {
     key: "fixPropertiesToKeepAspectRatioOnResize",
     value: function fixPropertiesToKeepAspectRatioOnResize(properties) {
       properties.rx > properties.ry ? properties.ry = properties.rx : properties.rx = properties.ry;
+    }
+  }, {
+    key: "modifyPropsBeforeSettingAttributes",
+    value: function modifyPropsBeforeSettingAttributes() {
+      if (this.props.hasOwnProperty("r") && this.props.r > 0) {
+        this.props.rx = this.props.ry = this.props.r;
+        this.props.r = "0";
+      }
     }
   }]);
   return Ellipse;
