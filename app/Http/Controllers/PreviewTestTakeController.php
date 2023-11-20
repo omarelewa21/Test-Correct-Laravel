@@ -17,7 +17,9 @@ use Facades\tcCore\Http\Controllers\PdfController;
 class PreviewTestTakeController extends Controller
 {
 
-
+    /**
+     * Creates Student Answers PDF for a TestTake
+     */
     public function show(TestTake $testTake, Request $request)
     {
         $titleForPdfPage = $testTake->test->name.' '.Carbon::now()->format('d-m-Y H:i');

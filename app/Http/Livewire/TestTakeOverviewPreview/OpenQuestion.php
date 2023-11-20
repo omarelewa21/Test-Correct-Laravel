@@ -18,6 +18,7 @@ class OpenQuestion extends TCComponent
     public $number;
     public $answers;
     public $editorId;
+    public $wordCount = 0;
 
     public function mount()
     {
@@ -46,5 +47,17 @@ class OpenQuestion extends TCComponent
     public function isQuestionFullyAnswered(): bool
     {
         return true;
+    }
+
+    public function getWordCountText()
+    {
+        $wordCount = str_word_count(strip_tags($this->answer));
+        $maxWords = $this->question?->max_words;
+
+        return sprintf('<span style="margin-right: 0.25rem;">%s</span>
+            <span>%s</span>',
+            __('test-take.amount_of_words'),
+            is_null($maxWords) ? $wordCount : $wordCount . '/' . $maxWords,
+        );
     }
 }
