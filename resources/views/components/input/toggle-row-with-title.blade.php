@@ -8,6 +8,7 @@
     'error' => false,
     'title' => '',
     'selid' => '',
+    'indented' => false,
 ])
 
 <div @class([
@@ -15,6 +16,7 @@
         $containerClass,
         'border-red-500' => $error,
         'border-bluegrey' => !$error,
+        'indented-toggle-row' => $indented,
      ])
      title="{{ $title }}"
 >

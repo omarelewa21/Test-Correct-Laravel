@@ -19,7 +19,7 @@
 {{--                <span>Terugknop (Naar portal, opnieuw inloggen?)</span>--}}
 {{--            </x-button.text>--}}
 {{--        </div>--}}
-        <div class="user flex flex-wrap items-center ml-auto space-x-6">
+        <div class="user flex flex-wrap items-center ml-auto space-x-6 device-dependent-margin">
             @if(Auth::user()->isA('Teacher'))
                 <span class="bold">{{ Auth::user()->getNameFullAttribute() }}</span>
             @else

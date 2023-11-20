@@ -33,6 +33,7 @@ class Settings
 
     public function canUseTakenTestPage(?User $user = null): bool
     {
+        return true;
         return $this->canUseFeature('allow_new_test_taken_pages',$user);
 //        return ($user ?? auth()->user())->schoolLocation?->allow_new_test_taken_pages;
     }

@@ -88,5 +88,5 @@ return [
     'RTTI Online export maken'                                                                 => 'Create RTTI Online export',
     'enable_mr_chadd'                                                                          => 'Enable Mr. Chadd for students',
     'enable_mr_chadd_tt'                                                                       => 'Enable students to use Mr. Chadd when doing the assignment',
-
+    'export_gradelist_csv_filename'                                                            => 'gradelist.csv',
 ];

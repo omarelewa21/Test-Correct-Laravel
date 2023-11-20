@@ -6,10 +6,13 @@ use Artisan;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\RefreshDatabaseState;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\Hash;
 use tcCore\Console\Kernel;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\Http\Helpers\ActingAsHelper;
+use tcCore\Lib\Answer\AnswerChecker;
 use tcCore\Lib\Question\Factory;
+use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\Role;
 use tcCore\SchoolClass;
 use tcCore\Student;
@@ -83,6 +86,14 @@ abstract class TestCase extends BaseTestCase
         $this->beginDatabaseTransaction();
     }
 
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        //prevent static property values from leaking between tests
+        QuestionGatherer::invalidateAllCache();
+        AnswerChecker::invalidateAllCache();
+    }
 
     /**
      * If true, setup has run at least once.
@@ -450,7 +461,7 @@ abstract class TestCase extends BaseTestCase
         $user = User::create([
             'school_location_id' => $schoolLocation->getKey(),
             'username'           => sprintf('info+%s-%d@test-correct.nl', $schoolLocation->name, $nr),
-            'password'           => \WirisHash::make($password),
+            'password'           => Hash::make($password),
             'name_first'         => $schoolLocation->name,
             'name'               => sprintf('student-%d', $nr),
             'api_key'            => sha1(time()),
@@ -516,7 +527,7 @@ abstract class TestCase extends BaseTestCase
         $user = User::create([
             'school_location_id' => $schoolLocation->getKey(),
             'username'           => sprintf('info+%s-teacher@test-correct.nl', $schoolLocation->name),
-            'password'           => \WirisHash::make($password),
+            'password'           => Hash::make($password),
             'name_first'         => $schoolLocation->name,
             'name'               => sprintf('teacher'),
             'api_key'            => sha1(time()),

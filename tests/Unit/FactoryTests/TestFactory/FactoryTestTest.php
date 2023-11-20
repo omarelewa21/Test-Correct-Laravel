@@ -128,7 +128,7 @@ class FactoryTestTest extends TestCase
         }
     }
 
-    public function provideOverrideAttributes()
+    public static function provideOverrideAttributes()
     {
         return [
             'introduction' => [

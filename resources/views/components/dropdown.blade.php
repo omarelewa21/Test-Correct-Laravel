@@ -21,7 +21,7 @@
     <div>
         <span class="rounded-md">
             <button @click="open = !open" type="button"
-                    class="body1 bold rotate-svg-90 space-x-1.5 inline justify-center w-full rounded-10 px-4 py-2 bg-opacity-0 text-sm focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-gray-50 active:text-gray-800 transition ease-in-out duration-150 {{$button}} {{ $labelstyle }}"
+                    class="dropdown-button-class text-button button-md rotate-svg-90 focus:shadow-outline-blue {{$button}} {{ $labelstyle }} {{ $attributes->get('class') }}"
                     :class="{primary: open}"
                     id="options-menu" aria-haspopup="true" x-bind:aria-expanded="open" aria-expanded="true">
                 <span class="align-middle ">{{ $label }}</span>

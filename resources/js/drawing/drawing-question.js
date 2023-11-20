@@ -1556,13 +1556,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         const layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
         if (!layerObject.props.id.includes(layerObject.Canvas.params.currentLayer)) return;
 
-        const selectedShape = rootElement.querySelector('.selected');
-        const selectedSvgShape = evt.target.closest("g.shape");
-
-        if (selectedShape) removeSelectState(selectedShape);
-        if (selectedShape === selectedSvgShape) return;
-
-        addSelectState(selectedSvgShape);
+        layerObject.shapes[shapeGroup.id].sidebar.toggleShapeSelect();
     }
 
     function removeSelectState(element) {
@@ -1627,7 +1621,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         if (evt.touches?.length === 2) {
             return startPan(evt);
         }
-        if (drawingApp.params.currentTool === "drag") {
+        if (drawingApp.params.currentTool === "drag" || evt.target.closest(".shape")?.classList.contains("selected")) {
             if (evt.target.classList.contains("corner")) return startResize(evt);
             return startDrag(evt);
         }
@@ -1992,8 +1986,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             Canvas.deleteObject(newShape.sidebar);
             --Canvas.params.draw.shapeCountForEachType[newShape.sidebar.type];
             return;
-        } 
+        }
         Canvas.params.highlightedShape = newShape;
+        newShape.sidebar.toggleShapeSelect();
     }
 
     function stopDrag() {

@@ -4,7 +4,9 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Livewire\TCModalComponent;
+use tcCore\Lib\Repositories\PeriodRepository;
 use tcCore\Subject;
 use tcCore\Test;
 
@@ -50,8 +52,11 @@ class CopyTestFromSchoollocationModal extends TCModalComponent
         $this->allowedSubjectsForExamnSubjects = Subject::allowedSubjectsByBaseSubjectForUser(
             $this->test->subject->baseSubject,
             auth()->user()
-        )->pluck('name', 'id');
+        )->whereIn('section_id',auth()->user()->schoolLocation->schoolLocationSections()->select('section_id'))
+            ->pluck('name', 'id');
+
         $this->request['subject_id'] = $this->allowedSubjectsForExamnSubjects->keys()->first();
+
     }
 
     public function copy($testUuid)
@@ -69,13 +74,17 @@ class CopyTestFromSchoollocationModal extends TCModalComponent
         }
 
         try {
+            $currentActingAsUser = ActingAsHelper::getInstance()->getUser();
+            ActingAsHelper::getInstance()->setUser(auth()->user());
             $newTest = $test->userDuplicate(
                 [
-                    'school_location_id' => Auth::user()->school_location_id,
+//                    'school_location_id' => Auth::user()->school_location_id, // deleted as this is never used
                     'subject_id'         => $this->request['subject_id'],
                     'name'               => $this->request['name'],
+                    'period_id'          => PeriodRepository::getCurrentPeriod()->getKey()
                 ], Auth::id()
             );
+            ActingAsHelper::getInstance()->setUser($currentActingAsUser);
         } catch (\Exception $e) {
             return 'Error duplication failed';
         }

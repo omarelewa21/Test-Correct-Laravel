@@ -205,7 +205,7 @@ class CreateUserRequest extends Request {
             }
         }
 
-        if(!array_key_exists('is_examcoordinator', $data) || $data['is_examcoordinator'] == 0){
+        if(isset($data['is_examcoordinator']) && $data['is_examcoordinator'] == 0) {
             $data['is_examcoordinator_for'] = NULL;
         }
 

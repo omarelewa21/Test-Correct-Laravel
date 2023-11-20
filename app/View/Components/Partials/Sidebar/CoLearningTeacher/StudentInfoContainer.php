@@ -25,7 +25,8 @@ class StudentInfoContainer extends Component
         public ?AnswerRating   $activeAnswerRating = null,
     ) {
         $this->userFullName = $this->testParticipant->user->nameFull;
-        $this->smartboardButtonActive = !is_null($activeAnswerRating) && $testParticipant->discussing_answer_rating_id === $activeAnswerRating->id;
+        $this->smartboardButtonActive = (!is_null($activeAnswerRating)
+            && $testParticipant->fresh()->discussing_answer_rating_id === $activeAnswerRating->id);
         $this->smartboardButtonDisabled = is_null($testParticipant?->discussing_answer_rating_id) || !$testParticipant->syncedWithCurrentQuestion;
     }
 

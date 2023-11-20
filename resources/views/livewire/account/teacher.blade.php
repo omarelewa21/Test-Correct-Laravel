@@ -17,7 +17,7 @@
                 />
             </div>
 
-            <div class="absolute right-4">
+            <div class="absolute right-4 device-dependent-right">
                 <div class="flex items-center justify-center min-w-[40px] w-10 h-10 rounded-full bg-white/20 hover:scale-105 transition-transform cursor-pointer"
                      wire:click="redirectBack()"
                 >
