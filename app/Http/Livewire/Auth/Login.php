@@ -152,7 +152,17 @@ class Login extends TCComponent
     public function login()
     {
         $this->resetErrorBag();
+        $this->resetErrorBag();
         $this->entree_error_message = '';
+
+        $this->username = trim($this->username);
+
+        // validation has been done on updated, so we know we have a valid email address we can check
+        if($this->doWeNeedToRedirectToEntreeDueToLocalLoginBlock($this->username)){
+            auth()->logout();
+            $route = route('saml2_login', ['entree','directlink' => $this->take]);
+            return $this->redirect($route);
+        }
 
         if (!$this->captcha && FailedLogin::doWeNeedExtraSecurityLayer($this->username)) {
             $this->requireCaptcha = true;
@@ -161,8 +171,6 @@ class Login extends TCComponent
         if ($this->captcha && !$this->validateCaptcha()) {
             return;
         }
-
-        $this->username = trim($this->username);
 
         $credentials = $this->getCustomValidator()->validate();
 
@@ -176,12 +184,6 @@ class Login extends TCComponent
             $this->addError('invalid_user', __('auth.failed'));
             $this->errorKeys = ['invalid_user'];
             return;
-        }
-
-        if(auth()->user()->isA('teacher') && Auth()->user()->schoolLocation->block_local_login){
-            auth()->logout();
-            $route = route('saml2_login', ['entree','directlink' => $this->take]);
-            return $this->redirect($route);
         }
 
         if ((Auth()->user()->isA('teacher') || Auth()->user()->isA('student')) && EntreeHelper::shouldPromptForEntree(auth()->user())) {
@@ -212,6 +214,15 @@ class Login extends TCComponent
             return $this->emit('openModal', 'force-password-change-modal');
         }
         return $this->redirect($route);
+    }
+
+    protected function doWeNeedToRedirectToEntreeDueToLocalLoginBlock($username)
+    {
+        $user = User::whereUsername($username)->first();
+        if($user && $user->isA('teacher') && optional($user->schoolLocation)->block_local_login){
+            return true;
+        }
+        return false;
     }
 
     public function guestLogin()
