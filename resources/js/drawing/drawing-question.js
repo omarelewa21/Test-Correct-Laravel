@@ -173,7 +173,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             return this.getElementShapeType(shape) === this.params.currentTool;
         },
         getElementShapeType(shape) {
-            return shape.id.split("-")[0];
+            return this.correctShapeId(shape.id).split("-")[0];
+        },
+        correctShapeId(shapeId) {
+            return shapeId.replace("ellipse", "circle");
         },
         isTeacher() {
             return this.params.isTeacher;
@@ -334,11 +337,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 }
             },
             /**
-             * @param {*} g element 
+             * @param {HTML element} shape 
              * @returns object containing element svg (svgShape class) and its sidebar (Entry class)
              */
             getShapeDataObject(shape) {
-                return Canvas.layers[Canvas.layerID2Key(shape.parentElement.id)].shapes[shape.id];
+                return Canvas.layers[Canvas.layerID2Key(shape.parentElement.id)].shapes[drawingApp.correctShapeId(shape.id)];
             }
         }
 
@@ -1181,8 +1184,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 group: copyAllAttributesFromElementToObject(groupElement),
                 main: copyAllAttributesFromElementToObject(mainElement),
             };
-            const shapeID = groupElement.id,
-                shapeType = shapeID.substring(0, shapeID.indexOf("-"));
+            const shapeID = drawingApp.correctShapeId(groupElement.id);
+            let shapeType = shapeID.substring(0, shapeID.indexOf("-"));
             let newShape = makeNewSvgShapeWithSidebarEntry(
                 shapeType,
                 props,
@@ -1633,7 +1636,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         const layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
         if (!shapeMayBeDragged(shapeGroup, layerObject)) return;
 
-        const selectedSvgShape = layerObject.shapes[shapeGroup.id].svg;
+        const selectedSvgShape = layerObject.shapes[drawingApp.correctShapeId(shapeGroup.id)].svg;
 
         Canvas.params.drag = {
             enabled: true,
@@ -1651,7 +1654,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         const layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
         if (!shapeMayBeDragged(shapeGroup, layerObject)) return;
 
-        const selectedSvgShape = layerObject.shapes[shapeGroup.id].svg;
+        const selectedSvgShape = layerObject.shapes[drawingApp.correctShapeId(shapeGroup.id)].svg;
         if (!shapeIsResizable(selectedSvgShape)) return;
 
         Canvas.params.resize = {

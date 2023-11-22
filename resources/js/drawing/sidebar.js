@@ -319,11 +319,17 @@ export class Entry extends sidebarComponent {
     showRelevantShapeMenu() {
         let shapeType = this.svgShape.type;
 
-        if(shapeType === 'image') return;
-
-        if(shapeType === 'path') {
-            shapeType = 'freehand';
+        switch (shapeType) {
+            case 'image':
+                return;
+            case 'path':
+                shapeType = 'freehand';
+                break;
+            case 'ellipse':
+                shapeType = 'circle';
+                break;
         }
+
         document.querySelector(`#add-${shapeType}-btn`).click();
     }
 

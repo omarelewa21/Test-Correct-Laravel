@@ -104,6 +104,7 @@ class svgElement {
      * Loops over all attributes given and calls setAttributeOnElementWithValidation() on each.
      */
     setAllAttributesOnElement() {
+        this.modifyPropsBeforeSettingAttributes();
         for (const [key, value] of Object.entries(this.props)) {
             this.setAttributeOnElementWithValidation(key, value);
         }
@@ -180,6 +181,10 @@ class svgElement {
             dy: currentPosition.y - previousPosition.y,
         };
     }
+    
+    onResizeStart () {}
+
+    modifyPropsBeforeSettingAttributes() {}
 }
 
 export class Rectangle extends svgElement {
@@ -202,30 +207,265 @@ export class Rectangle extends svgElement {
      * @param {Cursor} cursor
      */
     onDraw(evt, cursor) {
-        let coords = this.calculateCoordsForDraw(cursor);
+        let coords = this.calculateCoordsForDraw(cursor, evt.shiftKey);
         this.updateAttributes(coords);
     }
 
     /**
      * Calculates values for the x, y, width and height properties of the rectangle.
      * @param {{x: number, y: number}} cursor
+     * @param {boolean} keepAspectRatio
      * @returns {RectangleCoords}
      */
-    calculateCoordsForDraw(cursor) {
+    calculateCoordsForDraw(cursor, keepAspectRatio=false) {
         const startingPosition = this.draw.startingPosition;
-        const coords = {
+        let coords = {
             x: startingPosition.x,
             y: startingPosition.y,
             width: cursor.x - startingPosition.x,
             height: cursor.y - startingPosition.y,
         };
-        const replacements = {
-            x: cursor.x,
-            y: cursor.y,
-            width: -coords.width,
-            height: -coords.height
-        };
-        return this.correctNegativeSizes(coords, replacements);
+        return this.getCorrectCords(cursor, coords, keepAspectRatio);
+    }
+}
+
+export class Ellipse extends svgElement {
+    constructor(props = null) {
+        super("ellipse", props);
+        this.startingPosition = {};
+        this.startingPosition.cx = this.props.cx;
+        this.startingPosition.cy = this.props.cy;
+    }
+
+    /**
+     * Event handler called during drawing.
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
+    onDraw(evt, cursor) {
+        this.thisSetPropertiesOnDraw(cursor, evt.shiftKey);
+    }
+
+    /** 
+     * Sets the properties of the ellipse on draw.
+     * @param {Cursor} cursor
+     * @param {boolean} keepAspectRatio
+    */
+    thisSetPropertiesOnDraw(cursor, keepAspectRatio) {
+        const properties = {
+            cx: cursor.x,
+            cy: cursor.y,
+            rx: this.calculateRX(cursor, this.startingPosition),
+            ry: this.calculateRY(cursor, this.startingPosition),
+        }
+        keepAspectRatio && this.fixPropertiesToKeepAspectRatioOnDraw(properties);
+        this.updateProperties(properties);
+    }
+
+    /**
+     * fix the properties to keep the aspect ratio
+     * @param {EllipseCoords} properties
+     */
+    fixPropertiesToKeepAspectRatioOnDraw(properties) {
+        properties.rx < properties.ry
+            ? properties.ry = properties.rx
+            : properties.rx = properties.ry;
+
+        properties.cy = this.startingPosition.cy;
+        properties.cx = this.startingPosition.cx;
+    }
+
+    /**
+     * Sets the properties of the ellipse.
+     * @param {EllipseCoords} properties
+    */
+    updateProperties(properties) {
+        this.setCX(properties.cx);
+        this.setCY(properties.cy);
+        this.setRX(properties.rx);
+        this.setRY(properties.ry);
+    }
+
+    /**
+     * Sets the CX attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+    setCX(value) {
+        this.setCXAttribute(value);
+        this.setCXProperty(value);
+    }
+
+    /**
+     * Sets the CX attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+    setCXAttribute(value) {
+        this.setAttributeOnElementWithValidation("cx", value);
+    }
+
+    /**
+     * Sets the CX attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+    setCXProperty(value) {
+        this.props.cx = value;
+    }
+
+    /**
+     * Sets the CY attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+    setCY(value) {
+        this.setCYAttribute(value);
+        this.setCYProperty(value);
+    }
+
+    /**
+     * Sets the CY attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+    setCYAttribute(value) {
+        this.setAttributeOnElementWithValidation("cy", value);
+    }
+
+    /**
+     * Sets the CY attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+    setCYProperty(value) {
+        this.props.cy = value;
+    }
+
+    /**
+     * Sets the RX attribute on the shape and in the props.
+     * @param {Cursor} cursor
+     * @param {{cx: number, cy: number}} previousPosition
+     * @return {number} The value to be set.
+     */
+    calculateRX(cursor, previousPosition) {
+        return Math.abs(cursor.x - previousPosition.cx);
+    }
+
+    /**
+     * Sets the RY attribute on the shape and in the props.
+     * @param {{x: number, y: number}} cursor
+     * @param {{cx: number, cy: number}} previousPosition
+     * @return {number} The value to be set.
+     */
+    calculateRY(cursor, previousPosition) {
+        return Math.abs(cursor.y - previousPosition.cy);
+    }
+
+    /**
+     * Sets the RX attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+    setRX(value) {
+        this.setRXAttribute(value);
+        this.setRXProperty(value);
+    }
+
+    /** 
+     * Sets the RX attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+    setRXAttribute(value) {
+        this.setAttributeOnElementWithValidation("rx", value);
+    }
+
+    /**
+     * Sets the RX attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+    setRXProperty(value) {
+        this.props.rx = value;
+    }
+
+    /**
+     * Sets the RY attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+    setRY(value) {
+        this.setRYAttribute(value);
+        this.setRYProperty(value);
+    }
+
+    /**
+     * Sets the RY attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+    setRYAttribute(value) {
+        this.setAttributeOnElementWithValidation("ry", value);
+    }
+
+    /**
+     * Sets the RY attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+    setRYProperty(value) {
+        this.props.ry = value;
+    }
+
+    /**
+     * Event handler called at start of dragging
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
+    onDragStart(evt, cursor) {
+        this.drag.previousCursorPosition = cursor;
+        this.drag.startingPosition = {x: this.props.cx, y: this.props.cy};
+    }
+
+    /**
+     * Sets the cx and cy values to the old values plus
+     * the offset specified by distance.dx and distance.dy
+     * @param {{dx: number, dy: number}} distance
+     */
+    move(distance) {
+        this.setCX(parseFloat(this.props.cx) + distance.dx);
+        this.setCY(parseFloat(this.props.cy) + distance.dy);
+    }
+
+    /**
+     * Sets the specified position
+     * @param {{x: number, y: number}} position
+     */
+    updatePosition(position) {
+        this.setCX(position.x);
+        this.setCY(position.y);
+    }
+
+    /**
+     * Event handler called during resize.
+     * @param {Event} evt
+     * @param {Cursor} cursor
+     */
+    onResize(evt, cursor) {
+        this.thisSetPropertiesOnResize(cursor, evt.shiftKey);
+    }
+
+    thisSetPropertiesOnResize(cursor, keepAspectRatio) {
+        const properties = {
+            cx: this.props.cx,
+            cy: this.props.cy,
+            rx: this.calculateRX(cursor, this.props),
+            ry: this.calculateRY(cursor, this.props),
+        }
+        keepAspectRatio && this.fixPropertiesToKeepAspectRatioOnResize(properties);
+        this.updateProperties(properties);
+    }
+
+    fixPropertiesToKeepAspectRatioOnResize(properties) {
+        properties.rx > properties.ry
+            ? properties.ry = properties.rx
+            : properties.rx = properties.ry;
+    }
+
+    modifyPropsBeforeSettingAttributes() {
+        if(this.props.hasOwnProperty("r") && this.props.r > 0) {
+            this.props.rx = this.props.ry = this.props.r;
+            this.props.r = "0";
+        }
     }
 }
 
@@ -310,25 +550,6 @@ export class Circle extends svgElement {
     }
 
     /**
-     * Sets the cx and cy values to the old values plus
-     * the offset specified by distance.dx and distance.dy
-     * @param {{dx: number, dy: number}} distance
-     */
-    move(distance) {
-        this.setCX(parseFloat(this.props.cx) + distance.dx);
-        this.setCY(parseFloat(this.props.cy) + distance.dy);
-    }
-
-    /**
-     * Sets the specified position
-     * @param {{x: number, y: number}} position
-     */
-    updatePosition(position) {
-        this.setCX(position.x);
-        this.setCY(position.y);
-    }
-
-    /**
      * Sets the CX attribute on the shape and in the props.
      * @param {number} value The value to be set.
      */
@@ -376,6 +597,75 @@ export class Circle extends svgElement {
      */
     setCYProperty(value) {
         this.props.cy = value;
+    }
+
+    /**
+     * Sets the RX attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+    setRX(value) {
+        this.setRXAttribute(value);
+        this.setRXProperty(value);
+    }
+
+    /** 
+     * Sets the RX attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+    setRXAttribute(value) {
+        this.setAttributeOnElementWithValidation("rx", value);
+    }
+
+    /**
+     * Sets the RX attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+    setRXProperty(value) {
+        this.props.rx = value;
+    }
+
+    /**
+     * Sets the RY attribute on the shape and in the props.
+     * @param {number} value The value to be set.
+     */
+    setRY(value) {
+        this.setRYAttribute(value);
+        this.setRYProperty(value);
+    }
+
+    /**
+     * Sets the RY attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+    setRYAttribute(value) {
+        this.setAttributeOnElementWithValidation("ry", value);
+    }
+
+    /**
+     * Sets the RY attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+    setRYProperty(value) {
+        this.props.ry = value;
+    }
+
+    /**
+     * Sets the cx and cy values to the old values plus
+     * the offset specified by distance.dx and distance.dy
+     * @param {{dx: number, dy: number}} distance
+     */
+    move(distance) {
+        this.setCX(parseFloat(this.props.cx) + distance.dx);
+        this.setCY(parseFloat(this.props.cy) + distance.dy);
+    }
+
+    /**
+     * Sets the specified position
+     * @param {{x: number, y: number}} position
+     */
+    updatePosition(position) {
+        this.setCX(position.x);
+        this.setCY(position.y);
     }
 }
 
@@ -934,16 +1224,17 @@ const rectangularFunctionality = {
      * @param {Cursor} cursor
      */
     onResize(evt, cursor) {
-        const coords = this.calculateCoordsForResize(cursor);
+        const coords = this.calculateCoordsForResize(cursor, evt.shiftKey);
         this.updateAttributes(coords);
     },
 
     /**
      * Calculates new values for the x, y, width and height properties of the rectangle.
      * @param {{x: number, y: number}} cursor
+     * @param {boolean} keepAspectRatio
      * @returns {RectangleCoords}
      */
-    calculateCoordsForResize(cursor) {
+    calculateCoordsForResize(cursor, keepAspectRatio=false) {
         const startingCoords = this.resize.startingCoords;
         const coords = {
             x: startingCoords.x,
@@ -985,7 +1276,13 @@ const rectangularFunctionality = {
         }
         replacements.width = -coords.width;
         replacements.height = -coords.height;
-        return this.correctNegativeSizes(coords, replacements);
+
+        this.correctNegativeSizes(coords, replacements);
+        if(keepAspectRatio) {
+            this.fixCoordsToKeepAspectRatio(coords);
+            this.fixCoordsCoordinatesOnResize(coords, replacements);
+        }
+        return coords;
     },
 
     /**
@@ -1005,7 +1302,116 @@ const rectangularFunctionality = {
             coords.height = replacements.height;
         }
         return coords;
-    }
+    },
+
+    /**
+     * Calculates the new values for the x, y, width and height properties of the rectangle when the width or height are negative.
+     * @param {{x: number, y: number}} cursor 
+     * @param {RectangleCoords} coords
+     * @param {bool} keepAspectRatio
+     * @returns {RectangleCoords}
+     */
+    getReplacementCoordsForNegativeSizesCorrection(cursor, coords, keepAspectRatio) {
+        let replacements = {
+            x: cursor.x,
+            y: cursor.y,
+            width: -coords.width,
+            height: -coords.height
+        };
+
+        if(keepAspectRatio) {
+            if(coords.width < 0 && coords.height < 0) {
+                // Mouse direction is up left from starting point
+                -coords.width >= -coords.height
+                    ? replacements.x = coords.x + coords.height
+                    : replacements.y = coords.y + coords.width;
+            }
+            else if (coords.width < 0 && -coords.width >= coords.height) {
+                // Mouse direction is down left from starting point
+                replacements.x = coords.x + -coords.height;
+            }
+            else if (coords.height < 0 && -coords.height >= coords.width) {
+                // Mouse direction is up right from starting point
+                replacements.y = coords.y + -coords.width;
+            }
+        }
+
+        return replacements;
+    },
+
+    /**
+     * Checks if the aspect ratio should be kept and corrects the given coordinates if needed.
+     * @param {RectangleCoords} coords 
+     */
+    fixCoordsToKeepAspectRatio(coords) {
+        coords.width < coords.height
+            ? coords.height = coords.width
+            : coords.width = coords.height;        
+    },
+
+    /**
+     * Check if the aspect ratio should be kept and corrects the given coordinates if needed.
+     * @param {{x: number, y: number}} cursor
+     * @param {RectangleCoords} coords
+     * @param {bool} keepAspectRatio
+     * @returns {RectangleCoords}
+     */
+    getCorrectCords(cursor, coords, keepAspectRatio) {
+        const replacements = this.getReplacementCoordsForNegativeSizesCorrection(cursor, coords, keepAspectRatio);
+        this.correctNegativeSizes(coords, replacements);
+        keepAspectRatio && this.fixCoordsToKeepAspectRatio(coords);
+        return coords;
+    },
+
+    /**
+     * Fixes the coordinates of the rectangle when the aspect ratio is kept.
+     * @param {RectangleCoords} coords 
+     * @param {RectangleCoords} replacements 
+     */
+    fixCoordsCoordinatesOnResize(coords, replacements) {
+        switch(this.resize.selectedCorner){
+            case "side-se":
+                if(replacements.height > 0) {
+                    const difference = replacements.height - coords.height;
+                    coords.y = coords.y + difference;
+                }
+                if(replacements.width > 0) {
+                    const difference = replacements.width - coords.width;
+                    coords.x = coords.x + difference;
+                }
+                break;
+            case "side-ne":
+                if(replacements.height < 0) {
+                    const difference = replacements.height + coords.height;
+                    coords.y = coords.y - difference;
+                }
+                if(replacements.width > 0) {
+                    const difference = replacements.width - coords.width;
+                    coords.x = coords.x + difference;
+                }
+                break;
+            case "side-sw":
+                if(replacements.height > 0) {
+                    const difference = replacements.height - coords.height;
+                    coords.y = coords.y + difference;
+                }
+                if(replacements.width < 0) {
+                    const difference = replacements.width + coords.width;
+                    coords.x = coords.x - difference;
+                }
+                break;
+            case "side-nw":
+                if(replacements.height < 0) {
+                    const difference = replacements.height + coords.height;
+                    coords.y = coords.y - difference;
+                }
+                if(replacements.width < 0) {
+                    const difference = replacements.width + coords.width;
+                    coords.x = coords.x - difference;
+                }
+                break;
+        }
+    },
 };
 
 Object.assign(Rectangle.prototype, rectangularFunctionality);

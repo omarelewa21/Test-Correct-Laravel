@@ -15,6 +15,7 @@ export const validSvgElementKeys = {
         "marker-start", "marker-mid", "marker-end"],
     rect: ["x", "y", "width", "height", "rx", "ry", "pathLength"],
     circle: ["cx", "cy", "r", "pathLength"],
+    ellipse: ["cx", "cy", "rx", "ry", "r", "pathLength"],
     line: ["x1", "y1", "x2", "y2", "pathLength"],
     path: ["d"],
     image: ["x", "y", "width", "height", "href", "preserveAspectRatio", "identifier"],
@@ -61,6 +62,7 @@ export const panParams = {
 export const elementClassNameForType = {
     "rect": "Rectangle",
     "circle": "Circle",
+    "ellipse": "Ellipse",
     "line": "Line",
     "text": "Text",
     "image": "Image",
@@ -68,5 +70,5 @@ export const elementClassNameForType = {
 };
 
 export const resizableSvgShapes = [
-  "rect", "circle", "image"
+  "rect", "circle", "image", "ellipse"
 ];

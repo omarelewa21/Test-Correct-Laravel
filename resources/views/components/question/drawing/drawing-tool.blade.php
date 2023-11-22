@@ -265,6 +265,7 @@
           data-question="{{ __('drawing-modal.Vraag') }}"
           data-image="{{ __("drawing-modal.Afbeelding") }}"
           data-path="{{ __("drawing-modal.Penlijn") }}"
+          data-ellipse="{{ __("drawing-modal.Cirkel") }}"
           @foreach($shapes as $shape)
             data-{{$shape->id}}="{{$shape->title}}"
           @endforeach
