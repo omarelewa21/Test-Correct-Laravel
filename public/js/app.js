@@ -11379,6 +11379,37 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("ckEditorInlineImageUpload", function (errorTranslation) {
+    return {
+      allowedMimeTypes: {
+        jpeg: 'image/jpeg',
+        png: 'image/png',
+        gif: 'image/gif'
+      },
+      /**
+       * Check if the dropped file is an allowed image,
+       * !! after it has already passed the ckeditor image config check (config.image.upload.types) !!
+       * @param event
+       */
+      checkMimeType: function checkMimeType(event) {
+        for (var i = 0; i < event.dataTransfer.files.length; i++) {
+          var mimeType = event.dataTransfer.files[i].type;
+          if (!Object.values(this.allowedMimeTypes).includes(mimeType)) {
+            for (var _i2 = 0, _Object$entries = Object.entries(this.allowedMimeTypes); _i2 < _Object$entries.length; _i2++) {
+              var _Object$entries$_i = _slicedToArray(_Object$entries[_i2], 2),
+                key = _Object$entries$_i[0],
+                value = _Object$entries$_i[1];
+              if (value === mimeType) {
+                mimeType = key;
+              }
+            }
+            Notify.notify(errorTranslation + mimeType, 'error');
+          }
+        }
+        ;
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref9) {
     var expression = _ref9.expression;
     var f = new Function("_", "$data", "_." + expression + " = $data;return;");

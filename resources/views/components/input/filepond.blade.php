@@ -60,16 +60,14 @@
                     this.$dispatch('filepond-finished')
                 }
             });
-    },
-    newFilesReceived: (event) => {
-                var files = [];
-                for (var i = 0; i < event.detail.dataTransfer.items.length; i++) {
-                   files.push(event.detail.dataTransfer.items[i].getAsFile());
-                }
-                this.post.addFiles(files);
-                $dispatch('filepond-start');
-                console.log('newFilesReceived');
-
+        },
+        newFilesReceived: (event) => {
+                    var files = [];
+                    for (var i = 0; i < event.detail.dataTransfer.items.length; i++) {
+                       files.push(event.detail.dataTransfer.items[i].getAsFile());
+                    }
+                    this.post.addFiles(files);
+                    $dispatch('filepond-start');
         }
     }
 "

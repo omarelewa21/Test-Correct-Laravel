@@ -4410,6 +4410,35 @@ document.addEventListener("alpine:init", () => {
         },
     }));
 
+
+    Alpine.data("ckEditorInlineImageUpload", (errorTranslation) => ({
+        allowedMimeTypes: {
+            jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif',
+        },
+        /**
+         * Check if the dropped file is an allowed image,
+         * !! after it has already passed the ckeditor image config check (config.image.upload.types) !!
+         * @param event
+         */
+        checkMimeType: function (event) {
+            for (let i = 0; i < event.dataTransfer.files.length; i++) {
+
+                let mimeType = event.dataTransfer.files[i].type;
+
+                if (!Object.values(this.allowedMimeTypes).includes(mimeType)) {
+                    for (const [key, value] of Object.entries(this.allowedMimeTypes)) {
+                        if (value === mimeType) {
+                            mimeType = key;
+                        }
+                    }
+
+                    Notify.notify(errorTranslation + mimeType, 'error');
+                }
+            }
+            ;
+        }
+    }));
+
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");
         f(window, el._x_dataStack[0]);
