@@ -72,7 +72,7 @@ class PersonalServiceTest extends TestCase
         auth()->login($teacher = ScenarioLoader::get('dutchTeacher'));
         $this->assertInstanceOf(
             \tcCore\Test::class,
-            (new PersonalService )->itemBankFiltered(filters:[], sorting:[], forUser:$teacher)->first()
+            (new PersonalService )->itemBankFiltered( forUser: $teacher, filters: [], sorting: [])->first()
         );
     }
 

@@ -54,7 +54,7 @@ class ThiemeMeulenhoffService extends ContentSourceService
 
     protected static function testsAvailableForUser(User $user): bool
     {
-        return (new static)->itemBankFiltered(filters: [], sorting: [], forUser: $user)->exists();
+        return (new static)->itemBankFiltered(forUser: $user, filters: [], sorting: [])->exists();
     }
 
     protected static function allowedForUser(User $user): bool

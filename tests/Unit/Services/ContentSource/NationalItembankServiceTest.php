@@ -133,7 +133,7 @@ class NationalItembankServiceTest extends TestCase
 
         $this->assertInstanceOf(
             \tcCore\Test::class,
-            (new NationalItemBankService )->itemBankFiltered(filters:[], sorting:[], forUser: $teacher)
+            (new NationalItemBankService )->itemBankFiltered( forUser: $teacher, filters: [], sorting: [])
                 ->where('name', 'test-TBNI-Nederlands')
                 ->first()
         );

@@ -171,7 +171,7 @@ class ThiemeMeulenhoffServiceTest extends TestCase
 
         $this->assertInstanceOf(
             \tcCore\Test::class,
-            (new ThiemeMeulenhoffService)->itemBankFiltered(filters:[], sorting:[], forUser:$teacher)->where('name', 'test-ThiemeMeulenhoff-Nederlands')->first()
+            (new ThiemeMeulenhoffService)->itemBankFiltered( forUser: $teacher, filters: [], sorting: [])->where('name', 'test-ThiemeMeulenhoff-Nederlands')->first()
         );
     }
 

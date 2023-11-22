@@ -130,7 +130,7 @@ class FormidableServiceTest extends TestCase
 
         $this->assertInstanceOf(
             \tcCore\Test::class,
-            (new FormidableService)->itemBankFiltered(filters: [], sorting: [], forUser: $teacher)->where('name', 'test-Formidable-Frans')->first()
+            (new FormidableService)->itemBankFiltered( forUser: $teacher, filters: [], sorting: [])->where('name', 'test-Formidable-Frans')->first()
         );
     }
 

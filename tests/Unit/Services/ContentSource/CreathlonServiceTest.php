@@ -126,7 +126,7 @@ class CreathlonServiceTest extends TestCase
 
         $this->assertInstanceOf(
             \tcCore\Test::class,
-            (new CreathlonService)->itemBankFiltered(filters: [], sorting: [], forUser: $teacher)
+            (new CreathlonService)->itemBankFiltered( forUser: $teacher, filters: [], sorting: [])
                 ->where('name', 'test-Creathlon-Frans')
                 ->first()
         );

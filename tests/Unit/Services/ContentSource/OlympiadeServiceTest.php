@@ -126,7 +126,7 @@ class OlympiadeServiceTest extends TestCase
 
         $this->assertInstanceOf(
             \tcCore\Test::class,
-            (new OlympiadeService)->itemBankFiltered(filters: [], sorting: [], forUser: $teacher)->where('name', 'test-Olympiade-Nederlands')->first()
+            (new OlympiadeService)->itemBankFiltered( forUser: $teacher, filters: [], sorting: [])->where('name', 'test-Olympiade-Nederlands')->first()
         );
     }
 

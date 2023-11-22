@@ -70,7 +70,7 @@ class SchoolLocationServiceTest extends TestCase
         auth()->login($teacher = ScenarioLoader::get('dutchTeacher'));
         $this->assertInstanceOf(
             \tcCore\Test::class,
-            (new SchoolLocationService )->itemBankFiltered(filters:[], sorting:[], forUser:$teacher)->first()
+            (new SchoolLocationService )->itemBankFiltered( forUser: $teacher, filters: [], sorting: [])->first()
         );
     }
 
