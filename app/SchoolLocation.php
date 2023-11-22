@@ -101,7 +101,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'allow_wsc', 'allow_writing_assignment', 'license_type',
         'auto_uwlr_import','auto_uwlr_import_status','auto_uwlr_last_import','allow_cms_write_down_wsc_toggle', 'allow_new_test_take_detail_page',
         'allow_mr_chadd',
-        'allow_new_test_taken_pages'
+        'allow_new_test_taken_pages','block_local_login',
     ];
 
     /**

@@ -503,7 +503,8 @@ class EntreeHelper
         if($user->isValidExamCoordinator()){
             return false;
         }
-        return (optional($user->schoolLocation)->lvs_active && empty($user->eck_id));
+        return ((optional($user->schoolLocation)->lvs_active && empty($user->eck_id)))
+                || ($user->isA('teacher') && optional($user->schoolLocation)->block_local_login);
     }
 
     private function getEckIdFromAttributes()
