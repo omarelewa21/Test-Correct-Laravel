@@ -68,9 +68,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     const MIN_PASSWORD_LENGTH = 8;
 
     protected $casts = [
-        'uuid'               => EfficientUuid::class,
-        'intense'            => 'boolean',
-        'is_examcoordinator' => 'boolean',
+        'uuid'                     => EfficientUuid::class,
+        'intense'                  => 'boolean',
+        'is_examcoordinator'       => 'boolean',
         'password_expiration_date' => 'datetime',
     ];
 
@@ -103,7 +103,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     protected $fillable = [
         'sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name',
         'password', 'external_id', 'gender', 'time_dispensation', 'text2speech', 'abbreviation', 'note', 'demo',
-        'invited_by', 'account_verified', 'test_take_code_id', 'guest', 'send_welcome_email', 'is_examcoordinator', 'is_examcoordinator_for', 'password_expiration_date','has_package'
+        'invited_by', 'account_verified', 'test_take_code_id', 'guest', 'send_welcome_email', 'is_examcoordinator', 'is_examcoordinator_for', 'password_expiration_date', 'has_package'
     ];
 
 
@@ -1390,9 +1390,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $isToetsenbakker;
     }
 
-    public function isCurrentlyInToetsenbakkerij() : bool
+    public function isCurrentlyInToetsenbakkerij(): bool
     {
-        return SchoolLocation::where('customer_code', config('custom.TB_customer_code'))->where('id',$this->school_location_id)->exists();
+        return SchoolLocation::where('customer_code', config('custom.TB_customer_code'))->where('id', $this->school_location_id)->exists();
     }
 
     public function isTestCorrectUser()
@@ -1415,6 +1415,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         }
         return false;
     }
+
     public static function getDeletedNewUser()
     {
         $user = new static();
@@ -1731,8 +1732,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     $query->where('name_first', 'LIKE', '%' . $value . '%');
                     break;
                 case 'has_package':
-                    if ($value==1) {      $query->where('has_package', '=', 1);
-                    } elseif($value==2) {
+                    if ($value == 1) {
+                        $query->where('has_package', '=', 1);
+                    } elseif ($value == 2) {
                         $query->where('has_package', '=', 0);
                     }
                     break;
@@ -1742,7 +1744,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     $usersWithMoreThan0Days = []; // Array to store user IDs with more than 0 days remaining
                     foreach ($usersStatus as $userStatus) {
                         $daysRemaining = $userStatus->created_at->diffInDays($userStatus->trial_until);
-        
+
                         if ($daysRemaining >= 1 && $daysRemaining <= 15) {
                             // If days remaining is greater than 14, store the user ID in the array
                             $usersWithMoreThan14Days[] = $userStatus->user_id;
@@ -1750,12 +1752,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                             $usersWithMoreThan0Days[] = $userStatus->user_id;
                         }
                     }
-                    if ($value==1) {
+                    if ($value == 1) {
                         $query->whereNotIn('id', $usersWithMoreThan14Days)->whereNotIn('id', $usersWithMoreThan0Days);
-                    } elseif($value==2) {
+                    } elseif ($value == 2) {
                         $query->whereIn('id', $usersWithMoreThan0Days);
-                    }
-                    elseif($value==3) {
+                    } elseif ($value == 3) {
                         $query->whereIn('id', $usersWithMoreThan14Days);
                     }
                     break;
@@ -1771,11 +1772,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                             }
                         }
                     }
-                    if($value==1) {
+                    if ($value == 1) {
                         $query->whereIn('id', $usersWithBetaStatus);
-                    } elseif($value==2) {
+                    } elseif ($value == 2) {
                         $query->whereIn('id', $usersWithBetaStatusNewTestTakeDetailPage);
-                    } elseif($value==3) {
+                    } elseif ($value == 3) {
                         $query->whereNotIn('id', $usersWithBetaStatus);
                     }
                     break;
@@ -2556,7 +2557,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function hasNeedsToAcceptGeneralTerms()
     {
-        if($this->schoolLocation->hasClientLicense()) {
+        if ($this->schoolLocation->hasClientLicense()) {
             return false;
         }
         return (
@@ -2580,8 +2581,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             && $this->schoolLocation->hasTrialLicense()
             && $this->hasNoActiveLicense()
             && $this->generalTermsLog()->count() == 0
-        )
-        {
+        ) {
             $this->generalTermsLog()->create();
         }
         return $this;
@@ -2709,30 +2709,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             return [];
         }
 
-        $currentPeriod = PeriodRepository::getCurrentPeriod();
-        if ($currentPeriod == null) {
+        if (is_null(PeriodRepository::getCurrentPeriod())) {
             return [];
         }
 
-        $results = DB::table('teachers')
-            ->where([
-                ['user_id', $this->getKey()],
-                ['school_classes.school_year_id', $currentPeriod->school_year_id],
-            ])
-            ->join('school_classes', 'class_id', 'school_classes.id')
-            ->select(['subject_id', 'education_level_id', 'education_level_year'])
-            ->where('school_classes.school_location_id', auth()->user()->school_location_id)
-            ->whereNull('school_classes.deleted_at')
-            ->get();
-
         return [
-            'subject_id'           => Subject::filtered(['user_current' => Auth::id()], [])->pluck('id')->toArray(),
-            'education_level_id'   => $results->map(function ($result) {
-                return $result->education_level_id;
-            })->unique()->values()->toArray(),
-            'education_level_year' => $results->map(function ($result) {
-                return $result->education_level_year;
-            })->unique()->values()->toArray(),
+            'subject_id' => Subject::filtered(['user_current' => Auth::id()], [])->pluck('id')->toArray(),
         ];
     }
 
@@ -2855,28 +2837,28 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             return;
         }
 
-        if(Auth::id() && Auth::id() !== $this->id) {
+        if (Auth::id() && Auth::id() !== $this->id) {
             $this->password_expiration_date = Carbon::now();
             return;
         }
         $this->password_expiration_date = null;
     }
 
-    public function getSessionLengthAttribute():int
+    public function getSessionLengthAttribute(): int
     {
         $minutes = (int)UserFeatureSetting::getSetting(
-            user   : $this,
-            title  : UserFeatureSettingEnum::AUTO_LOGOUT_MINUTES,
+            user: $this,
+            title: UserFeatureSettingEnum::AUTO_LOGOUT_MINUTES,
             default: UserFeatureSettingEnum::AUTO_LOGOUT_MINUTES->initialValue(),
         );
         return session('extensionTime', $minutes * 60);
     }
 
-    public function getUseAutoLogOutAttribute():int
+    public function getUseAutoLogOutAttribute(): int
     {
         return (bool)UserFeatureSetting::getSetting(
-            user   : $this,
-            title  : UserFeatureSettingEnum::ENABLE_AUTO_LOGOUT,
+            user: $this,
+            title: UserFeatureSettingEnum::ENABLE_AUTO_LOGOUT,
             default: UserFeatureSettingEnum::ENABLE_AUTO_LOGOUT->initialValue(),
         );
     }
@@ -2888,8 +2870,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             UserFeatureSettingEnum::GRADE_STANDARD_VALUE,
             UserFeatureSettingEnum::GRADE_CESUUR_PERCENTAGE,
         ])->mapWithKeys(function ($enum) {
-                return [$enum->value => UserFeatureSetting::getSetting($this, $enum, default: $enum->initialValue())];
-            });
+            return [$enum->value => UserFeatureSetting::getSetting($this, $enum, default: $enum->initialValue())];
+        });
     }
 
     public function getUserDataObject(): UserData
