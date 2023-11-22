@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\TestTakeOverviewPreview;
 
+use Illuminate\Support\Str;
 use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
@@ -51,7 +52,7 @@ class OpenQuestion extends TCComponent
 
     public function getWordCountText()
     {
-        $wordCount = str_word_count(strip_tags($this->answer));
+        $wordCount = Str::plainTextWordCount($this->answer);
         $maxWords = $this->question?->max_words;
 
         return sprintf('<span style="margin-right: 0.25rem;">%s</span>
