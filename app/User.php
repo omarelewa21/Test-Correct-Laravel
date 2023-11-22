@@ -2693,6 +2693,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function getLanguageReadspeaker()
     {
         $locale = app()->getLocale();
+        return 'fr_fr';
         switch ($locale) {
             case 'nl':
                 return 'nl_nl';

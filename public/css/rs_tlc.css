@@ -924,6 +924,10 @@ input[type="range"]::-ms-fill-upper {
     box-shadow: var(--popover-shadow);
     background-color: #ffffff;
 }
+.rsbtn_tool_voice_settings {
+    display: none;
+}
+
 .rsbtn_toollist{
     list-style-type: none !important;
 }

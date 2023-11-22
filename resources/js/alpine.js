@@ -4525,6 +4525,18 @@ document.addEventListener("alpine:init", () => {
             ;
         }
     }));
+    Alpine.data("initReadSpeakerLanguage", () => ({
+       languages: [],
+      currentLanguage: '',
+       init() {
+           this.$nextTick( () => {
+               this.languages = window.rsConf.general.customTransLangs
+               this.currentLanguage = window.rsConf.general.customTransLangs[0];
+
+           });
+       }
+
+    }));
 
     Alpine.data("markBadge", (initialRating) => ({
         markBadgeRating: initialRating,

@@ -1160,7 +1160,8 @@ ReadSpeaker.q(function() {
 window.rsConf = {
     general: {
         usePost: true,
-        skipHiddenContent:true
+        skipHiddenContent:true,
+        customTransLangs: ['de_de', 'en', 'nl_nl', 'es_es']
     },
     ui: {
         scrollcontrols: {
@@ -1171,7 +1172,8 @@ window.rsConf = {
             inverted : false
         },
         tools: {
-            textmode : false
+            textmode : false,
+            voicesettings: true
         },
         mobileVertPos: 'bottom=100'
     },
