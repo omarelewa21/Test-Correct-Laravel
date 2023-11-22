@@ -178,6 +178,12 @@ class Login extends TCComponent
             return;
         }
 
+        if(auth()->user()->isA('teacher') && Auth()->user()->schoolLocation->block_local_login){
+            auth()->logout();
+            $route = route('saml2_login', ['entree','directlink' => $this->take]);
+            return $this->redirect($route);
+        }
+
         if ((Auth()->user()->isA('teacher') || Auth()->user()->isA('student')) && EntreeHelper::shouldPromptForEntree(auth()->user())) {
             auth()->logout();
             $this->errorKeys = ['should_first_go_to_entree'];

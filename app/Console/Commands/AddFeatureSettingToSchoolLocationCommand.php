@@ -34,6 +34,7 @@ class AddFeatureSettingToSchoolLocationCommand extends Command
         'allow_new_test_take_detail_page',
         'allow_mr_chadd',
         'allow_new_test_taken_pages',
+        'block_local_login',
     ];
 
     public function handle()
