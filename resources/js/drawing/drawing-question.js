@@ -110,11 +110,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             }
 
             this.warnings = {
-                whenAnyToolButDragSelected: new warningBox(
-                    UI.warningboxTemplate.dataset.text,
-                    5000,
-                    rootElement
-                ),
+                // whenAnyToolButDragSelected: new warningBox(
+                //     UI.warningboxTemplate.dataset.text,
+                //     5000,
+                //     rootElement
+                // ),
             };
             if (!this.explainer) {
                 const layerTemplate = rootElement.querySelector("#layer-group-template");
@@ -2016,9 +2016,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         enableSpecificPropSelectInputs();
         setCursorTypeAccordingToCurrentType();
         unselectShapeIfNecessary();
-        if (!drawingApp.currentToolIs("drag")) {
-            drawingApp.warnings.whenAnyToolButDragSelected.show();
-        }
+        // if (!drawingApp.currentToolIs("drag")) {
+        //     drawingApp.warnings.whenAnyToolButDragSelected.show();
+        // }
     }
 
     function manualToolChange(tool) {
@@ -2032,9 +2032,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         makeSelectedBtnActive(btnElement);
         enableSpecificPropSelectInputs();
         setCursorTypeAccordingToCurrentType();
-        if (!drawingApp.currentToolIs("drag")) {
-            drawingApp.warnings.whenAnyToolButDragSelected.show();
-        }
+        // if (!drawingApp.currentToolIs("drag")) {
+        //     drawingApp.warnings.whenAnyToolButDragSelected.show();
+        // }
     }
 
     function determineNewTool(evt) {
