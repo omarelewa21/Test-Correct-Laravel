@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Ramsey\Uuid\Uuid;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Helpers\Normalize;
 
 class MacrosServiceProvider extends ServiceProvider
 {
@@ -58,6 +59,30 @@ class MacrosServiceProvider extends ServiceProvider
         });
         Str::macro('pascal', function ($string) {
             return Str::of($string)->studly();
+        });
+
+        Str::macro('plainTextWordCount', function ($string) {
+            $operations = collect([
+                // Insert a space after each closing HTML tag
+                fn($text) => preg_replace('/<\/[^>]+>/', '$0 ', $text),
+                fn($text) => html_entity_decode(strip_tags($text)),
+                // Replace accent characters with their normal equivalent eg: é => e
+                fn($text) => preg_replace('/\pM/u', '', \Normalizer::normalize($text, \Normalizer::FORM_D)),
+                fn($text) => str_replace("ß", "ss", $text),
+                // Replace apostrophe (for words like: L'Éclat or dell'italia)
+                fn($text) => str_replace("'", "", $text),
+                // Replace dots and commas in numbers (for valuta)
+                fn($text) => preg_replace('/(?<=\d)[.,-](?=\d|-)/', '', $text),
+                // Replace non-word characters
+                fn($text) => preg_replace('/[\W_]+/', ' ', $text),
+                fn($text) => trim($text),
+            ]);
+
+            $transformedText = $operations->reduce(fn($carry, $callback) => $callback($carry), $string);
+
+            if($transformedText === '') return 0;
+
+            return count(explode(' ', $transformedText) ?: []);
         });
 
         Collection::macro('append', function (...$values) {
