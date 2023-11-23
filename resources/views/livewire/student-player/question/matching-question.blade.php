@@ -69,7 +69,7 @@
                              wire:sortable-group.item-group="startGroep">
                             @foreach($shuffledAnswers as $option)
                                 @if(  $option->correct_answer_id !== null )
-                                    @if($answerStruct[$option->id] === '')
+                                    @if(!isset($answerStruct[$option->id]) || $answerStruct[$option->id] === '')
                                         <x-drag-item id="drag_item{{$question->getKey()}}-{{$option->id}}"
                                                      wire:key="option-{{ $option->id }}" sortableHandle="false"
                                                      @touchend="detectFastSuccessiveEvents($event, selectTextContent)"
