@@ -8,6 +8,7 @@
                                     :title="$attachment->title"
                                     wire:key="a-badge-{{ $attachment->id.$this->questionEditorId }}"
                                     :disabled="isset($this->isPreview)"
+                                    :disable-audio-timer="$this->obj instanceof \tcCore\Http\Livewire\Teacher\Cms\Providers\Group || $this->obj instanceof \tcCore\Http\Livewire\Teacher\Cms\Providers\InfoScreen"
                 />
             @endforeach
 
@@ -23,6 +24,7 @@
                             :attachment="$upload"
                             :title="$upload->getClientOriginalName()"
                             :disabled="isset($this->isPreview)"
+                            :disable-audio-timer="$this->obj instanceof \tcCore\Http\Livewire\Teacher\Cms\Providers\Group || $this->obj instanceof \tcCore\Http\Livewire\Teacher\Cms\Providers\InfoScreen"
                     />
                 @elseif($video)
                     <x-attachment.video-badge

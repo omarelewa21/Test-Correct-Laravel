@@ -9679,6 +9679,11 @@ h2.student-testtake-answers-separator span {
   color: rgb(31 41 55 / var(--tw-text-opacity));
 }
 
+.active\:text-note:active{
+  --tw-text-opacity: 1;
+  color: rgb(107 119 137 / var(--tw-text-opacity));
+}
+
 .active\:text-primary:active{
   --tw-text-opacity: 1;
   color: rgb(0 77 245 / var(--tw-text-opacity));
@@ -9711,6 +9716,11 @@ h2.student-testtake-answers-separator span {
   background-color: rgb(0 77 245 / 0.05);
 }
 
+.group:hover .group-hover\:text-base{
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
 .group\/row:hover .group-hover\/row\:text-primary{
   --tw-text-opacity: 1;
   color: rgb(0 77 245 / var(--tw-text-opacity));
@@ -9724,6 +9734,11 @@ h2.student-testtake-answers-separator span {
 .group:hover .group-hover\:text-primary{
   --tw-text-opacity: 1;
   color: rgb(0 77 245 / var(--tw-text-opacity));
+}
+
+.group:hover .group-hover\:text-sysbase{
+  --tw-text-opacity: 1;
+  color: rgb(4 31 116 / var(--tw-text-opacity));
 }
 
 .group\/button:hover .group-hover\/button\:opacity-100{
@@ -9764,9 +9779,19 @@ h2.student-testtake-answers-separator span {
   background-color: rgb(0 77 245 / 0.1);
 }
 
+.group:active .group-active\:text-base{
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
 .group:active .group-active\:text-primary{
   --tw-text-opacity: 1;
   color: rgb(0 77 245 / var(--tw-text-opacity));
+}
+
+.group:active .group-active\:text-sysbase{
+  --tw-text-opacity: 1;
+  color: rgb(4 31 116 / var(--tw-text-opacity));
 }
 
 @media (min-width: 640px){
