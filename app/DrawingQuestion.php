@@ -265,8 +265,23 @@ class DrawingQuestion extends Question implements QuestionInterface {
                 '=',
                 'test_questions.test_id'
             )
+            ->join(
+                'group_questions',
+                'test_questions.question_id',
+                '=',
+                'group_questions.id'
+            )
+            ->join(
+                'group_question_questions',
+                'group_question_questions.group_question_id',
+                '=',
+                'group_questions.id'
+            )
             ->where('test_participants.user_id', $user->getKey())
-            ->where('test_questions.question_id', $this->getKey())
+            ->where(function ($query) {
+                $query->where('test_questions.question_id', $this->getKey())
+                    ->orWhere('group_question_questions.question_id', '=', $this->getKey());
+            })
             ->where(function ($query) {
                 $query->where('test_takes.show_results', '>', now())
                       ->orWhere('test_takes.test_take_status_id', '=', TestTakeStatus::STATUS_DISCUSSING);
