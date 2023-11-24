@@ -122,7 +122,7 @@
 }
 
 .questionContainer .input-group:has(p),
-.questionContainer .co-learning-completion {
+.questionContainer .completion-question-answer-container {
     display: block;
 }
 

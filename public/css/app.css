@@ -4581,7 +4581,7 @@ input[type=number] {
 }
 
 .questionContainer .input-group:has(p),
-.questionContainer .co-learning-completion {
+.questionContainer .completion-question-answer-container {
     display: block;
 }
 
@@ -7954,6 +7954,25 @@ input.datepicker {
     }
 }
 
+.completion-question-answer-container > p {
+    flex-grow: 1;
+    flex-shrink: 0;
+    width: 100%;
+}
+
+.completion-question-answer-container .completion-container {
+    max-width: 100%;
+}
+
+.completion-question-answer-container .completion-container > span {
+    max-width: 100%;
+}
+
+.completion-question-answer-container .completion-container > span > span {
+    max-width: 100%;
+    word-break: break-all;
+    width: 100%;
+}
 
 /* not really co-learning: */
 .indented-toggle-row {

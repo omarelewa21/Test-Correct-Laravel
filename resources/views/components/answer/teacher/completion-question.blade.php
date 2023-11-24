@@ -1,18 +1,18 @@
-<span class="flex items-start flex-wrap co-learning-completion">
+<span class="flex items-start flex-wrap completion-question-answer-container">
     @foreach($questionTextPartials as $answerIndex => $textPartialArray)
         @foreach($textPartialArray as $textPartial)
             {!!$textPartial!!}
         @endforeach
-        <span class="inline-flex flex-col mx-1 mb-1">
+        <span class="inline-flex flex-col mx-1 mb-1 completion-container">
             <span class="bold w-full flex justify-center mb-1 ">
                 @if ($studentAnswer)
-                    <span class="inline-flex mx-1 relative px-2.5 py-0.5 rounded-10 bg-offwhite border border-bluegrey bold items-center gap-1 w-min align-middle">
+                    <span class="inline-flex relative px-2.5 py-0.5 rounded-10 bg-offwhite border border-bluegrey bold items-center gap-1 align-middle">
                 {!! $answerStruct->get($answerIndex)->answerText !!}
                 </span>
                 @else
                     @foreach( $answerStruct as $option)
                         @if ($option->tag ==  $answerIndex+1 )
-                            <span class="inline-flex mx-1 relative px-2.5 py-0.5 rounded-10 bg-offwhite border border-bluegrey bold items-center gap-1 w-min align-middle">
+                            <span class="inline-flex relative px-2.5 py-0.5 rounded-10 bg-offwhite border border-bluegrey bold items-center gap-1 align-middle">
                                 {!! $option->answer !!}
                              </span>
                         @endif

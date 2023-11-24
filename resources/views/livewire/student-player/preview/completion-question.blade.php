@@ -4,7 +4,7 @@
          x-init="truncateOptionsIfTooLong($el); setTitlesOnLoad($el)"
          @resize.window.debounce.250ms="truncateOptionsIfTooLong($el)"
     >
-        <div class="flex flex-wrap co-learning-completion">
+        <div class="flex flex-wrap completion-question-answer-container">
             @if($this->question->isSubType('multi'))
                 <div class="flex flex-wrap items-center">
                     @foreach($questionTextPartials as $answerIndex => $textPartialArray)
