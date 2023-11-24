@@ -4526,15 +4526,52 @@ document.addEventListener("alpine:init", () => {
         }
     }));
     Alpine.data("initReadSpeakerLanguage", () => ({
-       languages: [],
-      currentLanguage: '',
-       init() {
-           this.$nextTick( () => {
-               this.languages = window.rsConf.general.customTransLangs
-               this.currentLanguage = window.rsConf.general.customTransLangs[0];
+        languages: [],
+        currentLanguage: "",
+        init() {
+            this.$nextTick(() => {
+                    this.waitForElement(".rsicn", (el) => {
+                        el.click();
+                        this.languages = window.rsConf.general.customTransLangs;
+                        this.setCurrentLanguage();
+                    });
+            });
+        },
+        setCurrentLanguage() {
+          var domNode = document.querySelector(".rsbtn_tool_voice_settings .rs-contextmenu-item.active");
+          if (domNode) {
+            this.currentLanguage = domNode.getAttribute("data-rs-itemval").split("_")[0];
+          }
+        },
+        selectLanguage(languageCode) {
+            var links = document.querySelectorAll(".rsbtn_tool_voice_settings .rs-contextmenu-item");
+            for (var i = 0; i < links.length; i++) {
+                if (links[i].getAttribute("data-rs-itemval").startsWith(languageCode)) {
+                    window.rsConf.cb.ui.stop();
+                    window.rsConf.general.userDefinedVoice = links[i].dataset.rsItemval.substring(6);
+                    window.rsConf.general.userDefinedLang = links[i].dataset.rsItemval.substring(0,5);
+                    document.querySelector('.rsbtn_play').click();
 
-           });
-       }
+                    break;
+                }
+            }
+        },
+        waitForElement(selector, callback) {
+            var observer = new MutationObserver((mutations) => {
+                for (var mutation of mutations) {
+                    for (var node of mutation.addedNodes) {
+                        if ((node.matches && node.matches(selector)) || (node.querySelector && node.querySelector(selector))) {
+                            callback(node);
+                            observer.disconnect();
+                            return;
+                        }
+                    }
+                }
+            });
+
+            var config = { childList: true, subtree: true };
+            observer.observe(document.getElementById('readspeaker_button1'), config);
+        }
 
     }));
 

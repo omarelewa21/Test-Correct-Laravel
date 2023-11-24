@@ -11503,13 +11503,70 @@ document.addEventListener("alpine:init", function () {
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("initReadSpeakerLanguage", function () {
     return {
       languages: [],
-      currentLanguage: '',
+      currentLanguage: "",
       init: function init() {
         var _this109 = this;
         this.$nextTick(function () {
-          _this109.languages = window.rsConf.general.customTransLangs;
-          _this109.currentLanguage = window.rsConf.general.customTransLangs[0];
+          _this109.waitForElement(".rsicn", function (el) {
+            el.click();
+            _this109.languages = window.rsConf.general.customTransLangs;
+            _this109.setCurrentLanguage();
+          });
         });
+      },
+      setCurrentLanguage: function setCurrentLanguage() {
+        var domNode = document.querySelector(".rsbtn_tool_voice_settings .rs-contextmenu-item.active");
+        if (domNode) {
+          this.currentLanguage = domNode.getAttribute("data-rs-itemval").split("_")[0];
+        }
+      },
+      selectLanguage: function selectLanguage(languageCode) {
+        var links = document.querySelectorAll(".rsbtn_tool_voice_settings .rs-contextmenu-item");
+        for (var i = 0; i < links.length; i++) {
+          if (links[i].getAttribute("data-rs-itemval").startsWith(languageCode)) {
+            window.rsConf.cb.ui.stop();
+            window.rsConf.general.userDefinedVoice = links[i].dataset.rsItemval.substring(6);
+            window.rsConf.general.userDefinedLang = links[i].dataset.rsItemval.substring(0, 5);
+            document.querySelector('.rsbtn_play').click();
+            break;
+          }
+        }
+      },
+      waitForElement: function waitForElement(selector, callback) {
+        var observer = new MutationObserver(function (mutations) {
+          var _iterator3 = _createForOfIteratorHelper(mutations),
+            _step3;
+          try {
+            for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+              var mutation = _step3.value;
+              var _iterator4 = _createForOfIteratorHelper(mutation.addedNodes),
+                _step4;
+              try {
+                for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+                  var node = _step4.value;
+                  if (node.matches && node.matches(selector) || node.querySelector && node.querySelector(selector)) {
+                    callback(node);
+                    observer.disconnect();
+                    return;
+                  }
+                }
+              } catch (err) {
+                _iterator4.e(err);
+              } finally {
+                _iterator4.f();
+              }
+            }
+          } catch (err) {
+            _iterator3.e(err);
+          } finally {
+            _iterator3.f();
+          }
+        });
+        var config = {
+          childList: true,
+          subtree: true
+        };
+        observer.observe(document.getElementById('readspeaker_button1'), config);
       }
     };
   });

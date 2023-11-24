@@ -528,6 +528,7 @@ ReadspeakerTlc = function(){
             }
             var inputsArray = Object.entries(inputs);
             for (var i=0; i < inputsArray.length; i++) {
+
                 removeHiddenDivForElement(inputsArray[i][1]);
             }
         }
@@ -1161,7 +1162,7 @@ window.rsConf = {
     general: {
         usePost: true,
         skipHiddenContent:true,
-        customTransLangs: ['de_de', 'en', 'nl_nl', 'es_es']
+        customTransLangs: ['de_de', 'en_uk', 'nl_nl', 'es_es', 'fr_be']
     },
     ui: {
         scrollcontrols: {

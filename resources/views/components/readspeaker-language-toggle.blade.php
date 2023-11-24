@@ -2,9 +2,11 @@
     <template  x-for="language in languages">
     <button
             type="button"
-            x-bind:class="{'bg-blue-500 text-white': language === currentLanguage, 'bg-white text-blue-500': language !== currentLanguage}"
-            x-on:click="changeLanguage(language)"
-            class="px-2 py-1 rounded-md"
-    >NL</button>
+            style="margin-top: -17px"
+            x-bind:class="{'bg-white text-blue-500': language !== currentLanguage}"
+            x-on:click="selectLanguage(language)"
+            class="px-2 py-1 oval"
+            x-text="language.substring(0,2)"
+    ></button>
         </template>
 </span>
