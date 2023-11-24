@@ -101,6 +101,7 @@ class UwlrImportHelper
     {
         $schoolLocation = SchoolLocation::where('lvs_active', true) // only if lvs is active
         ->where('auto_uwlr_import', true) // only if allowed to be imported automagically
+        ->whereNull('import_merge_school_location_id') // only master accounts not the sub records
         ->where(function ($query) {
             $query->where(function ($q) {
                 $q->where('auto_uwlr_import_status', '<>', self::AUTO_UWLR_IMPORT_STATUS_PROCESSING) // don't pick up if currently processing
@@ -146,6 +147,14 @@ class UwlrImportHelper
             $schoolLocation->auto_uwlr_import_status = self::AUTO_UWLR_IMPORT_STATUS_PLANNED;
             $schoolLocation->save();
             $resultSet = $helper->getResultSet();
+
+            $subSchoolLocations = SchoolLocation::where('import_school_location_id',$schoolLocation->getKey())
+                ->where('lvs_active',true)
+                ->where('auto_uwlr_import', true)  // only if allowed to be imported automagically->get();
+                ->get();
+            if($subSchoolLocations->count() > 0){
+                $this->handleSchoolLocationsToBeMerged($subSchoolLocations, $resultSet, $schoolLocation, $schoolYear);
+            }
             $resultSet->status = 'READYTOPROCESS';
             $resultSet->save();
 
@@ -161,6 +170,13 @@ class UwlrImportHelper
             throw new UwlrAutoImportException($e);
         }
         return true;
+    }
+
+    protected function handleSchoolLocationsToBeMerged($schoolLocations, $masterResultSet, $masterSchoolLocation, $schoolYear)
+    {
+        // for each school location
+            // import data in own resultset
+            // move records to masterResultset
     }
 
     public static function getSchoolYearsForUwlrImport($location): array
