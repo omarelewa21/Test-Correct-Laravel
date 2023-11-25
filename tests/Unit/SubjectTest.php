@@ -129,7 +129,8 @@ class SubjectTest extends TestCase
     {
         return [
             'creathlon' => ['CREATHLON'],
-            'olympiade' => ['SBON'],
+            'olympiade' => ['SBON1'],
+            'olympiade_archive' => ['SBON'],
             'exam'      => ['OPENSOURCE1'],
             'cito'      => ['CITO-TOETSENOPMAAT'],
             'national'  => ['TBNI'],

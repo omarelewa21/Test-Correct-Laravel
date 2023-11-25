@@ -305,6 +305,11 @@ class AppVersionDetector
         return self::detect()['os'] == 'macOs';
     }
 
+    public static function osIsIOS(): bool
+    {
+        return session('TLCPlatform') ===  'iOS' || self::detect()['os'] == 'iOS';
+    }
+
     public static function osIsChromebook() {
         return self::detect()['os'] == 'ChromeOS';
     }

@@ -137,6 +137,7 @@ class SchoolLocationFeatureSettingsTest extends TestCase
             'allow_new_co_learning_teacher' => ['allow_new_co_learning_teacher'],
             'allow_creathlon' => ['allow_creathlon'],
             'allow_olympiade' => ['allow_olympiade'],
+            'allow_olympiade_archive' => ['allow_olympiade_archive'],
         ];
     }
 

@@ -189,7 +189,7 @@ class TestTakeCard extends ContextMenuComponent
 
     public function rttiExport()
     {
-        return (new TestTakesController)->export(TestTake::whereUuid($this->uuid)->firstOrFail());
+        return (new TestTakesController)->exportRttiCsvFile(TestTake::whereUuid($this->uuid)->firstOrFail());
     }
 
     private function setNormButtonsShow()

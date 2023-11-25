@@ -40,6 +40,8 @@ enum SchoolLocationFeatureSetting: string
     #[Type('bool')]
     case ALLOW_OLYMPIADE = 'allow_olympiade';
     #[Type('bool')]
+    case ALLOW_OLYMPIADE_ARCHIVE = 'allow_olympiade_archive';
+    #[Type('bool')]
     case ALLOW_NEW_ASSESSMENT = 'allow_new_assessment';
     #[Type('bool')]
     case ALLOW_NEW_REVIEWING = 'allow_new_reviewing';

@@ -12,6 +12,7 @@ use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\Question;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
+use tcCore\TestTakeQuestion;
 
 class CoLearningHelper extends BaseHelper
 {
@@ -28,6 +29,20 @@ class CoLearningHelper extends BaseHelper
         return self::nextQuestionRefactor($testTake, $testParticipant);
     }
 
+    public static function getTestTakeQuestionsOrdered(TestTake $testTake, $withTrashed = false)
+    {
+        $orderList = collect($testTake->test->getQuestionOrderListWithDiscussionType());
+
+
+        $testTakeQuestions = TestTakeQuestion::whereTestTakeId($testTake->getKey())
+            ->when(value   : $withTrashed,
+                   callback: fn($query) => $query->withTrashed()
+            )
+            ->get()
+            ->sortBy(fn($item) => $orderList->get($item->question_id)["order"]);
+
+        return $testTakeQuestions;
+    }
 
     private static function buildTestParticipantsQuery($testTakeId, $discussingQuestionId)
     {
@@ -174,14 +189,15 @@ class CoLearningHelper extends BaseHelper
             'testParticipants.answers:id,test_participant_id,uuid,done,question_id',
             'testParticipants.answers.answerRatings' => fn($query) => $query->where('type', 'STUDENT'),
             'testParticipants.answers.answerParentQuestions',
+            'testTakeQuestions',
         ]);
-
         // Set next question
         $newQuestionIdParents = QuestionGatherer::getNextQuestionId(
             $testTake->getAttribute('test_id'),
             $testTake->getDottedDiscussingQuestionIdWithOptionalGroupQuestionId($selfPacingTestParticipant),
-            $testTake->isDiscussionTypeOpenOnly(),
+            false,//$testTake->isDiscussionTypeOpenOnly(),
             skipDoNotDiscuss: true,
+            testTakeId: $testTake->getKey(),
         );
 
         // If no next question present => quit;
@@ -194,6 +210,19 @@ class CoLearningHelper extends BaseHelper
             return $testTake;
         }
 
+        return self::createAnswerRatingsForDiscussingQuestion($newQuestionIdParents, $testTake, $selfPacingTestParticipant);
+    }
+
+    /**
+     * @param int|string $newQuestionIdParents //dottedQuestionId: (string) groupId.questionId or (int) questionId
+     * @param TestTake $testTake
+     * @param TestParticipant|null $selfPacingTestParticipant
+     * @return TestTake
+     * @throws \Exception
+     */
+    public static function createAnswerRatingsForDiscussingQuestion(int|string $newQuestionIdParents, TestTake $testTake, ?TestParticipant $selfPacingTestParticipant): TestTake
+    {
+
         $newQuestionIdParentParts = explode('.', $newQuestionIdParents);
         $newQuestionId = array_pop($newQuestionIdParentParts);
         $nextQuestionToDiscuss = QuestionGatherer::getQuestionOfTest(
@@ -202,7 +231,6 @@ class CoLearningHelper extends BaseHelper
             true
         );
         $discuss = $nextQuestionToDiscuss instanceof Question && $nextQuestionToDiscuss->getAttribute('discuss');
-
         $selfPacingTestParticipant
             ? $selfPacingTestParticipant->update(['discussing_question_id' => $newQuestionId])
             : $testTake->setAttribute('discussing_question_id', (int)$newQuestionId);
@@ -223,17 +251,6 @@ class CoLearningHelper extends BaseHelper
             throw new \Exception('Cannot save test take');
         }
 
-        $testTake->setAttribute(
-            'has_next_question',
-            (QuestionGatherer::getNextQuestionId(
-                    $testTake->getAttribute('test_id'),
-                    $newQuestionIdParents,
-                    $testTake->isDiscussionTypeOpenOnly(),
-                    skipDoNotDiscuss: true
-                ) !== false),
-
-        );
-
 //         Generate for active students next answer_ratings
         if (!$discuss) {
             throw new \Exception('This should be impossible');
@@ -248,7 +265,7 @@ class CoLearningHelper extends BaseHelper
                     continue;
                 }
 
-                if ($answer->answerRatings->isNotEmpty()) {
+                if ($answer->answerRatings->filter(fn($ar) => $ar->type === 'STUDENT')->isNotEmpty()) {
                     continue;
                 }
 
@@ -268,7 +285,6 @@ class CoLearningHelper extends BaseHelper
                 $testParticipantUserIds[$testParticipant->getKey()] = $testParticipant->getAttribute('user_id');
             }
         }
-
         /* When there are already student answer ratings created, just go away */
         if (empty($answerToRate)) {
             return $testTake;

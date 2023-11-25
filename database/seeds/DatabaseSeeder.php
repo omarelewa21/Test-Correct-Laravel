@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder {
             $this->call(ExamSchoolSeeder::class);
             $this->call(CreathlonItemBankSeeder::class);
             $this->call(OlympiadeItemBankSeeder::class);
+            $this->call(OlympiadeArchiveItemBankSeeder::class);
 //            $this->call(NationalItemBankSeeder::class);
             $this->call(FormidableItemBankSeeder::class);
             $this->call(ToetsenbakkerSeeder::class);

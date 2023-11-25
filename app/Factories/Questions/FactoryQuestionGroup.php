@@ -58,6 +58,15 @@ class FactoryQuestionGroup extends FactoryQuestion
     {
         $this->subQuestions = collect($subQuestions);
 
+        $this->subQuestions->each(function ($subQuestion) {
+            $subQuestion->questionProperties = array_merge(
+                $subQuestion->questionProperties,
+                [
+                    'is_subquestion' => true,
+                ]
+            );
+        });
+
         return $this;
     }
 }

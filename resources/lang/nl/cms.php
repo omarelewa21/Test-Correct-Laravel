@@ -93,7 +93,7 @@ return [
     'Halve puntenbeoordeling mogelijk'                                                       => 'Halve puntenbeoordeling mogelijk',
     'Taalcontrole beschikbaar tijdens nakijken'                                              => 'Taalcontrole beschikbaar tijdens nakijken',
     'Automatisch nakijken'                                                                   => 'Automatisch nakijken',
-    'Hoofdletter gevoelig nakijken'                                                          => 'Hoofdletter gevoelig nakijken',
+    'Hoofdlettergevoelig nakijken'                                                          => 'Hoofdlettergevoelig nakijken',
     'Taxonomie'                                                                              => 'Taxonomie',
     'methode'                                                                                => 'methode',
     'Deel de vraag taxonomisch in per methode. Je kunt meerder methodes tegelijk gebruiken.' => 'Deel de vraag taxonomisch in per methode. Je kunt meerder methodes tegelijk gebruiken',

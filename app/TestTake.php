@@ -47,18 +47,19 @@ class TestTake extends BaseModel
     public static $withAppends = true;
 
     protected $casts = [
-        'uuid'              => EfficientUuid::class,
-        'notify_students'   => 'boolean',
-        'show_grades'       => 'boolean',
-        'returned_to_taken' => 'boolean',
-        'deleted_at'        => 'datetime',
-        'time_start'        => 'datetime',
-        'time_end'          => 'datetime',
-        'show_results'      => 'datetime',
-        'exported_to_rtti'  => 'datetime',
-        'assessed_at'       => 'datetime',
-        'review_active'     => 'boolean',
-        'results_published' => 'datetime',
+        'uuid'                       => EfficientUuid::class,
+        'notify_students'            => 'boolean',
+        'show_grades'                => 'boolean',
+        'returned_to_taken'          => 'boolean',
+        'deleted_at'                 => 'datetime',
+        'time_start'                 => 'datetime',
+        'time_end'                   => 'datetime',
+        'show_results'               => 'datetime',
+        'exported_to_rtti'           => 'datetime',
+        'assessed_at'                => 'datetime',
+        'review_active'              => 'boolean',
+        'results_published'          => 'datetime',
+        'allow_inbrowser_colearning' => 'boolean',
     ];
 
     /**
@@ -73,7 +74,7 @@ class TestTake extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by', 'show_grades', 'returned_to_taken', 'discussing_question_id', 'assessed_at', 'assessment_type', 'assessing_question_id', 'allow_wsc', 'max_assessed_answer_index', 'show_correction_model', 'enable_spellcheck_colearning', 'assessing_answer_index', 'enable_comments_colearning', 'enable_answer_model_colearning', 'enable_question_text_colearning', 'review_active', 'results_published', 'enable_mr_chadd'];
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts', 'skipped_discussion', 'notify_students', 'user_id', 'scheduled_by', 'show_grades', 'returned_to_taken', 'discussing_question_id', 'assessed_at', 'assessment_type', 'assessing_question_id', 'allow_wsc', 'max_assessed_answer_index', 'show_correction_model', 'enable_spellcheck_colearning', 'assessing_answer_index', 'enable_comments_colearning', 'enable_answer_model_colearning', 'enable_question_text_colearning', 'review_active', 'results_published', 'enable_mr_chadd', 'allow_inbrowser_colearning'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -445,6 +446,16 @@ class TestTake extends BaseModel
     public function answerRatings()
     {
         return $this->hasMany(AnswerRating::class, 'test_take_id');
+    }
+
+    /**
+     * This relation is NOT ment to be used to get the test_questions,
+     * but to get the questions of the test_take that are being discussed.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function testTakeQuestions()
+    {
+        return $this->hasMany('tcCore\TestTakeQuestion', 'test_take_id');
     }
 
     public function isAllowedToView(User $userToCheck, bool $asInvigilator = true, bool $asExamCoordinator = true)

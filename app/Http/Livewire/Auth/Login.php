@@ -25,6 +25,7 @@ use tcCore\Rules\NistPasswordRules;
 use tcCore\Rules\TrueFalseRule;
 use tcCore\SamlMessage;
 use tcCore\Services\EmailValidatorService;
+use tcCore\TestKind;
 use tcCore\User;
 use tcCore\TestTake;
 use tcCore\TestTakeCode;
@@ -221,7 +222,21 @@ class Login extends TCComponent
         $testCodeHelper = new TestTakeCodeHelper();
 
         $testTakeCode = $testCodeHelper->getTestTakeCodeIfExists($this->testTakeCode);
-        if (!$testTakeCode || !$testTakeCode->testTake || $testTakeCode->testTake->time_start != Carbon::today()) {
+        if (!$testTakeCode
+            || !$testTakeCode->testTake
+            || !$testTakeCode->testTake->test
+            || ( // fail if not an assignment and doesn't start today
+                $testTakeCode->testTake->test->test_kind_id !== TestKind::ASSIGNMENT_TYPE
+                && $testTakeCode->testTake->time_start != Carbon::today()
+            )
+            || ( // fail if it is an assignment, and the time_start is later than today (starts later than today) or the time_end smaller than today (ends earlier than today)
+                $testTakeCode->testTake->test->test_kind_id == TestKind::ASSIGNMENT_TYPE
+                && (
+                    $testTakeCode->testTake->time_start > Carbon::today()
+                    || $testTakeCode->testTake->time_end < Carbon::today()
+                )
+            )
+        ) {
             $this->errorKeys[] = 'no_test_found_with_code';
             return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
         }
@@ -600,7 +615,9 @@ class Login extends TCComponent
     public function updating(&$name, &$value)
     {
         if (in_array($name, $this->xssPropsToClean)) {
+            $value = BaseHelper::returnOnlyRegularAlphaNumeric($value,'');
             Request::filter($value);
+
         }
     }
 

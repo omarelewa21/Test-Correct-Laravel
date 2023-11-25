@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Database\Seeders\CreathlonItemBankSeeder;
 use Database\Seeders\ExamSchoolSeeder;
+use Database\Seeders\OlympiadeArchiveItemBankSeeder;
 use Database\Seeders\OlympiadeItemBankSeeder;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Arr;
@@ -37,6 +38,7 @@ class PublishesTestTraitTest extends TestCase
         (new CreathlonItemBankSeeder())->run();
         (new ExamSchoolSeeder)->run();
         (new OlympiadeItemBankSeeder)->run();
+        (new OlympiadeArchiveItemBankSeeder)->run();
     }
 
     public $publish = [
@@ -55,9 +57,14 @@ class PublishesTestTraitTest extends TestCase
             'scope'          => 'ldt',
             'toetsen_bakker' => 'info+ontwikkelaar-b@test-correct.nl',
         ],
-        'SBON'        => [
+        'SBON1'        => [
             'abbreviation'   => 'SBON',
             'scope'          => 'published_olympiade',
+            'toetsen_bakker' => 'info+olympiadeontwikkelaar1-B@test-correct.nl',
+        ],
+        'SBON'        => [
+            'abbreviation'   => 'SBON',
+            'scope'          => 'published_olympiade_archive',
             'toetsen_bakker' => 'info+olympiadeontwikkelaar-B@test-correct.nl',
         ],
     ];
@@ -77,9 +84,14 @@ class PublishesTestTraitTest extends TestCase
             'scope'          => 'not_ldt',
             'toetsen_bakker' => 'info+ontwikkelaar-b@test-correct.nl',
         ],
-        'SBON'        => [
+        'SBON1'        => [
             'abbreviation'   => 'ELSE',
             'scope'          => 'not_published_olympiade',
+            'toetsen_bakker' => 'info+olympiadeontwikkelaar1-B@test-correct.nl',
+        ],
+        'SBON'        => [
+            'abbreviation'   => 'ELSE',
+            'scope'          => 'not_published_olympiade_archive',
             'toetsen_bakker' => 'info+olympiadeontwikkelaar-B@test-correct.nl',
         ],
     ];

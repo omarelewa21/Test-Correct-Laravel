@@ -8,7 +8,6 @@ class MarkBadge extends Component
 {
     public $rating;
 
-    public $bgColor;
     /**
      * Create a new component instance.
      *
@@ -16,18 +15,7 @@ class MarkBadge extends Component
      */
     public function __construct($rating)
     {
-        $this->rating = $rating;
-        $this->bgColor = $this->getBgColor();
-    }
-
-    private function getBgColor() {
-        if ($this->rating > 5.5) {
-            return 'bg-cta-primary text-white';
-        }
-        if ($this->rating < 5.5) {
-            return 'bg-all-red text-white';
-        }
-        return 'bg-orange base';
+        $this->rating = !$rating ? null : $rating;
     }
 
     /**

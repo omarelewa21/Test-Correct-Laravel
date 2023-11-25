@@ -48,6 +48,10 @@ trait PublishesTestsTrait
                 'abbreviation' => 'SBON',
                 'scope'        => 'published_olympiade',
             ],
+            config('custom.olympiade_archive_school_customercode')          => [
+                'abbreviation' => 'SBON',
+                'scope'        => 'published_olympiade_archive',
+            ],
             config('custom.thieme_meulenhoff_school_customercode')          => [
                 'abbreviation' => 'TM',
                 'scope'        => ThiemeMeulenhoffService::getPublishScope(),
@@ -73,17 +77,6 @@ trait PublishesTestsTrait
             // the exam school does not have its own content provider;
             // it might be dead code; Martin Folkerts 2023-09-06
             if( config('custom.examschool_customercode')  === $this->publishesTestsCustomerCode) {
-                Bugsnag::notifyException(new RuntimeException('Dead code marker detected please delete the marker the code is not dead.'), function ($report) {
-                    $report->setMetaData([
-                        'code_context' => [
-                            'file' => __FILE__,
-                            'class' => __CLASS__,
-                            'method' => __METHOD__,
-                            'line' => __LINE__,
-                            'timestamp' => date(DATE_ATOM),
-                        ]
-                    ]);
-                });
                 $this->publishesTestsAbbreviation = 'EXAM';
                 $this->publishesTestsScope = 'exam';
                 $this->publishesTestsAuthor = User::where('username', config('custom.examschool_author'))->first();

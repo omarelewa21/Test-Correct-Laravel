@@ -168,7 +168,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('test_take/bust_surveillance_cache', 'SurveillanceController@destroy')->name('test_take.bust_surveillance_cache');
 
 	// Test take + children
-	Route::get('test_take/{test_take}/export', ['as' => 'test_take.export', 'uses' => 'TestTakesController@export']);
+	Route::get('test_take/{test_take}/export', ['as' => 'test_take.export', 'uses' => 'TestTakesController@exportRttiCsvFile']);
+	Route::get('test_take/{test_take}/export-grades-csv', ['as' => 'test_take.export-csv', 'uses' => 'TestTakesController@exportGradesCsvFile']);
 	Route::post('test_take/{test_take}/normalize', ['as' => 'test_take.normalize', 'uses' => 'TestTakesController@normalize']);
 	Route::post('test_take/{test_take}/next_question', ['as' => 'test_take.next_question', 'uses' => 'TestTakesController@nextQuestion']);
 	Route::resource('test_take', 'TestTakesController', ['except' => ['create', 'edit']]);
