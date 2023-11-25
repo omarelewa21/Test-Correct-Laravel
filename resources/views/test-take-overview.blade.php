@@ -28,7 +28,7 @@
                     @if ($groupedQuestion[0] == $testQuestion->id )
                         @foreach ($groupQuestions as $groupQuestion)
                             @if ($groupQuestion->id == $testQuestion->belongs_to_groupquestion_id)
-                                    <livewire:student-player.attachments-group-preview
+                                    <livewire:student-player.group-question
                                         :question="$testQuestion"
                                         :answers="$answers"
                                         :number="++$key"

@@ -8,7 +8,7 @@ use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithStudentPlayerOverview;
 
-class AttachmentsGroupPreview extends TCComponent
+class GroupQuestion extends TCComponent
 {
     public $question;
     public $answers;
@@ -22,6 +22,6 @@ class AttachmentsGroupPreview extends TCComponent
 
     public function render()
     {
-        return view('livewire.student-player.attachments-group-preview');
+        return view('livewire.student-player.group-question');
     }
 }
