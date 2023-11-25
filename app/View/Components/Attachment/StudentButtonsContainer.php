@@ -14,20 +14,18 @@ use tcCore\Question;
 class StudentButtonsContainer extends Component
 {
     public Collection $attachments;
-    public Collection $questionAttachments;
     public Carbon $transitionDate;
 
     public function __construct(
         public Question       $question,
         public bool           $blockAttachments,
         public ?GroupQuestion $group = null,
+        public bool           $questionAttachmentsExist = false,
     ) {
         /* Mon Aug 07 2023 00:00:00 GMT+0200 (Central European Summer Time) */
         $this->transitionDate = Carbon::parse(1691359200);
-        $this->attachments = collect($this->getGroupAttachments());
+        $this->attachments = collect($this->getAttachments());
         $this->attachments->map(fn($attachment) => $this->setAttachmentTitle($attachment));
-        $this->questionAttachments = collect($this->question->attachments);
-        $this->questionAttachments->map(fn($questionAttachments) => $this->setAttachmentTitle($questionAttachments));
     }
 
     public function render(): View
@@ -50,11 +48,18 @@ class StudentButtonsContainer extends Component
             ->whenNotEmpty(fn(Stringable $string) => $string->prepend('.'));
     }
 
+    private function getAttachments(): Collection
+    {
+        if($this->group && !$this->questionAttachmentsExist) {
+            return $this->getGroupAttachments();
+        } elseif ($this->questionAttachmentsExist) {
+            return $this->getQuestionAttachments();
+        }
+        return collect();
+    }
+
     private function getGroupAttachments(): Collection
     {
-        if (!$this->group) {
-            return collect();
-        }
         $this->group->attachments->each(function ($attachment) {
             if ($attachment === $this->group->attachments->last()) {
                 $attachment->groupDivider = true;
@@ -64,4 +69,9 @@ class StudentButtonsContainer extends Component
         return $this->group->attachments ?? collect();
     }
 
+    private function getQuestionAttachments(): Collection
+    {
+        return collect($this->question->attachments)
+            ->map(fn($questionAttachments) => $this->setAttachmentTitle($questionAttachments));
+    }
 }
