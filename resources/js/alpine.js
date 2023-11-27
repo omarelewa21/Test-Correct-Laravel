@@ -4527,7 +4527,7 @@ document.addEventListener("alpine:init", () => {
     }));
     Alpine.data("initReadSpeakerLanguage", () => ({
         languages: [],
-        currentLanguage: "",
+        currentLanguage: "nl_nl",
         init() {
             this.$nextTick(() => {
                     this.waitForElement(".rsicn", (el) => {
@@ -4543,6 +4543,10 @@ document.addEventListener("alpine:init", () => {
             this.currentLanguage = domNode.getAttribute("data-rs-itemval").split("_")[0];
           }
         },
+        isCurrent(language)  {
+          return this.currentLanguage.substring(0,2) === language.substring(0,2);
+        },
+
         selectLanguage(languageCode) {
             var links = document.querySelectorAll(".rsbtn_tool_voice_settings .rs-contextmenu-item");
             for (var i = 0; i < links.length; i++) {
@@ -4551,6 +4555,7 @@ document.addEventListener("alpine:init", () => {
                     window.rsConf.general.userDefinedVoice = links[i].dataset.rsItemval.substring(6);
                     window.rsConf.general.userDefinedLang = links[i].dataset.rsItemval.substring(0,5);
                     document.querySelector('.rsbtn_play').click();
+                    this.currentLanguage = languageCode;
 
                     break;
                 }

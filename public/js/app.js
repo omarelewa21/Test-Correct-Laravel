@@ -11503,7 +11503,7 @@ document.addEventListener("alpine:init", function () {
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("initReadSpeakerLanguage", function () {
     return {
       languages: [],
-      currentLanguage: "",
+      currentLanguage: "nl_nl",
       init: function init() {
         var _this109 = this;
         this.$nextTick(function () {
@@ -11520,6 +11520,9 @@ document.addEventListener("alpine:init", function () {
           this.currentLanguage = domNode.getAttribute("data-rs-itemval").split("_")[0];
         }
       },
+      isCurrent: function isCurrent(language) {
+        return this.currentLanguage.substring(0, 2) === language.substring(0, 2);
+      },
       selectLanguage: function selectLanguage(languageCode) {
         var links = document.querySelectorAll(".rsbtn_tool_voice_settings .rs-contextmenu-item");
         for (var i = 0; i < links.length; i++) {
@@ -11528,6 +11531,7 @@ document.addEventListener("alpine:init", function () {
             window.rsConf.general.userDefinedVoice = links[i].dataset.rsItemval.substring(6);
             window.rsConf.general.userDefinedLang = links[i].dataset.rsItemval.substring(0, 5);
             document.querySelector('.rsbtn_play').click();
+            this.currentLanguage = languageCode;
             break;
           }
         }
