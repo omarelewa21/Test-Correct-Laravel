@@ -1,4 +1,4 @@
-<span class="flex items-center flex-wrap co-learning-completion">
+<span class="flex items-center flex-wrap completion-question-answer-container">
     @foreach($questionTextPartials as $answerIndex => $textPartialArray)
         @foreach($textPartialArray as $textPartial)
             {!!$textPartial!!}
