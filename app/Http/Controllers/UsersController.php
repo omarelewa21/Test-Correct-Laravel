@@ -651,6 +651,17 @@ class UsersController extends Controller
         return Response::make($user, 200);
     }
 
+    public function createTrialRecord(Request $request, User $user)
+    {
+        $createdTrialRecordUuid = $user->createTrialPeriodRecordIfRequired(false);
+
+        if($createdTrialRecordUuid) {
+            return Response::make(["uuid" => $createdTrialRecordUuid], 200);
+        }
+
+        return Response::make(false, 422);
+    }
+
     public function toetsenbakkers(Request $request)
     {
         $toetsenbakkers = Auth::user()->isA('Account manager')

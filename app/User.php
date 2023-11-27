@@ -2787,20 +2787,35 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this;
     }
 
-    public function createTrialPeriodRecordIfRequired()
+    public function createTrialPeriodRecordIfRequired($setTrialStarted = true): string|false
     {
         if (!$this->isA('Teacher')) {
             return false;
         }
 
-        return $this->allowedSchoolLocations()->each(function ($location) {
-            if (!$location->hasTrialLicense() || $this->trialPeriods()->withSchoolLocation($location)->exists()) {
-                return true;
+        $trialPeriodRecordUuid = $this->allowedSchoolLocations()->get()->reduce(function ($carry, $location) use ($setTrialStarted) {
+            if (!$location->hasTrialLicense()) {
+                return $carry;
             }
-            return $this->trialPeriods()->create([
-                'school_location_id' => $location->getKey()
+            if ($this->trialPeriods()->withSchoolLocation($location)->exists()) {
+                $trialPeriod = $this->trialPeriods()->where('school_location_id', $this->school_location_id)->first();
+
+                if($trialPeriod->trial_started_at === null && $setTrialStarted) {
+                    $trialPeriod->trial_started_at = Carbon::now();
+                    $trialPeriod->save();
+                }
+
+                return $trialPeriod->uuid;
+            }
+
+            $this->trialPeriods()->create([
+                'school_location_id' => $location->getKey(),
+                'trial_started_at' => $setTrialStarted && $location->getKey() === $this->school_location_id ? Carbon::now() : null,
             ]);
-        });
+            return $this->trialPeriods()->orderByDesc('created_at')->first()->uuid;
+        }, false);
+
+        return $trialPeriodRecordUuid;
     }
 
     public function canHaveGeneralText2SpeechPrice()
