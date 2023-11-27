@@ -129,10 +129,10 @@ class MagisterHelper
             );
         } catch (\Exception $e) {
             Bugsnag::notifyException($e);
+            echo($e->getResponse()->getBody()->getContents());
             if(app()->runningInConsole()){
                 throw $e;
             }
-            echo($e->getResponse()->getBody()->getContents());
             dd($e);
         }
 

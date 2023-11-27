@@ -375,6 +375,10 @@ class EntreeHelper
                 ->where('external_sub_code', $external_sub_code)
                 ->first();
             $this->location_based_on_brin_six = true;
+            // move location if we have a master school en sub locations from the uwlr import
+            if($this->location->import_merge_school_location_id){
+                $this->location = SchoolLocation::find($this->location->import_merge_school_location_id);
+            }
             return true;
         }
         return false;
