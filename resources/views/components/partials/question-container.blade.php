@@ -40,6 +40,12 @@
             </x-accordion.block>
         </x-accordion.container>
     @endif
+    <div class="flex justify-end space-x-4 mt-6">
+        @if(!$this->closed )
+            <x-question.notepad-button :question="$question" ></x-question.notepad-button>
+        @endif
+    </div>
+    <x-timeout-progress-bar/>
     <div class="flex flex-col p-8 sm:p-10 content-section relative">
         <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
             <div class="inline-flex question-number rounded-full text-center justify-center items-center complete">
