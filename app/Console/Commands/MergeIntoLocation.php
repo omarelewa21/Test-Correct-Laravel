@@ -25,6 +25,8 @@ use tcCore\User;
 
 class MergeIntoLocation extends Command
 {
+    use BaseCommandTrait;
+
     /**
      * The name and signature of the console command.
      *
@@ -77,7 +79,7 @@ class MergeIntoLocation extends Command
                 $masterLocation->name,
                 $masterLocation->main_address,
                 $masterLocation->main_city))) {
-            $this->error('ok, we stop, please try again');
+            $this->components->alert('ok, we stop, please try again');
             return Command::FAILURE;
         }
 
@@ -88,6 +90,7 @@ class MergeIntoLocation extends Command
 
     protected function mergeLocations($from, $to)
     {
+        $this->writeInfoText('Starting checks...',true);
         $fromSubjects = Subject::whereIn('section_id', SchoolLocationSection::where('school_location_id', $from->getKey())->select('section_id'))->get();
         $toSubjects = Subject::whereIn('section_id', SchoolLocationSection::where('school_location_id', $to->getKey())->select('section_id'))->get();
 
@@ -146,93 +149,133 @@ class MergeIntoLocation extends Command
         $totalClassNames = $fromClassNames->merge($toClassNames);
         $duplicateClassNames = $totalClassNames->duplicates();
 
-        $hasErrors = false;
-        collect([
-            'notFoundSubjects'    => ['name' => 'subject', 'key' => 'name',],
-            'notFoundPeriods'     => ['name' => 'period', 'key' => 'name',],
-            'notFoundSchoolYears' => ['name' => 'school year', 'key' => 'year',],
-            'duplicateClassNames' => ['name' => 'duplicate class names',],
-        ])->each(function ($value, $key) use (&$hasErrors, $notFoundSubjects, $notFoundSchoolYears, $notFoundPeriods, $duplicateClassNames) {
-            if ($$key->count() > 0) {
-                $this->echoNoContinueError($hasErrors, $$key, (object) $value, $key === 'duplicateClassNames');
-                $hasErrors = true;
-            }
-        });
-        if ($hasErrors) {
-            return Command::FAILURE;
-        }
+        $this->handlePossibleErrors($notFoundSubjects,$notFoundSchoolYears,$notFoundPeriods,$duplicateClassNames);
 
         // We can start the conversion
         // school_location_user (delete and add if non existent)
+        $this->writeDoneInfo('Updating school location ids for users...');
         $userIds = User::where('school_location_id',$from->getKey())->withTrashed()->pluck('id');
         SchoolLocationUser::where('school_location_id',$from->getKey())->whereIn('user_id',$userIds)->delete();
         $upserts = [];
         $userIds->each(function($id) use (&$upserts, $to){
             $upserts[] = ['school_location_id' => $to->getKey(), 'user_id' => $id];
         });
-        SchoolLocationUser::upsert($upserts);
+        SchoolLocationUser::upsert($upserts,['school_location_id','user_id']);
 
         // users
-            // school_location_id ✓
+        // school_location_id ✓
         // test takes
-            // period_id ✓
-            // school_location_id ✓
+        // period_id ✓
+        // school_location_id ✓
         // tests
-            // subjects (name, abbreviation, base_subject_id comparison) ✓
-            // owner_id ✓
-            // period_id ✓
+        // subjects (name, abbreviation, base_subject_id comparison) ✓
+        // owner_id ✓
+        // period_id ✓
         // questions
-            // subjects ✓
+        // subjects ✓
         // p_values
-            // subjects ✓
-            // period_id ✓
+        // subjects ✓
+        // period_id ✓
         // school_class
-            // school_location_id ✓
-            // school_year_id ✓
-            // check on name unique ✓
+        // school_location_id ✓
+        // school_year_id ✓
+        // check on name unique ✓
         // teachers
-            // subject_id ✓
+        // subject_id ✓
         // search_filters
-            // heeft dit effect?
+        // heeft dit effect?
         // user is examcoordinator_for
-            // school => school_location
-
-        User::where('school_location_id',$from->getKey())->update(['school_location_id' => $to->getKey()]);
-        Test::where('owner_id',$from->getKey())->update(['owner_id' => $to->getKey()]);
-        SchoolClass::where('school_location_id',$from->getKey())->update(['school_location_id' => $to->getKey()]);
-        TestTake::where('school_location_id',$from->getKey())->update(['school_location_id' => $to->getKey()]);
+        // school => school_location
+        User::where('school_location_id',$from->getKey())->withTrashed()->update(['school_location_id' => $to->getKey()]);
+        $this->writeDoneInfo('DONE',color:'green');
+        $this->writeInfoText('updating school location ids for tests');
+        Test::where('owner_id',$from->getKey())->withTrashed()->update(['owner_id' => $to->getKey()]);
+        $this->writeDoneInfo('DONE',color:'green');
+        $this->writeInfoText('updating school location ids for school classess');
+        SchoolClass::where('school_location_id',$from->getKey())->withoutGlobalScope('visibleOnly')->withTrashed()->update(['school_location_id' => $to->getKey()]);
+        $this->writeDoneInfo('DONE',color:'green');
+        $this->writeInfoText('updating school location ids for test takes');
+        TestTake::where('school_location_id',$from->getKey())->withTrashed()->update(['school_location_id' => $to->getKey()]);
 
         $fromPeriods->each(function(Period $period){
-            TestTake::where('period_id',$period->getKey())->update(['periode_id' => $period->toPeriodId]);
-            Test::where('period_id',$period->getKey())->update(['periode_id' => $period->toPeriodId]);
-            PValue::where('period_id',$period->getKey())->update(['periode_id' => $period->toPeriodId]);
+            $this->writeInfoText('updating periods for test takes');
+            TestTake::where('period_id',$period->getKey())->withTrashed()->update(['period_id' => $period->toPeriodId]);
+            $this->writeDoneInfo('DONE',color:'green');
+            $this->writeInfoText('updating periods for tests');
+            Test::where('period_id',$period->getKey())->withTrashed()->update(['period_id' => $period->toPeriodId]);
+            $this->writeDoneInfo('DONE',color:'green');
+            $this->writeInfoText('updating periods for pvalues');
+            PValue::where('period_id',$period->getKey())->withTrashed()->update(['period_id' => $period->toPeriodId]);
+            $this->writeDoneInfo('DONE',color:'green');
         });
 
         $fromSubjects->each(function(Subject $subject){
-            Test::where('subject_id',$subject->getKey())->update(['subject_id' => $subject->toSubjectId]);
-            PValue::where('subject_id',$subject->getKey())->update(['subject_id' => $subject->toSubjectId]);
-            Teacher::where('subject_id',$subject->getKey())->update(['subject_id' => $subject->toSubjectId]);
-            Question::where('subject_id',$subject->getKey())->update(['subject_id' => $subject->toSubjectId]);
+            $this->writeInfoText('updating subjects for tests');
+            Test::where('subject_id',$subject->getKey())->withTrashed()->update(['subject_id' => $subject->toSubjectId]);
+            $this->writeDoneInfo('DONE',color:'green');
+            $this->writeInfoText('updating subjects for pvalues');
+            PValue::where('subject_id',$subject->getKey())->withTrashed()->update(['subject_id' => $subject->toSubjectId]);
+            $this->writeDoneInfo('DONE',color:'green');
+            $this->writeInfoText('updating subjects for teachers');
+            Teacher::where('subject_id',$subject->getKey())->withTrashed()->update(['subject_id' => $subject->toSubjectId]);
+            $this->writeDoneInfo('DONE',color:'green');
+            $this->writeInfoText('updating subjects for questions');
+            Question::where('subject_id',$subject->getKey())->withTrashed()->update(['subject_id' => $subject->toSubjectId]);
+            $this->writeDoneInfo('DONE',color:'green');
         });
 
+        $this->writeInfoText('updating school years for school classes');
         $fromSchoolYears->each(function(SchoolYear $schoolYear){
-            SchoolClass::where('school_year_id',$schoolYear->getKey())->update(['school_year_id' => $schoolYear->toSchoolYearId]);
+            SchoolClass::where('school_year_id',$schoolYear->getKey())->withoutGlobalScope('visibleOnly')->withTrashed()->update(['school_year_id' => $schoolYear->toSchoolYearId]);
         });
+        $this->writeDoneInfo('DONE',color:'green');
+    }
+
+    protected function handlePossibleErrors($notFoundSubjects, $notFoundSchoolYears, $notFoundPeriods, $duplicateClassNames, $start = true)
+    {
+        $hasErrors = false;
+        collect([
+            'notFoundSubjects'    => ['name' => 'subjects', 'key' => 'name',],
+            'notFoundPeriods'     => ['name' => 'periods', 'key' => 'name',],
+            'notFoundSchoolYears' => ['name' => 'school years', 'key' => 'year',],
+            'duplicateClassNames' => ['name' => 'duplicate class names',],
+        ])->each(function ($value, $key) use (&$hasErrors, $notFoundSubjects, $notFoundSchoolYears, $notFoundPeriods, $duplicateClassNames, $start) {
+            if($start){
+                $this->writeInfoText('Checking '.$value['name']);
+            }
+            if ($$key->count() > 0) {
+                if(!$start) {
+                    $this->echoNoContinueError($hasErrors, $$key, (object)$value, $key === 'duplicateClassNames');
+                } else {
+                    $this->writeDoneInfo('ERROR',color:'red');
+                }
+                $hasErrors = true;
+            } else if($start){
+                    $this->writeDoneInfo('SUCCESS',color:'green');
+            }
+        });
+        if ($hasErrors) {
+            if($start) {
+                $this->handlePossibleErrors($notFoundSubjects,$notFoundSchoolYears,$notFoundPeriods,$duplicateClassNames,false);
+            }
+            return Command::FAILURE;
+        }
     }
 
     protected function echoNoContinueError($hasErrors, $notFoundCollection, $data, $duplicates = false)
     {
         if(!$hasErrors){
-            $this->error('Sorry we can\'t continue due to the following error(s):');
+            $this->components->error('Sorry we can\'t continue due to the following error(s):');
         }
+        $list = [];
         if($duplicates){
-            $this->error(sprintf('Error in %s %s', ucfirst($data->name), var_export($notFoundCollection, true)));
+            $list[] = (sprintf('Error in %s %s', ucfirst($data->name), var_export($notFoundCollection, true)));
         } else {
-            $notFoundCollection->each(function($model) use($data){
-                $this->error(sprintf('Missingor duplicate %s: %s (id:%s)', ucfirst($data->name), $model->{$data->key}, $model->getKey()));
+            $notFoundCollection->each(function($model) use($data, &$list){
+                $list[] = (sprintf('Missing or duplicate %s: %s (id:%s)', ucfirst($data->name), $model->{$data->key}, $model->getKey()));
             });
-
         }
+        $this->components->bulletList($list);
     }
 
     protected function checkSettingValue($type, $setting, $value)

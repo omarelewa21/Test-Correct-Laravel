@@ -13,7 +13,7 @@ use tcCore\SchoolLocation;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\User;
-
+use function Termwind\terminal;
 Trait BaseCommandTrait
 {
 
@@ -35,6 +35,31 @@ Trait BaseCommandTrait
     public function toComment($string)
     {
         $this->comment($string);
+    }
+
+    protected function writeInfoText($text, $endWithLineBreak = false)
+    {
+        $this->output->write('<info>'.$text.'<info>',$endWithLineBreak);
+        $this->currentLineLength = strlen($text);
+    }
+
+    protected function writeDoneInfo($text = 'done', $color = null)
+    {
+        $endOnPosition = max(terminal()->width()-31, 0);
+
+        $originalText = $text;
+        if($color) {
+            $text = '<fg='.$color.'>'.$text.'</>';
+        }
+        $lastLength = $this->currentLineLength;
+        if($endOnPosition){
+            $extraDots = $endOnPosition - strlen($originalText) - $lastLength;
+            for($i=0;$i < $extraDots; $i++){
+                $text = '.'.$text;
+            }
+        }
+
+        $this->writeInfoText($text,true);
     }
 
 }
