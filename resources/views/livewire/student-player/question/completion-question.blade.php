@@ -6,7 +6,7 @@
          id="completion_{{ $question->id }}"
     >
         <div questionHtml wire:ignore>
-            <div class="flex flex-wrap completion-question-answer-container">
+            <div class="flex flex-wrap completion-question-question-container">
                 @if($this->question->isSubType('multi'))
                     <div class="flex flex-wrap items-center">
                         @foreach($questionTextPartials as $answerIndex => $textPartialArray)

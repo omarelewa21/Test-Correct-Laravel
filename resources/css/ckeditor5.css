@@ -122,7 +122,8 @@
 }
 
 .questionContainer .input-group:has(p),
-.questionContainer .completion-question-answer-container {
+.questionContainer .completion-question-question-container,
+.questionContainer .completion-question-answer-container{
     display: block;
 }
 

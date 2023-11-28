@@ -38,11 +38,12 @@ trait WithCompletionConversion
     {
         $stringPartialsArray = $stringPartialsArray->map(function ($word) {
             if (in_array($word, ['</p>', '</table>', '</ol>', '</ul>'])) {
-                return sprintf('%s<span class="co-learning-break"></span>', $word);
+                return sprintf('%s<span class="completion-question-break"></span>', $word);
             }
             if (str_contains($word, chr(60))) {
                 return $word;
             }
+            return $word;
             if (in_array($word, ['.', ',', ':', ';', '?', '!'])) {
                 return sprintf('<span class="mr-1 -ml-2">%s</span>', $word);
             }
