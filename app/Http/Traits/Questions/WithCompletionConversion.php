@@ -51,18 +51,24 @@ trait WithCompletionConversion
         });
     }
 
-    protected function explodeAndModifyQuestionText($question_text): Collection
+    /**
+     * Replace and then explode on the gap-/selection-question tags/square brackets.
+     * eg. [correct answer|incorrect answer]
+     * @param $question_text
+     * @return Collection
+     */
+    protected function explodeAndModifyQuestionText(string $question_text): Collection
     {
-        return collect(explode('(##)', preg_replace($this->searchPattern, '(##)', $question_text)))
-            ->map(function ($partial) {
-                $stringPartialsArray = $this->explodeQuestionTextPartialIntoWordsAndHtmlTags($partial);
-
-                $this->concatenateWirisMathTagsInQuestionPartialsArray($stringPartialsArray);
-
-                $this->addBreaksAndSpanTagsToQuestionPartials($stringPartialsArray);
-
-                return $stringPartialsArray;
-            });
+        return collect(
+            explode(
+                separator: '(##)',
+                string: preg_replace(
+                    pattern: $this->searchPattern,
+                    replacement: '(##)',
+                    subject: $question_text
+                )
+            )
+        )->map(fn ($partial) => [$partial]);
     }
 
     protected function countCompletionQuestionOptions($question_text): int
