@@ -153,14 +153,7 @@ class MergeIntoLocation extends Command
 
         // We can start the conversion
         // school_location_user (delete and add if non existent)
-        $this->writeDoneInfo('Updating school location ids for users...');
-        $userIds = User::where('school_location_id',$from->getKey())->withTrashed()->pluck('id');
-        SchoolLocationUser::where('school_location_id',$from->getKey())->whereIn('user_id',$userIds)->delete();
-        $upserts = [];
-        $userIds->each(function($id) use (&$upserts, $to){
-            $upserts[] = ['school_location_id' => $to->getKey(), 'user_id' => $id];
-        });
-        SchoolLocationUser::upsert($upserts,['school_location_id','user_id']);
+
 
         // users
         // school_location_id ✓
@@ -186,16 +179,6 @@ class MergeIntoLocation extends Command
         // heeft dit effect?
         // user is examcoordinator_for
         // school => school_location
-        User::where('school_location_id',$from->getKey())->withTrashed()->update(['school_location_id' => $to->getKey()]);
-        $this->writeDoneInfo('DONE',color:'green');
-        $this->writeInfoText('updating school location ids for tests');
-        Test::where('owner_id',$from->getKey())->withTrashed()->update(['owner_id' => $to->getKey()]);
-        $this->writeDoneInfo('DONE',color:'green');
-        $this->writeInfoText('updating school location ids for school classess');
-        SchoolClass::where('school_location_id',$from->getKey())->withoutGlobalScope('visibleOnly')->withTrashed()->update(['school_location_id' => $to->getKey()]);
-        $this->writeDoneInfo('DONE',color:'green');
-        $this->writeInfoText('updating school location ids for test takes');
-        TestTake::where('school_location_id',$from->getKey())->withTrashed()->update(['school_location_id' => $to->getKey()]);
 
         $fromPeriods->each(function(Period $period){
             $this->writeInfoText('updating periods for test takes');
@@ -210,16 +193,16 @@ class MergeIntoLocation extends Command
         });
 
         $fromSubjects->each(function(Subject $subject){
-            $this->writeInfoText('updating subjects for tests');
+            $this->writeInfoText('updating subject '.$subject->name.' for tests');
             Test::where('subject_id',$subject->getKey())->withTrashed()->update(['subject_id' => $subject->toSubjectId]);
             $this->writeDoneInfo('DONE',color:'green');
-            $this->writeInfoText('updating subjects for pvalues');
+            $this->writeInfoText('updating subject '.$subject->name.' for pvalues');
             PValue::where('subject_id',$subject->getKey())->withTrashed()->update(['subject_id' => $subject->toSubjectId]);
             $this->writeDoneInfo('DONE',color:'green');
-            $this->writeInfoText('updating subjects for teachers');
+            $this->writeInfoText('updating subject '.$subject->name.' for teachers');
             Teacher::where('subject_id',$subject->getKey())->withTrashed()->update(['subject_id' => $subject->toSubjectId]);
             $this->writeDoneInfo('DONE',color:'green');
-            $this->writeInfoText('updating subjects for questions');
+            $this->writeInfoText('updating subject '.$subject->name.' for questions');
             Question::where('subject_id',$subject->getKey())->withTrashed()->update(['subject_id' => $subject->toSubjectId]);
             $this->writeDoneInfo('DONE',color:'green');
         });
@@ -228,6 +211,27 @@ class MergeIntoLocation extends Command
         $fromSchoolYears->each(function(SchoolYear $schoolYear){
             SchoolClass::where('school_year_id',$schoolYear->getKey())->withoutGlobalScope('visibleOnly')->withTrashed()->update(['school_year_id' => $schoolYear->toSchoolYearId]);
         });
+        $this->writeDoneInfo('DONE',color:'green');
+
+        $this->writeDoneInfo('Updating school location ids for users...');
+        $userIds = User::where('school_location_id',$from->getKey())->withTrashed()->pluck('id');
+        SchoolLocationUser::where('school_location_id',$from->getKey())->whereIn('user_id',$userIds)->delete();
+        $upserts = [];
+        $userIds->each(function($id) use (&$upserts, $to){
+            $upserts[] = ['school_location_id' => $to->getKey(), 'user_id' => $id];
+        });
+        SchoolLocationUser::upsert($upserts,['school_location_id','user_id']);
+
+        User::where('school_location_id',$from->getKey())->withTrashed()->update(['school_location_id' => $to->getKey()]);
+        $this->writeDoneInfo('DONE',color:'green');
+        $this->writeInfoText('updating school location ids for tests');
+        Test::where('owner_id',$from->getKey())->withTrashed()->update(['owner_id' => $to->getKey()]);
+        $this->writeDoneInfo('DONE',color:'green');
+        $this->writeInfoText('updating school location ids for school classess');
+        SchoolClass::where('school_location_id',$from->getKey())->withoutGlobalScope('visibleOnly')->withTrashed()->update(['school_location_id' => $to->getKey()]);
+        $this->writeDoneInfo('DONE',color:'green');
+        $this->writeInfoText('updating school location ids for test takes');
+        TestTake::where('school_location_id',$from->getKey())->withTrashed()->update(['school_location_id' => $to->getKey()]);
         $this->writeDoneInfo('DONE',color:'green');
     }
 
