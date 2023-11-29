@@ -18,6 +18,7 @@ class InfoScreenQuestion extends TCComponent
 
     public $answers;
 
+    public $showQuestionText;
 
     public function questionUpdated($uuid)
     {

@@ -18,9 +18,11 @@
             <div class="w-full">
                 <div class="flex flex-col body1 space-y-3">
                     <span>{!! __('test_take.info_screen_question_bottom_text') !!}</span>
-                    <div class="questionContainer children-block-pdf questionhtml questionContainer">
-                        {!! $question->converted_question_html !!}&nbsp;&nbsp;
-                    </div>
+                    @if($showQuestionText)
+                        <div class="questionContainer children-block-pdf questionhtml questionContainer">
+                            {!! $question->converted_question_html !!}&nbsp;&nbsp;
+                        </div>
+                    @endif
                 </div>
             </div>
         @else

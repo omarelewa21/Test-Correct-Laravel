@@ -41,7 +41,7 @@
             </div>
         @endif
     </div>
-    @if($this->group)
+    @if($this->group && $this->showQuestionText)
         <div class="mb-5 group-question-description" >{!! $this->group->question->converted_question_html !!}&nbsp;</div>
     @endif
     <div class="flex flex-1 overview">

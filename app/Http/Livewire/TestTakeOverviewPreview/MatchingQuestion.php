@@ -24,6 +24,8 @@ class MatchingQuestion extends TCComponent
 
     public $shuffledAnswers;
 
+    public $showQuestionText;
+
     public function mount()
     {
         $this->question->loadRelated();
