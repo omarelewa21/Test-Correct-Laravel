@@ -265,8 +265,11 @@ class MagisterHelper
         return $this->resultIdentifier;
     }
 
-    public function getResultSet()
+    public function getResultSet($forceRefresh = true)
     {
+        if($forceRefresh){
+            $this->resultSet->fresh();
+        }
         return $this->resultSet;
     }
 

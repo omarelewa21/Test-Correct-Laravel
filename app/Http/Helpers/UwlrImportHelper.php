@@ -174,7 +174,7 @@ class UwlrImportHelper
         return $helper;
     }
 
-    protected function handleSchoolLocationsToBeMergedIfAny($parentSchoolLocation,$masterResultSetId,$schoolYear)
+    public function handleSchoolLocationsToBeMergedIfAny($parentSchoolLocation,$masterResultSetId,$schoolYear)
     {
         SchoolLocation::where('import_merge_school_location_id', $parentSchoolLocation->getKey())
             ->where('lvs_active', true)
