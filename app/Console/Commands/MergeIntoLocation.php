@@ -213,15 +213,13 @@ class MergeIntoLocation extends Command
         });
         $this->writeDoneInfo('DONE',color:'green');
 
-        $this->writeDoneInfo('Updating school location ids for users...');
-        $userIds = User::where('school_location_id',$from->getKey())->withTrashed()->pluck('id');
-        SchoolLocationUser::where('school_location_id',$from->getKey())->whereIn('user_id',$userIds)->delete();
-        $upserts = [];
-        $userIds->each(function($id) use (&$upserts, $to){
-            $upserts[] = ['school_location_id' => $to->getKey(), 'user_id' => $id];
-        });
-        SchoolLocationUser::upsert($upserts,['school_location_id','user_id']);
+        // gather information for the last step
+        $idsA = User::where('school_location_id',$from->getKey())->withTrashed()->pluck('id');
+        $idsB = SchoolLocationUser::where('school_location_id',$from->getKey())->pluck('user_id');
+        $totalIds = $idsA->merge($idsB);
+        $userIds = $totalIds->unique();
 
+        $this->writeDoneInfo('Updating school location ids for users...');
         User::where('school_location_id',$from->getKey())->withTrashed()->update(['school_location_id' => $to->getKey()]);
         $this->writeDoneInfo('DONE',color:'green');
         $this->writeInfoText('updating school location ids for tests');
@@ -233,6 +231,17 @@ class MergeIntoLocation extends Command
         $this->writeInfoText('updating school location ids for test takes');
         TestTake::where('school_location_id',$from->getKey())->withTrashed()->update(['school_location_id' => $to->getKey()]);
         $this->writeDoneInfo('DONE',color:'green');
+
+        $this->writeDoneInfo('Updating school location users for users...');
+        SchoolLocationUser::where('school_location_id',$from->getKey())->delete();
+        $upserts = [];
+        $userIds->each(function($id) use (&$upserts, $to){
+            $upserts[] = ['school_location_id' => $to->getKey(), 'user_id' => $id];
+        });
+        SchoolLocationUser::upsert($upserts,['school_location_id','user_id']);
+        $this->writeDoneInfo('DONE',color:'green');
+
+
     }
 
     protected function handlePossibleErrors($notFoundSubjects, $notFoundSchoolYears, $notFoundPeriods, $duplicateClassNames, $start = true)

@@ -255,7 +255,7 @@ class EntreeHelperTest extends TestCase
      * @group ignore
      * @TODO Ask Erik
      */
-    public function it_should_redirect_to_login_with_allready_registered_if_registering_through_entree_and_existing_eckid_brin4_no_t_user_within_school() //6a
+    public function it_should_redirect_to_login_with_already_registered_if_registering_through_entree_and_existing_eckid_brin4_no_t_user_within_school() //6a
     {
         $location = $this->setSchoolLocationReadyForTestingRegistration();
         $school = $location->school;
