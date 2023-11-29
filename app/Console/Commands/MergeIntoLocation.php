@@ -5,14 +5,17 @@ namespace tcCore\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Schema;
 use tcCore\FeatureSetting;
+use tcCore\FileManagement;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Period;
 use tcCore\PValue;
 use tcCore\Question;
+use tcCore\Rating;
 use tcCore\School;
 use tcCore\SchoolClass;
 use tcCore\SchoolLocation;
+use tcCore\SchoolLocationContact;
 use tcCore\SchoolLocationSchoolYear;
 use tcCore\SchoolLocationSection;
 use tcCore\SchoolLocationUser;
@@ -190,6 +193,9 @@ class MergeIntoLocation extends Command
             $this->writeInfoText('updating periods for pvalues');
             PValue::where('period_id',$period->getKey())->withTrashed()->update(['period_id' => $period->toPeriodId]);
             $this->writeDoneInfo('DONE',color:'green');
+            $this->writeInfoText('updating periods for ratings');
+            Rating::where('period_id',$period->getKey())->withTrashed()->update(['period_id' => $period->toPeriodId]);
+            $this->writeDoneInfo('DONE',color:'green');
         });
 
         $fromSubjects->each(function(Subject $subject){
@@ -205,6 +211,13 @@ class MergeIntoLocation extends Command
             $this->writeInfoText('updating subject '.$subject->name.' for questions');
             Question::where('subject_id',$subject->getKey())->withTrashed()->update(['subject_id' => $subject->toSubjectId]);
             $this->writeDoneInfo('DONE',color:'green');
+            $this->writeInfoText('updating subject '.$subject->name.' for file management');
+            FileManagement::where('subject_id',$subject->getKey())->withTrashed()->update(['subject_id' => $subject->toSubjectId]);
+            $this->writeDoneInfo('DONE',color:'green');
+            $this->writeInfoText('updating subject '.$subject->name.' for ratings');
+            Rating::where('subject_id',$subject->getKey())->withTrashed()->update(['subject_id' => $subject->toSubjectId]);
+            $this->writeDoneInfo('DONE',color:'green');
+
         });
 
         $this->writeInfoText('updating school years for school classes');
@@ -231,6 +244,14 @@ class MergeIntoLocation extends Command
         $this->writeInfoText('updating school location ids for test takes');
         TestTake::where('school_location_id',$from->getKey())->withTrashed()->update(['school_location_id' => $to->getKey()]);
         $this->writeDoneInfo('DONE',color:'green');
+        $this->writeInfoText('updating school location ids for contacts');
+        SchoolLocationContact::where('school_location_id',$from->getKey())->withTrashed()->update(['school_location_id' => $to->getKey()]);
+        $this->writeDoneInfo('DONE',color:'green');
+
+        $this->writeInfoText('updating school location ids for file management');
+        FileManagement::where('school_location_id',$from->getKey())->withTrashed()->update(['school_location_id' => $to->getKey()]);
+        $this->writeDoneInfo('DONE',color:'green');
+
 
         $this->writeDoneInfo('Updating school location users for users...');
         SchoolLocationUser::where('school_location_id',$from->getKey())->delete();
