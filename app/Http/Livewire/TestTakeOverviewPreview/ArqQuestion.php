@@ -18,6 +18,8 @@ class ArqQuestion extends TCComponent
 
     public $question;
 
+    public $showQuestionText;
+
     public function questionUpdated($uuid)
     {
         $this->uuid = $uuid;

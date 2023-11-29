@@ -4,9 +4,11 @@
          >
 
         <div class="flex-col space-y-3">
-            <div class="children-block-pdf questionContainer">
+            @if($showQuestionText)
+                <div class="children-block-pdf questionContainer">
                 {!! $question->converted_question_html !!}&nbsp;
-            </div>
+                </div>
+            @endif
             <x-input.group wire:ignore class="w-full question-no-break-open-short">
                 <x-input.mock-textarea-answered :question="$question"
                                        disabled style="min-height:80px"

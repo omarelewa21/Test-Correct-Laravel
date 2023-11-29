@@ -1,8 +1,10 @@
 <x-partials.answer-model-question-container :number="$number" :question="$question" :answer="$answer">
     <div class="w-full space-y-3 matching-question">
-        <div class="children-block-pdf questionContainer">
-            {!!   $question->converted_question_html !!}&nbsp;
-        </div>
+        @if($showQuestionText)
+            <div class="children-block-pdf questionContainer">
+                {!!   $question->converted_question_html !!}&nbsp;
+            </div>
+        @endif
         @if($question->subtype == 'Classify')
             <div class="flex-wrap-pdf flex-col-pdf classify " style="margin-top: 40px;">
                 <div class="flex-row-pdf space-x-5 classified question-no-break-matching-option">

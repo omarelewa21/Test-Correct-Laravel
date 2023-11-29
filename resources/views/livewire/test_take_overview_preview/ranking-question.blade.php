@@ -1,6 +1,8 @@
 <x-partials.answer-model-question-container :number="$number" :question="$question" :answer="$answer">
     <div class="flex flex-1 flex-col space-y-2">
-        <div class="children-block-pdf questionContainer">{!! $question->converted_question_html !!}&nbsp;</div>
+        @if($showQuestionText)
+            <div class="children-block-pdf questionContainer">{!! $question->converted_question_html !!}&nbsp;</div>
+        @endif
         <div class="flex flex-col pdf-100 max-w-max space-y-2 question-no-break-ranking-option">
             @if($answered)
                 @foreach($answerStruct as $answer)

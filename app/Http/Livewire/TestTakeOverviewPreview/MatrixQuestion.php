@@ -23,6 +23,8 @@ class MatrixQuestion extends TCComponent
     public $questionAnswers;
     public $answerStruct;
 
+    public $showQuestionText;
+
     public function mount()
     {
         $this->subQuestions = $this->question->matrixQuestionSubQuestions;

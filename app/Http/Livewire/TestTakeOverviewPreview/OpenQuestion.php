@@ -20,6 +20,7 @@ class OpenQuestion extends TCComponent
     public $answers;
     public $editorId;
     public $wordCount = 0;
+    public $showQuestionText;
 
     public function mount()
     {
