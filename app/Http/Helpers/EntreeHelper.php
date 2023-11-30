@@ -131,6 +131,10 @@ class EntreeHelper
             return $url;
         }
 
+        if($url = $this->handleIfLVSLocation()){
+            return $url;
+        }
+
         if ($data->user = $this->handleIfRegisteringAndUserBasedOnEckId($data)) {
             if (!$data->user instanceof User and is_string($data->user)) {
                 return $data->user;
@@ -253,6 +257,14 @@ class EntreeHelper
         // no brincode found
         if ($exit) {
             return $this->redirectIfUnknownBrinForRegistration();
+        }
+        return false;
+    }
+
+    protected function handleIfLVSLocation()
+    {
+        if($this->location->lvs_active) {
+            return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je school is gekoppeld aan het leerling volg systeem waarmee we alle data binnen halen. Het los aanmaken van een Test-Correct account is daarmee niet mogelijk.')));
         }
         return false;
     }
