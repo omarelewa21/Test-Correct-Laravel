@@ -279,34 +279,27 @@ class RelationQuestion extends Question implements QuestionInterface
         $testTakeId = TestTake::whereUuid($testTakeUuid)
             ->pluck('id')->first();
 
-
-        $testTakeQuestion = $this->testTakeQuestions()
+        $testTakeRelationQuestion = $this->testTakeRelationQuestions()
             ->where('test_take_id', $testTakeId)
             ->first();
 
-        //TODO answer struct is going to be on a 1-1 relation with TestTakeQuestion, TestTakeRelationQuestion
-        die;
 
-        //todo 'answer_struct' is not yet a column, make migration
-        $answerStruct = $testTakeQuestion?->answer_struct;
-
-        dd($answerStruct);
-        //todo update or create TestTakeQuestion, set answer_struct json
+        $answerStruct = $testTakeRelationQuestion?->json['answer_struct'];
 
         //if TestTakeQuestions has no answer_struct yet:
         if($answerStruct !== null) {
-            // answer struct should be json decoded, here or in the model
             return $answerStruct;
         }
 
         $answerStruct = $this->createAnswerStruct();
-        //todo save answer_struct to TestTakeQuestion
-        die;
-        TestTakeQuestion::updateOrCreate([
+
+        TestTakeRelationQuestion::updateOrCreate([
             'test_take_id' => $testTakeId,
             'question_id' => $this->id,
         ], [
-            'answer_struct' => json_encode($answerStruct),
+            'json' => [
+                'answer_struct' => $answerStruct,
+            ],
         ]);
 
         return $answerStruct;

@@ -391,6 +391,11 @@ class Question extends MtiBaseModel
         return $this->hasMany('tcCore\TestTakeQuestion', 'question_id');
     }
 
+    public function testTakeRelationQuestions()
+    {
+        return $this->hasMany('tcCore\TestTakeRelationQuestion', 'question_id');
+    }
+
     public function getChangedIds()
     {
         return ['oldId' => $this->changedId, 'newId' => $this->getKey(), 'children' => $this->changedChildrenIds];
