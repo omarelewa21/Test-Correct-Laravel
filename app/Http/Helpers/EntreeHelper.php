@@ -257,6 +257,14 @@ class EntreeHelper
         return false;
     }
 
+    protected function handleIfLVSLocation()
+    {
+        if($this->location->lvs_active) {
+            return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je school is gekoppeld aan het leerling volg systeem waarmee we alle data binnen halen. Het los aanmaken van een Test-Correct account is daarmee niet mogelijk.')));
+        }
+        return false;
+    }
+
     protected function redirectIfUnknownBrinForRegistration()
     {
         return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je school is helaas nog niet bekend in Test-Correct. Vul dit formulier in om een account aan te maken')));

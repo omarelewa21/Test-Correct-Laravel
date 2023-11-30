@@ -24,5 +24,6 @@ return [
     'Je entree account kan niet gebruikt worden om een account aan te maken in Test-Correct. Neem contact op met support.' => 'Je entree account kan niet gebruikt worden om een account aan te maken in Test-Correct. Neem contact op met support.',
     'Klik hier om in te loggen' => 'Klik hier om in te loggen',
     'Je hebt je aangemeld via Entree' => 'Je hebt je aangemeld via Entree',
+    'Je school is gekoppeld aan het leerling volg systeem waarmee we alle data binnen halen. Het los aanmaken van een Test-Correct account is daarmee niet mogelijk.' => 'Je school is gekoppeld aan het leerling volg systeem waarmee we alle data binnen halen. Het los aanmaken van een Test-Correct account is daarmee niet mogelijk.',
 ];
 ?>
