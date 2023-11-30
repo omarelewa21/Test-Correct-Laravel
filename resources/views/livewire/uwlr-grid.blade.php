@@ -101,7 +101,7 @@ $struct = [
 
                             </x-table.cell>
                             <x-table.cell>
-                                @if($set->status !== 'PROCESSING')
+                                @if($set->status !== 'PROCESSING' && !\Illuminate\Support\Str::contains($set->status,'MOVEDTOMASTER'))
                                     <x-button.text wire:click="activateResult({{ $set->getKey() }})"><span>Bekijk
                                             details</span>
                                     </x-button.text>
@@ -111,7 +111,7 @@ $struct = [
 
                             </x-table.cell>
                             <x-table.cell>
-                                @if($set->status !== 'PROCESSING' && $set->status !== 'READYTOPROCESS')
+                                @if($set->status !== 'PROCESSING' && $set->status !== 'READYTOPROCESS' && !\Illuminate\Support\Str::contains($set->status,'MOVEDTOMASTER'))
                                     <x-button.text wire:click="processResult({{ $set->getKey() }})">
                                         <span>Verwerken</span>
                                     </x-button.text>

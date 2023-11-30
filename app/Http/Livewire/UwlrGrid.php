@@ -82,6 +82,12 @@ class UwlrGrid extends TCComponent
         $schoolLocation = SchoolLocation::where('external_main_code',$resultSet->brin_code)->where('external_sub_code',$resultSet->dependance_code)->first();
         if($schoolLocation){
             UwlrSoapEntry::deleteImportDataForSchoolLocationId($schoolLocation->getKey(), $id);
+            $subSets = UwlrSoapResult::where('status','MOVETOMASTER'.$resultSet->getKey())->get();
+            if($subSets->count()){
+                $subSets->each(function(UwlrSoapResult $result){
+                   $this->deleteImportDataForResultSet($result->getKey());
+                });
+            }
         }
         return $this->redirect(route('uwlr.grid'));
     }

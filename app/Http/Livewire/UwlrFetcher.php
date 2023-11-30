@@ -36,7 +36,7 @@ class UwlrFetcher extends TCComponent
 
     protected function getDataSource()
     {
-        return SchoolLocation::whereNotNull('lvs_type')->get()->map(function(SchoolLocation $l){ // where('lvs_active',true)-> not needed as we do it by hand. And if by hand then not needed to be active only by auto retrieval
+        return SchoolLocation::whereNotNull('lvs_type')->whereNull('import_merge_school_location_id')->get()->map(function(SchoolLocation $l){ // where('lvs_active',true)-> not needed as we do it by hand. And if by hand then not needed to be active only by auto retrieval
            return [
                'id'             => $l->getKey(),
                'name'            => $l->name,
@@ -103,8 +103,14 @@ class UwlrFetcher extends TCComponent
             set_time_limit(0);
             $helper = UwlrImportHelper::getHelperAndStoreInDB($this->uwlrDatasource[$this->currentSource]['lvs_type'], $this->schoolYear, $this->brinCode, $this->dependanceCode);
 
-            $this->report = $helper->getResultSet()->report();
             $this->resultIdendifier = $helper->getResultIdentifier();
+
+            $parentSchoolLocation = SchoolLocation::where('external_main_code',$this->brinCode)->where('external_sub_code',$this->dependanceCode)->first();
+
+            (new UwlrImportHelper)->handleSchoolLocationsToBeMergedIfAny($parentSchoolLocation,$this->resultIdendifier,$this->schoolYear);
+
+            $this->report = $helper->getResultSet(true)->report();
+
         } catch(\Exception $e){
             dd($e);
             session()->flash('error', $e->getMessage());
