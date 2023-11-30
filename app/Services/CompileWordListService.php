@@ -30,19 +30,37 @@ class CompileWordListService
         }
     }
 
-    public static function buildWordItem($word, $list): array
+    public static function buildWordItem($word, $list = null): array
     {
+        return static::buildEmptyWordItem(
+            $word->text,
+            $word->type,
+            $word->getKey(),
+            $list?->getKey()
+        );
+    }
+
+    public static function buildEmptyWordItem(
+        string   $text,
+        WordType $type,
+        ?int     $wordId = null,
+        ?int     $wordListId = null,
+    ): array {
         return [
-            'text'         => $word->text,
-            'word_id'      => $word->getKey(),
-            'word_list_id' => $list->getKey(),
-            'type'         => $word->type
+            'text'         => $text,
+            'word_id'      => $wordId,
+            'word_list_id' => $wordListId,
+            'type'         => $type
         ];
     }
 
     public function categorizeWordUpdatesInActions(): static
     {
         $this->wordLists->each(function ($list) {
+            if (!isset($this->incomingUpdates[$list->getKey()])) {
+                return true;
+            }
+
             foreach ($this->incomingUpdates[$list->getKey()]['rows'] as $rowKey => $row) {
                 $row = $this->prepareRowForCategorizing($row, $rowKey);
 
@@ -87,11 +105,11 @@ class CompileWordListService
     {
         $this->wordLists
             ->each(function ($list) {
-                try {
-                    $enabled = collect($this->incomingUpdates[$list->getKey()]['enabled']);
-                } catch (\Throwable $e) {
-                    logger($e);
+                if (!isset($this->incomingUpdates[$list->getKey()])) {
+                    return true;
                 }
+
+                $enabled = collect($this->incomingUpdates[$list->getKey()]['enabled']);
 
                 $items = $list->rows(true)
                     ->map(function ($row, $key) use ($list, $enabled) {
@@ -134,7 +152,11 @@ class CompileWordListService
 
     private function isAdded($word, $row, WordList $list): bool
     {
-        if ($word['word_id'] || !filled($word['text'])) {
+        if (blank($word['text'])) {
+            return false;
+        }
+
+        if ($word['word_id'] && $word['word_list_id']) {
             return false;
         }
 
@@ -277,6 +299,14 @@ class CompileWordListService
             return;
         }
         foreach ($updates['added'] as $word) {
+            if ($word['word_id']) {
+                $newWord = $list->addWord(Word::find($word['word_id']));
+
+                $this->newSubjectWords[$word['row_key']] = $newWord->getKey();
+                continue;
+            }
+
+
             $newWord = $list->createWord(
                 $word['text'],
                 $word['type'],

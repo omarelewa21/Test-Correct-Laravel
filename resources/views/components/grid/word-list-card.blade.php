@@ -28,9 +28,21 @@
             <span class="note text-sm">{{ $wordList->words->count() }} @lang('cms.woorden')</span>
 
             @if($addable)
-                <x-button.icon x-on:click="add('list', '{{ $wordList->uuid }}')" :title="__('cms.Woordenlijst toevoegen')">
-                    <x-icon.plus />
-                </x-button.icon>
+                @if($used)
+                    <span class="w-10 h-10 flex rounded-10 border-3 border-cta items-center justify-center">
+                        <x-icon.checkmark class="text-cta" />
+                    </span>
+                @else
+                    <x-button.icon x-on:click="
+                                 add('list', '{{ $wordList->uuid }}');
+                                 $wire.call('addToUsed', {{ $wordList->getKey() }}, true);
+                                 $wire.emit('newListAdded', {{ $wordList->getKey() }})
+                             "
+                                   :title="__('cms.Woordenlijst toevoegen')"
+                    >
+                        <x-icon.plus />
+                    </x-button.icon>
+                @endif
             @endif
         </div>
     </div>

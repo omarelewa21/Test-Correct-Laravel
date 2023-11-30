@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Arr;
 use tcCore\Http\Livewire\TCComponent;
 
 class VersionableSidePanelContainer extends TCComponent
@@ -12,6 +13,8 @@ class VersionableSidePanelContainer extends TCComponent
     public string $sliderButtonSelected = 'lists';
     public bool $showSliderButtons = true;
     public bool $closeOnFirstAdd = false;
+    public string $listUuid = '';
+    public array $used = [];
 
     protected function getListeners(): array
     {
@@ -30,7 +33,7 @@ class VersionableSidePanelContainer extends TCComponent
         return view('livewire.teacher.versionable-side-panel-container');
     }
 
-    private function setSliderButtonOptions()
+    private function setSliderButtonOptions(): void
     {
         $this->sliderButtonOptions = [
             'lists' => __('cms.Woordenlijstenbank'),
@@ -43,6 +46,31 @@ class VersionableSidePanelContainer extends TCComponent
     {
         if (!isset($event['attributes'])) {
             return;
+        }
+
+        $shouldNotifyChildrenProperties = [
+            WordsOverview::class     => ['used.words'],
+            WordListsOverview::class => ['used.lists'],
+        ];
+
+        foreach ($shouldNotifyChildrenProperties as $class => $props) {
+            $updates = [];
+
+            foreach ($props as $prop) {
+                if ($newValue = Arr::get($event['attributes'], $prop)) {
+                    $updates[$prop] = $newValue;
+                }
+            }
+
+            if (empty($updates)) {
+                continue;
+            }
+
+            $this->emitTo(
+                $class,
+                'usedPropertiesUpdated',
+                $updates
+            );
         }
 
         foreach ($event['attributes'] as $attribute => $value) {

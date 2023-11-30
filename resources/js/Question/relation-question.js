@@ -239,8 +239,8 @@ document.addEventListener("alpine:init", () => {
         list,
         wordCount: 0,
         selectedWordCount: 0,
-        originalRows: [],
         errorstate: false,
+        mutation: 1,
         init() {
             this.list.rows = Object.values(this.list.rows);
             this.buildGrid();
@@ -257,19 +257,14 @@ document.addEventListener("alpine:init", () => {
         },
         buildGrid() {
             for (let i = 0; i < 7; i++) {
-                this.cols[i] = this.getUsedTypes()[i] ?? null;
+                this.cols[i] = this.getUsedTypes(this.list.rows)[i] ?? null;
             }
 
             this.rows = this.list
                 .rows
                 .map(row => this.buildRow(row));
 
-            if (this.rows.length < 10) {
-                let add = 10 - this.rows.length;
-                for (let i = this.rows.length; i < add; i++) {
-                    this.rows[i] = this.buildRow([]);
-                }
-            }
+            this.addMinimumAmountOfRows();
 
             this.addEmptyRowWhenLastIsFull();
         },
@@ -330,15 +325,15 @@ document.addEventListener("alpine:init", () => {
             this.countWords();
         },
         selectUsedColumnHeads() {
-            let usedCols = this.getUsedTypes();
+            let usedCols = this.getUsedTypes(this.list.rows);
             let selectBoxes = this.$root.querySelectorAll(".single-select");
             usedCols.forEach((usedCol, key) => {
                 let index = this.cols.findIndex((col) => col === usedCol);
                 selectBoxes[index].querySelector(`.option[data-value="${usedCol}"]`).click();
             });
         },
-        getUsedTypes() {
-            return _.uniq(this.list.rows.flatMap(r => Object.keys(r)));
+        getUsedTypes(rows) {
+            return _.uniq(rows.flatMap(r => Object.keys(r)));
         },
         getUsedColumnHeads() {
             return this.cols.filter(c => c !== null);
@@ -359,7 +354,6 @@ document.addEventListener("alpine:init", () => {
             this.list?.enabledRows.forEach(key => {
                 const input = this.$root.querySelector(`.word-row.row-${key} .checkbox-container input`);
                 input.checked = true;
-                this.originalRows.push(key);
                 this.toggleRow(input, key);
             });
         },
@@ -422,13 +416,32 @@ document.addEventListener("alpine:init", () => {
                 return `.word-row span[data-row-value="${newRow}"][data-column-value="${newColumn}"]`;
             }
         },
+        addMinimumAmountOfRows() {
+            if (this.rows.length < 10) {
+                let add = 10 - this.rows.length;
+                const index = this.rows.length;
+
+                for (let i = index; i < (add + index); i++) {
+                    this.rows[i] = this.buildRow([]);
+                }
+            }
+        },
         addEmptyRowWhenLastIsFull() {
             if (this.wordsInRow(this.rows[this.rows.length - 1]) > 0) {
                 this.rows[this.rows.length] = this.buildRow([]);
             }
         },
+        removeEmptyTrailingRow() {
+            if (this.wordsInRow(this.rows[this.rows.length - 1]) === 0) {
+                this.rows.pop();
+
+                if (this.rows.length !== 0) {
+                    this.removeEmptyTrailingRow();
+                }
+            }
+        },
         wordsInRow(row) {
-            return row.filter(item => ![null, ""].includes(item.text)).length;
+            return row?.filter(item => ![null, ""].includes(item.text))?.length ?? false;
         },
         columnValueUpdated(headerIndex, value) {
             if (typeof value === "string" && value === "") {
@@ -482,9 +495,6 @@ document.addEventListener("alpine:init", () => {
                         }
 
                         word.type = this.cols[index];
-                        if (word.word_list_id === null) {
-                            word.word_list_id = this.list.id;
-                        }
 
                         return word;
                     }).filter(Boolean);
@@ -493,13 +503,113 @@ document.addEventListener("alpine:init", () => {
             };
         },
         addFromWordListBank() {
-            this.openVersionablePanel({ sliderButtonSelected: "lists" });
+            this.openVersionablePanel({
+                sliderButtonSelected: "lists",
+                listUuid: this.list.uuid,
+                used: this.getUsedItemsForSidePanel()
+            });
         },
         addFromWordBank() {
-            this.openVersionablePanel({ sliderButtonSelected: "words" });
+            this.openVersionablePanel({
+                sliderButtonSelected: "words",
+                listUuid: this.list.uuid,
+                used: this.getUsedItemsForSidePanel()
+            });
         },
         addFromUpload() {
-            console.log("uploodjes trekken");
+            this.$root.closest(".compile-list-modal")
+                .querySelector("#compile-list-upload-modal")
+                .dispatchEvent(
+                    new CustomEvent("open-modal", { detail: { list: this.list.uuid } })
+                );
+        },
+        async addExistingWordListToList(uuid) {
+            const list = await this.$wire.call("addExistingWordList", uuid, true);
+
+            this._handleExternalList(list);
+        },
+        async addExistingWordToList(uuid) {
+            const row = await this.$wire.call("addExistingWord", uuid);
+
+            this._handleExternalRows([row]);
+        },
+        async addUploadToList(file) {
+            await this.$wire.upload(
+                "importFile",
+                file,
+                async (uploadedFilename) => {
+                    let rows = await this.$wire.call("importInto");
+
+                    this._handleExternalRows(rows);
+                },
+                () => {
+                },
+                (event) => {
+                }
+            );
+        },
+        handleIncomingExistingColumns(list) {
+            const newCols = this.getUsedTypes(list.rows).filter((c) => !this.cols.includes(c));
+            if (newCols.length > 0) {
+                let selectBoxes = this.$root.querySelectorAll(".single-select");
+                newCols.forEach(newCol => {
+                    const i = this.cols.findIndex(c => c === null);
+                    selectBoxes[i].querySelector(`.option[data-value="${newCol}"]`).click();
+                });
+            }
+        },
+        addTemplateMutation() {
+            this.mutation++;
+        },
+        getTemplateRowKey(row, rowIndex) {
+            return `row-${rowIndex}-${this.mutation}`;
+        },
+        getTemplateWordKey(word, wordIndex) {
+            return `word-${wordIndex}-${this.mutation}`;
+        },
+        getUsedItemsForSidePanel() {
+            return {
+                lists: _.uniq(this.rows.flatMap(r => _.uniq(r.map(w => w.word_list_id)))),
+                words: _.uniq(this.rows.flatMap(r => _.uniq(r.map(w => w.word_id)))).filter(Boolean)
+            };
+        },
+        _handleExternalList(list) {
+            if (!list.id) return this.dispatchError();
+
+            /*Prepare*/
+            this.handleIncomingExistingColumns(list);
+
+            /* Mutate */
+            this.removeEmptyTrailingRow();
+
+            this.rows.push(...list.rows.map(row => this.buildRow(row)));
+
+            this.externalAdditionAfterCare();
+        },
+        _handleExternalRows(rows) {
+            if (!Object.keys(rows).length) return this.dispatchError();
+
+            /*Prepare*/
+            this.handleIncomingExistingColumns({ rows: rows });
+
+            /* Mutate */
+            this.removeEmptyTrailingRow();
+
+            this.rows.push(...Object.values(rows).map(row => this.buildRow(row)));
+
+            this.externalAdditionAfterCare();
+        },
+        externalAdditionAfterCare() {
+            this.countWords();
+            this.addMinimumAmountOfRows();
+            this.addEmptyRowWhenLastIsFull();
+            this.addTemplateMutation();
+        },
+        dispatchError() {
+            this.$dispatch("notify", { message: "Er is iets misgegaan...", type: "error" });
+        },
+        dispatchSuccess() {
+            this.$dispatch("notify", { message: "Gelukt!" });
         }
     }));
 
@@ -554,10 +664,13 @@ document.addEventListener("alpine:init", () => {
             }
             this.wordLists.push(list);
             this.$dispatch("notify", { message: "Gelukt!" });
-
         },
         uploadWordList() {
-
+            this.$root.closest(".compile-list-modal")
+                .querySelector("#compile-list-upload-modal")
+                .dispatchEvent(
+                    new CustomEvent("open-modal")
+                );
         },
         async compileLists() {
             this.compiling = true;
@@ -604,7 +717,8 @@ document.addEventListener("alpine:init", () => {
                 sliderButtonDisabled: false,
                 sliderButtonSelected: "lists",
                 showSliderButtons: true,
-                closeOnFirstAdd: false
+                closeOnFirstAdd: false,
+                listUuid: ""
             };
 
             this.hideModal();
@@ -616,6 +730,64 @@ document.addEventListener("alpine:init", () => {
                 Object.assign({}, defaultConfig, config),
                 { offsetTop: 70, width: "95vw" }
             );
+        },
+        async addUploadToNew(file) {
+            await this.$wire.upload(
+                "importFile",
+                file,
+                async (uploadedFilename) => {
+                    let list = await this.$wire.call("importInto", true);
+
+                    if (!list.id) {
+                        this.$dispatch("notify", { message: "Er is iets misgegaan...", type: "error" });
+                        return;
+                    }
+                    this.wordLists.push(list);
+                    this.$dispatch("notify", { message: "Gelukt!" });
+                },
+                () => {
+                    console.log("lekker errorren");
+                },
+                (event) => {
+                }
+            );
+        }
+    }));
+    Alpine.data("versionableOverviewManager", (sliderButton, closeOnFirstAdd, listUuid) => ({
+        view: sliderButton,
+        closeOnFirstAdd,
+        listUuid,
+        init() {
+            this.$watch("view", value => {
+                this.nudgeOverviewToFixTheirChoices(value);
+            });
+        },
+        done() {
+            this.openSidePanel = false;
+        },
+        add(type, uuid) {
+            this.dispatchUpdate(type, uuid);
+
+            if (this.closeOnFirstAdd) {
+                this.done();
+            }
+        },
+        dispatchUpdate(type, uuid) {
+            let selector = ".word-list-container";
+            if (this.listUuid) {
+                selector += ` [data-list-uuid='${this.listUuid}']`;
+            }
+            document.querySelector(selector).dispatchEvent(
+                new CustomEvent(`add-${type}`, { detail: { uuid } })
+            );
+        },
+
+        nudgeOverviewToFixTheirChoices(value) {
+            this.$root.querySelectorAll(`#${value}-view-container .custom-choices`).forEach(choice => {
+                setTimeout(() => {
+                    choice.dispatchEvent(new CustomEvent("reset-width"));
+                }, 10);
+            });
         }
     }));
 

@@ -31,6 +31,8 @@
      }"
      x-show="showAddListModal"
      x-cloak
+     x-trap.noscroll.inert="showAddListModal"
+     x-on:click.outside="showAddListModal = false"
      x-on:open-modal="showAddListModal = true;"
      x-transition:enter="ease-out duration-100"
      x-transition:enter-end="opacity-100 scale-100"

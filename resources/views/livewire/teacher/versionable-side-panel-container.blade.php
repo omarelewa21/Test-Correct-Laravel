@@ -1,30 +1,4 @@
-<div x-data="{
-        view: @entangle('sliderButtonSelected'),
-        closeOnFirstAdd: @entangle('closeOnFirstAdd'),
-        updates: [],
-        init() {
-            this.$watch('view', value => {
-                this.$root.querySelectorAll(`#${value}-view-container .custom-choices`).forEach(choice => {
-                    setTimeout(() => {
-                        choice.dispatchEvent(new CustomEvent('reset-width'));
-                    }, 10)
-                });
-            })
-        },
-        done() {
-            document.querySelector('.word-list-container').dispatchEvent(
-                new CustomEvent(`add-${type}`, {detail: { uuid }} )
-            )
-            this.openSidePanel = false;
-        },
-        add(type, uuid) {
-            this.updates[type].push(uuid);
-
-            if(this.closeOnFirstAdd) {
-                this.done();
-            }
-        },
-        }"
+<div x-data="versionableOverviewManager(@entangle('sliderButtonSelected'), @entangle('closeOnFirstAdd'), @entangle('listUuid'))"
      wire:key="versionable-{{ $sliderButtonSelected }}"
      wire:ignore.self
 >
@@ -51,10 +25,10 @@
 
     <div class="flex flex-col w-full" wire:key="selected-tab-{{ $sliderButtonSelected }}">
         <div id="lists-view-container" x-show="view === 'lists'" class="flex flex-col w-full">
-            <livewire:teacher.word-lists-overview :addable="true" view="cms" />
+            <livewire:teacher.word-lists-overview :addable="true" :used="$used['lists'] ?? []" view="cms" />
         </div>
         <div id="words-view-container" x-show="view === 'words'" class="flex flex-col w-full">
-            <livewire:teacher.words-overview :addable="true" view="cms"/>
+            <livewire:teacher.words-overview :addable="true" :used="$used['words'] ?? []" view="cms" />
         </div>
     </div>
 </div>

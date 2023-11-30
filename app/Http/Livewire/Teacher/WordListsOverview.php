@@ -4,7 +4,9 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Auth;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Arr;
 use tcCore\Http\Livewire\OverviewComponent;
+use tcCore\Http\Traits\WithVersionableCmsHandling;
 use tcCore\TestAuthor;
 use tcCore\Traits\ContentSourceTabsTrait;
 use tcCore\WordList;
@@ -12,12 +14,12 @@ use tcCore\WordList;
 class WordListsOverview extends OverviewComponent
 {
     use ContentSourceTabsTrait;
+    use WithVersionableCmsHandling;
 
     protected const PER_PAGE = 18;
     public const ACTIVE_TAB_SESSION_KEY = 'word-lists-overview-active-tab';
-    public bool $addable = false;
     public string $view = "page";
-
+    protected array $updateListenerKeys = ['used.lists'];
     protected array $filterableAttributes = [
         'name'                 => '',
         'education_level_year' => [],
@@ -26,7 +28,7 @@ class WordListsOverview extends OverviewComponent
         'user_id'              => [],
     ];
 
-    public function mount(?bool $addable = false): void
+    public function mount(): void
     {
         $this->initialiseContentSourceTabs();
 
@@ -63,5 +65,16 @@ class WordListsOverview extends OverviewComponent
         return collect($this->filters)
             ->filter()
             ->when($this->openTab === 'personal', fn($filters) => $filters->merge(['user_id' => auth()->id()]));
+    }
+
+    protected function handleUpdatedProperties(array $updates): void
+    {
+        if (!Arr::hasAny($updates, $this->updateListenerKeys)) {
+            return;
+        }
+
+        if (isset($updates['used.lists'])) {
+            $this->used = $updates['used.lists'];
+        }
     }
 }

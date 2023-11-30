@@ -26,9 +26,16 @@
         <span>{{ $word->user->name_full }}</span>
         <div class="flex gap-4 items-center">
             @if($addable)
-                <x-button.icon x-on:click="add('word', '{{ $word->uuid }}')" :title="__('cms.Toevoegen aan woordenlijst')">
-                    <x-icon.plus />
-                </x-button.icon>
+                @if($used)
+                    <span class="w-10 h-10 flex rounded-10 border-3 border-cta items-center justify-center">
+                        <x-icon.checkmark class="text-cta"/>
+                    </span>
+                @else
+                    <x-button.icon x-on:click="add('word', '{{ $word->uuid }}'); $wire.call('addToUsed', {{ $word->getKey() }})"
+                                   :title="__('cms.Toevoegen aan woordenlijst')">
+                        <x-icon.plus />
+                    </x-button.icon>
+                @endif
             @endif
         </div>
     </div>

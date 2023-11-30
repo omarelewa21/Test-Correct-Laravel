@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Enums;
 
+use Illuminate\Support\Collection;
 use tcCore\Http\Enums\Attributes\Description;
 use tcCore\Http\Enums\Attributes\Order;
 use tcCore\Http\Enums\Traits\WithAttributes;
@@ -23,4 +24,8 @@ enum WordType: string
     #[Description('synoniem')]
     case SYNONYM = 'synonym';
 
+    public static function fromOrder(int $order): ?WordType
+    {
+        return collect(self::cases())->first(fn($enum) => $enum->getOrder() === $order);
+    }
 }

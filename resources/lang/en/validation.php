@@ -155,4 +155,6 @@ return [
     'can-not-be-dictionary-word'        => 'The password can not be a dictionary word.',
     'can-not-be-repetitive-characters'  => 'The password can not be repetitive characters.',
     'can-not-be-sequential-characters'  => 'The password can not be sequential characters.',
+
+    'word_import_empty_values' => '{1} The row :rows has invalid values|[2,*] The rows :rows have invalid values'
 ];

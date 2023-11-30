@@ -34,6 +34,7 @@
                                                wire:loading.class="hidden"
                                                wire:target="filters,clearFilters,$set"
                                                :addable="$this->addable"
+                                               :used="in_array($wordList->getKey(), $used)"
                         />
                     @endforeach
                 </x-slot>
