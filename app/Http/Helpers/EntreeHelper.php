@@ -131,6 +131,10 @@ class EntreeHelper
             return $url;
         }
 
+        if($url = $this->handleIfLVSLocation()){
+            return $url;
+        }
+
         if ($data->user = $this->handleIfRegisteringAndUserBasedOnEckId($data)) {
             if (!$data->user instanceof User and is_string($data->user)) {
                 return $data->user;
