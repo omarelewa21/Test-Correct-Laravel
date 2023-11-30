@@ -45,7 +45,7 @@ class CompletionQuestion extends TCComponent
 
         $replacementFunction = function ($matches) use ($question) {
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
-            $answer = array_key_exists($tag_id, $this->answer) ? $this->answer[$tag_id] : '';
+            $answer = array_key_exists($tag_id, $this->answer) ? $this->answer[$tag_id] : '&nbsp;';
             return sprintf('<span class="form-input resize-none overflow-ellipsis rounded-10 pdf-answer-model-input" >%s </span>', $answer);
         };
 
@@ -90,7 +90,14 @@ class CompletionQuestion extends TCComponent
 
     private function getOption($answers, $correct)
     {
-        return collect($answers)->map(function ($option, $key) use ($correct) {
+        $iterator = 0;
+        return collect($answers)->map(function ($option, $key) use ($correct, &$iterator) {
+            //correct is a strange name, it is the answer that is given by the user
+            if($correct == '' && $iterator == 0) {
+                $iterator++;
+                return '<span class="overflow-ellipsis rounded-10 pdf-answer-model-select" >&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+            }
+
             if (trim($option) == trim($correct)) {
                 $check = sprintf('<img class="icon_checkmark_pdf no-margin" src="data:image/svg+xml;charset=utf8,%s" >', $this->getEncodedCheckmarkSvg());
                 return sprintf('<span class="overflow-ellipsis rounded-10 pdf-answer-model-select" >%s %s</span>', $option, $check);
