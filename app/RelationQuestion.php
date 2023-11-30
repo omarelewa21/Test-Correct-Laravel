@@ -6,6 +6,7 @@ use Dyrynda\Database\Casts\EfficientUuid;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
 use tcCore\Http\Enums\WordType;
 use tcCore\Lib\Question\QuestionInterface;
@@ -17,6 +18,9 @@ class RelationQuestion extends Question implements QuestionInterface
 
     protected $fillable = [
         'uuid',
+        'shuffle',
+        'selection_count',
+        'shuffle_per_participant',
     ];
     protected $table = 'relation_questions';
 
@@ -78,11 +82,13 @@ class RelationQuestion extends Question implements QuestionInterface
     public function canCheckAnswer()
     {
         // TODO: Implement canCheckAnswer() method.
+        throw new \Exception('Not implemented: '. __METHOD__);
     }
 
     public function checkAnswer($answer)
     {
         // TODO: Implement checkAnswer() method.
+        throw new \Exception('Not implemented: '. __METHOD__);
     }
 
     public function addAnswers($mainQuestion, $answers): void
@@ -255,5 +261,47 @@ class RelationQuestion extends Question implements QuestionInterface
         );
 
         return $question;
+    }
+
+    public function createAnswerStruct(): array
+    {
+        $answerStruct = $this->wordsToAsk();
+
+        if ($this->shuffle) {
+            $answerStruct = $answerStruct->shuffle()->take($this->selection_count);
+        }
+
+        return $answerStruct->mapWithKeys(fn($word) => [$word->id => null])->toArray();
+    }
+
+    public function getAnswerStructFromTestTake(string $testTakeUuid): array
+    {
+        $testTakeId = TestTake::whereUuid($testTakeUuid)
+            ->pluck('id')->first();
+
+        $testTakeRelationQuestion = $this->testTakeRelationQuestions()
+            ->where('test_take_id', $testTakeId)
+            ->first();
+
+
+        $answerStruct = $testTakeRelationQuestion?->json['answer_struct'];
+
+        //if TestTakeQuestions has no answer_struct yet:
+        if($answerStruct !== null) {
+            return $answerStruct;
+        }
+
+        $answerStruct = $this->createAnswerStruct();
+
+        TestTakeRelationQuestion::updateOrCreate([
+            'test_take_id' => $testTakeId,
+            'question_id' => $this->id,
+        ], [
+            'json' => [
+                'answer_struct' => $answerStruct,
+            ],
+        ]);
+
+        return $answerStruct;
     }
 }

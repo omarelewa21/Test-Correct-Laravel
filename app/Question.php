@@ -388,7 +388,12 @@ class Question extends MtiBaseModel
      */
     public function testTakeQuestions()
     {
-        return $this->hasMany('tcCore\TestTakeQuestion', 'test_take_id');
+        return $this->hasMany('tcCore\TestTakeQuestion', 'question_id');
+    }
+
+    public function testTakeRelationQuestions()
+    {
+        return $this->hasMany('tcCore\TestTakeRelationQuestion', 'question_id');
     }
 
     public function getChangedIds()

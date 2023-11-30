@@ -41,7 +41,7 @@ class OlympiadeArchiveItemBankSeeder extends Seeder
 
         $this->generateSchoolWithTests();
 
-        $this->allowFirstSchoolLocationToViewOlympiade();
+        $this->allowFirstSchoolLocationToViewOlympiadeAchive();
     }
 
     protected function generateSchoolWithTests()

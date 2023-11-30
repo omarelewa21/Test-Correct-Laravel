@@ -458,6 +458,11 @@ class TestTake extends BaseModel
         return $this->hasMany('tcCore\TestTakeQuestion', 'test_take_id');
     }
 
+    public function testTakeRelationQuestions()
+    {
+        return $this->hasMany('tcCore\TestTakeRelationQuestion', 'test_take_id');
+    }
+
     public function isAllowedToView(User $userToCheck, bool $asInvigilator = true, bool $asExamCoordinator = true)
     {
         return ($this->hasParticipantsThatUserTeaches($userToCheck) && $userToCheck->hasAccessToTest($this->test))

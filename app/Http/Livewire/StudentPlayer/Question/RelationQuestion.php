@@ -21,4 +21,11 @@ class RelationQuestion extends AbstractRelationQuestion
     {
         return view('livewire.student-player.question.relation-question');
     }
+
+    public function updatedAnswerStruct($value)
+    {
+        $json = json_encode($this->answerStruct);
+
+        Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
+    }
 }
