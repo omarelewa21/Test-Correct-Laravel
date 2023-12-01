@@ -33,6 +33,9 @@ class CreatePdfFromStringAndSaveJob implements ShouldQueue
     {
         if(file_exists($this->htmlStoragePath)){
             PdfController::HtmlToPdfFileFromString(file_get_contents($this->htmlStoragePath),$this->path);
+            if(file_exists($this->path)) {
+                chmod($this->path, 0777);
+            }
         }
     }
 }
