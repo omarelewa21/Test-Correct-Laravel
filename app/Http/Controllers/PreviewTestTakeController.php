@@ -26,7 +26,7 @@ class PreviewTestTakeController extends Controller
     /**
      * Creates Student Answers PDF for a TestTake
      */
-    public function show(TestTake $testTake, Request $request)
+    public function show(TestTake $testTake, Request $request, $doDelete = true)
     {
         //to re enable the question and groupquestion text, set this to true
         $showQuestionText = false;
@@ -45,18 +45,25 @@ class PreviewTestTakeController extends Controller
         $rand = Str::random(25);
         $path = sprintf('pdf/%s.pdf',$rand);
         $storagePath = storage_path($path);
-        dispatch(new CreatePdfFromStringAndSaveJob($storagePath,$html))->onQueue('import');
+        $htmlPath = sprintf('pdf/%s.html',$rand);
+        $htmlStoragePath = storage_path($htmlPath);
+        file_put_contents($htmlStoragePath,$html);
+
+        dispatch(new CreatePdfFromStringAndSaveJob($storagePath,$htmlStoragePath))->onQueue('import');
         $runner = 0;
         while(!file_exists($storagePath) && $runner < 80){
             sleep(1);
             $runner++;
         }
 
-        if(file_exists($storagePath)) {
+        if(file_exists($storagePath) && $doDelete) {
 
-            AfterResponse::$performAction[] = function () use ($storagePath) {
+            AfterResponse::$performAction[] = function () use ($storagePath,$htmlStoragePath) {
                 if (file_exists($storagePath)) {
                     unlink($storagePath);
+                }
+                if (file_exists($htmlStoragePath)) {
+                    unlink($htmlStoragePath);
                 }
             };
 
@@ -65,7 +72,7 @@ class PreviewTestTakeController extends Controller
                 'Content-Disposition' => 'inline; filename="toets.pdf"'
             ]);
         }
-        $request->request->set("error_id", 'PDF-'.$rand.'-.'.$testTake->getKey());
+        $request->request->set("error_id", 'PDF-'.$rand.'-'.$testTake->getKey());
         throw new UserFriendlyException(__('test-pdf.Sorry, the download could not be generated, please get in contact in order for us to help you with that.'),500);
     }
 
