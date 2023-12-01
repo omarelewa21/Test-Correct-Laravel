@@ -36,7 +36,11 @@ class PreviewTestTakeController extends Controller
         $rand = Str::random(25);
         $path = sprintf('pdf/%s.pdf',$rand);
         $storagePath = storage_path($path);
-        dispatch(new CreatePdfFromStringAndSaveJob($storagePath,$html))->onQueue('import');
+        $htmlPath = sprintf('pdf/%s.html',$rand);
+        $htmlStoragePath = storage_path($htmlPath);
+        file_put_contents($htmlStoragePath,$html);
+
+        dispatch(new CreatePdfFromStringAndSaveJob($storagePath,$htmlStoragePath))->onQueue('import');
         $runner = 0;
         while(!file_exists($storagePath) && $runner < 80){
             sleep(1);
@@ -45,9 +49,12 @@ class PreviewTestTakeController extends Controller
 
         if(file_exists($storagePath) && $doDelete) {
 
-            AfterResponse::$performAction[] = function () use ($storagePath) {
+            AfterResponse::$performAction[] = function () use ($storagePath,$htmlStoragePath) {
                 if (file_exists($storagePath)) {
                     unlink($storagePath);
+                }
+                if (file_exists($htmlStoragePath)) {
+                    unlink($htmlStoragePath);
                 }
             };
 

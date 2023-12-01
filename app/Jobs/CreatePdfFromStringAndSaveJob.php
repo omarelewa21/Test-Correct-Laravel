@@ -15,15 +15,15 @@ class CreatePdfFromStringAndSaveJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $path;
-    protected $html;
+    protected $htmlStoragePath;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($path,$html)
+    public function __construct($path,$htmlStoragePath)
     {
         $this->path = $path;
-        $this->html = $html;
+        $this->htmlStoragePath = $htmlStoragePath;
     }
 
     /**
@@ -31,6 +31,8 @@ class CreatePdfFromStringAndSaveJob implements ShouldQueue
      */
     public function handle(): void
     {
-        PdfController::HtmlToPdfFileFromString($this->html,$this->path);
+        if(file_exists($this->htmlStoragePath)){
+            PdfController::HtmlToPdfFileFromString(file_get_contents($this->htmlStoragePath),$this->path);
+        }
     }
 }
