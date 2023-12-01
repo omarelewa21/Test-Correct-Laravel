@@ -50,13 +50,15 @@ class PreviewTestTakeController extends Controller
 
         dispatch(new CreatePdfFromHtmlFileAndSaveJob($storagePath,$htmlStoragePath))->onQueue('import');
         $runner = 0;
-        while(!file_exists($storagePath) && $runner < 80){
+        $lockFile = $storagePath.'.lock';
+        while(!file_exists($storagePath) && file_exists($lockFile) && $runner < 80){
             sleep(1);
             $runner++;
         }
-        // the file exists the moment is starts to write, but that may not be the same time as it is closed, we've got to wait for that
-        // as a fail safe we wait another 2 seconds;
-        sleep(2);
+        // SOLVED THROUGH LOCKFILE
+//        // the file exists the moment is starts to write, but that may not be the same time as it is closed, we've got to wait for that
+//        // as a fail safe we wait another 2 seconds;
+//        sleep(2);
 
         if(file_exists($storagePath) && $doDelete) {
 
