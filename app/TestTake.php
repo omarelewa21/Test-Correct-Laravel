@@ -1415,4 +1415,9 @@ class TestTake extends BaseModel
             : $this->test->name;
         return html_entity_decode(clean($testName));
     }
+
+    public function isNotPartOfOlympiade()
+    {
+        return strpos(strtolower($this->test->scope),  'olympiade') === false;
+    }
 }
