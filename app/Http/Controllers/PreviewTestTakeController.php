@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use tcCore\Events\TestTakeStop;
+use tcCore\Exceptions\UserFriendlyException;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Middleware\AfterResponse;
 use tcCore\Http\Traits\TestTakeNavigationForController;
@@ -32,24 +33,31 @@ class PreviewTestTakeController extends Controller
         ini_set('max_execution_time', '90');
         $html = view('test-take-overview-preview',compact(['testTake','testParticipants']))->render();
 
-        $path = sprintf('pdf/%s.pdf',Str::random(25));
-        dispatch(new CreatePdfFromStringAndSaveJob($path,$html))->onQueue('import');
-
-        while(!Storage::exists($path)){
+        $rand = Str::random(25);
+        $path = sprintf('pdf/%s.pdf',$rand);
+        $storagePath = storage_path($path);
+        dispatch(new CreatePdfFromStringAndSaveJob($storagePath,$html))->onQueue('import');
+        $runner = 0;
+        while(!file_exists($storagePath) && $runner < 80){
             sleep(1);
+            $runner++;
         }
 
-        AfterResponse::$performAction[] = function() use ($path){
-            if(Storage::exists($path)){
-                Storage::delete($path);
-            }
-        };
+        if(file_exists($storagePath)) {
 
-        return response()->download(storage_path($path),'toets.pdf');
-//        return response()->make(PdfController::HtmlToPdfFromString($html), 200, [
-//            'Content-Type' => 'application/pdf',
-//            'Content-Disposition' => 'inline; filename="toets.pdf"'
-//        ]);
+            AfterResponse::$performAction[] = function () use ($storagePath) {
+                if (file_exists($storagePath)) {
+                    unlink($storagePath);
+                }
+            };
+
+            return response()->file($storagePath, [
+                'Content-Type'        => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="toets.pdf"'
+            ]);
+        }
+        $request->request->set("error_id", 'PDF-'.$rand);
+        throw new UserFriendlyException(__('test-pdf.Sorry, the download could not be shown, it is too big'),500);
     }
 
 

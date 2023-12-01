@@ -46,7 +46,10 @@ class PdfController extends Controller
         if(is_bool($data)){
             return $data;
         }
-        throw new Exception($data->getContent()['error']);
+        logger('====');
+        logger($data);
+        logger('----');
+        throw new Exception($data->getContent());
 
     }
 
