@@ -50,8 +50,8 @@ class PreviewTestTakeController extends Controller
 
         dispatch(new CreatePdfFromHtmlFileAndSaveJob($storagePath,$htmlStoragePath))->onQueue('import');
         $runner = 0;
-        $lockFile = $storagePath.'.lock';
-        while(!file_exists($storagePath) && file_exists($lockFile) && $runner < 80){
+        $doneFile = $storagePath.'.done';
+        while(!file_exists($storagePath) && file_exists($doneFile) && $runner < 80){
             sleep(1);
             $runner++;
         }
@@ -62,12 +62,15 @@ class PreviewTestTakeController extends Controller
 
         if(file_exists($storagePath) && $doDelete) {
 
-            AfterResponse::$performAction[] = function () use ($storagePath,$htmlStoragePath) {
+            AfterResponse::$performAction[] = function () use ($storagePath,$htmlStoragePath, $doneFile) {
                 if (file_exists($storagePath)) {
                     unlink($storagePath);
                 }
                 if (file_exists($htmlStoragePath)) {
                     unlink($htmlStoragePath);
+                }
+                if(file_exists($doneFile)){
+                    unlink($doneFile);
                 }
             };
 

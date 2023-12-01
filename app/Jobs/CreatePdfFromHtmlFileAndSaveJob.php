@@ -32,13 +32,14 @@ class CreatePdfFromHtmlFileAndSaveJob implements ShouldQueue
     public function handle(): void
     {
         if(file_exists($this->htmlStoragePath)){
-            $lockFile = $this->path.'.lock';
-            touch($lockFile);
+            $doneFile = $this->path.'.done';
+
             PdfController::HtmlToPdfFileFromString(file_get_contents($this->htmlStoragePath),$this->path);
             if(file_exists($this->path)) {
                 chmod($this->path, 0755);
+                touch($doneFile);
             }
-            unlink($lockFile);
+
         }
     }
 }
