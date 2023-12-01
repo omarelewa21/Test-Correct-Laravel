@@ -54,13 +54,16 @@ class PreviewTestTakeController extends Controller
             sleep(1);
             $runner++;
         }
+        // the file exists the moment is starts to write, but that may not be the same time as it is closed, we've got to wait for that
+        // as a fail safe we wait another 2 seconds;
+        sleep(2);
 
         if(file_exists($storagePath) && $doDelete) {
 
             AfterResponse::$performAction[] = function () use ($storagePath,$htmlStoragePath) {
-//                if (file_exists($storagePath)) {
-//                    unlink($storagePath);
-//                }
+                if (file_exists($storagePath)) {
+                    unlink($storagePath);
+                }
                 if (file_exists($htmlStoragePath)) {
                     unlink($htmlStoragePath);
                 }
