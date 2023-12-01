@@ -6,6 +6,7 @@ use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use DOMDocument;
 use Facade\FlareClient\Http\Response;
 use GuzzleHttp\Client;
+use iio\libmergepdf\Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Ramsey\Uuid\Uuid;
@@ -39,13 +40,26 @@ class PdfController extends Controller
         }
     }
 
-    public function HtmlToPdfFromString($html)
+    public function HtmlToPdfFileFromString($html,$path)
+    {
+        $data = $this->HtmlToPdfFromString($html, $path);
+        if(is_bool($data)){
+            return $data;
+        }
+        logger('====');
+        logger($data);
+        logger('----');
+        throw new Exception($data->getContent());
+
+    }
+
+    public function HtmlToPdfFromString($html, $saveToFilePath = null)
     {
         try {
             ini_set('max_execution_time', '90');
             $html = $this->base64ImgPaths($html);
             $html = $this->svgWirisFormulas($html);
-            return $this->snappyToPdfFromString($html);
+            return $this->snappyToPdfFromString($html,$saveToFilePath);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -198,9 +212,13 @@ class PdfController extends Controller
     }
 
 
-    private function snappyToPdfFromString($html)
+    private function snappyToPdfFromString($html,$saveToFilePath = null)
     {
         $output = \PDF::loadHtml($html)->setOption('header-html', resource_path('pdf_templates/header.html'))->setOption('footer-html', resource_path('pdf_templates/footer.html'));
+        if($saveToFilePath){
+            $output->save($saveToFilePath);
+            return true;
+        }
         return $output->download('file.pdf');
 
     }
