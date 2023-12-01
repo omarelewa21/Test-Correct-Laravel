@@ -5,6 +5,7 @@ namespace tcCore\Http\Controllers;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use tcCore\Events\TestTakeStop;
@@ -47,6 +48,13 @@ class PreviewTestTakeController extends Controller
         $storagePath = storage_path($path);
         $htmlPath = sprintf('pdf/%s.html',$rand);
         $htmlStoragePath = storage_path($htmlPath);
+
+        $directoryPath = dir_name($htmlStoragePath);
+
+        if (!File::exists($directoryPath)) {
+            File::makeDirectory($directoryPath, 0755, true); // Maakt de directory met lees/schrijf/uitvoer rechten voor de eigenaar en alleen leesrechten voor anderen
+        }
+
         file_put_contents($htmlStoragePath,$html);
 
         dispatch(new CreatePdfFromStringAndSaveJob($storagePath,$htmlStoragePath))->onQueue('import');
