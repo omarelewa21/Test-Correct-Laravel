@@ -40,7 +40,7 @@ class PreviewTestTakeController extends Controller
         $htmlPath = sprintf('pdf/%s.html',$rand);
         $htmlStoragePath = storage_path($htmlPath);
 
-        $directoryPath = dir_name($htmlStoragePath);
+        $directoryPath = dirname($htmlStoragePath);
 
         if (!File::exists($directoryPath)) {
             File::makeDirectory($directoryPath, 0755, true); // Maakt de directory met lees/schrijf/uitvoer rechten voor de eigenaar en alleen leesrechten voor anderen
