@@ -32,6 +32,7 @@ class CreatePdfFromHtmlFileAndSaveJob implements ShouldQueue
     public function handle(): void
     {
         if(file_exists($this->htmlStoragePath)){
+            ini_set('memory_limit', '-1');
             $doneFile = $this->path.'.done';
 
             PdfController::HtmlToPdfFileFromString(file_get_contents($this->htmlStoragePath),$this->path);
