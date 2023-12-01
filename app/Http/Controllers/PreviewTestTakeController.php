@@ -42,7 +42,7 @@ class PreviewTestTakeController extends Controller
         $html = view('test-take-overview-preview',compact(['testTake','testParticipants','showQuestionText']))->render();
 
         $rand = Str::random(25);
-        $path = sprintf('/tmp/%s.pdf',$rand);
+        $path = sprintf('pdf/%s.pdf',$rand);
         $storagePath = storage_path($path);
         $htmlPath = sprintf('pdf/%s.html',$rand);
         $htmlStoragePath = storage_path($htmlPath);
