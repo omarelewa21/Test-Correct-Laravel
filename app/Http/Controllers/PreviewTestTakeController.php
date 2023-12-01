@@ -13,7 +13,7 @@ use tcCore\Exceptions\UserFriendlyException;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Middleware\AfterResponse;
 use tcCore\Http\Traits\TestTakeNavigationForController;
-use tcCore\Jobs\CreatePdfFromStringAndSaveJob;
+use tcCore\Jobs\CreatePdfFromHtmlFileAndSaveJob;
 use tcCore\Question;
 use tcCore\Test;
 use tcCore\TestParticipant;
@@ -24,9 +24,7 @@ use Facades\tcCore\Http\Controllers\PdfController;
 class PreviewTestTakeController extends Controller
 {
 
-    /**
-     * Creates Student Answers PDF for a TestTake
-     */
+
     public function show(TestTake $testTake, Request $request, $doDelete = true)
     {
         //to re enable the question and groupquestion text, set this to true
@@ -44,7 +42,7 @@ class PreviewTestTakeController extends Controller
         $html = view('test-take-overview-preview',compact(['testTake','testParticipants','showQuestionText']))->render();
 
         $rand = Str::random(25);
-        $path = sprintf('/tmp/%s.pdf',$rand);
+        $path = sprintf('pdf/%s.pdf',$rand);
         $storagePath = storage_path($path);
         $htmlPath = sprintf('pdf/%s.html',$rand);
         $htmlStoragePath = storage_path($htmlPath);
@@ -57,21 +55,29 @@ class PreviewTestTakeController extends Controller
 
         file_put_contents($htmlStoragePath,$html);
 
-        dispatch(new CreatePdfFromStringAndSaveJob($storagePath,$htmlStoragePath))->onQueue('import');
+        dispatch(new CreatePdfFromHtmlFileAndSaveJob($storagePath,$htmlStoragePath))->onQueue('import');
         $runner = 0;
-        while(!file_exists($storagePath) && $runner < 80){
+        $doneFile = $storagePath.'.done';
+        while(!file_exists($doneFile) && $runner < 80){
             sleep(1);
             $runner++;
         }
+        // SOLVED THROUGH LOCKFILE
+//        // the file exists the moment is starts to write, but that may not be the same time as it is closed, we've got to wait for that
+//        // as a fail safe we wait another 2 seconds;
+//        sleep(2);
 
         if(file_exists($storagePath) && $doDelete) {
 
-            AfterResponse::$performAction[] = function () use ($storagePath,$htmlStoragePath) {
-//                if (file_exists($storagePath)) {
-//                    unlink($storagePath);
-//                }
+            AfterResponse::$performAction[] = function () use ($storagePath,$htmlStoragePath, $doneFile) {
+                if (file_exists($storagePath)) {
+                    unlink($storagePath);
+                }
                 if (file_exists($htmlStoragePath)) {
                     unlink($htmlStoragePath);
+                }
+                if(file_exists($doneFile)){
+                    unlink($doneFile);
                 }
             };
 

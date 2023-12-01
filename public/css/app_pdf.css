@@ -5933,6 +5933,9 @@ video {
 .-top-0{
   top: -0px;
 }
+.-top-1{
+  top: -0.25rem;
+}
 .-top-10{
   top: -2.5rem;
 }
@@ -6085,6 +6088,9 @@ video {
 }
 .isolate{
   isolation: isolate;
+}
+.-z-10{
+  z-index: -10;
 }
 .z-0{
   z-index: 0;
@@ -6346,6 +6352,9 @@ video {
 .mb-\[110px\]{
   margin-bottom: 110px;
 }
+.mb-\[30px\]{
+  margin-bottom: 30px;
+}
 .mb-\[5px\]{
   margin-bottom: 5px;
 }
@@ -6531,6 +6540,9 @@ video {
 }
 .\!h-4{
   height: 1rem !important;
+}
+.h-0{
+  height: 0px;
 }
 .h-1{
   height: 0.25rem;
@@ -6724,6 +6736,9 @@ video {
 }
 .min-h-\[100px\]{
   min-height: 100px;
+}
+.min-h-\[2rem\]{
+  min-height: 2rem;
 }
 .min-h-\[300px\]{
   min-height: 300px;
@@ -6963,11 +6978,17 @@ video {
 .w-px{
   width: 1px;
 }
+.\!min-w-\[130px\]{
+  min-width: 130px !important;
+}
 .min-w-\[110px\]{
   min-width: 110px;
 }
 .min-w-\[125px\]{
   min-width: 125px;
+}
+.min-w-\[13px\]{
+  min-width: 13px;
 }
 .min-w-\[150px\]{
   min-width: 150px;
@@ -7169,12 +7190,20 @@ video {
   --tw-translate-x: -50%;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
+.-translate-x-full{
+  --tw-translate-x: -100%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
 .-translate-y-1{
   --tw-translate-y: -0.25rem;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 .-translate-y-1\/2{
   --tw-translate-y: -50%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+.translate-x-0{
+  --tw-translate-x: 0px;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 .translate-x-1\/2{
@@ -7667,6 +7696,9 @@ video {
 .overflow-y-hidden{
   overflow-y: hidden;
 }
+.overflow-y-scroll{
+  overflow-y: scroll;
+}
 .truncate{
   overflow: hidden;
   text-overflow: ellipsis;
@@ -7940,6 +7972,10 @@ video {
   --tw-border-opacity: 1;
   border-left-color: rgb(236 219 0 / var(--tw-border-opacity));
 }
+.\!bg-allred{
+  --tw-bg-opacity: 1 !important;
+  background-color: rgb(207 27 4 / var(--tw-bg-opacity)) !important;
+}
 .\!bg-primary{
   --tw-bg-opacity: 1 !important;
   background-color: rgb(0 77 245 / var(--tw-bg-opacity)) !important;
@@ -8002,6 +8038,12 @@ video {
 .bg-midgrey{
   --tw-bg-opacity: 1;
   background-color: rgb(146 157 175 / var(--tw-bg-opacity));
+}
+.bg-midgrey\/0{
+  background-color: rgb(146 157 175 / 0);
+}
+.bg-midgrey\/75{
+  background-color: rgb(146 157 175 / 0.75);
 }
 .bg-note{
   --tw-bg-opacity: 1;
@@ -8323,6 +8365,9 @@ video {
 .py-px{
   padding-top: 1px;
   padding-bottom: 1px;
+}
+.\!pb-5{
+  padding-bottom: 1.25rem !important;
 }
 .pb-0{
   padding-bottom: 0px;
@@ -8911,6 +8956,9 @@ video {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
+.delay-100{
+  transition-delay: 100ms;
+}
 .delay-200{
   transition-delay: 200ms;
 }
@@ -9428,6 +9476,10 @@ h2.student-testtake-answers-separator span {
   border-left-width: 1px;
 }
 
+.first\:pt-0:first-child{
+  padding-top: 0px;
+}
+
 .last\:rounded-r-lg:last-child{
   border-top-right-radius: 0.5rem;
   border-bottom-right-radius: 0.5rem;
@@ -9668,6 +9720,10 @@ h2.student-testtake-answers-separator span {
   background-color: rgb(0 77 245 / 0.1);
 }
 
+.active\:bg-primary\/5:active{
+  background-color: rgb(0 77 245 / 0.05);
+}
+
 .active\:text-gray-500:active{
   --tw-text-opacity: 1;
   color: rgb(107 114 128 / var(--tw-text-opacity));
@@ -9713,6 +9769,15 @@ h2.student-testtake-answers-separator span {
 
 .group:hover .group-hover\:bg-primary\/5{
   background-color: rgb(0 77 245 / 0.05);
+}
+
+.group\/grid-item:hover .group-hover\/grid-item\:text-primary{
+  --tw-text-opacity: 1;
+  color: rgb(0 77 245 / var(--tw-text-opacity));
+}
+
+.group\/grid-item:hover .group-hover\/grid-item\:text-primary\/20{
+  color: rgb(0 77 245 / 0.2);
 }
 
 .group\/row:hover .group-hover\/row\:text-primary{

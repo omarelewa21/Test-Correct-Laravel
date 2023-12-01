@@ -10,7 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class CreatePdfFromStringAndSaveJob implements ShouldQueue
+class CreatePdfFromHtmlFileAndSaveJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -32,10 +32,15 @@ class CreatePdfFromStringAndSaveJob implements ShouldQueue
     public function handle(): void
     {
         if(file_exists($this->htmlStoragePath)){
+            ini_set('memory_limit', '-1');
+            $doneFile = $this->path.'.done';
+
             PdfController::HtmlToPdfFileFromString(file_get_contents($this->htmlStoragePath),$this->path);
             if(file_exists($this->path)) {
-                chmod($this->path, 0777);
+                chmod($this->path, 0755);
+                touch($doneFile);
             }
+
         }
     }
 }
