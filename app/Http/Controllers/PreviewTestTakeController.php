@@ -24,7 +24,7 @@ class PreviewTestTakeController extends Controller
 {
 
 
-    public function show(TestTake $testTake, Request $request)
+    public function show(TestTake $testTake, Request $request, $doDelete = true)
     {
         $titleForPdfPage = $testTake->test->name.' '.Carbon::now()->format('d-m-Y H:i');
         view()->share('titleForPdfPage',$titleForPdfPage);
@@ -43,7 +43,7 @@ class PreviewTestTakeController extends Controller
             $runner++;
         }
 
-        if(file_exists($storagePath)) {
+        if(file_exists($storagePath) && $doDelete) {
 
             AfterResponse::$performAction[] = function () use ($storagePath) {
                 if (file_exists($storagePath)) {
@@ -56,7 +56,7 @@ class PreviewTestTakeController extends Controller
                 'Content-Disposition' => 'inline; filename="toets.pdf"'
             ]);
         }
-        $request->request->set("error_id", 'PDF-'.$rand.'-.'.$testTake->getKey());
+        $request->request->set("error_id", 'PDF-'.$rand.'-'.$testTake->getKey());
         throw new UserFriendlyException(__('test-pdf.Sorry, the download could not be generated, please get in contact in order for us to help you with that.'),500);
     }
 
