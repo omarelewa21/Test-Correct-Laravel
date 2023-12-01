@@ -27,12 +27,19 @@ class PreviewTestTakeController extends Controller
 
     public function show(TestTake $testTake, Request $request, $doDelete = true)
     {
+        //to re enable the question and groupquestion text, set this to true
+        $showQuestionText = false;
+
+        if($request->get('showQuestionText') !== null) {
+            $showQuestionText = !!$request->get('showQuestionText');
+        }
+
         $titleForPdfPage = $testTake->test->name.' '.Carbon::now()->format('d-m-Y H:i');
         view()->share('titleForPdfPage',$titleForPdfPage);
         view()->share('pdf_type','student_test_take');
         $testParticipants = $testTake->testParticipants()->where('test_take_status_id','>',3)->get();
         ini_set('max_execution_time', '90');
-        $html = view('test-take-overview-preview',compact(['testTake','testParticipants']))->render();
+        $html = view('test-take-overview-preview',compact(['testTake','testParticipants','showQuestionText']))->render();
 
         $rand = Str::random(25);
         $path = sprintf('/tmp/%s.pdf',$rand);

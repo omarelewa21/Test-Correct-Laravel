@@ -23,6 +23,8 @@ class RankingQuestion extends TCComponent
     public $answerStruct;
     public $answerText = [];
 
+    public $showQuestionText;
+
     public function mount()
     {
         $this->answerStruct = (array)json_decode($this->answers[$this->question->uuid]['answer']);

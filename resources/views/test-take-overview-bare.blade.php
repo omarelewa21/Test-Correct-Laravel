@@ -18,6 +18,7 @@
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid'"
+                                :showQuestionText="$showQuestionText"
                         />
                     @elseif($testQuestion->type === 'MultipleChoiceQuestion')
                         <livewire:test-take-overview-preview.multiple-choice-question
@@ -25,6 +26,7 @@
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid'"
+                                :showQuestionText="$showQuestionText"
                         />
                     @elseif($testQuestion->type === 'OpenQuestion')
                         <livewire:test-take-overview-preview.open-question
@@ -32,6 +34,7 @@
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid'q-'"
+                                :showQuestionText="$showQuestionText"
                         />
                     @elseif($testQuestion->type === 'MatchingQuestion')
                         <livewire:test-take-overview-preview.matching-question
@@ -39,6 +42,7 @@
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid'"
+                                :showQuestionText="$showQuestionText"
                         />
                     @elseif($testQuestion->type === 'CompletionQuestion')
                         <livewire:test-take-overview-preview.completion-question
@@ -46,6 +50,7 @@
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid'"
+                                :showQuestionText="$showQuestionText"
                         />
                     @elseif($testQuestion->type === 'RankingQuestion')
                         <livewire:test-take-overview-preview.ranking-question
@@ -53,6 +58,7 @@
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid'"
+                                :showQuestionText="$showQuestionText"
                         />
                     @elseif($testQuestion->type === 'InfoscreenQuestion')
                         <livewire:test-take-overview-preview.info-screen-question
@@ -60,6 +66,7 @@
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid"
+                                :showQuestionText="$showQuestionText"
                         />
                     @elseif($testQuestion->type === 'DrawingQuestion')
                         <livewire:test-take-overview-preview.drawing-question
@@ -67,6 +74,7 @@
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid"
+                                :showQuestionText="$showQuestionText"
                         />
                     @elseif($testQuestion->type === 'MatrixQuestion')
                         <livewire:test-take-overview-preview.matrix-question
@@ -74,6 +82,7 @@
                                 :number="++$key"
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid"
+                                :showQuestionText="$showQuestionText"
                         />
                     @endif
 
