@@ -31,6 +31,7 @@ use tcCore\Lib\Models\BaseModel;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\TestParticipant\Factory;
 use tcCore\Scopes\ArchivedScope;
+use tcCore\Services\ContentSource\OlympiadeService;
 use tcCore\Traits\Archivable;
 use tcCore\Traits\UuidTrait;
 
@@ -1414,5 +1415,10 @@ class TestTake extends BaseModel
             ? $this->attributes['test_name']
             : $this->test->name;
         return html_entity_decode(clean($testName));
+    }
+
+    public function isNotPartOfOlympiade()
+    {
+        return strtolower($this->test->scope) !==  strtolower(OlympiadeService::getPublishScope());
     }
 }
