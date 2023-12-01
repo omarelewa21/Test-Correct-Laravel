@@ -56,8 +56,8 @@ class PreviewTestTakeController extends Controller
                 'Content-Disposition' => 'inline; filename="toets.pdf"'
             ]);
         }
-        $request->request->set("error_id", 'PDF-'.$rand);
-        throw new UserFriendlyException(__('test-pdf.Sorry, the download could not be shown, it is too big'),500);
+        $request->request->set("error_id", 'PDF-'.$rand.'-.'.$testTake->getKey());
+        throw new UserFriendlyException(__('test-pdf.Sorry, the download could not be generated, please get in contact in order for us to help you with that.'),500);
     }
 
 
