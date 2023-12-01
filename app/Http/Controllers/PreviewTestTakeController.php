@@ -67,9 +67,9 @@ class PreviewTestTakeController extends Controller
         if(file_exists($storagePath) && $doDelete) {
 
             AfterResponse::$performAction[] = function () use ($storagePath,$htmlStoragePath) {
-                if (file_exists($storagePath)) {
-                    unlink($storagePath);
-                }
+//                if (file_exists($storagePath)) {
+//                    unlink($storagePath);
+//                }
                 if (file_exists($htmlStoragePath)) {
                     unlink($htmlStoragePath);
                 }
