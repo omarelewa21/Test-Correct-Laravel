@@ -13,7 +13,7 @@ use tcCore\Exceptions\UserFriendlyException;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Middleware\AfterResponse;
 use tcCore\Http\Traits\TestTakeNavigationForController;
-use tcCore\Jobs\CreatePdfFromStringAndSaveJob;
+use tcCore\Jobs\CreatePdfFromHtmlFileAndSaveJob;
 use tcCore\Question;
 use tcCore\Test;
 use tcCore\TestParticipant;
@@ -48,7 +48,7 @@ class PreviewTestTakeController extends Controller
 
         file_put_contents($htmlStoragePath,$html);
 
-        dispatch(new CreatePdfFromStringAndSaveJob($storagePath,$htmlStoragePath))->onQueue('import');
+        dispatch(new CreatePdfFromHtmlFileAndSaveJob($storagePath,$htmlStoragePath))->onQueue('import');
         $runner = 0;
         while(!file_exists($storagePath) && $runner < 80){
             sleep(1);
