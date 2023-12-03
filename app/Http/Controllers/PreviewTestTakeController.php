@@ -58,7 +58,7 @@ class PreviewTestTakeController extends Controller
         dispatch(new CreatePdfFromHtmlFileAndSaveJob($storagePath,$htmlStoragePath))->onQueue('import');
         $runner = 0;
         $doneFile = $storagePath.'.done';
-        while(!file_exists($doneFile) && $runner < 80){
+        while(!file_exists($doneFile) && $runner < 70){
             sleep(1);
             $runner++;
         }
