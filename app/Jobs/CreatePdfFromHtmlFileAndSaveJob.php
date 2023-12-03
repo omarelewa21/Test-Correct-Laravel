@@ -16,6 +16,7 @@ class CreatePdfFromHtmlFileAndSaveJob implements ShouldQueue
 
     protected $path;
     protected $htmlStoragePath;
+    public $queue = 'import';
 
     /**
      * Create a new job instance.
