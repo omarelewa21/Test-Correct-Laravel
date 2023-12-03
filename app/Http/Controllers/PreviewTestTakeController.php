@@ -38,7 +38,7 @@ class PreviewTestTakeController extends Controller
         view()->share('titleForPdfPage',$titleForPdfPage);
         view()->share('pdf_type','student_test_take');
         $testParticipants = $testTake->testParticipants()->where('test_take_status_id','>',3)->get();
-        ini_set('max_execution_time', '90');
+        ini_set('max_execution_time', 90);
         $html = view('test-take-overview-preview',compact(['testTake','testParticipants','showQuestionText']))->render();
 
         $rand = Str::random(25);
