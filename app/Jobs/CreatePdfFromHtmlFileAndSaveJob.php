@@ -10,9 +10,9 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class CreatePdfFromHtmlFileAndSaveJob implements ShouldQueue
+class CreatePdfFromHtmlFileAndSaveJob extends Job implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use InteractsWithQueue, SerializesModels;
 
     protected $path;
     protected $htmlStoragePath;
