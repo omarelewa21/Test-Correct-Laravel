@@ -12,8 +12,8 @@ abstract class RelationQuestion extends StudentPlayerQuestion
     public $answerText = [];
 
     public $words = [];
-    public $firstHalfAnswerStruct;
-    public $secondHalfAnswerStruct;
+
+    public $viewStruct;
 
     public function mount()
     {
@@ -21,8 +21,14 @@ abstract class RelationQuestion extends StudentPlayerQuestion
         $this->setAnswerStruct();
         $this->getWords();
 
-        $this->createViewDataStruct();
-//        $this->setAnswerTexts();
+        $this->createViewKeyStruct();
+    }
+
+    public function isQuestionFullyAnswered(): bool
+    {
+        return collect($this->answerStruct)->every(function ($answer) {
+            return !empty($answer);
+        });
     }
 
     protected function setAnswerStruct() : void
@@ -35,24 +41,26 @@ abstract class RelationQuestion extends StudentPlayerQuestion
         }
     }
 
-    protected function createViewDataStruct()
+    /**
+     * Split answerStruct keys in two halves (if uneven, first half is 1 longer),
+     * and then merge them back together in the correct order, to show them in two columns. from top to bottom.
+     * | 1 | 4 |
+     * | 2 | 5 |
+     * | 3 | - |
+     */
+    protected function createViewKeyStruct()
     {
-        //todo wip
-//        return;
-        $totalLength = count($this->answerStruct);
-        $firstHalfLength = (int) ceil(count($this->answerStruct)/2);
+        [$firstHalf, $secondHalf] = collect($this->answerStruct)
+            ->keys()
+            ->split(2);
 
-        $answerStructKeys = array_keys($this->answerStruct);
+        $answerStructMappedIntoColumns = $firstHalf
+            ->zip($secondHalf)
+            ->flatten(1)
+            ->filter()
+            ->toArray();
 
-        for($i = 0; $i < $totalLength; $i++) {
-            if ($i < $firstHalfLength) {
-                $this->firstHalfAnswerStruct[$answerStructKeys[$i]] = $this->answerStruct[$answerStructKeys[$i]];
-            } else {
-                $this->secondHalfAnswerStruct[$answerStructKeys[$i]] = $this->answerStruct[$answerStructKeys[$i]];
-            }
-        }
-
-//        dd($this->firstHalfAnswerStruct, $this->secondHalfAnswerStruct, $this->answerStruct);
+        $this->viewStruct = $answerStructMappedIntoColumns;
     }
 
     protected function getWords()
@@ -87,13 +95,10 @@ abstract class RelationQuestion extends StudentPlayerQuestion
             && $this instanceof Question\RelationQuestion;
     }
 
-    public function updatedAnswerStruct($value)
-    {
-        // todo implement? or not needed?
-    }
-
     final protected function hasGivenAnswer(): bool
     {
+        if($this instanceof Preview\RelationQuestion) return false;
+
         return !empty(json_decode($this->answers[$this->question->uuid]['answer']));
     }
 
@@ -108,6 +113,8 @@ abstract class RelationQuestion extends StudentPlayerQuestion
      */
     final protected function saveEmptyAnswerStruct(): bool
     {
+        if($this instanceof Preview\RelationQuestion) return false;
+
         return !!Answer::where('id', $this->answers[$this->question->uuid]['id'])
             ->update(['json' => $this->answerStruct]);
     }

@@ -24,8 +24,6 @@ class RelationQuestion extends AbstractRelationQuestion
 
     public function updatedAnswerStruct($value)
     {
-        parent::updatedAnswerStruct($value);
-
         $json = json_encode($this->answerStruct);
 
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);

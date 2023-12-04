@@ -12,6 +12,7 @@ class RelationQuestion extends AbstractRelationQuestion
     use WithNotepad;
     use WithPreviewAttachments;
     use WithPreviewGroups;
+
     public function render()
     {
         return view('livewire.student-player.preview.relation-question');
