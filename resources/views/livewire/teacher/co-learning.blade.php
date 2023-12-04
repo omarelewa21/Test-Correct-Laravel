@@ -160,6 +160,7 @@
                                         :component="'answer.teacher.'. str($this->discussingQuestion->type)->kebab()"
                                         :question="$this->discussingQuestion"
                                         :editorId="'editor-'.$this->discussingQuestion->uuid"
+                                        :test-take="$this->testTake"
                                 />
                             </div>
                         </x-slot:body>

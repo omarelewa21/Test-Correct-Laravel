@@ -7,8 +7,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 use tcCore\Http\Enums\WordType;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\Http\Traits\Questions\WithQuestionDuplicating;
 
@@ -77,18 +79,84 @@ class RelationQuestion extends Question implements QuestionInterface
     public function loadRelated()
     {
         // TODO: Implement loadRelated() method.
+        $this->load(['words', 'wordLists', 'testTakeRelationQuestions']);
     }
 
     public function canCheckAnswer()
     {
         // TODO: Implement canCheckAnswer() method.
-        throw new \Exception('Not implemented: '. __METHOD__);
+
+        // TODO: is it an open question? in cms it is now a closed question
+        //  there is no toggle to enable/disable auto checking
+        //  does it allways check or never?
+        if($this->getAttribute('auto_check_answer')) {
+            return true;
+        }
+
+        return false;
+    }
+
+    protected function isClosedQuestion()
+    {
+        // TODO implement or remove auto_check_answer and auto_check_answer_case_sensitive options (CMS, and here)
+        //  this question is very simular to CompletionQuestion, open question fields; and correct answers are known
+        //  Completion question has:
+        //   $this->auto_check_answer
+        //   $this->auto_check_answer_case_sensitive
+//        return parent::isClosedQuestion() || $this->auto_check_answer;
+        return parent::isClosedQuestion();
     }
 
     public function checkAnswer($answer)
     {
         // TODO: Implement checkAnswer() method.
-        throw new \Exception('Not implemented: '. __METHOD__);
+        //  this question is very simular to CompletionQuestion, open question fields and correct answers are known
+
+        // TODO implement or remove auto_check_answer and auto_check_answer_case_sensitive options (CMS, and here)
+        //  Completion question has:
+        //   $this->auto_check_answer
+        //   $this->auto_check_answer_case_sensitive
+
+        $autoCheckAnswer = true;
+        $autoCheckAnswerCaseSensitive = true;
+
+        //Student answer:
+        $answers = collect(json_decode($answer->getAttribute('json'), true));
+
+        //correct answers:
+        $answerModel = $this->wordsToAsk()
+            ->filter(fn($word) => $answers->has($word->id))
+            ->keyBy('id')
+            ->map->text;
+
+        $answerOptionsCount = count($answerModel);
+
+        if(!$autoCheckAnswer) {
+
+            throw new \Exception('You should never have reached this when RelationQuestion::auto_check_answer is false', 418);
+        }
+
+
+        if($autoCheckAnswerCaseSensitive) {
+            $answerModel = $answerModel->map(fn($answer) => Str::lower($answer));
+            $answers = $answers->map(fn($answer) => Str::lower($answer));
+        }
+
+        $correctAnswersCount = $answers->reduce(function ($carry, $answer, $key) use ($answerModel, $answers){
+
+            //condition2/3 checks are copied from CompletionQuestion
+            $condition1 = $answerModel[$key] === $answer;
+            $condition2 = $answerModel[$key] === trim(BaseHelper::transformHtmlCharsReverse($answer));
+            $condition3 = $answerModel[$key] === trim(htmlentities($answer));
+
+            return $condition1 || $condition2 || $condition3 ? ++$carry : $carry;
+        }, 0);
+
+        $score = $this->getAttribute('score') * ($correctAnswersCount / $answerOptionsCount);
+
+        return $this->getAttribute('decimal_score') == true
+            ? floor($score * 2) / 2
+            : floor($score);
     }
 
     public function addAnswers($mainQuestion, $answers): void
@@ -130,13 +198,7 @@ class RelationQuestion extends Question implements QuestionInterface
 
     public function answerForWord(Word $word): Word
     {
-        if ($word->isSubjectWord()) {
-            return $word->associations
-                ->sortBy(fn($association) => $association->type->getOrder())
-                ->first();
-        }
-
-        return $word->subjectWord;
+        return $word->correctAnswerWord();
     }
 
     public function needsToBeUpdated($request)
@@ -303,5 +365,12 @@ class RelationQuestion extends Question implements QuestionInterface
         ]);
 
         return $answerStruct;
+    }
+
+    public function isFullyAnswered(Answer $answer): bool
+    {
+        return collect(json_decode($answer->json, true))
+                ->filter(fn($answer) => $answer === null || $answer === '')
+                ->isEmpty();
     }
 }

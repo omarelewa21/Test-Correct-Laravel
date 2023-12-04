@@ -121,6 +121,7 @@
                                     :component="'answer.teacher.'. str($question->type)->kebab()"
                                     :question="$question"
                                     :editorId="'editor-'.$question->uuid"
+                                    :testTake="$testTake"
                             />
                         </div>
                     </x-slot:body>
