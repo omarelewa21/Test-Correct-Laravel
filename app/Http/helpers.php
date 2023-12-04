@@ -16,6 +16,6 @@ if (!function_exists('settings')) {
 if(!function_exists('pdf_answers_for_testtake')){
     function pdf_answers_for_testtake($testTakeId) {
         $testTake = \tcCore\TestTake::findOrFail($testTakeId);
-        PreviewTestTakeController::show($testTake, new Request(), false);
+        (new PreviewTestTakeController)->show($testTake, new Request(), false);
     }
 }

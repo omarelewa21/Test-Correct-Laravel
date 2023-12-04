@@ -31,11 +31,11 @@ class PreviewTestTakeController extends Controller
         view()->share('titleForPdfPage',$titleForPdfPage);
         view()->share('pdf_type','student_test_take');
         $testParticipants = $testTake->testParticipants()->where('test_take_status_id','>',3)->get();
-        ini_set('max_execution_time', '90');
+        ini_set('max_execution_time', 90);
         $html = view('test-take-overview-preview',compact(['testTake','testParticipants']))->render();
 
         $rand = Str::random(25);
-        $path = sprintf('/tmp/%s.pdf',$rand);
+        $path = sprintf('pdf/%s.pdf',$rand);
         $storagePath = storage_path($path);
         $htmlPath = sprintf('pdf/%s.html',$rand);
         $htmlStoragePath = storage_path($htmlPath);
@@ -48,10 +48,10 @@ class PreviewTestTakeController extends Controller
 
         file_put_contents($htmlStoragePath,$html);
 
-        dispatch(new CreatePdfFromHtmlFileAndSaveJob($storagePath,$htmlStoragePath))->onQueue('import');
+        dispatch(new CreatePdfFromHtmlFileAndSaveJob($storagePath,$htmlStoragePath));
         $runner = 0;
         $doneFile = $storagePath.'.done';
-        while(!file_exists($doneFile) && $runner < 80){
+        while(!file_exists($doneFile) && $runner < 70){
             sleep(1);
             $runner++;
         }
