@@ -1389,4 +1389,12 @@ class Test extends BaseModel
             })
             ->values();
     }
+
+    public function getBaseSubjectLanguage(string $column = 'wsc_lang'): null|string|WscLanguage
+    {
+        return BaseSubject::join('subjects', 'subjects.base_subject_id', '=', 'base_subjects.id')
+            ->join('tests', 'tests.subject_id', '=', 'subjects.id')
+            ->where('tests.id', $this->getKey())
+            ->value('base_subjects.' . $column);
+    }
 }

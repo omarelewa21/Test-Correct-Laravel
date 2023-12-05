@@ -217,6 +217,19 @@
     flex: 1 0 100%;
 }
 
+#sidebar-carousel-container .group-question-button.group-error.relation-error .question-button:not(.question-active) {
+    color: var(--all-red);
+}
+#sidebar-carousel-container .question-button .relation-question-button-error {
+    display: none;
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+}
+#sidebar-carousel-container .group-question-button.group-error.relation-error .question-button .relation-question-button-error{
+    display: flex;
+}
+
 .add-question-card:hover {
     background-color: var(--primary-opacity-05);
 }

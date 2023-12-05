@@ -169,6 +169,8 @@ class Constructor extends TCComponent implements QuestionCms
     public $duplicateQuestion = false;
     public $canDeleteTest = false;
 
+    public array $uploadRules = [];
+
     protected function rules()
     {
         $rules = ['question.question' => 'required'];
@@ -294,20 +296,21 @@ class Constructor extends TCComponent implements QuestionCms
     }
 
     protected $listeners = [
-        'new-tags-for-question'           => 'handleExternalUpdatedProperty',
-        'updated-attainment'              => 'handleExternalUpdatedProperty',
-        'updated-learning-goal'           => 'handleExternalUpdatedProperty',
-        'new-video-attachment'            => 'handleNewVideoAttachment',
-        'drawing_data_updated'            => 'handleUpdateDrawingData',
-        'refresh'                         => 'render',
-        'showQuestion'                    => 'showQuestion',
-        'addQuestion'                     => 'addQuestion',
-        'showEmpty'                       => 'showEmpty',
-        'questionDeleted'                 => '$refresh',
-        'addQuestionFromDirty'            => 'addQuestionFromDirty',
-        'testSettingsUpdated'             => 'handleUpdatedTestSettings',
-        'test-updated'                    => 'testPublished',
-        'relation-question-words-updated' => 'newWords'
+        'new-tags-for-question'                        => 'handleExternalUpdatedProperty',
+        'updated-attainment'                           => 'handleExternalUpdatedProperty',
+        'updated-learning-goal'                        => 'handleExternalUpdatedProperty',
+        'new-video-attachment'                         => 'handleNewVideoAttachment',
+        'drawing_data_updated'                         => 'handleUpdateDrawingData',
+        'refresh'                                      => 'render',
+        'showQuestion'                                 => 'showQuestion',
+        'addQuestion'                                  => 'addQuestion',
+        'showEmpty'                                    => 'showEmpty',
+        'questionDeleted'                              => '$refresh',
+        'addQuestionFromDirty'                         => 'addQuestionFromDirty',
+        'testSettingsUpdated'                          => 'handleUpdatedTestSettings',
+        'test-updated'                                 => 'testPublished',
+        'relation-question-words-updated'              => 'newRelationQuestionWords',
+        'relation-question-accepted-word-list-changes' => 'newRelationQuestionWords',
     ];
 
 
@@ -343,7 +346,6 @@ class Constructor extends TCComponent implements QuestionCms
     {
         if (!$this->emptyState) {
             $this->obj = TypeFactory::create($this);
-            $this->obj->bootPropertyBag();
         }
     }
 
@@ -373,7 +375,7 @@ class Constructor extends TCComponent implements QuestionCms
 
     private function initialize($activeTest)
     {
-        $this->lang = $this->getDefaultWscLanguage();
+        $this->lang = $this->getDefaultWscLanguage($activeTest);
         $this->resetQuestionProperties($activeTest);
         $this->canDeleteTest = $activeTest->canDelete(Auth::user());
         $this->testIsPublished = $activeTest->isPublished();
@@ -382,6 +384,7 @@ class Constructor extends TCComponent implements QuestionCms
         $this->educationLevelId = $activeTest->education_level_id;
         $this->allowWsc = Auth::user()->schoolLocation->allow_wsc;
         $this->wscLanguages = WscLanguage::casesWithDescription();
+        $this->setUploadRules();
     }
 
     public function __call($method, $arguments = null)
@@ -1468,24 +1471,16 @@ class Constructor extends TCComponent implements QuestionCms
         $this->testIsPublished = Test::whereUuid($this->testId)->first()->isPublished();
     }
 
-    private function getTestLanguage(): ?WscLanguage
-    {
-        return BaseSubject::join('subjects', 'subjects.base_subject_id', '=', 'base_subjects.id')
-            ->join('tests', 'tests.subject_id', '=', 'subjects.id')
-            ->whereIn('tests.id', Test::whereUuid($this->testId)->select('id'))
-            ->value('wsc_lang');
-    }
-
     public function toPlannedTest($takeUuid)
     {
         $testTake = TestTake::whereUuid($takeUuid)->first();
         return auth()->user()->redirectToCakeWithTemporaryLogin($testTake->getPlannedTestOptions());
     }
 
-    private function getDefaultWscLanguage()
+    private function getDefaultWscLanguage($test)
     {
         if (UserFeatureSetting::getSetting(Auth::user(), UserFeatureSettingEnum::WSC_COPY_SUBJECT_LANGUAGE, default: true)) {
-            if ($subjectLanguage = $this->getTestLanguage()) {
+            if ($subjectLanguage = $test->getBaseSubjectLanguage()) {
                 return $subjectLanguage;
             }
         }
@@ -1531,11 +1526,21 @@ class Constructor extends TCComponent implements QuestionCms
         return __('cms.Antwoordmodel');
     }
 
-    public function newWords($data): void
+    public function newRelationQuestionWords(array $data, bool $save = false): void
     {
         if ($this->obj instanceof Relation) {
-            $this->obj->newWords($data);
+            $this->obj->newRelationQuestionWords($data, $save);
         }
+    }
+
+    private function setUploadRules(): void
+    {
+        $mimeArray = ['pdf','mp3','png','jpeg','jpg'];
+
+        $this->uploadRules = [
+            'extensions' => ['data' => $mimeArray, 'message' => __('upload.upload_rule_extension')],
+            'size'       => ['data' => 64000000, 'message' => __('upload.upload_rule_size')]
+        ];
     }
 
 }

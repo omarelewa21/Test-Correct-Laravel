@@ -52,9 +52,9 @@ class MultipleChoice extends TypeProvider
         $this->createAnswerStruct();
     }
 
-    public function initializePropertyBag($q)
+    public function initializePropertyBag($question)
     {
-        $this->instance->question['fix_order'] = $q->fix_order;
+        $this->instance->question['fix_order'] = $question->fix_order;
     }
 
     public function prepareForSave()

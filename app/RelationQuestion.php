@@ -6,11 +6,10 @@ use Dyrynda\Database\Casts\EfficientUuid;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
-use Ramsey\Uuid\Uuid;
 use tcCore\Http\Enums\WordType;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\Http\Traits\Questions\WithQuestionDuplicating;
+use tcCore\Services\CompileWordListService;
 
 class RelationQuestion extends Question implements QuestionInterface
 {
@@ -38,7 +37,9 @@ class RelationQuestion extends Question implements QuestionInterface
             RelationQuestionWord::class,
             'relation_question_id',
             'word_list_id'
-        )->distinct();
+        )
+            ->whereNull('relation_question_word.deleted_at')
+            ->distinct();
     }
 
     public function words(): BelongsToMany
@@ -233,7 +234,7 @@ class RelationQuestion extends Question implements QuestionInterface
 
     private function removeAnswers(Collection $answers): void
     {
-        RelationQuestionWord::whereIn('id', $answers->pluck('id'))->delete();
+        RelationQuestionWord::whereIn('id', $answers->pluck('id'))->update(['deleted_at' => now()]);
     }
 
     private function updateAnswers(Collection $answersToUpdate, Collection $answerProposals): void
@@ -304,4 +305,30 @@ class RelationQuestion extends Question implements QuestionInterface
 
         return $answerStruct;
     }
+
+    public function getQuestionWordsForCms(): array
+    {
+        return $this->questionWords
+            ->sortBy(fn($relation) => $relation->word->type->getOrder())
+            ->groupBy(fn($relation) => $relation->word->word_id ?? $relation->word->id)
+            ->map(fn($row) => self::buildRow($row))
+            ->toArray();
+    }
+
+    public static function buildRow($row, $empty = false): array
+    {
+        $columns = [];
+        foreach (WordType::cases() as $type) {
+            $questionWord = $empty ? null : $row?->first(fn($rela) => $rela->word->type === $type);
+
+            $columns[$type->value] = CompileWordListService::buildEmptyWordItem(
+                    $questionWord?->word?->text ?? '',
+                    $type,
+                    $questionWord?->word_id,
+                    $questionWord?->word_list_id
+                ) + ['selected' => $questionWord?->selected ?? false];
+        }
+        return $columns;
+    }
+
 }

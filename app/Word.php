@@ -6,7 +6,6 @@ namespace tcCore;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Collection;
 use tcCore\Http\Enums\WordType;
 use tcCore\Observers\VersionableObserver;
 
@@ -108,6 +107,7 @@ class Word extends Versionable
     {
         $list = $this->getPivotListToSyncDuplicateWith();
         $newWord = $this->replicateWithVersion($this->getEditingAuthor());
+        $newWord->pivot->word_list_id = $list->getKey();
         $this->setUpdatedVersion($newWord);
 
         $list->words()->detach($this);

@@ -13,36 +13,35 @@ trait WithRelationQuestionAttributes
 {
     public function retrieveWords(): array
     {
-        if ($this->relationGuard()) {
-            return [];
-        }
-
-        return $this->obj->retrieveWords() ?? [];
+        return $this->forwardToProvider('retrieveWords') ?? [];
     }
 
     public function makeUpdates($updates): void
     {
-        if ($this->relationGuard()) {
-            return;
-        }
-
-        $this->obj->makeUpdates($updates);
+        $this->forwardToProvider('makeUpdates', $updates);
     }
 
     public function openCompileListsModal(): void
     {
+        $this->forwardToProvider('openCompileListsModal');
+    }
+
+    public function openViewWordListChangesModal(): void
+    {
+        $this->forwardToProvider('openViewWordListChangesModal');
+    }
+
+    private function forwardToProvider(string $method, $args = null): mixed
+    {
         if ($this->relationGuard()) {
-            return;
+            return null;
         }
 
-        $this->obj->openCompileListsModal();
+        return $this->obj->$method($args);
     }
 
     private function relationGuard(): bool
     {
-        if(!($this->obj instanceof TypeProvider)) {
-            return true;
-        }
         return !($this->obj instanceof Relation);
     }
 }

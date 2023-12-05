@@ -250,22 +250,23 @@ class Question extends MtiBaseModel
         });
 
         static::saved(function (Question $question) {
-            if (get_class($question) === 'tcCore\Question') {
-                if ($question->authors !== null) {
-                    $question->saveAuthors();
-                }
+            if (get_class($question) !== 'tcCore\Question') {
+                return;
+            }
+            if ($question->authors !== null) {
+                $question->saveAuthors();
+            }
 
-                if ($question->attainments !== null) {
-                    $question->saveAttainments();
-                }
+            if ($question->attainments !== null) {
+                $question->saveAttainments();
+            }
 
-                if ($question->learning_goals !== null) {
-                    $question->saveLearningGoals();
-                }
+            if ($question->learning_goals !== null) {
+                $question->saveLearningGoals();
+            }
 
-                if ($question->tags !== null) {
-                    $question->saveTags();
-                }
+            if ($question->tags !== null) {
+                $question->saveTags();
             }
         });
     }
@@ -685,6 +686,10 @@ class Question extends MtiBaseModel
                     })->orWhere('questions.subject_id', '<>', $subject->getKey());
                 });
             }
+        }
+
+        if (!settings()->canUseRelationQuestion()) {
+            $query->whereNot('questions.type', class_basename(RelationQuestion::class));
         }
 
         return $query;

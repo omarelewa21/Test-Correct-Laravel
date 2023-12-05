@@ -66,7 +66,7 @@ class TypeFactory
                 'matching' => Matching::class,
                 'classify' => Classify::class,
             ],
-            'RelationQuestion' => Relation::class
+            'RelationQuestion'       => Relation::class
         ];
     }
 
@@ -97,13 +97,6 @@ class TypeFactory
                 ],
             ],
             'closed' => [
-                [
-                    'sticker'     => 'question-relation',
-                    'name'        => __('question.relationquestion'),
-                    'description' => __('question.relation_description'),
-                    'type'        => 'RelationQuestion',
-                    'subtype'     => 'relation',
-                ],
                 [
                     'sticker'     => 'question-multiple-choice',
                     'name'        => __('question.multiple-choice'),
@@ -164,6 +157,16 @@ class TypeFactory
                 ]
             ]
         ];
+
+        if (settings()->canUseRelationQuestion()) {
+            $questionTypes['open'][] = [
+                'sticker'     => 'question-relation',
+                'name'        => __('question.relationquestion'),
+                'description' => __('question.relation_description'),
+                'type'        => 'RelationQuestion',
+                'subtype'     => 'relation',
+            ];
+        }
 
         return $questionTypes;
     }

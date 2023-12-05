@@ -4,7 +4,9 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Arr;
+use Ramsey\Uuid\Uuid;
 use tcCore\Http\Livewire\TCComponent;
+use tcCore\WordList;
 
 class VersionableSidePanelContainer extends TCComponent
 {
@@ -15,6 +17,7 @@ class VersionableSidePanelContainer extends TCComponent
     public bool $closeOnFirstAdd = false;
     public string $listUuid = '';
     public array $used = [];
+    public string $currentListName = '';
 
     protected function getListeners(): array
     {
@@ -26,6 +29,7 @@ class VersionableSidePanelContainer extends TCComponent
     public function mount(): void
     {
         $this->setSliderButtonOptions();
+        $this->setCurrentListName();
     }
 
     public function render(): View
@@ -54,29 +58,28 @@ class VersionableSidePanelContainer extends TCComponent
         ];
 
         foreach ($shouldNotifyChildrenProperties as $class => $props) {
-            $updates = [];
+            $updates = array_filter(Arr::only($event['attributes'], $props));
 
-            foreach ($props as $prop) {
-                if ($newValue = Arr::get($event['attributes'], $prop)) {
-                    $updates[$prop] = $newValue;
-                }
+            if (!empty($updates)) {
+                $this->emitTo($class, 'usedPropertiesUpdated', $updates);
             }
-
-            if (empty($updates)) {
-                continue;
-            }
-
-            $this->emitTo(
-                $class,
-                'usedPropertiesUpdated',
-                $updates
-            );
         }
 
         foreach ($event['attributes'] as $attribute => $value) {
             if (property_exists($this, $attribute)) {
                 $this->$attribute = $value;
             }
+        }
+
+        $this->setCurrentListName();
+    }
+
+    private function setCurrentListName(): void
+    {
+        $this->currentListName = '';
+
+        if (Uuid::isValid($this->listUuid)) {
+            $this->currentListName = WordList::whereUuid($this->listUuid)->value('name');
         }
     }
 }

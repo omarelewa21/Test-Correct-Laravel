@@ -37,6 +37,8 @@ use tcCore\OpenQuestion;
 use tcCore\Period;
 use tcCore\Question;
 use tcCore\RankingQuestion;
+use tcCore\RelationQuestion;
+use tcCore\RelationQuestionWord;
 use tcCore\SalesOrganization;
 use tcCore\School;
 use tcCore\SchoolClass;
@@ -57,6 +59,9 @@ use tcCore\TestTakeEvent;
 use tcCore\TestTakeEventType;
 use tcCore\UmbrellaOrganization;
 use tcCore\User;
+use tcCore\Word;
+use tcCore\WordList;
+use tcCore\WordListWord;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -300,6 +305,26 @@ class RouteServiceProvider extends ServiceProvider
         });
         Route::model('file_management', 'tcCore\FileManagement', function () {
             throw new RouteModelBindingNotFoundHttpException('FileManagement not found');
+        });
+
+        Route::model('relation_question', 'tcCore\RelationQuestion', function () {
+            throw new RouteModelBindingNotFoundHttpException('Relation question not found');
+        });
+
+        Route::model('relation_question_word', 'tcCore\RelationQuestionWord', function () {
+            throw new RouteModelBindingNotFoundHttpException('Relation question word not found');
+        });
+
+        Route::model('word', 'tcCore\Word', function () {
+            throw new RouteModelBindingNotFoundHttpException('Word not found');
+        });
+
+        Route::model('word_list', 'tcCore\WordList', function () {
+            throw new RouteModelBindingNotFoundHttpException('Word list not found');
+        });
+
+        Route::model('word_list_word', 'tcCore\WordListWord', function () {
+            throw new RouteModelBindingNotFoundHttpException('Word list word not found');
         });
 
         /**
@@ -546,6 +571,28 @@ class RouteServiceProvider extends ServiceProvider
             return MaintenanceWhitelistIp::whereUuid($item)->firstOrFail();
         });
 
+        Route::bind('relation_question', function ($item) {
+            return RelationQuestion::whereUuid($item)->firstOrFail();
+        });
+        Route::bind('relationQuestion', function ($item) {
+            return RelationQuestion::whereUuid($item)->firstOrFail();
+        });
+
+        Route::bind('relation_question_word', function ($item) {
+            return RelationQuestionWord::whereUuid($item)->firstOrFail();
+        });
+
+        Route::bind('word', function ($item) {
+            return Word::whereUuid($item)->firstOrFail();
+        });
+
+        Route::bind('word_list', function ($item) {
+            return WordList::whereUuid($item)->firstOrFail();
+        });
+
+        Route::bind('word_list_word', function ($item) {
+            return WordListWord::whereUuid($item)->firstOrFail();
+        });
     }
 
     /**

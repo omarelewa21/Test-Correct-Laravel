@@ -38,7 +38,7 @@ class Settings
 //        return ($user ?? auth()->user())->schoolLocation?->allow_new_test_taken_pages;
     }
 
-        public function canUseFeature(String $feature, ?User $user = null): bool
+    public function canUseFeature(String $feature, ?User $user = null): bool
     {
         $user ??= auth()->user();
         return (
@@ -48,5 +48,10 @@ class Settings
                 && UserSystemSetting::getSetting(user:$user, title:$feature)
             )
         );
+    }
+
+    public function canUseRelationQuestion(?User $user = null): bool
+    {
+        return $this->canUseFeature('allow_relation_question', $user);
     }
 }

@@ -59,13 +59,13 @@
             <x-sidebar.slide-container class="divide-y divide-bluegrey"
                                        x-ref="home"
                                        @mouseenter="handleVerticalScroll($el);"
-                                       @continue-to-new-slide.window="$wire.removeDummy();showAddQuestionSlide(false)"
+                                       @continue-to-new-slide.window="$wire.removeDummy();showAddQuestionSlide(false, !$event.detail.groupUuid);"
                                        @continue-to-add-group.window="addGroup(false)"
                                        @scroll-dummy-into-view.window="scrollActiveQuestionIntoView()"
             >
                 <div wire:sortable="updateTestItemsOrder"
                      class="sortable-drawer divide-y divide-bluegrey pb-6 pt-4" {{ $emptyStateActive ? 'hidden' : '' }} >
-                    @php $loopIndex = 0; @endphp
+                    @php($loopIndex = 0)
                     @foreach($this->questionsInTest as $testQuestion)
                         @if($testQuestion->question->type === 'GroupQuestion')
                             <x-sidebar.cms.group-question-container
@@ -74,13 +74,13 @@
                                     :double="$this->duplicateQuestions->contains($testQuestion->question->id)"
                             >
                                 @foreach($testQuestion->question->subQuestions as $question)
-                                    @php $loopIndex ++; @endphp
+                                    @php($loopIndex++)
                                     <x-sidebar.cms.question-button :testQuestion="$testQuestion"
                                                                    :question="$question"
                                                                    :loop="$loopIndex"
                                                                    :subQuestion="true"
-                                                                   :activeTestQuestion="$this->testQuestionId"
-                                                                   :activeGQQ="$this->groupQuestionQuestionId"
+                                                                   :activeTestQuestionUuid="$this->testQuestionId"
+                                                                   :activeGQQUuid="$this->groupQuestionQuestionId"
                                                                    :double="$this->duplicateQuestions->contains($question->id) || $this->duplicateQuestions->contains($testQuestion->question->id)"
                                     />
                                 @endforeach
@@ -88,13 +88,12 @@
                                                                            :loop="$loopIndex"/>
                             </x-sidebar.cms.group-question-container>
                         @else
-                            @php $loopIndex ++; @endphp
+                            @php($loopIndex++)
                             <x-sidebar.cms.question-button :testQuestion="$testQuestion"
                                                            :question="$testQuestion->question"
                                                            :loop="$loopIndex"
-                                                           :subQuestion="false"
-                                                           :activeTestQuestion="$this->testQuestionId"
-                                                           :activeGQQ="$this->groupQuestionQuestionId"
+                                                           :activeTestQuestionUuid="$this->testQuestionId"
+                                                           :activeGQQUuid="$this->groupQuestionQuestionId"
                                                            :double="$this->duplicateQuestions->contains($testQuestion->question_id)"
                             />
                         @endif

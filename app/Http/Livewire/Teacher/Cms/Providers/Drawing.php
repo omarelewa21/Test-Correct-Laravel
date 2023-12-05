@@ -32,18 +32,18 @@ class Drawing extends TypeProvider
         ];
     }
 
-    public function initializePropertyBag($q)
+    public function initializePropertyBag($question)
     {
-        $svgHelper = new SvgHelper($q['uuid']);
+        $svgHelper = new SvgHelper($question['uuid']);
 
-        $this->instance->question['answer_svg'] = $this->getAnswerSvg($svgHelper, $q);
-        $this->instance->question['question_svg'] = $svgHelper->getQuestionSvg($q);
-        $this->instance->question['grid_svg'] = $q['grid_svg'];
-        $this->instance->question['grid'] = $q['grid'];
-        $this->instance->question['zoom_group'] = $this->getViewBox($svgHelper, $q);
+        $this->instance->question['answer_svg'] = $this->getAnswerSvg($svgHelper, $question);
+        $this->instance->question['question_svg'] = $svgHelper->getQuestionSvg($question);
+        $this->instance->question['grid_svg'] = $question['grid_svg'];
+        $this->instance->question['grid'] = $question['grid'];
+        $this->instance->question['zoom_group'] = $this->getViewBox($svgHelper, $question);
 
-        $this->instance->question['uuid'] = $q['uuid'];
-        $this->instance->question['temp_uuid'] = 'temp-'.$q['uuid'];
+        $this->instance->question['uuid'] = $question['uuid'];
+        $this->instance->question['temp_uuid'] = 'temp-'.$question['uuid'];
         $this->instance->isOldDrawing = $this->isOldDrawingQuestion();
 
         if (filled($this->instance->question['zoom_group'])) {

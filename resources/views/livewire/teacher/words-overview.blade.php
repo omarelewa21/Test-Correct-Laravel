@@ -1,5 +1,6 @@
 @php($activeFilterContainer = sprintf("words-%s-active-filters", $this->openTab))
-<div x-data="overviewComponent(@entangle('openTab'), @js($activeFilterContainer))"
+<div id="words-overview"
+     x-data="overviewComponent(@entangle('openTab'), @js($activeFilterContainer))"
      x-cloak
      style="transition: visibility 100ms ease"
      class="w-full"

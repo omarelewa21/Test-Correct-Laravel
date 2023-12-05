@@ -2,43 +2,45 @@
 
 namespace tcCore\Http\Livewire\Teacher\Cms\Providers;
 
+use Illuminate\Support\Collection;
 use tcCore\Http\Enums\WordType;
-use tcCore\RelationQuestionWord;
+use tcCore\RelationQuestion;
 use tcCore\Services\CompileWordListService;
 
 class Relation extends TypeProvider
 {
     public $requiresAnswer = true;
     public $questionOptions = [
-        'decimal_score'   => true,
-        'shuffle'         => true,
-        'selection_count' => 5,
+        'decimal_score'           => true,
+        'shuffle'                 => false,
+        'shuffle_per_participant' => false,
+        'selection_count'         => null,
     ];
 
-    public function preparePropertyBag()
+    public function preparePropertyBag(): void
     {
         parent::preparePropertyBag();
 
         $this->instance->cmsPropertyBag['rows'] = $this->getEmptyGridRows(18);
         $this->instance->cmsPropertyBag['word_count'] = 0;
         $this->instance->question['uuid'] = null;
+        $this->instance->cmsPropertyBag['column_heads'] = CompileWordListService::columnHeads($this->instance->testId);
+        $this->instance->cmsPropertyBag['unhandled_list_changes'] = false;
     }
 
-    public function initializePropertyBag($q)
+    public function initializePropertyBag($question): void
     {
-        $this->instance->question['shuffle'] = $q->shuffle;
-        $this->instance->question['selection_count'] = $q->selection_count;
-        $this->instance->question['uuid'] = $q['uuid'];
+        $this->instance->question['shuffle'] = $question->shuffle;
+        $this->instance->question['selection_count'] = $question->selection_count;
+        $this->instance->question['uuid'] = $question['uuid'];
 
-        $this->instance->cmsPropertyBag['word_count'] = $q->questionWords->count();
-        $this->instance->cmsPropertyBag['rows'] = $q->questionWords
-            ->sortBy(fn($relation) => $relation->word->type->getOrder())
-            ->groupBy(function ($relation) {
-                return $relation->word->word_id ?? $relation->word->id;
-            })
-            ->map(fn($row) => $this->buildRow($row));
+        $this->instance->cmsPropertyBag['rows'] = $question->getQuestionWordsForCMS();
 
-        $this->handleRowCountDependentAttributes();
+        $this->handleRowCountDependentAttributes($question->questionWords->count());
+
+        if($question->wordLists->first(fn($list) => $list->hasNewVersion())) {
+            $this->instance->cmsPropertyBag['unhandled_list_changes'] = true;
+        }
     }
 
     public function getTranslationKey(): string
@@ -107,74 +109,72 @@ class Relation extends TypeProvider
             });
     }
 
-    public function buildRow($row, $empty = false): array
-    {
-        $columns = [];
-        foreach (WordType::cases() as $type) {
-            $questionWord = $empty ? null : $row?->first(fn($rela) => $rela->word->type === $type);
-
-            $columns[$type->value] = CompileWordListService::buildEmptyWordItem(
-                    $questionWord?->word?->text ?? '',
-                    $type,
-                    $questionWord?->word_id,
-                    $questionWord?->word_list_id
-                ) + ['selected' => $questionWord?->selected ?? false];
-        }
-        return $columns;
-    }
-
     private function getEmptyGridRows(int $rows): array
     {
-        return array_map(fn($row) => $this->buildRow($row, true), range(1, $rows));
+        return array_map(fn($row) => RelationQuestion::buildRow($row, true), range(1, $rows));
     }
 
     public function openCompileListsModal(): void
     {
-        $wordData = collect($this->instance->cmsPropertyBag['rows'])
-            ->map(function ($row) {
-                if ($row['subject']['text'] !== null) {
-                    return $row;
-                }
-            })
-            ->filter();
-
         $this->instance->emit(
             'openModal',
             'teacher.cms.compile-word-list-modal',
             [
-                'wordData'         => $wordData,
-                'testUuid'         => $this->instance->testId,
-                'relationQuestion' => $this->instance->question['uuid'],
+                'wordData'             => $this->rowsWithoutEmptyValues(),
+                'testUuid'             => $this->instance->testId,
+                'relationQuestionUuid' => $this->instance->question['uuid'],
             ]
         );
     }
 
-    public function newWords($data): void
+    public function openViewWordListChangesModal(): void
     {
-        $this->instance->dirty = true;
+        $this->instance->emit(
+            'openModal',
+            'teacher.cms.word-list-changes-modal',
+            [
+                'wordData'             => $this->rowsWithoutEmptyValues(),
+                'testUuid'             => $this->instance->testId,
+                'relationQuestionUuid' => $this->instance->question['uuid'],
+            ]
+        );
+    }
+
+    public function newRelationQuestionWords(array $data, bool $save = false): void
+    {
+        $this->handleDirtyStateFromWordsUpdate($data);
+        $wordCount = 0;
+
         /*TODO Figure out if the new words contain already existing words with a selected property*/
-        $this->instance->cmsPropertyBag['rows'] = collect($data)->map(function ($row) {
-            $convertedRow = collect($row)->map(function ($word) {
+        $this->instance->cmsPropertyBag['rows'] = collect($data)->map(function ($row) use (&$wordCount) {
+            $convertedRow = collect($row)->map(function ($word) use (&$wordCount) {
+                $wordCount++;
                 $questionWord = (object)$word;
                 $questionWord->type = WordType::tryFrom($questionWord->type);
                 $questionWord->word = $questionWord;
                 return $questionWord;
             });
 
-            return $this->buildRow($convertedRow);
+            return RelationQuestion::buildRow($convertedRow);
         });
 
-        $this->handleRowCountDependentAttributes();
+        $this->handleRowCountDependentAttributes($wordCount);
 
         $this->instance->dispatchBrowserEvent(
             'relation-rows-updated',
             $this->instance->cmsPropertyBag['rows']
         );
+
+        if ($save) {
+            $this->instance->save(false);
+        }
     }
 
-
-    private function handleRowCountDependentAttributes(): void
+    private function handleRowCountDependentAttributes(int $wordCount): void
     {
+        $this->instance->question['score'] = $this->getQuestionScore();
+        $this->instance->cmsPropertyBag['word_count'] = $wordCount;
+
         if (count($this->instance->cmsPropertyBag['rows']) > 0) {
             $this->instance->question['answer'] = 'not empty';
         }
@@ -185,5 +185,53 @@ class Relation extends TypeProvider
                 ->concat($this->getEmptyGridRows($rowsToAdd))
                 ->values();
         }
+    }
+
+    private function getQuestionScore(): int
+    {
+        return $this->instance->question['shuffle']
+            ? $this->instance->question['selection_count']
+            : count($this->instance->cmsPropertyBag['rows']);
+    }
+
+    private function handleDirtyStateFromWordsUpdate(array $incomingData): void
+    {
+        if ($this->rowsWithoutEmptyValues()->count() !== count($incomingData)) {
+            $this->instance->dirty = true;
+            return;
+        }
+
+        $isDirty = false;
+        foreach ($this->rowsWithoutEmptyValues() as $rowKey => $row) {
+            $row = collect($row)->whereNotIn('text', ['', null]);
+            if (collect($row)->whereNotIn('text', ['', null])->count() !== count($incomingData[$rowKey])) {
+                $isDirty = true;
+                break;
+            }
+
+            foreach ($row as $itemKey => $item) {
+                if (!isset($incomingData[$rowKey][$itemKey])) {
+                    $isDirty = true;
+                    break 2;
+                }
+
+                $incomingWord = $incomingData[$rowKey][$itemKey];
+                if ($item['id'] !== $incomingWord['id'] || $item['text'] !== $incomingWord['text']) {
+                    $isDirty = true;
+                    break 2;
+                }
+            }
+        }
+
+        if ($isDirty) {
+            $this->instance->dirty = true;
+        }
+    }
+
+    private function rowsWithoutEmptyValues(): Collection
+    {
+        return collect($this->instance->cmsPropertyBag['rows'])
+            ->map(fn($row) => !in_array($row['subject']['text'], [null, '']) ? $row : null)
+            ->filter();
     }
 }

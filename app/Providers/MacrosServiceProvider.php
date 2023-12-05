@@ -82,7 +82,10 @@ class MacrosServiceProvider extends ServiceProvider
         Collection::macro('withoutTrashed', function () {
             return $this->whereNull('deleted_at');
         });
-
+        Collection::macro('replaceWithNewKey', function ($oldKey, $newKey, $newValue) {
+            return $this->map(fn($value, $key) => $key === $oldKey ? [$newKey => $newValue] : [$key => $value])
+                ->collapse();
+        });
         URL::macro('referrer', function () {
             $path = Livewire::isLivewireRequest()
                 ? BaseHelper::getLivewireOriginalPath(request())

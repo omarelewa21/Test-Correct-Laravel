@@ -138,6 +138,10 @@ class PublishTestModal extends TCModalComponent
     private function handleNotEqualScoresErrors(Test $test): void
     {
         $carouselsWithUnequalScores = $this->getGroupQuestionNamesWithUnequalSubQuestionScores($test);
-        $this->testErrors[__('test.carousel_unequal_scores')] = trans_choice('cms.carousel_subquestions_scores_differ_with_names', $carouselsWithUnequalScores->toArray(), ['questions' => $this->getJoinedValuesAsString($carouselsWithUnequalScores)]);
+        $this->testErrors[__('test.carousel_unequal_scores')] = trans_choice(
+            'cms.carousel_subquestions_scores_differ_with_names',
+            $carouselsWithUnequalScores->toArray(),
+            ['questions' => $this->getJoinedValuesAsString($carouselsWithUnequalScores)]
+        );
     }
 }

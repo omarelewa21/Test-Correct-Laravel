@@ -12,16 +12,16 @@ enum WordType: string
     use WithAttributes;
 
     #[Order(1)]
-    #[Description('vak')]
+    #[Description('cms.Vak')]
     case SUBJECT = 'subject';
     #[Order(2)]
-    #[Description('vertaling')]
+    #[Description('cms.Vertaling')]
     case TRANSLATION = 'translation';
     #[Order(3)]
-    #[Description('definitie')]
+    #[Description('cms.Definitie')]
     case DEFINITION = 'definition';
     #[Order(4)]
-    #[Description('synoniem')]
+    #[Description('cms.Synoniem')]
     case SYNONYM = 'synonym';
 
     public static function fromOrder(int $order): ?WordType

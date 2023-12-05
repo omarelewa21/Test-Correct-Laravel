@@ -2,13 +2,16 @@
 
 namespace Tests\Services;
 
+use Illuminate\Validation\ValidationException;
 use tcCore\Factories\FactoryTest;
+use tcCore\Factories\FactoryUser;
 use tcCore\Factories\FactoryWordList;
 use tcCore\Factories\Questions\FactoryQuestionRelation;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolSimple;
 use tcCore\Http\Enums\WordType;
 use tcCore\RelationQuestion;
 use tcCore\RelationQuestionWord;
+use tcCore\SchoolLocation;
 use tcCore\Services\CompileWordListService;
 use tcCore\Test;
 use tcCore\User;
@@ -83,7 +86,9 @@ class CompileWordListServiceTest extends TestCase
             $this->relationQuestion
         );
 
-        $compileService->categorizeWordUpdatesInActions($updateRequest)
+        $compileService
+            ->updatesToProcess($updateRequest)
+            ->categorizeWordUpdatesInActions()
             ->performWordActions();
 
         $this->assertTrue(Word::whereText('Koekjes')->exists());
@@ -112,7 +117,9 @@ class CompileWordListServiceTest extends TestCase
             $this->relationQuestion
         );
 
-        $compileService->categorizeWordUpdatesInActions($updateRequest)
+        $compileService
+            ->updatesToProcess($updateRequest)
+            ->categorizeWordUpdatesInActions()
             ->performWordActions();
 
         $this->assertTrue(Word::whereText('Koekjes')->exists());
@@ -141,7 +148,9 @@ class CompileWordListServiceTest extends TestCase
             $this->relationQuestion
         );
 
-        $compileService->categorizeWordUpdatesInActions($updateRequest)
+        $compileService
+            ->updatesToProcess($updateRequest)
+            ->categorizeWordUpdatesInActions()
             ->performWordActions();
 
         $this->assertTrue(
@@ -186,14 +195,6 @@ class CompileWordListServiceTest extends TestCase
                 });
             });
 
-//        $this->addWordTo(
-//            $updateRequest,
-//            $this->wordList,
-//            4,
-//            'subject',
-//            'Vak!'
-//        );
-
         $compileService = new CompileWordListService(
             $this->teacherOne,
             $this->relationQuestion->wordLists,
@@ -208,30 +209,101 @@ class CompileWordListServiceTest extends TestCase
         $this->assertTrue(true);
     }
 
+    /** @test */
+    public function can_trigger_row_validation_rule()
+    {
+        $this->expectException(ValidationException::class);
+        $compileService = new CompileWordListService(
+            $this->teacherOne,
+            $this->relationQuestion->wordLists,
+        );
+
+        $this->updateRequest[1]['rows'][0][0]['type'] = 'cake';
+
+        $compileService->updatesToProcess($this->updateRequest)
+            ->validateUpdates();
+    }
+
+    /** @test */
+    public function can_handle_updates_from_another_teacher()
+    {
+        $d2 = FactoryUser::createTeacher(SchoolLocation::first(), false)->user;
+        $updateRequest = $this->convertQuestionListsToUpdateRequest($this->relationQuestion);
+        $wordUpdate = 'd2 tekst';
+        $updateRequest[1]['rows'][0]['translation']['text'] = $wordUpdate;
+
+        $this->actingAs($d2);
+
+        $relationQuestionAnswerList = (new CompileWordListService(
+            $d2,
+            $this->relationQuestion->wordLists,
+            $this->relationQuestion
+        ))
+            ->updatesToProcess($updateRequest)
+            ->categorizeWordUpdatesInActions()
+            ->performWordActions()
+            ->compileRelationQuestionAnswersList()
+            ->getRelationQuestionAnswerList();
+
+        $this->assertEquals(
+            $wordUpdate,
+            $relationQuestionAnswerList[0][1]['text']
+        );
+    }
+
+    /** @test */
+    public function can_handle_updates_from_another_teacher_pt2()
+    {
+        $d2 = FactoryUser::createTeacher(SchoolLocation::first(), false)->user;
+        $updateRequest = $this->convertQuestionListsToUpdateRequest($this->relationQuestion);
+        $wordUpdate = 'd2 tekst';
+        $updateRequest[1]['rows'][0]['subject']['text'] = $wordUpdate;
+
+        $this->actingAs($d2);
+
+        $relationQuestionAnswerList = (new CompileWordListService(
+            $d2,
+            $this->relationQuestion->wordLists,
+            $this->relationQuestion
+        ))
+            ->updatesToProcess($updateRequest)
+            ->categorizeWordUpdatesInActions()
+            ->performWordActions()
+            ->compileRelationQuestionAnswersList()
+            ->getRelationQuestionAnswerList();
+
+        /* TODO: Maybe keep a fixed order when updating...
+         * Now when updating the first word, it becomes last because its a new one
+         * */
+        $this->assertEquals(
+            $wordUpdate,
+            $relationQuestionAnswerList[count($relationQuestionAnswerList) - 1][0]['text']
+        );
+    }
+
     private function convertQuestionListsToUpdateRequest(RelationQuestion $question): array
     {
         $updateRequest = [];
 
-        $question->wordLists
-            ->each(function ($list) use (&$updateRequest) {
-                $updateRequest[$list->getKey()]['name'] = $list->name;
-                $updateRequest[$list->getKey()]['rows'] = $list->rows(true)
-                    ->map(function ($row, $key) use ($list) {
-                        return collect(WordType::cases())
-                            ->mapWithKeys(function ($type) use ($row, $key, $list) {
-                                $word = $row->first(fn($word) => $word->type === $type);
+        foreach ($question->wordLists as $list) {
+            $updateRequest[$list->getKey()]['name'] = $list->name;
+            $updateRequest[$list->getKey()]['rows'] = $list->rows(true)
+                ->map(function ($row, $key) use ($list) {
+                    return collect(WordType::cases())
+                        ->mapWithKeys(function ($type) use ($row, $key, $list) {
+                            $word = $row->first(fn($word) => $word->type === $type);
 
-                                if (!$word) {
-                                    return [];
-                                }
-                                $wordItem = CompileWordListService::buildWordItem($word, $list);
-                                $wordItem['type'] = $wordItem['type']->value;
-                                $wordItem['row_key'] = $key;
-                                return [$type->value => $wordItem];
-                            })->filter();
-                    })->toArray();
-                $updateRequest[$list->getKey()]['enabled'] = range(0, $list->rows()->count() - 1);
-            });
+                            if (!$word) {
+                                return [];
+                            }
+                            $wordItem = CompileWordListService::buildWordItem($word, $list);
+                            $wordItem['type'] = $wordItem['type']->value;
+                            $wordItem['row_key'] = $key;
+                            return [$type->value => $wordItem];
+                        })->filter();
+                })->toArray();
+            $updateRequest[$list->getKey()]['enabled'] = range(0, $list->rows()->count() - 1);
+        }
 
 
         return $updateRequest;
@@ -240,6 +312,7 @@ class CompileWordListServiceTest extends TestCase
     public array $updateRequest = [
         /*list id*/
         1 => [
+            "name"    => 'Hallo',
             "rows"    => [
                 [
                     [

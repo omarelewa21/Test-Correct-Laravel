@@ -6360,6 +6360,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 /* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_1__);
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0); } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i["return"] && (_r = _i["return"](), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
@@ -6383,58 +6388,65 @@ var ListValidator = /*#__PURE__*/function () {
     _defineProperty(this, "component", null);
     _defineProperty(this, "passed", true);
     _defineProperty(this, "errors", {});
+    _defineProperty(this, "messages", {});
+    _defineProperty(this, "localization", []);
+    _defineProperty(this, "methods", ["requiredTypeAmount", "duplicateColumns", "wordsWithoutType", "columnWithoutWords", "requiredSubjectWord", "requiredWordsPerRow"]);
     this.component = component;
+    this.localization = document.getElementById("word-list-modal-validation-strings").dataset;
   }
   _createClass(ListValidator, [{
     key: "validate",
     value: function validate() {
       var _this = this;
-      var methods = ["requiredTypeAmount", "duplicateColumns", "wordsWithoutType", "columnWithoutWords", "requiredSubjectWord", "requiredWordsPerRow"];
-      methods.forEach(function (method) {
+      this.methods.forEach(function (method) {
         return _this[method]();
       });
       return this;
     }
   }, {
     key: "failed",
-    value: function failed(rule) {
-      var perpetrators = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+    value: function failed(rule, perpetrators, message) {
       this.passed = false;
       this.errors[rule] = perpetrators;
+      this.messages[rule] = message;
     }
   }, {
     key: "countingRule",
-    value: function countingRule(name, ruleCallback) {
+    value: function countingRule(name, ruleCallback, messageCallback) {
       var errorTracker = [];
       ruleCallback(errorTracker);
       if (errorTracker.length === 0) {
         return;
       }
-      this.failed(name, errorTracker);
+      var message = this.localization[errorTracker.length > 1 ? name + "Multi" : name];
+      this.failed(name, errorTracker, messageCallback(message, errorTracker));
     }
   }, {
     key: "requiredTypeAmount",
     value: function requiredTypeAmount() {
+      /* Need at least 2 columns set */
       if (this.component.getUsedColumnHeads().length >= 2) {
         return;
       }
-      this.failed("requiredTypeAmount");
+      this.failed("requiredTypeAmount", [], this.localization["requiredTypeAmount"]);
     }
   }, {
     key: "duplicateColumns",
     value: function duplicateColumns() {
+      /* Has duplicate selected column heads */
       if (lodash__WEBPACK_IMPORTED_MODULE_1___default().uniq(this.component.getUsedColumnHeads()).length === this.component.getUsedColumnHeads().length) {
         return;
       }
       var duplicates = lodash__WEBPACK_IMPORTED_MODULE_1___default().filter(this.component.getUsedColumnHeads(), function (value, index, iteratee) {
         return lodash__WEBPACK_IMPORTED_MODULE_1___default().includes(iteratee, value, index + 1);
       });
-      this.failed("duplicateColumns", duplicates);
+      this.failed("duplicateColumns", duplicates, this.localization["duplicateColumns"]);
     }
   }, {
     key: "wordsWithoutType",
     value: function wordsWithoutType() {
       var _this2 = this;
+      /* Words in column without a column type set */
       var unusedColumnsIndexes = this.component.cols.map(function (col, index) {
         if (col === null) {
           return index;
@@ -6445,20 +6457,27 @@ var ListValidator = /*#__PURE__*/function () {
       var ruleCallback = function ruleCallback(errorTracker) {
         _this2.component.rows.forEach(function (row, rowIndex) {
           row.forEach(function (word, index) {
+            if (errorTracker.includes(index)) return;
             if (![null, ""].includes(word.text) && unusedColumnsIndexes.includes(index)) {
-              errorTracker.push([rowIndex, index]);
+              errorTracker.push(index);
             }
           });
         });
       };
+      var messageCallback = function messageCallback(message, errorTracker) {
+        return message.replace("%column%", _this2.joinErrorsForMessage(errorTracker));
+      };
       this.countingRule("wordsWithoutType", function (errorTracker) {
         return ruleCallback(errorTracker);
+      }, function (message, errorTracker) {
+        return messageCallback(message, errorTracker);
       });
     }
   }, {
     key: "columnWithoutWords",
     value: function columnWithoutWords() {
       var _this3 = this;
+      /* Column head selected without words in it */
       var usedColumnsIndexes = this.component.cols.map(function (col, index) {
         if (col !== null) {
           return index;
@@ -6478,19 +6497,32 @@ var ListValidator = /*#__PURE__*/function () {
           });
         });
       };
+      var messageCallback = function messageCallback(message, errorTracker) {
+        var colNames = _this3.component.cols.map(function (col, index) {
+          if (errorTracker.includes(index)) {
+            return col;
+          }
+        }).filter(function (c) {
+          return c !== undefined;
+        });
+        return message.replace("%type%", _this3.joinErrorsForMessage(colNames));
+      };
       this.countingRule("columnWithoutWords", function (errorTracker) {
         return ruleCallback(errorTracker);
+      }, function (message, errorTracker) {
+        return messageCallback(message, errorTracker);
       });
     }
   }, {
     key: "requiredSubjectWord",
     value: function requiredSubjectWord() {
       var _this4 = this;
+      /* The subject column does not have a value while other columns in this row have */
       var subjectIndex = this.component.cols.findIndex(function (c) {
         return c === "subject";
       });
       if (subjectIndex === -1) {
-        this.failed("requiredSubjectWord");
+        return;
       }
       var ruleCallback = function ruleCallback(errorTracker) {
         _this4.component.rows.forEach(function (row, rowIndex) {
@@ -6501,14 +6533,23 @@ var ListValidator = /*#__PURE__*/function () {
           }
         });
       };
+      var messageCallback = function messageCallback(message, errorTracker) {
+        var rows = errorTracker.map(function (coords) {
+          return coords[0];
+        });
+        return message.replace("%row%", _this4.joinErrorsForMessage(rows));
+      };
       this.countingRule("requiredSubjectWord", function (errorTracker) {
         return ruleCallback(errorTracker);
+      }, function (message, errorTracker) {
+        return messageCallback(message, errorTracker);
       });
     }
   }, {
     key: "requiredWordsPerRow",
     value: function requiredWordsPerRow() {
       var _this5 = this;
+      /* Need at least 2 words in a row, Subject and a different one */
       var ruleCallback = function ruleCallback(errorTracker) {
         _this5.component.rows.forEach(function (row, rowIndex) {
           if (_this5.component.wordsInRow(row) === 1) {
@@ -6516,9 +6557,25 @@ var ListValidator = /*#__PURE__*/function () {
           }
         });
       };
+      var messageCallback = function messageCallback(message, errorTracker) {
+        return message.replace("%row%", _this5.joinErrorsForMessage(errorTracker));
+      };
       this.countingRule("requiredWordsPerRow", function (errorTracker) {
         return ruleCallback(errorTracker);
+      }, function (message, errorTracker) {
+        return messageCallback(message, errorTracker);
       });
+    }
+  }, {
+    key: "joinErrorsForMessage",
+    value: function joinErrorsForMessage(errorTracker) {
+      if (errorTracker.length === 1) {
+        return (errorTracker[0] + 1).toString();
+      }
+      var joinedString = errorTracker.slice(0, -1).map(function (i) {
+        return i + 1;
+      }).join(", ");
+      return "".concat(joinedString, " ").concat(this.localization.and, " ").concat(errorTracker[errorTracker.length - 1] + 1);
     }
   }]);
   return ListValidator;
@@ -6542,24 +6599,8 @@ document.addEventListener("alpine:init", function () {
               case 2:
                 _this6.rows = _context.sent;
                 _this6.setDisabledColumns();
-
-                // let activeColumn = [];
-                // for (const row of this.loopRows()) {
-                //      let selected = Object.values(row).filter(word => word.selected === true);
-                //      if (!activeColumn.includes(selected.type)) {
-                //          activeColumn.push(selected.type)
-                //      }
-                //      if (activeColumn.length > 1) {
-                //          break;
-                //      }
-                // }
-                //
-                // if (activeColumn.length === 1) {
-                //
-                // }
-
-                // this.$wire.call("openCompileListsModal");
-              case 4:
+                _this6.setActiveColumn();
+              case 5:
               case "end":
                 return _context.stop();
             }
@@ -6568,19 +6609,21 @@ document.addEventListener("alpine:init", function () {
       },
       selectColumn: function selectColumn(column) {
         var _this7 = this;
+        var updateWords = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
         this.selectedColumn = column;
+        if (!updateWords) return;
         this.loopRows().forEach(function (rowKey) {
           var _word;
           _this7.deselectColumns(_this7.rows[rowKey], rowKey);
           var word = _this7.rows[rowKey][column];
-          if (((_word = word) === null || _word === void 0 ? void 0 : _word.text) === null) {
+          if ([null, ""].includes((_word = word) === null || _word === void 0 ? void 0 : _word.text)) {
             word = _this7.rows[rowKey]["subject"];
           }
           _this7.selectWord(rowKey, word);
         });
       },
       selectWord: function selectWord(rowIndex, word) {
-        if (word.text === null || word.selected === true) return;
+        if ([null, ""].includes(word.text) || word.selected === true) return;
         if (this.selectedColumn !== word.type) {
           this.selectedColumn = null;
         }
@@ -6607,11 +6650,11 @@ document.addEventListener("alpine:init", function () {
           var skipRow = [];
           Object.keys(_this9.rows[key]).forEach(function (column) {
             var word = _this9.rows[key][column];
-            if (skipRow.includes(key) || column === "subject" && word.text === null) {
+            if (skipRow.includes(key) || column === "subject" && [null, ""].includes(word.text)) {
               skipRow.push(key);
               return;
             }
-            if (word.text === null && !_this9.disabledColumns.includes(column)) {
+            if ([null, ""].includes(word.text) && !_this9.disabledColumns.includes(column)) {
               _this9.disabledColumns.push(column);
             }
           });
@@ -6643,6 +6686,29 @@ document.addEventListener("alpine:init", function () {
       },
       handleIncomingUpdatedRows: function handleIncomingUpdatedRows(rows) {
         this.rows = rows;
+        this.setDisabledColumns();
+        this.setActiveColumn();
+      },
+      setActiveColumn: function setActiveColumn() {
+        var _this11 = this;
+        var activeColumns = [];
+        Object.values(this.rows).forEach(function (row) {
+          row = Object.values(row);
+          if (!_this11.wordsInRow(row)) return;
+          activeColumns.push(row.filter(function (w) {
+            return w.selected === true;
+          })[0].type);
+        });
+        var uniqueColumns = lodash__WEBPACK_IMPORTED_MODULE_1___default().uniq(activeColumns);
+        if (uniqueColumns.length === 1) {
+          this.selectColumn(uniqueColumns[0], false);
+        }
+      },
+      wordsInRow: function wordsInRow(row) {
+        var _row$filter$length, _row$filter;
+        return (_row$filter$length = row === null || row === void 0 ? void 0 : (_row$filter = row.filter(function (item) {
+          return ![null, ""].includes(item.text);
+        })) === null || _row$filter === void 0 ? void 0 : _row$filter.length) !== null && _row$filter$length !== void 0 ? _row$filter$length : false;
       }
     };
   });
@@ -6654,27 +6720,28 @@ document.addEventListener("alpine:init", function () {
       list: list,
       wordCount: 0,
       selectedWordCount: 0,
-      errorstate: false,
+      errorState: false,
       mutation: 1,
+      errorMessages: {},
       init: function init() {
-        var _this11 = this;
+        var _this12 = this;
         this.list.rows = Object.values(this.list.rows);
         this.buildGrid();
         this.countWords();
         this.$nextTick(function () {
-          _this11.setGridSizeProperties();
-          _this11.selectUsedColumnHeads();
-          _this11.setEnabledRows();
+          _this12.setGridSizeProperties();
+          _this12.selectUsedColumnHeads();
+          _this12.setEnabledRows();
         });
       },
       buildGrid: function buildGrid() {
-        var _this12 = this;
+        var _this13 = this;
         for (var i = 0; i < 7; i++) {
           var _this$getUsedTypes$i;
           this.cols[i] = (_this$getUsedTypes$i = this.getUsedTypes(this.list.rows)[i]) !== null && _this$getUsedTypes$i !== void 0 ? _this$getUsedTypes$i : null;
         }
         this.rows = this.list.rows.map(function (row) {
-          return _this12.buildRow(row);
+          return _this13.buildRow(row);
         });
         this.addMinimumAmountOfRows();
         this.addEmptyRowWhenLastIsFull();
@@ -6693,12 +6760,12 @@ document.addEventListener("alpine:init", function () {
         grid.style.setProperty("--relation-grid-cols", this.cols.length);
       },
       toggleAll: function toggleAll(element) {
-        var _this13 = this;
+        var _this14 = this;
         var enabled = element.checked;
         this.$root.querySelectorAll(".word-row .checkbox-container input").forEach(function (check, row) {
-          if (_this13.wordsInRow(_this13.rows[row]) === 0) return true;
+          if (_this14.wordsInRow(_this14.rows[row]) === 0) return true;
           check.checked = enabled;
-          _this13.toggleRow(check, row);
+          _this14.toggleRow(check, row);
         });
       },
       toggleRow: function toggleRow(checkbox, row) {
@@ -6729,11 +6796,11 @@ document.addEventListener("alpine:init", function () {
         this.countWords();
       },
       selectUsedColumnHeads: function selectUsedColumnHeads() {
-        var _this14 = this;
+        var _this15 = this;
         var usedCols = this.getUsedTypes(this.list.rows);
         var selectBoxes = this.$root.querySelectorAll(".single-select");
         usedCols.forEach(function (usedCol, key) {
-          var index = _this14.cols.findIndex(function (col) {
+          var index = _this15.cols.findIndex(function (col) {
             return col === usedCol;
           });
           selectBoxes[index].querySelector(".option[data-value=\"".concat(usedCol, "\"]")).click();
@@ -6764,30 +6831,33 @@ document.addEventListener("alpine:init", function () {
       },
       setEnabledRows: function setEnabledRows() {
         var _this$list,
-          _this15 = this;
+          _this16 = this;
         (_this$list = this.list) === null || _this$list === void 0 ? void 0 : _this$list.enabledRows.forEach(function (key) {
-          var input = _this15.$root.querySelector(".word-row.row-".concat(key, " .checkbox-container input"));
+          var input = _this16.$root.querySelector(".word-row.row-".concat(key, " .checkbox-container input"));
           input.checked = true;
-          _this15.toggleRow(input, key);
+          _this16.toggleRow(input, key);
         });
       },
       countWords: function countWords() {
-        var _this16 = this;
+        var _this17 = this;
         var oldWordCount = this.wordCount;
         var oldSelectedWordCount = this.selectedWordCount;
         this.wordCount = 0;
         this.selectedWordCount = 0;
         this.rows.forEach(function (row, key) {
-          var rowCount = _this16.wordsInRow(row);
-          _this16.wordCount += rowCount;
-          if (_this16.$root.querySelector(".word-row.row-".concat(key, " .row-checkmark input:checked"))) {
-            _this16.selectedWordCount += rowCount;
+          var rowCount = _this17.wordsInRow(row);
+          _this17.wordCount += rowCount;
+          if (_this17.$root.querySelector(".word-row.row-".concat(key, " .row-checkmark input:checked"))) {
+            _this17.selectedWordCount += rowCount;
           }
         });
         this.wordCountChanges(oldWordCount, this.wordCount);
         this.selectedWordCountChanges(oldSelectedWordCount, this.selectedWordCount);
       },
       wordsUpdated: function wordsUpdated(word, rowIndex, columnIndex) {
+        if (this.errorState) {
+          this.resetErrorState();
+        }
         this.countWords();
       },
       placeCursor: function placeCursor(element) {
@@ -6800,8 +6870,9 @@ document.addEventListener("alpine:init", function () {
         sel.removeAllRanges();
         sel.addRange(range);
       },
-      move: function move(direction, currentElement) {
+      move: function move(event, direction, currentElement) {
         var _this$$root$querySele;
+        if (event.shiftKey || event.altKey) return;
         var row = parseInt(currentElement.dataset.rowValue);
         var column = parseInt(currentElement.dataset.columnValue);
         switch (direction) {
@@ -6846,12 +6917,15 @@ document.addEventListener("alpine:init", function () {
         }
       },
       wordsInRow: function wordsInRow(row) {
-        var _row$filter$length, _row$filter;
-        return (_row$filter$length = row === null || row === void 0 ? void 0 : (_row$filter = row.filter(function (item) {
+        var _row$filter$length2, _row$filter2;
+        return (_row$filter$length2 = row === null || row === void 0 ? void 0 : (_row$filter2 = row.filter(function (item) {
           return ![null, ""].includes(item.text);
-        })) === null || _row$filter === void 0 ? void 0 : _row$filter.length) !== null && _row$filter$length !== void 0 ? _row$filter$length : false;
+        })) === null || _row$filter2 === void 0 ? void 0 : _row$filter2.length) !== null && _row$filter$length2 !== void 0 ? _row$filter$length2 : false;
       },
       columnValueUpdated: function columnValueUpdated(headerIndex, value) {
+        if (this.errorState) {
+          this.resetErrorState();
+        }
         if (typeof value === "string" && value === "") {
           value = null;
         }
@@ -6859,10 +6933,10 @@ document.addEventListener("alpine:init", function () {
         this.handleDisabledHeaders();
       },
       handleDisabledHeaders: function handleDisabledHeaders() {
-        var _this17 = this;
+        var _this18 = this;
         if (this.getUsedColumnHeads().length === Object.keys(columns).length) {
           this.$root.querySelectorAll(".grid-head .single-select").forEach(function (select, index) {
-            if (_this17.cols[index] === null) {
+            if (_this18.cols[index] === null) {
               select.dispatchEvent(new CustomEvent("disable-single-select", {
                 detail: {}
               }));
@@ -6878,26 +6952,33 @@ document.addEventListener("alpine:init", function () {
       },
       validate: function validate() {
         var validator = new ListValidator(this).validate();
-        this.errorstate = !validator.passed;
+        if (validator.passed) {
+          this.errorState = false;
+          return validator;
+        }
+        this.markFailedItemsWithErrors(Object.entries(validator.errors));
+        this.showErrorMessages(validator.messages);
+        this.errorState = true;
         return validator;
       },
       getUpdatesForCompiling: function getUpdatesForCompiling() {
-        var _this18 = this;
+        var _this19 = this,
+          _Array$from;
         return {
           name: this.list.name,
           rows: this.rows.map(function (row, rowIndex) {
-            if (_this18.wordsInRow(row) === 0) {
+            if (_this19.wordsInRow(row) === 0) {
               return null;
             }
             return row.map(function (word, index) {
               if (word.text === null && word.word_id === null) {
                 return null;
               }
-              word.type = _this18.cols[index];
+              word.type = _this19.cols[index];
               return word;
             }).filter(Boolean);
           }).filter(Boolean),
-          enabled: Array.from(this.list.enabledRows)
+          enabled: (_Array$from = Array.from(this.list.enabledRows)) !== null && _Array$from !== void 0 ? _Array$from : []
         };
       },
       addFromWordListBank: function addFromWordListBank() {
@@ -6922,17 +7003,17 @@ document.addEventListener("alpine:init", function () {
         }));
       },
       addExistingWordListToList: function addExistingWordListToList(uuid) {
-        var _this19 = this;
+        var _this20 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
           var list;
           return _regeneratorRuntime().wrap(function _callee2$(_context2) {
             while (1) switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.next = 2;
-                return _this19.$wire.call("addExistingWordList", uuid, true);
+                return _this20.$wire.call("addExistingWordList", uuid, true);
               case 2:
                 list = _context2.sent;
-                _this19._handleExternalList(list);
+                _this20._handleExternalList(list);
               case 4:
               case "end":
                 return _context2.stop();
@@ -6941,17 +7022,17 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       addExistingWordToList: function addExistingWordToList(uuid) {
-        var _this20 = this;
+        var _this21 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
           var row;
           return _regeneratorRuntime().wrap(function _callee3$(_context3) {
             while (1) switch (_context3.prev = _context3.next) {
               case 0:
                 _context3.next = 2;
-                return _this20.$wire.call("addExistingWord", uuid);
+                return _this21.$wire.call("addExistingWord", uuid);
               case 2:
                 row = _context3.sent;
-                _this20._handleExternalRows([row]);
+                _this21._handleExternalRows([row]);
               case 4:
               case "end":
                 return _context3.stop();
@@ -6960,24 +7041,24 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       addUploadToList: function addUploadToList(file) {
-        var _this21 = this;
+        var _this22 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
           return _regeneratorRuntime().wrap(function _callee5$(_context5) {
             while (1) switch (_context5.prev = _context5.next) {
               case 0:
                 _context5.next = 2;
-                return _this21.$wire.upload("importFile", file, /*#__PURE__*/function () {
+                return _this22.$wire.upload("importFile", file, /*#__PURE__*/function () {
                   var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(uploadedFilename) {
-                    var rows;
                     return _regeneratorRuntime().wrap(function _callee4$(_context4) {
                       while (1) switch (_context4.prev = _context4.next) {
                         case 0:
-                          _context4.next = 2;
-                          return _this21.$wire.call("importInto");
-                        case 2:
-                          rows = _context4.sent;
-                          _this21._handleExternalRows(rows);
-                        case 4:
+                          _context4.t0 = _this22;
+                          _context4.next = 3;
+                          return _this22.$wire.call("importIntoList", false, _this22.cols);
+                        case 3:
+                          _context4.t1 = _context4.sent;
+                          _context4.t0._handleExternalRows.call(_context4.t0, _context4.t1);
+                        case 5:
                         case "end":
                           return _context4.stop();
                       }
@@ -6995,14 +7076,14 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       handleIncomingExistingColumns: function handleIncomingExistingColumns(list) {
-        var _this22 = this;
+        var _this23 = this;
         var newCols = this.getUsedTypes(list.rows).filter(function (c) {
-          return !_this22.cols.includes(c);
+          return !_this23.cols.includes(c);
         });
         if (newCols.length > 0) {
           var selectBoxes = this.$root.querySelectorAll(".single-select");
           newCols.forEach(function (newCol) {
-            var i = _this22.cols.findIndex(function (c) {
+            var i = _this23.cols.findIndex(function (c) {
               return c === null;
             });
             selectBoxes[i].querySelector(".option[data-value=\"".concat(newCol, "\"]")).click();
@@ -7034,7 +7115,7 @@ document.addEventListener("alpine:init", function () {
       },
       _handleExternalList: function _handleExternalList(list) {
         var _this$rows2,
-          _this23 = this;
+          _this24 = this;
         if (!list.id) return this.dispatchError();
 
         /*Prepare*/
@@ -7043,13 +7124,13 @@ document.addEventListener("alpine:init", function () {
         /* Mutate */
         this.removeEmptyTrailingRow();
         (_this$rows2 = this.rows).push.apply(_this$rows2, _toConsumableArray(list.rows.map(function (row) {
-          return _this23.buildRow(row);
+          return _this24.buildRow(row);
         })));
         this.externalAdditionAfterCare();
       },
       _handleExternalRows: function _handleExternalRows(rows) {
         var _this$rows3,
-          _this24 = this;
+          _this25 = this;
         if (!Object.keys(rows).length) return this.dispatchError();
 
         /*Prepare*/
@@ -7060,7 +7141,7 @@ document.addEventListener("alpine:init", function () {
         /* Mutate */
         this.removeEmptyTrailingRow();
         (_this$rows3 = this.rows).push.apply(_this$rows3, _toConsumableArray(Object.values(rows).map(function (row) {
-          return _this24.buildRow(row);
+          return _this25.buildRow(row);
         })));
         this.externalAdditionAfterCare();
       },
@@ -7080,6 +7161,94 @@ document.addEventListener("alpine:init", function () {
         this.$dispatch("notify", {
           message: "Gelukt!"
         });
+      },
+      resetErrorState: function resetErrorState() {
+        this.$root.querySelectorAll(".single-select.error").forEach(function (select) {
+          return select.dispatchEvent(new CustomEvent("disable-error-state"));
+        });
+        this.$root.querySelectorAll(".word-cell.validation-error").forEach(function (cell) {
+          return cell.classList.remove("validation-error");
+        });
+        this.$root.querySelectorAll(".notification.error").forEach(function (notification) {
+          return notification.dispatchEvent(new CustomEvent("hide-error"));
+        });
+        this.errorState = false;
+      },
+      markFailedItemsWithErrors: function markFailedItemsWithErrors(errors) {
+        var _this26 = this;
+        var _iterator = _createForOfIteratorHelper(errors),
+          _step;
+        try {
+          var _loop = function _loop() {
+            var _step$value = _slicedToArray(_step.value, 2),
+              name = _step$value[0],
+              error = _step$value[1];
+            if (name === "requiredTypeAmount") {
+              var _this26$$root$querySe;
+              // => Highlight all non-set columns;
+              (_this26$$root$querySe = _this26.$root.querySelectorAll(".single-select[data-selected-value=\"none\"]:not(.disabled)")) === null || _this26$$root$querySe === void 0 ? void 0 : _this26$$root$querySe.forEach(function (select) {
+                return select.dispatchEvent(new CustomEvent("enable-error-state"));
+              });
+            }
+            if (name === "duplicateColumns") {
+              // => Highlight all duplicate columns
+              error.forEach(function (column) {
+                var _this26$$root$querySe2;
+                (_this26$$root$querySe2 = _this26.$root.querySelectorAll(".single-select[data-selected-value=\"".concat(column, "\"]"))) === null || _this26$$root$querySe2 === void 0 ? void 0 : _this26$$root$querySe2.forEach(function (select) {
+                  return select.dispatchEvent(new CustomEvent("enable-error-state"));
+                });
+              });
+            }
+            if (name === "wordsWithoutType") {
+              // => Highlight column without type set
+              _this26.$root.querySelectorAll(".single-select").forEach(function (select, key) {
+                if (!error.includes(key)) return;
+                select.dispatchEvent(new CustomEvent("enable-error-state"));
+              });
+            }
+            if (name === "columnWithoutWords") {
+              // => Highlight column without words
+              _this26.$root.querySelectorAll(".single-select").forEach(function (select, key) {
+                if (!error.includes(key)) return;
+                select.dispatchEvent(new CustomEvent("enable-error-state"));
+              });
+            }
+            if (name === "requiredSubjectWord") {
+              // => Highlight subject column empty fields
+              error.forEach(function (coords) {
+                var _this26$$root$querySe3;
+                (_this26$$root$querySe3 = _this26.$root.querySelector(rowSelector(coords[0]) + colSelector(coords[1]))) === null || _this26$$root$querySe3 === void 0 ? void 0 : _this26$$root$querySe3.parentElement.classList.add("validation-error");
+              });
+            }
+            if (name === "requiredWordsPerRow") {
+              // => Highlight row with missing fields
+              error.forEach(function (row) {
+                _this26.$root.querySelectorAll(rowSelector(row)).forEach(function (cell) {
+                  cell === null || cell === void 0 ? void 0 : cell.parentElement.classList.add("validation-error");
+                });
+              });
+            }
+          };
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            _loop();
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
+        }
+        function rowSelector(row) {
+          return "[data-row-value=\"".concat(row, "\"]");
+        }
+        function colSelector(col) {
+          return "[data-column-value=\"".concat(col, "\"]");
+        }
+      },
+      removeErrorMessage: function removeErrorMessage(message) {
+        delete this.errorMessages[message];
+      },
+      showErrorMessages: function showErrorMessages(messages) {
+        this.errorMessages = messages;
       }
     };
   });
@@ -7090,13 +7259,13 @@ document.addEventListener("alpine:init", function () {
       globalSelectedWordCount: 0,
       compiling: false,
       showAddListModal: false,
-      blueprint: function blueprint() {
-        return {
-          name: "",
-          id: "",
-          rows: {},
-          enabledRows: []
-        };
+      init: function init() {
+        var _this27 = this;
+        if (!Object.keys(this.wordLists).length) {
+          this.$nextTick(function () {
+            return _this27.addWordList();
+          });
+        }
       },
       wordCountChanges: function wordCountChanges(old, newCount) {
         this.globalWordCount = this.handleGlobalChanges(this.globalWordCount, old, newCount);
@@ -7113,14 +7282,14 @@ document.addEventListener("alpine:init", function () {
         this.$root.closest(".compile-list-modal").querySelector("#add-list-modal").dispatchEvent(new CustomEvent("open-modal"));
       },
       addNewWordList: function addNewWordList() {
-        var _this25 = this;
+        var _this28 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
           return _regeneratorRuntime().wrap(function _callee6$(_context6) {
             while (1) switch (_context6.prev = _context6.next) {
               case 0:
-                _context6.t0 = _this25.wordLists;
+                _context6.t0 = _this28.wordLists;
                 _context6.next = 3;
-                return _this25.$wire.call("createNewList");
+                return _this28.$wire.call("createNewList");
               case 3:
                 _context6.t1 = _context6.sent;
                 _context6.t0.push.call(_context6.t0, _context6.t1);
@@ -7140,28 +7309,28 @@ document.addEventListener("alpine:init", function () {
         });
       },
       addExistingWordList: function addExistingWordList(uuid) {
-        var _this26 = this;
+        var _this29 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
           var list;
           return _regeneratorRuntime().wrap(function _callee7$(_context7) {
             while (1) switch (_context7.prev = _context7.next) {
               case 0:
                 _context7.next = 2;
-                return _this26.$wire.call("addExistingWordList", uuid);
+                return _this29.$wire.call("addExistingWordList", uuid);
               case 2:
                 list = _context7.sent;
                 if (list.id) {
                   _context7.next = 6;
                   break;
                 }
-                _this26.$dispatch("notify", {
+                _this29.$dispatch("notify", {
                   message: "Er is iets misgegaan...",
                   type: "error"
                 });
                 return _context7.abrupt("return");
               case 6:
-                _this26.wordLists.push(list);
-                _this26.$dispatch("notify", {
+                _this29.wordLists.push(list);
+                _this29.$dispatch("notify", {
                   message: "Gelukt!"
                 });
               case 8:
@@ -7175,17 +7344,17 @@ document.addEventListener("alpine:init", function () {
         this.$root.closest(".compile-list-modal").querySelector("#compile-list-upload-modal").dispatchEvent(new CustomEvent("open-modal"));
       },
       compileLists: function compileLists() {
-        var _this27 = this;
+        var _this30 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
-          var listComponents, updates;
+          var listComponents, updates, changesCompiled;
           return _regeneratorRuntime().wrap(function _callee8$(_context8) {
             while (1) switch (_context8.prev = _context8.next) {
               case 0:
-                _this27.compiling = true;
-                listComponents = Array.from(_this27.$root.querySelectorAll(".word-list")).map(function (element) {
+                _this30.compiling = true;
+                listComponents = Array.from(_this30.$root.querySelectorAll(".word-list")).map(function (element) {
                   return element._x_dataStack[0];
                 });
-                if (!_this27.listsValidationFailed(listComponents)) {
+                if (!_this30.listsValidationFailed(listComponents)) {
                   _context8.next = 4;
                   break;
                 }
@@ -7195,12 +7364,18 @@ document.addEventListener("alpine:init", function () {
                 listComponents.forEach(function (component) {
                   return updates[component.list.id] = component.getUpdatesForCompiling();
                 });
-                console.dir(updates);
-                _context8.next = 9;
-                return _this27.$wire.call("compile", updates);
-              case 9:
-                _this27.compiling = false;
-              case 10:
+                _context8.next = 8;
+                return _this30.$wire.call("compile", updates);
+              case 8:
+                changesCompiled = _context8.sent;
+                if (!changesCompiled) {
+                  _this30.$dispatch("notify", {
+                    message: "Something went wrong...",
+                    type: "error"
+                  });
+                }
+                _this30.compiling = false;
+              case 11:
               case "end":
                 return _context8.stop();
             }
@@ -7216,9 +7391,6 @@ document.addEventListener("alpine:init", function () {
             failedValidation = true;
           }
         });
-        if (failedValidation) {
-          console.log("validation failed");
-        }
         return failedValidation;
       },
       hideModal: function hideModal() {
@@ -7233,41 +7405,41 @@ document.addEventListener("alpine:init", function () {
           listUuid: ""
         };
         this.hideModal();
-        this.$store.sidePanel.reopenModal = true;
+        this.$store.sidePanel.reopenModalWhenDone = true;
         this.$wire.emit("openPanel", "teacher.versionable-side-panel-container", Object.assign({}, defaultConfig, config), {
           offsetTop: 70,
           width: "95vw"
         });
       },
       addUploadToNew: function addUploadToNew(file) {
-        var _this28 = this;
+        var _this31 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10() {
           return _regeneratorRuntime().wrap(function _callee10$(_context10) {
             while (1) switch (_context10.prev = _context10.next) {
               case 0:
                 _context10.next = 2;
-                return _this28.$wire.upload("importFile", file, /*#__PURE__*/function () {
+                return _this31.$wire.upload("importFile", file, /*#__PURE__*/function () {
                   var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9(uploadedFilename) {
                     var list;
                     return _regeneratorRuntime().wrap(function _callee9$(_context9) {
                       while (1) switch (_context9.prev = _context9.next) {
                         case 0:
                           _context9.next = 2;
-                          return _this28.$wire.call("importInto", true);
+                          return _this31.$wire.call("importIntoList", true);
                         case 2:
                           list = _context9.sent;
                           if (list.id) {
                             _context9.next = 6;
                             break;
                           }
-                          _this28.$dispatch("notify", {
+                          _this31.$dispatch("notify", {
                             message: "Er is iets misgegaan...",
                             type: "error"
                           });
                           return _context9.abrupt("return");
                         case 6:
-                          _this28.wordLists.push(list);
-                          _this28.$dispatch("notify", {
+                          _this31.wordLists.push(list);
+                          _this31.$dispatch("notify", {
                             message: "Gelukt!"
                           });
                         case 8:
@@ -7280,7 +7452,10 @@ document.addEventListener("alpine:init", function () {
                     return _ref2.apply(this, arguments);
                   };
                 }(), function () {
-                  console.log("lekker errorren");
+                  _this31.$dispatch("notify", {
+                    message: "Er is iets misgegaan...",
+                    type: "error"
+                  });
                 }, function (event) {});
               case 2:
               case "end":
@@ -7291,15 +7466,18 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("versionableOverviewManager", function (sliderButton, closeOnFirstAdd, listUuid) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("versionableOverviewManager", function (sliderButton, closeOnFirstAdd, listUuid, showSliderButtons) {
     return {
       view: sliderButton,
       closeOnFirstAdd: closeOnFirstAdd,
       listUuid: listUuid,
+      showSliderButtons: showSliderButtons,
+      addListPromptShown: false,
+      addListSeparate: false,
       init: function init() {
-        var _this29 = this;
+        var _this32 = this;
         this.$watch("view", function (value) {
-          _this29.nudgeOverviewToFixTheirChoices(value);
+          _this32.nudgeOverviewToFixTheirChoices(value);
         });
       },
       done: function done() {
@@ -7313,7 +7491,7 @@ document.addEventListener("alpine:init", function () {
       },
       dispatchUpdate: function dispatchUpdate(type, uuid) {
         var selector = ".word-list-container";
-        if (this.listUuid) {
+        if (this.listUuid && !this.addListSeparate) {
           selector += " [data-list-uuid='".concat(this.listUuid, "']");
         }
         document.querySelector(selector).dispatchEvent(new CustomEvent("add-".concat(type), {
@@ -7321,6 +7499,7 @@ document.addEventListener("alpine:init", function () {
             uuid: uuid
           }
         }));
+        this.addListSeparate = false;
       },
       nudgeOverviewToFixTheirChoices: function nudgeOverviewToFixTheirChoices(value) {
         this.$root.querySelectorAll("#".concat(value, "-view-container .custom-choices")).forEach(function (choice) {
@@ -7328,6 +7507,52 @@ document.addEventListener("alpine:init", function () {
             choice.dispatchEvent(new CustomEvent("reset-width"));
           }, 10);
         });
+      },
+      addList: function addList(list) {
+        var separateOverride = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+        if (this.showSliderButtons === true && this.addListPromptShown === false) {
+          var _this$containerRoot$q;
+          // Prompt for adding list as a whole or insert in existing
+          this.addListPromptShown = true;
+          (_this$containerRoot$q = this.containerRoot().querySelector("#choose-add-list-modal")) === null || _this$containerRoot$q === void 0 ? void 0 : _this$containerRoot$q.dispatchEvent(new CustomEvent("open-modal", {
+            detail: {
+              list: list
+            }
+          }));
+          return;
+        }
+        if (separateOverride === true) {
+          this.addListSeparate = true;
+        }
+        this.add("list", list.uuid);
+        this.overviewWire('word-lists').call("addToUsed", list.id, true);
+        this.overviewWire('word-lists').emit("newListAdded", list.id);
+        this.addListPromptShown = false;
+      },
+      addWord: function addWord(uuid, id) {
+        this.add("word", uuid);
+        this.overviewWire('words').call("addToUsed", id);
+      },
+      wire: function wire(id) {
+        return window.Livewire.find(id);
+      },
+      containerRoot: function containerRoot() {
+        if (this.$root.id === 'versionable-side-panel-container') {
+          return this.$root;
+        }
+        return this.$root.closest("#versionable-side-panel-container");
+      },
+      containerWire: function containerWire() {
+        return this.wire(this.containerRoot().getAttribute('wire:id'));
+      },
+      overviewRoot: function overviewRoot(type) {
+        if (this.$root.id === type + '-overview') {
+          return this.$root;
+        }
+        return this.containerRoot().querySelector("#".concat(type, "-overview"));
+      },
+      overviewWire: function overviewWire(type) {
+        return this.wire(this.overviewRoot(type).getAttribute('wire:id'));
       }
     };
   });
@@ -7339,9 +7564,9 @@ document.addEventListener("alpine:init", function () {
       this.$el._x_model.set(this.$el.textContent);
       this.addEmptyRowWhenLastIsFull();
     }), _defineProperty(_ref3, "x-init", function xInit() {
-      var _this30 = this;
+      var _this33 = this;
       this.$nextTick(function () {
-        _this30.$el.textContent = _this30.$el._x_model.get();
+        _this33.$el.textContent = _this33.$el._x_model.get();
       });
     }), _ref3;
   });
@@ -11806,6 +12031,7 @@ document.addEventListener("alpine:init", function () {
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("singleSelect", function (containerId) {
     var entangleValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
     var disabled = arguments.length > 2 ? arguments[2] : undefined;
+    var error = arguments.length > 3 ? arguments[3] : undefined;
     return _objectSpread(_objectSpread({
       containerId: containerId,
       entangleValue: entangleValue !== null && entangleValue !== void 0 ? entangleValue : null,
@@ -11814,6 +12040,7 @@ document.addEventListener("alpine:init", function () {
       selectedText: null,
       singleSelectDisabled: disabled
     }, selectFunctions), {}, {
+      errorState: error,
       init: function init() {
         var _this94 = this;
         this.selectedText = this.$root.querySelector("span.selected").dataset.selectText;
@@ -11821,6 +12048,11 @@ document.addEventListener("alpine:init", function () {
         this.$watch("singleSelectOpen", function (value) {
           if (value) _this94.handleDropdownLocation();
         });
+        if (this.singleSelectDisabled) {
+          this.$nextTick(function () {
+            return _this94.disableDropdown();
+          });
+        }
       },
       get value() {
         var _this$entangleValue;
@@ -12522,8 +12754,8 @@ document.addEventListener("alpine:init", function () {
         var _this109 = this;
         this.$watch('openSidePanel', function (value) {
           if (value) return;
-          if (_this109.$store.sidePanel.reopenModal) {
-            _this109.$store.sidePanel.reopenModal = false;
+          if (_this109.$store.sidePanel.reopenModalWhenDone) {
+            _this109.$store.sidePanel.reopenModalWhenDone = false;
             var modal = document.querySelector('#LivewireUIModal');
             modal.dispatchEvent(new CustomEvent('show-modal'));
           }
@@ -13589,7 +13821,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "662d128370816e2bbb66",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });
@@ -21652,6 +21884,7 @@ WebspellcheckerTlc = {
    */
   handleSpellCheckerOnOff: function handleSpellCheckerOnOff(editor) {
     var initialStatus = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+    if (!editor.plugins.has('WProofreader')) return;
     spellChecker = editor.plugins.get('WProofreader');
     spellChecker.isEnabled = initialStatus; // set initial status
     this.captureSpellCheckerOnOff(spellChecker);

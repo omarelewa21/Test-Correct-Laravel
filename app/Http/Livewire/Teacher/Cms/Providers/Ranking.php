@@ -31,7 +31,7 @@ class Ranking extends TypeProvider
         return __('cms.ranking-question');
     }
 
-    public function initializePropertyBag($q)
+    public function initializePropertyBag($question)
     {
 
     }

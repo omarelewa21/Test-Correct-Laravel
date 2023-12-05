@@ -5,32 +5,36 @@ class ListValidator {
     component = null;
     passed = true;
     errors = {};
+    messages = {};
+
+    localization = [];
+    methods = [
+        "requiredTypeAmount",
+        "duplicateColumns",
+        "wordsWithoutType",
+        "columnWithoutWords",
+        "requiredSubjectWord",
+        "requiredWordsPerRow"
+    ];
 
     constructor(component) {
         this.component = component;
+        this.localization = document.getElementById("word-list-modal-validation-strings").dataset;
     }
 
     validate() {
-        const methods = [
-            "requiredTypeAmount",
-            "duplicateColumns",
-            "wordsWithoutType",
-            "columnWithoutWords",
-            "requiredSubjectWord",
-            "requiredWordsPerRow"
-        ];
-
-        methods.forEach((method) => this[method]());
+        this.methods.forEach((method) => this[method]());
 
         return this;
     }
 
-    failed(rule, perpetrators = []) {
+    failed(rule, perpetrators, message) {
         this.passed = false;
         this.errors[rule] = perpetrators;
+        this.messages[rule] = message;
     }
 
-    countingRule(name, ruleCallback) {
+    countingRule(name, ruleCallback, messageCallback) {
         let errorTracker = [];
         ruleCallback(errorTracker);
 
@@ -38,18 +42,22 @@ class ListValidator {
             return;
         }
 
-        this.failed(name, errorTracker);
+        let message = this.localization[((errorTracker.length > 1) ? name + "Multi" : name)];
+
+        this.failed(name, errorTracker, messageCallback(message, errorTracker));
     }
 
     requiredTypeAmount() {
+        /* Need at least 2 columns set */
         if (this.component.getUsedColumnHeads().length >= 2) {
             return;
         }
 
-        this.failed("requiredTypeAmount");
+        this.failed("requiredTypeAmount", [], this.localization["requiredTypeAmount"]);
     }
 
     duplicateColumns() {
+        /* Has duplicate selected column heads */
         if (_.uniq(this.component.getUsedColumnHeads()).length === this.component.getUsedColumnHeads().length) {
             return;
         }
@@ -59,10 +67,11 @@ class ListValidator {
             (value, index, iteratee) => _.includes(iteratee, value, index + 1)
         );
 
-        this.failed("duplicateColumns", duplicates);
+        this.failed("duplicateColumns", duplicates, this.localization["duplicateColumns"]);
     }
 
     wordsWithoutType() {
+        /* Words in column without a column type set */
         let unusedColumnsIndexes = this.component.cols.map((col, index) => {
             if (col === null) {
                 return index;
@@ -72,17 +81,27 @@ class ListValidator {
         const ruleCallback = (errorTracker) => {
             this.component.rows.forEach((row, rowIndex) => {
                 row.forEach((word, index) => {
+                    if (errorTracker.includes(index)) return;
                     if (![null, ""].includes(word.text) && unusedColumnsIndexes.includes(index)) {
-                        errorTracker.push([rowIndex, index]);
+                        errorTracker.push(index);
                     }
                 });
             });
         };
 
-        this.countingRule("wordsWithoutType", (errorTracker) => ruleCallback(errorTracker));
+        const messageCallback = (message, errorTracker) => {
+            return message.replace("%column%", this.joinErrorsForMessage(errorTracker));
+        };
+
+        this.countingRule(
+            "wordsWithoutType",
+            (errorTracker) => ruleCallback(errorTracker),
+            (message, errorTracker) => messageCallback(message, errorTracker)
+        );
     }
 
     columnWithoutWords() {
+        /* Column head selected without words in it */
         let usedColumnsIndexes = this.component.cols.map((col, index) => {
             if (col !== null) {
                 return index;
@@ -100,13 +119,27 @@ class ListValidator {
             });
         };
 
-        this.countingRule("columnWithoutWords", (errorTracker) => ruleCallback(errorTracker));
+        const messageCallback = (message, errorTracker) => {
+            const colNames = this.component.cols.map((col, index) => {
+                if (errorTracker.includes(index)) {
+                    return col;
+                }
+            }).filter(c => c !== undefined);
+
+            return message.replace("%type%", this.joinErrorsForMessage(colNames));
+        };
+        this.countingRule(
+            "columnWithoutWords",
+            (errorTracker) => ruleCallback(errorTracker),
+            (message, errorTracker) => messageCallback(message, errorTracker)
+        );
     }
 
     requiredSubjectWord() {
+        /* The subject column does not have a value while other columns in this row have */
         const subjectIndex = this.component.cols.findIndex((c) => c === "subject");
         if (subjectIndex === -1) {
-            this.failed("requiredSubjectWord");
+            return;
         }
 
         const ruleCallback = (errorTracker) => {
@@ -117,11 +150,20 @@ class ListValidator {
                 }
             });
         };
+        const messageCallback = (message, errorTracker) => {
+            const rows = errorTracker.map(coords => coords[0]);
+            return message.replace("%row%", this.joinErrorsForMessage(rows));
+        };
 
-        this.countingRule("requiredSubjectWord", (errorTracker) => ruleCallback(errorTracker));
+        this.countingRule(
+            "requiredSubjectWord",
+            (errorTracker) => ruleCallback(errorTracker),
+            (message, errorTracker) => messageCallback(message, errorTracker)
+        );
     }
 
     requiredWordsPerRow() {
+        /* Need at least 2 words in a row, Subject and a different one */
         const ruleCallback = (errorTracker) => {
             this.component.rows.forEach((row, rowIndex) => {
                 if (this.component.wordsInRow(row) === 1) {
@@ -130,7 +172,24 @@ class ListValidator {
             });
         };
 
-        this.countingRule("requiredWordsPerRow", (errorTracker) => ruleCallback(errorTracker));
+        const messageCallback = (message, errorTracker) => {
+            return message.replace("%row%", this.joinErrorsForMessage(errorTracker));
+        };
+
+        this.countingRule(
+            "requiredWordsPerRow",
+            (errorTracker) => ruleCallback(errorTracker),
+            (message, errorTracker) => messageCallback(message, errorTracker)
+        );
+    }
+
+    joinErrorsForMessage(errorTracker) {
+        if (errorTracker.length === 1) {
+            return (errorTracker[0] + 1).toString();
+        }
+
+        const joinedString = errorTracker.slice(0, -1).map(i => i + 1).join(", ");
+        return `${joinedString} ${this.localization.and} ${(errorTracker[errorTracker.length - 1] + 1)}`;
     }
 }
 
@@ -144,37 +203,22 @@ document.addEventListener("alpine:init", () => {
         async init() {
             this.rows = await this.$wire.retrieveWords();
             this.setDisabledColumns();
-
-            // let activeColumn = [];
-            // for (const row of this.loopRows()) {
-            //      let selected = Object.values(row).filter(word => word.selected === true);
-            //      if (!activeColumn.includes(selected.type)) {
-            //          activeColumn.push(selected.type)
-            //      }
-            //      if (activeColumn.length > 1) {
-            //          break;
-            //      }
-            // }
-            //
-            // if (activeColumn.length === 1) {
-            //
-            // }
-
-            // this.$wire.call("openCompileListsModal");
+            this.setActiveColumn();
         },
-        selectColumn(column) {
+        selectColumn(column, updateWords = true) {
             this.selectedColumn = column;
+            if (!updateWords) return;
             this.loopRows().forEach((rowKey) => {
                 this.deselectColumns(this.rows[rowKey], rowKey);
                 let word = this.rows[rowKey][column];
-                if (word?.text === null) {
+                if ([null, ""].includes(word?.text)) {
                     word = this.rows[rowKey]["subject"];
                 }
                 this.selectWord(rowKey, word);
             });
         },
         selectWord(rowIndex, word) {
-            if (word.text === null || word.selected === true) return;
+            if ([null, ""].includes(word.text) || word.selected === true) return;
             if (this.selectedColumn !== word.type) {
                 this.selectedColumn = null;
             }
@@ -200,11 +244,11 @@ document.addEventListener("alpine:init", () => {
                 let skipRow = [];
                 Object.keys(this.rows[key]).forEach(column => {
                     let word = this.rows[key][column];
-                    if (skipRow.includes(key) || (column === "subject" && word.text === null)) {
+                    if (skipRow.includes(key) || (column === "subject" && [null, ""].includes(word.text))) {
                         skipRow.push(key);
                         return;
                     }
-                    if (word.text === null && !(this.disabledColumns.includes(column))) {
+                    if ([null, ""].includes(word.text) && !(this.disabledColumns.includes(column))) {
                         this.disabledColumns.push(column);
                     }
                 });
@@ -229,6 +273,25 @@ document.addEventListener("alpine:init", () => {
         },
         handleIncomingUpdatedRows(rows) {
             this.rows = rows;
+            this.setDisabledColumns();
+            this.setActiveColumn();
+        },
+        setActiveColumn() {
+            let activeColumns = [];
+            Object.values(this.rows).forEach(row => {
+                row = Object.values(row);
+                if (!this.wordsInRow(row)) return;
+                activeColumns.push(
+                    row.filter(w => w.selected === true)[0].type
+                );
+            });
+            const uniqueColumns = _.uniq(activeColumns);
+            if (uniqueColumns.length === 1) {
+                this.selectColumn(uniqueColumns[0], false);
+            }
+        },
+        wordsInRow(row) {
+            return row?.filter(item => ![null, ""].includes(item.text))?.length ?? false;
         }
     }));
 
@@ -239,8 +302,9 @@ document.addEventListener("alpine:init", () => {
         list,
         wordCount: 0,
         selectedWordCount: 0,
-        errorstate: false,
+        errorState: false,
         mutation: 1,
+        errorMessages: {},
         init() {
             this.list.rows = Object.values(this.list.rows);
             this.buildGrid();
@@ -375,6 +439,9 @@ document.addEventListener("alpine:init", () => {
             this.selectedWordCountChanges(oldSelectedWordCount, this.selectedWordCount);
         },
         wordsUpdated(word, rowIndex, columnIndex) {
+            if (this.errorState) {
+                this.resetErrorState();
+            }
             this.countWords();
         },
         placeCursor(element) {
@@ -391,7 +458,8 @@ document.addEventListener("alpine:init", () => {
             sel.removeAllRanges();
             sel.addRange(range);
         },
-        move(direction, currentElement) {
+        move(event, direction, currentElement) {
+            if (event.shiftKey || event.altKey) return;
             let row = parseInt(currentElement.dataset.rowValue);
             let column = parseInt(currentElement.dataset.columnValue);
 
@@ -444,6 +512,9 @@ document.addEventListener("alpine:init", () => {
             return row?.filter(item => ![null, ""].includes(item.text))?.length ?? false;
         },
         columnValueUpdated(headerIndex, value) {
+            if (this.errorState) {
+                this.resetErrorState();
+            }
             if (typeof value === "string" && value === "") {
                 value = null;
             }
@@ -477,7 +548,15 @@ document.addEventListener("alpine:init", () => {
         validate() {
             const validator = new ListValidator(this).validate();
 
-            this.errorstate = !validator.passed;
+            if (validator.passed) {
+                this.errorState = false;
+                return validator;
+            }
+
+            this.markFailedItemsWithErrors(Object.entries(validator.errors));
+            this.showErrorMessages(validator.messages);
+
+            this.errorState = true;
 
             return validator;
         },
@@ -499,7 +578,7 @@ document.addEventListener("alpine:init", () => {
                         return word;
                     }).filter(Boolean);
                 }).filter(Boolean),
-                enabled: Array.from(this.list.enabledRows)
+                enabled: Array.from(this.list.enabledRows) ?? []
             };
         },
         addFromWordListBank() {
@@ -538,9 +617,7 @@ document.addEventListener("alpine:init", () => {
                 "importFile",
                 file,
                 async (uploadedFilename) => {
-                    let rows = await this.$wire.call("importInto");
-
-                    this._handleExternalRows(rows);
+                    this._handleExternalRows(await this.$wire.call("importIntoList", false, this.cols));
                 },
                 () => {
                 },
@@ -610,6 +687,78 @@ document.addEventListener("alpine:init", () => {
         },
         dispatchSuccess() {
             this.$dispatch("notify", { message: "Gelukt!" });
+        },
+        resetErrorState() {
+            this.$root.querySelectorAll(".single-select.error")
+                .forEach(select => select.dispatchEvent(new CustomEvent("disable-error-state")));
+
+            this.$root.querySelectorAll(".word-cell.validation-error")
+                .forEach(cell => cell.classList.remove("validation-error"));
+
+            this.$root.querySelectorAll(".notification.error")
+                .forEach(notification => notification.dispatchEvent(new CustomEvent("hide-error")));
+
+            this.errorState = false;
+        },
+        markFailedItemsWithErrors(errors) {
+            for (const [name, error] of errors) {
+                if (name === "requiredTypeAmount") { // => Highlight all non-set columns;
+                    this.$root.querySelectorAll(`.single-select[data-selected-value="none"]:not(.disabled)`)
+                        ?.forEach(select => select.dispatchEvent(new CustomEvent("enable-error-state")));
+                }
+                if (name === "duplicateColumns") { // => Highlight all duplicate columns
+                    error.forEach(column => {
+                        this.$root.querySelectorAll(`.single-select[data-selected-value="${column}"]`)
+                            ?.forEach(select => select.dispatchEvent(new CustomEvent("enable-error-state")));
+                    });
+                }
+                if (name === "wordsWithoutType") { // => Highlight column without type set
+                    this.$root.querySelectorAll(`.single-select`)
+                        .forEach((select, key) => {
+                            if (!error.includes(key)) return;
+                            select.dispatchEvent(new CustomEvent("enable-error-state"));
+                        });
+                }
+                if (name === "columnWithoutWords") { // => Highlight column without words
+                    this.$root.querySelectorAll(`.single-select`)
+                        .forEach((select, key) => {
+                            if (!error.includes(key)) return;
+                            select.dispatchEvent(new CustomEvent("enable-error-state"));
+                        });
+                }
+                if (name === "requiredSubjectWord") { // => Highlight subject column empty fields
+                    error.forEach((coords) => {
+                        this.$root.querySelector(rowSelector(coords[0]) + colSelector(coords[1]))
+                            ?.parentElement
+                            .classList
+                            .add("validation-error");
+                    });
+                }
+                if (name === "requiredWordsPerRow") { // => Highlight row with missing fields
+                    error.forEach((row) => {
+                        this.$root.querySelectorAll(rowSelector(row))
+                            .forEach(cell => {
+                                cell?.parentElement
+                                    .classList
+                                    .add("validation-error");
+                            });
+                    });
+                }
+            }
+
+            function rowSelector(row) {
+                return `[data-row-value="${row}"]`;
+            }
+
+            function colSelector(col) {
+                return `[data-column-value="${col}"]`;
+            }
+        },
+        removeErrorMessage(message) {
+            delete this.errorMessages[message];
+        },
+        showErrorMessages(messages) {
+            this.errorMessages = messages;
         }
     }));
 
@@ -619,13 +768,10 @@ document.addEventListener("alpine:init", () => {
         globalSelectedWordCount: 0,
         compiling: false,
         showAddListModal: false,
-        blueprint() {
-            return {
-                name: ``,
-                id: ``,
-                rows: {},
-                enabledRows: []
-            };
+        init() {
+            if(!Object.keys(this.wordLists).length) {
+                this.$nextTick(() => this.addWordList());
+            }
         },
         wordCountChanges(old, newCount) {
             this.globalWordCount = this.handleGlobalChanges(this.globalWordCount, old, newCount);
@@ -684,9 +830,10 @@ document.addEventListener("alpine:init", () => {
             const updates = [];
             listComponents.forEach((component) => updates[component.list.id] = component.getUpdatesForCompiling());
 
-            console.dir(updates);
-
-            await this.$wire.call("compile", updates);
+            const changesCompiled = await this.$wire.call("compile", updates);
+            if (!changesCompiled) {
+                this.$dispatch("notify", { message: "Something went wrong...", type: "error" });
+            }
 
             this.compiling = false;
         },
@@ -700,10 +847,6 @@ document.addEventListener("alpine:init", () => {
                     failedValidation = true;
                 }
             });
-
-            if (failedValidation) {
-                console.log("validation failed");
-            }
 
             return failedValidation;
         },
@@ -722,7 +865,7 @@ document.addEventListener("alpine:init", () => {
             };
 
             this.hideModal();
-            this.$store.sidePanel.reopenModal = true;
+            this.$store.sidePanel.reopenModalWhenDone = true;
 
             this.$wire.emit(
                 "openPanel",
@@ -736,7 +879,7 @@ document.addEventListener("alpine:init", () => {
                 "importFile",
                 file,
                 async (uploadedFilename) => {
-                    let list = await this.$wire.call("importInto", true);
+                    let list = await this.$wire.call("importIntoList", true);
 
                     if (!list.id) {
                         this.$dispatch("notify", { message: "Er is iets misgegaan...", type: "error" });
@@ -746,17 +889,21 @@ document.addEventListener("alpine:init", () => {
                     this.$dispatch("notify", { message: "Gelukt!" });
                 },
                 () => {
-                    console.log("lekker errorren");
+                    this.$dispatch("notify", { message: "Er is iets misgegaan...", type: "error" });
                 },
                 (event) => {
                 }
             );
         }
     }));
-    Alpine.data("versionableOverviewManager", (sliderButton, closeOnFirstAdd, listUuid) => ({
+
+    Alpine.data("versionableOverviewManager", (sliderButton, closeOnFirstAdd, listUuid, showSliderButtons) => ({
         view: sliderButton,
         closeOnFirstAdd,
         listUuid,
+        showSliderButtons,
+        addListPromptShown: false,
+        addListSeparate: false,
         init() {
             this.$watch("view", value => {
                 this.nudgeOverviewToFixTheirChoices(value);
@@ -774,20 +921,71 @@ document.addEventListener("alpine:init", () => {
         },
         dispatchUpdate(type, uuid) {
             let selector = ".word-list-container";
-            if (this.listUuid) {
+            if (this.listUuid && !this.addListSeparate) {
                 selector += ` [data-list-uuid='${this.listUuid}']`;
             }
             document.querySelector(selector).dispatchEvent(
                 new CustomEvent(`add-${type}`, { detail: { uuid } })
             );
-        },
 
+            this.addListSeparate = false;
+        },
         nudgeOverviewToFixTheirChoices(value) {
             this.$root.querySelectorAll(`#${value}-view-container .custom-choices`).forEach(choice => {
                 setTimeout(() => {
                     choice.dispatchEvent(new CustomEvent("reset-width"));
                 }, 10);
             });
+        },
+        addList(list, separateOverride = false) {
+            if (this.showSliderButtons === true && this.addListPromptShown === false) {
+                // Prompt for adding list as a whole or insert in existing
+                this.addListPromptShown = true;
+                this.containerRoot()
+                    .querySelector("#choose-add-list-modal")
+                    ?.dispatchEvent(
+                        new CustomEvent(
+                            "open-modal",
+                            { detail: { list } }
+                        )
+                    );
+                return;
+            }
+
+            if (separateOverride === true) {
+                this.addListSeparate = true;
+            }
+
+            this.add("list", list.uuid);
+            this.overviewWire('word-lists').call("addToUsed", list.id, true);
+            this.overviewWire('word-lists').emit("newListAdded", list.id);
+
+            this.addListPromptShown = false;
+        },
+        addWord(uuid, id) {
+            this.add("word", uuid);
+            this.overviewWire('words').call("addToUsed", id);
+        },
+        wire(id) {
+            return window.Livewire.find(id);
+        },
+        containerRoot() {
+            if (this.$root.id === 'versionable-side-panel-container') {
+                return this.$root;
+            }
+            return this.$root.closest("#versionable-side-panel-container");
+        },
+        containerWire() {
+            return this.wire(this.containerRoot().getAttribute('wire:id'));
+        },
+        overviewRoot(type){
+            if (this.$root.id === (type + '-overview')) {
+                return this.$root;
+            }
+            return this.containerRoot().querySelector(`#${type}-overview`);
+        },
+        overviewWire(type) {
+            return this.wire(this.overviewRoot(type).getAttribute('wire:id'));
         }
     }));
 

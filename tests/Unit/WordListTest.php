@@ -9,14 +9,18 @@
 namespace Unit;
 
 use InvalidArgumentException;
+use Livewire\Livewire;
 use tcCore\Factories\FactoryTest;
 use tcCore\Factories\FactoryWordList;
 use tcCore\Factories\Questions\FactoryQuestionRelation;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolWordLists;
 use tcCore\FactoryScenarios\FactoryScenarioTestTakePlanned;
 use tcCore\Http\Enums\WordType;
+use tcCore\Http\Livewire\Teacher\Cms\Constructor;
+use tcCore\Http\Livewire\Teacher\Cms\WordListChangesModal;
 use tcCore\Lib\Models\VersionManager;
 use tcCore\RelationQuestion;
+use tcCore\Word;
 use tcCore\WordList;
 use Tests\TestCase;
 use Tests\Traits\VersionableTestTrait;
@@ -517,4 +521,45 @@ class WordListTest extends TestCase
         $this->assertEquals(2, VersionManager::getVersionable($wordList, $this->teacherOne)->words()->count());
         $this->assertEquals(3, VersionManager::getVersionable($wordList, $this->teacherTwo)->words()->count());
     }
+
+    /** @test */
+    public function can_()
+    {
+        $testFactory = FactoryTest::create($this->teacherOne);
+        $wordList = FactoryWordList::create($this->teacherOne)->addRows()->wordList;
+        $word = $wordList->words->first();
+
+        $testFactory->addQuestions([FactoryQuestionRelation::create()->useLists([$wordList])])->getTestModel();
+        $relationQuestion = RelationQuestion::first();
+
+        VersionManager::getVersionable($wordList, $this->teacherTwo)->editWord($word, ['text' => 'T2 word']);
+
+        $this->assertTrue(VersionManager::getVersionable($wordList, $this->teacherOne)->hasNewVersion());
+
+        VersionManager::getVersionable($wordList, $this->teacherOne)->updateToLatestVersion($relationQuestion);
+    }
+
+//    /** @test */
+//    public function can_1()
+//    {
+//        $testFactory = FactoryTest::create($this->teacherOne);
+//        $wordList = FactoryWordList::create($this->teacherOne)->addRows(typesPerRow: 4)->wordList;
+//
+//        $word = $wordList->words->first();
+//        $testFactory->addQuestions([FactoryQuestionRelation::create()->useLists([$wordList])])->getTestModel();
+//        $relationQuestion = RelationQuestion::first();
+//
+//        VersionManager::getVersionable($wordList, $this->teacherTwo)->editWord($word, ['text' => 'Unit test word']);;
+//
+//        Livewire::test(
+//            WordListChangesModal::class,
+//            [
+//                'wordData'             => $relationQuestion->getQuestionWordsForCms(),
+//                'relationQuestionUuid' => $relationQuestion->uuid,
+//                'testUuid'             => $testFactory->getTestModel()->uuid,
+//            ]
+//        )
+//            ->call('acceptChanges')
+//            ->assertEmittedTo(Constructor::class, 'relation-question-accepted-word-list-changes');
+//    }
 }

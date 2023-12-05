@@ -1940,8 +1940,6 @@ button.button {
 }
 
 .compile-list-modal .relation-question-grid .word-row div:first-of-type.focused:before {
-    /*--focused-inset-left: -1px;*/
-    /*--focused-inset-right: 1px;*/
 }
 
 .compile-list-modal .relation-question-grid .word-row div:last-of-type.focused:before {
@@ -1950,15 +1948,12 @@ button.button {
 }
 
 .compile-list-modal .relation-question-grid .word-row:first-of-type div.focused:before {
-    /*--focused-inset-top: -1px;*/
 }
 
 .compile-list-modal .relation-question-grid .word-row:last-of-type div.focused:before {
-    /*--focused-inset-bottom: 1px;*/
 }
 
 .compile-list-modal .relation-question-grid .word-row:last-of-type div:first-of-type.focused:before {
-    /*border-bottom-left-radius: 9px;*/
 }
 
 .compile-list-modal .relation-question-grid .word-row:last-of-type div:last-of-type.focused:before {
@@ -1966,21 +1961,9 @@ button.button {
 }
 
 .compile-list-modal .relation-question-grid .word-row:last-of-type div:first-of-type {
-    /*border-bottom-left-radius: 10px;*/
-    /*position: relative;*/
-    /*transform-style: preserve-3d;*/
-    /*transform: translateZ(2px);*/
 }
 
 .compile-list-modal .relation-question-grid .word-row:last-of-type div:first-of-type:before {
-    /*content: '';*/
-    /*background-color: white;*/
-    /*position: absolute;*/
-    /*left: 0;*/
-    /*bottom: 0;*/
-    /*height: 25px;*/
-    /*width: 25px;*/
-    /*transform: translateZ(-1px);*/
 }
 
 .compile-list-modal .relation-question-grid .word-row div span {
@@ -1995,6 +1978,25 @@ button.button {
     max-height: calc(66px + calc(10 * 41px));
 }
 
+.compile-list-modal .relation-question-grid-container .word-row .word-cell.validation-error {
+    border: 1px solid var(--all-red);
+    margin-inline: -1px;
+}
+.compile-list-modal .relation-question-grid .word-row div.validation-error:last-of-type {
+    margin-right: 1px !important;
+}
+
+.compile-list-modal .relation-question-grid .word-row .word-cell.blue {
+    background: #c4d6ff;
+}
+.compile-list-modal .relation-question-grid .word-row .word-cell.red {
+    color: var(--mid-grey);
+    background: #edb7b4;
+
+}
+.compile-list-modal .relation-question-grid .word-row .word-cell.green {
+    background: #c1e8cd;
+}
 .question-title {
     padding-bottom: 1rem;
     border-bottom: 3px solid var(--system-base);
@@ -2917,6 +2919,11 @@ input[type=number] {
     transform: scale(1);
 }
 
+.radio-disabled .radio-custom {
+    pointer-events: none;
+    color: var(--note);
+}
+
 .form-input::-moz-placeholder {
     font-size: 1rem;
     color: var(--system-base);
@@ -3403,6 +3410,19 @@ input[type=number] {
 
 #sidebar-carousel-container > div {
     flex: 1 0 100%;
+}
+
+#sidebar-carousel-container .group-question-button.group-error.relation-error .question-button:not(.question-active) {
+    color: var(--all-red);
+}
+#sidebar-carousel-container .question-button .relation-question-button-error {
+    display: none;
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+}
+#sidebar-carousel-container .group-question-button.group-error.relation-error .question-button .relation-question-button-error{
+    display: flex;
 }
 
 .add-question-card:hover {
@@ -11654,6 +11674,9 @@ video {
 .bottom-0{
   bottom: 0px;
 }
+.bottom-2{
+  bottom: 0.5rem;
+}
 .bottom-3{
   bottom: 0.75rem;
 }
@@ -11887,9 +11910,6 @@ video {
 }
 .m-auto{
   margin: auto;
-}
-.m-2{
-  margin: 0.5rem;
 }
 .-mx-4{
   margin-left: -1rem;
@@ -13497,10 +13517,6 @@ video {
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
 }
-.rounded-l{
-  border-top-left-radius: 0.25rem;
-  border-bottom-left-radius: 0.25rem;
-}
 .rounded-bl-md{
   border-bottom-left-radius: 0.375rem;
 }
@@ -13675,10 +13691,6 @@ video {
 .border-l-student{
   --tw-border-opacity: 1;
   border-left-color: rgb(236 219 0 / var(--tw-border-opacity));
-}
-.\!bg-allred{
-  --tw-bg-opacity: 1 !important;
-  background-color: rgb(207 27 4 / var(--tw-bg-opacity)) !important;
 }
 .\!bg-primary{
   --tw-bg-opacity: 1 !important;
@@ -14163,6 +14175,9 @@ video {
 .pl-\[12px\]{
   padding-left: 12px;
 }
+.pl-\[66px\]{
+  padding-left: 66px;
+}
 .pr-0{
   padding-right: 0px;
 }
@@ -14389,6 +14404,10 @@ video {
 }
 .leading-none{
   line-height: 1;
+}
+.\!text-allred{
+  --tw-text-opacity: 1 !important;
+  color: rgb(207 27 4 / var(--tw-text-opacity)) !important;
 }
 .\!text-note{
   --tw-text-opacity: 1 !important;
@@ -15579,6 +15598,11 @@ body:is(.using-ipad, [device="ipad"]) .device-dependent-right {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
+.hover\:\!border-primary:hover{
+  --tw-border-opacity: 1 !important;
+  border-color: rgb(0 77 245 / var(--tw-border-opacity)) !important;
+}
+
 .hover\:border-gray-300:hover{
   --tw-border-opacity: 1;
   border-color: rgb(209 213 219 / var(--tw-border-opacity));
@@ -15630,6 +15654,11 @@ body:is(.using-ipad, [device="ipad"]) .device-dependent-right {
 .hover\:\!text-primary:hover{
   --tw-text-opacity: 1 !important;
   color: rgb(0 77 245 / var(--tw-text-opacity)) !important;
+}
+
+.hover\:text-\[\#b5a700\]:hover{
+  --tw-text-opacity: 1;
+  color: rgb(181 167 0 / var(--tw-text-opacity));
 }
 
 .hover\:text-gray-400:hover{

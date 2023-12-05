@@ -1,4 +1,5 @@
-<div x-data="versionableOverviewManager(@entangle('sliderButtonSelected'), @entangle('closeOnFirstAdd'), @entangle('listUuid'))"
+<div id="versionable-side-panel-container"
+     x-data="versionableOverviewManager(@entangle('sliderButtonSelected'), @entangle('closeOnFirstAdd'), @entangle('listUuid'), @js($this->showSliderButtons))"
      wire:key="versionable-{{ $sliderButtonSelected }}"
      wire:ignore.self
 >
@@ -6,7 +7,7 @@
         <div class="flex items-center space-x-2.5">
             <x-button.back-round x-on:click="done()" />
 
-            <span class="bold text-lg cursor-default">{{ __('cms.Bestaande vraag toevoegen') }}</span>
+            <span class="bold text-lg cursor-default">{{ __('cms.Bestaande woorden toevoegen') }}</span>
         </div>
         <div class="flex ml-auto items-center space-x-2.5 relative">
             @if($showSliderButtons)
@@ -31,4 +32,6 @@
             <livewire:teacher.words-overview :addable="true" :used="$used['words'] ?? []" view="cms" />
         </div>
     </div>
+
+    <x-modal.word-list-choose-how-to-add :$currentListName />
 </div>

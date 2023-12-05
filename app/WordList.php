@@ -2,12 +2,9 @@
 
 namespace tcCore;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Illuminate\Validation\UnauthorizedException;
 use InvalidArgumentException;
 use tcCore\Http\Enums\WordType;
 use tcCore\Observers\VersionableObserver;
@@ -21,7 +18,20 @@ class WordList extends Versionable
         'education_level_id',
         'education_level_year',
         'school_location_id',
+        'hidden',
     ];
+
+    /* Attribute to merge with parent $casts property */
+    private array $listCasts = [
+        'hidden' => 'boolean',
+    ];
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $this->mergeCasts($this->listCasts);
+    }
 
     public function words()
     {
@@ -33,7 +43,11 @@ class WordList extends Versionable
     public function rows(bool $fresh = false): Collection
     {
         if ($fresh) {
-            $this->load('words');
+//            $this->words = $this->words()->get();
+//            $this->relationLoaded('words') ? $this->words->refresh() : $this->load('words');
+            /* TODO: Figure out way to correctly reload property. Is this double? */
+            unset($this->words);
+            $this->words->fresh();
         }
 
         return $this
@@ -98,8 +112,8 @@ class WordList extends Versionable
 
     private function findWord(Word $word): ?Word
     {
-        $word = $this->words
-            ->where('id', $word->getKey())
+        $word = $this->words()
+            ->where('words.id', $word->getKey())
             ->first();
         $word?->setEditingAuthor($this->getEditingAuthor());
         return $word;
@@ -108,11 +122,7 @@ class WordList extends Versionable
     public function editWord($word, $attributes): ?Word
     {
         $wordModel = $this->findWord($word);
-        if (!$wordModel) {
-            return null;
-        }
-
-        return $wordModel->edit($attributes);
+        return $wordModel?->edit($attributes);
     }
 
     public function removeWord(Word $word): void
@@ -259,15 +269,19 @@ class WordList extends Versionable
     public function getDiff(): Collection
     {
         $this->loadMissing('words');
-        $updatedList = $this->getUpdatedListToDiffAgainst();
+        $updatedList = $this->getLatestVersionOfList();
+
+        if (!$updatedList) {
+            return collect();
+        }
 
         $diff = collect([
+            'list'    => $updatedList,
             'updated' => collect(),
             'created' => collect(),
             'deleted' => collect(),
         ]);
 
-//        $commonWords = $this->words->intersect($updatedList->words);
         $updatedList->words
             ->diff($this->words)
             ->each(function ($word) use ($diff) {
@@ -286,23 +300,40 @@ class WordList extends Versionable
         return $diff;
     }
 
-    private function getUpdatedListToDiffAgainst(): WordList
+    public function hide(): void
     {
-        $updatedList = WordList::select('word_lists.*')
+        $this->hidden = true;
+        $this->save();
+    }
+
+    public function getLatestVersionOfList(): ?WordList
+    {
+        /* TODO: Is it correct that the lookup is only 1 version deep? */
+        return WordList::select('word_lists.*')
             ->join('versions', 'versions.versionable_id', '=', 'word_lists.id')
             ->where('versions.original_id', $this->getKey())
+            ->whereNull('versions.deleted_at')
             ->whereRaw('versions.original_id != versions.versionable_id')
             ->with(['words', 'words.versions'])
-            ->first();
+            ->first()
+            ?->setOriginalIdOnWords();
+    }
 
-        $updatedList
-            ->words
+    private function setOriginalIdOnWords(): static
+    {
+        $this->words
             ->each(function ($word) {
                 $word->original_id = $word->versions()
                     ->where('original_id', '!=', $word->getKey())
                     ->first()
                     ->original_id;
             });
-        return $updatedList;
+
+        return $this;
+    }
+
+    public function scopeFiltered($query, array|Collection $filters = [], array|Collection $sorting = [])
+    {
+        return parent::scopeFiltered($query, $filters, $sorting)->where('hidden', false);
     }
 }

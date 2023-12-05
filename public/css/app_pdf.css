@@ -1632,6 +1632,11 @@ input[type=number] {
     transform: scale(1);
 }
 
+.radio-disabled .radio-custom {
+    pointer-events: none;
+    color: var(--note);
+}
+
 .form-input::-moz-placeholder {
     font-size: 1rem;
     color: var(--system-base);
@@ -2118,6 +2123,19 @@ input[type=number] {
 
 #sidebar-carousel-container > div {
     flex: 1 0 100%;
+}
+
+#sidebar-carousel-container .group-question-button.group-error.relation-error .question-button:not(.question-active) {
+    color: var(--all-red);
+}
+#sidebar-carousel-container .question-button .relation-question-button-error {
+    display: none;
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+}
+#sidebar-carousel-container .group-question-button.group-error.relation-error .question-button .relation-question-button-error{
+    display: flex;
 }
 
 .add-question-card:hover {
@@ -5958,6 +5976,9 @@ video {
 .bottom-0{
   bottom: 0px;
 }
+.bottom-2{
+  bottom: 0.5rem;
+}
 .bottom-3{
   bottom: 0.75rem;
 }
@@ -6191,9 +6212,6 @@ video {
 }
 .m-auto{
   margin: auto;
-}
-.m-2{
-  margin: 0.5rem;
 }
 .-mx-4{
   margin-left: -1rem;
@@ -7801,10 +7819,6 @@ video {
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
 }
-.rounded-l{
-  border-top-left-radius: 0.25rem;
-  border-bottom-left-radius: 0.25rem;
-}
 .rounded-bl-md{
   border-bottom-left-radius: 0.375rem;
 }
@@ -7979,10 +7993,6 @@ video {
 .border-l-student{
   --tw-border-opacity: 1;
   border-left-color: rgb(236 219 0 / var(--tw-border-opacity));
-}
-.\!bg-allred{
-  --tw-bg-opacity: 1 !important;
-  background-color: rgb(207 27 4 / var(--tw-bg-opacity)) !important;
 }
 .\!bg-primary{
   --tw-bg-opacity: 1 !important;
@@ -8467,6 +8477,9 @@ video {
 .pl-\[12px\]{
   padding-left: 12px;
 }
+.pl-\[66px\]{
+  padding-left: 66px;
+}
 .pr-0{
   padding-right: 0px;
 }
@@ -8693,6 +8706,10 @@ video {
 }
 .leading-none{
   line-height: 1;
+}
+.\!text-allred{
+  --tw-text-opacity: 1 !important;
+  color: rgb(207 27 4 / var(--tw-text-opacity)) !important;
 }
 .\!text-note{
   --tw-text-opacity: 1 !important;
@@ -9514,6 +9531,11 @@ h2.student-testtake-answers-separator span {
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
+.hover\:\!border-primary:hover{
+  --tw-border-opacity: 1 !important;
+  border-color: rgb(0 77 245 / var(--tw-border-opacity)) !important;
+}
+
 .hover\:border-gray-300:hover{
   --tw-border-opacity: 1;
   border-color: rgb(209 213 219 / var(--tw-border-opacity));
@@ -9565,6 +9587,11 @@ h2.student-testtake-answers-separator span {
 .hover\:\!text-primary:hover{
   --tw-text-opacity: 1 !important;
   color: rgb(0 77 245 / var(--tw-text-opacity)) !important;
+}
+
+.hover\:text-\[\#b5a700\]:hover{
+  --tw-text-opacity: 1;
+  color: rgb(181 167 0 / var(--tw-text-opacity));
 }
 
 .hover\:text-gray-400:hover{

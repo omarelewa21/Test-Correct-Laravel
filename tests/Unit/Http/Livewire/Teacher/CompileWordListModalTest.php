@@ -8,9 +8,12 @@ use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Validators\ValidationException;
 use tcCore\Factories\FactoryTest;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolSimpleWithTest;
+use tcCore\Http\Livewire\StudentPlayer\RelationQuestion;
 use tcCore\Http\Livewire\Teacher\Cms\CompileWordListModal;
 use tcCore\Imports\WordsImport;
+use tcCore\Teacher;
 use tcCore\Test;
+use tcCore\WordList;
 use Tests\TestCase;
 
 class CompileWordListModalTest extends TestCase
@@ -61,6 +64,7 @@ class CompileWordListModalTest extends TestCase
     /** @test */
     public function can_import_words_from_excel_file_into_a_new_list()
     {
+        $this->actingAs(Teacher::first()->user);
         $test = Test::first();
         $uploadedExcel = $this->getWordListFile();
         $component = Livewire::test(CompileWordListModal::class, ['wordData' => [], 'testUuid' => $test->uuid]);
@@ -68,7 +72,7 @@ class CompileWordListModalTest extends TestCase
         $listUuids = $component->get('wordListUuids');
         $updatedListUuids = $component
             ->set('importFile', $uploadedExcel)
-            ->call('importIntoNew')
+            ->call('importIntoList', true)
             ->get('wordListUuids');
 
         $this->assertEmpty($listUuids);
@@ -99,8 +103,34 @@ class CompileWordListModalTest extends TestCase
         $test = Test::first();
         Livewire::test(CompileWordListModal::class, ['wordData' => [], 'testUuid' => $test->uuid])
             ->set('importFile', $this->getWordListFile(false))
-            ->call('importIntoNew')
+            ->call('importIntoList', true)
             ->assertHasErrors('import_empty_values');
+    }
+
+    /** @test */
+    public function can_import_excel_file_and_place_words_in_correct_column()
+    {
+        $test = Test::first();
+        Livewire::test(CompileWordListModal::class, ['wordData' => [], 'testUuid' => $test->uuid])
+            ->set('importFile', $this->getWordListFile(false, 'import_wordlist_empty_column_between.xlsx'))
+            ->call('importIntoList', true)
+            ->assertHasErrors('import_empty_values');
+    }
+
+    /** @test */
+    public function can_delete_newly_created_list_when_no_words_were_created()
+    {
+        $test = Test::first();
+
+        $beforeCount = WordList::count();
+        $component = Livewire::test(CompileWordListModal::class, ['wordData' => [], 'testUuid' => $test->uuid]);
+
+        $component->call('createNewList');
+        $this->assertGreaterThan($beforeCount, WordList::count());
+
+        $component->call('hydrateWordListUuids')
+            ->call('close');
+        $this->assertEquals($beforeCount, WordList::count());
     }
 
     public static function validFileTypes(): array
@@ -178,9 +208,11 @@ class CompileWordListModalTest extends TestCase
         ];
     }
 
-    private function getWordListFile(bool $valid = true): UploadedFile
+    private function getWordListFile(bool $valid = true, string $fileName = ''): UploadedFile
     {
-        $fileName = $valid ? self::VALID_FILE : self::INVALID_FILE;
+        if (!$fileName) {
+            $fileName = $valid ? self::VALID_FILE : self::INVALID_FILE;
+        }
         return UploadedFile::fake()->createWithContent(
             $fileName,
             file_get_contents(base_path('/tests/files/' . $fileName))

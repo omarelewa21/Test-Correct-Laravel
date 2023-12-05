@@ -3999,7 +3999,7 @@ document.addEventListener("alpine:init", () => {
             this.multiSelectOpen = false;
         }
     }));
-    Alpine.data("singleSelect", (containerId, entangleValue = null, disabled) => ({
+    Alpine.data("singleSelect", (containerId, entangleValue = null, disabled, error) => ({
         containerId,
         entangleValue: entangleValue ?? null,
         baseValue: null,
@@ -4007,6 +4007,7 @@ document.addEventListener("alpine:init", () => {
         selectedText: null,
         singleSelectDisabled: disabled,
         ...selectFunctions,
+        errorState: error,
         init() {
             this.selectedText = this.$root.querySelector("span.selected").dataset.selectText;
             this.setActiveStartingValue();
@@ -4014,6 +4015,10 @@ document.addEventListener("alpine:init", () => {
             this.$watch("singleSelectOpen", value => {
                 if (value) this.handleDropdownLocation();
             });
+
+            if(this.singleSelectDisabled) {
+                this.$nextTick(() => this.disableDropdown());
+            }
         },
         get value() {
             return this.entangleValue ?? this.baseValue;
@@ -4546,8 +4551,8 @@ document.addEventListener("alpine:init", () => {
         init() {
             this.$watch('openSidePanel', value => {
                 if (value) return;
-                if (this.$store.sidePanel.reopenModal) {
-                    this.$store.sidePanel.reopenModal = false;
+                if (this.$store.sidePanel.reopenModalWhenDone) {
+                    this.$store.sidePanel.reopenModalWhenDone = false;
                     const modal = document.querySelector('#LivewireUIModal')
                     modal.dispatchEvent(new CustomEvent('show-modal'));
                 }

@@ -5,151 +5,90 @@
     >
         <div class="flex justify-between items-center">
             <h2>@lang('cms.Woorden opstellen')</h2>
-            <x-button.close wire:click="$emit('closeModal')" class="relative -right-3" />
+            <x-button.close wire:click="close" class="relative -right-3" />
         </div>
         <div class="divider"></div>
     </div>
 
     {{--CONTENT--}}
-    <div class="flex overflow-auto flex-1 z-1">
-        <div class="word-list-container | flex flex-col flex-1 px-10 py-4"
-             x-data="compileWordListContainer(@js($this->wordLists))"
-             x-on:add-new="addNewWordList();"
-             x-on:open-add-existing-panel="openAddExistingWordListPanel()"
-             x-on:upload="uploadWordList();"
-             x-on:add-list="addExistingWordList($event.detail.uuid)"
-             x-on:handle-upload="addUploadToNew($event.detail.file)"
-             wire:ignore
+    <div class="flex flex-col overflow-auto flex-1 z-1 relative">
+        <x-word-lists.container :word-lists="$this->wordLists"
+                                x-on:add-new="addNewWordList();"
+                                x-on:open-add-existing-panel="openAddExistingWordListPanel()"
+                                x-on:upload="uploadWordList();"
+                                x-on:add-list="addExistingWordList($event.detail.uuid)"
+                                x-on:handle-upload="addUploadToNew($event.detail.file)"
         >
-            <template x-for="(wordList, wordListIndex) in wordLists" :key="wordList.uuid">
-                <div class="word-list | flex flex-col isolate border-b border-bluegrey pb-4 pt-4 first:pt-0"
-                     x-data="compileList(wordList, @js($this->columnHeads))"
-                     x-bind:data-list-uuid="wordList.uuid"
-                     x-on:add-list="addExistingWordListToList($event.detail.uuid)"
-                     x-on:add-word="addExistingWordToList($event.detail.uuid)"
-                     x-on:handle-upload="addUploadToList($event.detail.file)"
-                     wire:ignore
+            <x-slot:item>
+                <x-word-lists.item :column-heads="$this->columnHeads"
+                                   x-on:add-list="addExistingWordListToList($event.detail.uuid)"
+                                   x-on:add-word="addExistingWordToList($event.detail.uuid)"
+                                   x-on:handle-upload="addUploadToList($event.detail.file)"
                 >
-                    <div class=" | flex flex-col ">
-                        <div class="flex w-full items-center gap-6">
-                            <div class="flex flex-1 gap-2 items-center">
-                                <h7 class="flex capitalize">@lang('cms.woordenlijst')</h7>
-                                <x-input.text x-model="list.name" class="flex flex-1" />
-                            </div>
-                            <div class="flex gap-2 items-center"
-                                 x-bind:class="{'rotate-svg-90': expanded}"
-                            >
-                                <span class="note text-sm"><span x-text="wordCount"></span> @lang('cms.woorden')</span>
-                                <div class="group cursor-pointer">
-                                    <x-button.collapse-chevron x-on:click="expanded = !expanded" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="flex flex-col flex-1">
-                            <div x-show="expanded" x-collapse class="flex flex-col gap-4">
-                                <div class="flex relative">
-                                    <div class="relation-question-grid-container |">
-                                        <div x-bind:id="'relation-question-grid-' + wordListIndex"
-                                             class="relation-question-grid | "
-                                             x-bind:class="{'!bg-allred': errorstate}"
-                                             wire:ignore
+                    <x-word-lists.item.heading />
+                    <x-word-lists.item.body>
+                        <x-word-lists.item.grid>
+                            <x-slot:head>
+                                <x-word-lists.item.grid.head :column-heads="$this->columnHeads"
+                                                             :empty-select-placeholder="__('general.Kies') . '...'"
+                                />
+                            </x-slot:head>
+                            <x-slot:row>
+                                <x-word-lists.item.grid.row>
+                                    <x-slot:cell>
+                                        <x-word-lists.item.grid.cell
+                                                x-on:click.stop="$el.firstElementChild.focus()"
                                         >
-                                            <div class="grid-head-container row-head contents">
-                                                <div class="grid-head head-checkmark"
-                                                     x-on:change="toggleAll($event.target)"
-                                                >
-                                                    <x-input.checkbox />
-                                                </div>
-                                                <template x-for="(type, headerIndex) in cols" >
-                                                    <div class="grid-head"
-                                                         x-bind:data-header-column="headerIndex"
-                                                         x-on:change="columnValueUpdated(headerIndex, $event.target.dataset.value)"
-                                                    >
-                                                        <x-input.select placeholder="Kies..."
-                                                                        class="!min-w-[130px]"
-                                                                        :empty-option="true"
-                                                        >
-                                                            @foreach($this->columnHeads as $value => $label)
-                                                                <x-input.option :value="$value" :label="$label" />
-                                                            @endforeach
-                                                        </x-input.select>
-                                                    </div>
-                                                </template>
-                                            </div>
+                                            <span x-model="word.text"
+                                                  x-bind="gridcell"
+                                                  x-bind:data-row-value="rowIndex"
+                                                  x-bind:data-column-value="wordIndex"
+                                                  x-on:focus="placeCursor($el); $el.parentElement.classList.add('focused')"
+                                                  x-on:blur="wordsUpdated(word, rowIndex, wordIndex); $el.parentElement.classList.remove('focused')"
+                                                  x-on:keydown.up="move($event, 'up', $el)"
+                                                  x-on:keydown.right="move($event, 'right', $el)"
+                                                  x-on:keydown.down="move($event, 'down', $el)"
+                                                  x-on:keydown.left="move($event, 'left', $el)"
+                                                  wire:ignore
+                                            ></span>
+                                        </x-word-lists.item.grid.cell>
+                                    </x-slot:cell>
+                                </x-word-lists.item.grid.row>
+                            </x-slot:row>
+                        </x-word-lists.item.grid>
 
-                                            <template x-for="(row, rowIndex) in rows"
-                                                      x-bind:key="getTemplateRowKey(row, rowIndex)"
-                                            >
-                                                <div class="word-row contents relative"
-                                                     x-bind:class="'row-'+rowIndex"
-                                                >
-                                                    <span class="row-checkmark"
-                                                          x-on:change="toggleRow($event.target, rowIndex)"
-                                                    >
-                                                        <x-input.checkbox />
-                                                    </span>
-                                                    <template x-for="(word, wordIndex) in row"
-                                                              :key="getTemplateWordKey(word, wordIndex)"
-                                                    >
-                                                        <div x-on:click.stop="$el.firstElementChild.focus()">
-                                                            <span x-model="word.text"
-                                                                  x-bind="gridcell"
-                                                                  x-bind:data-row-value="rowIndex"
-                                                                  x-bind:data-column-value="wordIndex"
-                                                                  x-on:focus="placeCursor($el); $el.parentElement.classList.add('focused')"
-                                                                  x-on:blur="wordsUpdated(word, rowIndex, wordIndex); $el.parentElement.classList.remove('focused')"
-                                                                  x-on:keydown.up="move('up', $el)"
-                                                                  x-on:keydown.right="move('right', $el)"
-                                                                  x-on:keydown.down="move('down', $el)"
-                                                                  x-on:keydown.left="move('left', $el)"
-                                                                  wire:ignore
-                                                            ></span>
-                                                        </div>
-                                                    </template>
-
-                                                </div>
-                                            </template>
-                                        </div>
-                                        <div class="relation-grid-sticky-pseudo"></div>
-                                    </div>
-                                </div>
-
-                                <div class="flex justify-between text-center">
-                                    <div class="flex flex-col w-min">
-                                        <x-button.primary class="whitespace-nowrap" x-on:click="addFromWordListBank()">
-                                            <x-icon.plus />
-                                            <span>@lang('cms.Uit woordenlijstenbank toevoegen')</span>
-                                        </x-button.primary>
-                                        <span class="note text-sm">@lang('cms.add_from_word_list_bank_explainer')</span>
-                                    </div>
-                                    <div class="flex flex-col w-min">
-                                        <x-button.primary class="whitespace-nowrap" x-on:click="addFromWordBank()">
-                                            <x-icon.plus />
-                                            <span>@lang('cms.Uit woordenbank toevoegen')</span>
-                                        </x-button.primary>
-                                        <span class="note text-sm">@lang('cms.add_from_word_bank_explainer')</span>
-                                    </div>
-                                    <div class="flex flex-col w-min">
-                                        <x-button.primary class="whitespace-nowrap" x-on:click="addFromUpload()">
-                                            <x-icon.plus />
-                                            <span>@lang('cms.Excel bestand toevoegen')</span>
-                                        </x-button.primary>
-                                        <span class="note text-sm">@lang('cms.excel_import_explainer')</span>
-                                    </div>
-                                </div>
+                        <div class="flex justify-between text-center">
+                            <div class="flex flex-col w-min">
+                                <x-button.primary class="whitespace-nowrap" x-on:click="addFromWordListBank()">
+                                    <x-icon.plus />
+                                    <span>@lang('cms.Uit woordenlijstenbank toevoegen')</span>
+                                </x-button.primary>
+                                <span class="note text-sm">@lang('cms.add_from_word_list_bank_explainer')</span>
+                            </div>
+                            <div class="flex flex-col w-min">
+                                <x-button.primary class="whitespace-nowrap" x-on:click="addFromWordBank()">
+                                    <x-icon.plus />
+                                    <span>@lang('cms.Uit woordenbank toevoegen')</span>
+                                </x-button.primary>
+                                <span class="note text-sm">@lang('cms.add_from_word_bank_explainer')</span>
+                            </div>
+                            <div class="flex flex-col w-min">
+                                <x-button.primary class="whitespace-nowrap" x-on:click="addFromUpload()">
+                                    <x-icon.plus />
+                                    <span>@lang('cms.Excel bestand toevoegen')</span>
+                                </x-button.primary>
+                                <span class="note text-sm">@lang('cms.excel_import_explainer')</span>
                             </div>
                         </div>
-
-                    </div>
-                </div>
-            </template>
+                    </x-word-lists.item.body>
+                </x-word-lists.item>
+            </x-slot:item>
 
             <div class="flex w-full border-b border-bluegrey items-center gap-2.5 py-2.5 hover:text-primary hover:bg-primary/5 active:bg-primary/10 cursor-pointer transition-colors"
                  x-on:click="addWordList();"
             >
                 <x-icon.plus-in-circle />
-                <span class="bold">Woordenlijst toevoegen</span>
+                <span class="bold">@lang('cms.Woordenlijst toevoegen')</span>
             </div>
             <div class="flex w-full"><span class="h-4"></span></div>
 
@@ -172,18 +111,28 @@
                 </div>
             </template>
 
-            <template x-teleport=".compile-button">
-                <x-button.cta x-on:click="compileLists()"
-                              x-bind:class="{'text-red-600': compiling}"
-                              size="md">
-                    <span>@lang('cms.compile')</span>
-                </x-button.cta>
-            </template>
-        </div>
+            <template x-teleport=".footer-buttons">
+                <div class="flex gap-4 items-center">
+                    <x-button.text x-on:click="$wire.call('close')"
+                                   x-bind:disabled="compiling">
+                        <span>@lang('general.cancel')</span>
+                    </x-button.text>
 
-        @foreach($errors->all() as $error)
-            <span class="bg-allred text-cta">{{ $error }}</span>
-        @endforeach
+                    <x-button.cta x-on:click="compileLists()"
+                                  x-bind:disabled="compiling || Object.keys(wordLists).length === 0"
+                                  size="md">
+                        <x-icon.checkmark />
+                        <span>@lang('cms.compile')</span>
+                    </x-button.cta>
+                </div>
+            </template>
+        </x-word-lists.container>
+
+        @error('import_empty_values')
+        <div class="absolute bottom-2 flex w-full justify-center">
+            <x-notification-message title="Excel importeren mislukt." :$message />
+        </div>
+        @enderror
     </div>
 
     {{--FOOTER--}}
@@ -194,14 +143,20 @@
         <div class="flex justify-between items-center">
             <div class="footer-numbers"></div>
 
-            <div class="flex gap-4 items-center">
-                <x-button.text wire:click="$emit('closeModal')">@lang('general.cancel')</x-button.text>
-                <div class="compile-button"></div>
-            </div>
+            <div class="footer-buttons"></div>
         </div>
     </div>
 
+    {{-- Modals & more --}}
     <x-modal.compile-word-list-add-list-modal />
 
     <x-modal.compile-word-list-upload-modal />
+
+    <div id="word-list-modal-validation-strings"
+         class="hidden invisible"
+         data-and="{{ __('test-take.and') }}"
+         @foreach($this->validationMessages() as $error => $translation)
+             data-{{ str($error)->kebab() }}="{{ $translation }}"
+            @endforeach
+    ></div>
 </div>

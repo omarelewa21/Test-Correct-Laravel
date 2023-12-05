@@ -13,14 +13,14 @@
                 {{ $wordsString }}
             </h3>
         </div>
-        <x-button.options id="test{{ $word->uuid }}"
-                          context="word-card"
-                          :uuid="$word->uuid"
-        />
+{{--        <x-button.options id="test{{ $word->uuid }}"--}}
+{{--                          context="word-card"--}}
+{{--                          :uuid="$word->uuid"--}}
+{{--        />--}}
     </div>
     <div class="flex w-full gap-8 text-base">
         <span class="bold">{{ __('question.relation') }}</span>
-        <span class="italic">{!! $word->subject->text !!}</span>
+        <span class="italic">{!! $word->subject->name !!}</span>
     </div>
     <div class="flex w-full justify-between text-base items-center">
         <span>{{ $word->user->name_full }}</span>
@@ -31,7 +31,7 @@
                         <x-icon.checkmark class="text-cta"/>
                     </span>
                 @else
-                    <x-button.icon x-on:click="add('word', '{{ $word->uuid }}'); $wire.call('addToUsed', {{ $word->getKey() }})"
+                    <x-button.icon x-on:click="addWord('{{ $word->uuid }}', {{ $word->getKey() }})"
                                    :title="__('cms.Toevoegen aan woordenlijst')">
                         <x-icon.plus />
                     </x-button.icon>

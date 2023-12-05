@@ -25,10 +25,10 @@ class WritingAssignment extends TypeProvider
         }
     }
 
-    public function initializePropertyBag($q)
+    public function initializePropertyBag($question)
     {
         foreach ($this->questionOptions as $key => $val) {
-            $this->instance->question[$key] = $q[$key];
+            $this->instance->question[$key] = $question[$key];
         }
     }
 

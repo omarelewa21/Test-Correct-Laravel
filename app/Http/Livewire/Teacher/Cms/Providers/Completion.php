@@ -25,11 +25,11 @@ class Completion extends TypeProvider
         }
     }
 
-    public function initializePropertyBag($q)
+    public function initializePropertyBag($question)
     {
-        parent::initializePropertyBag($q);
+        parent::initializePropertyBag($question);
 
-        $this->instance->question['question'] = CompletionQuestion::decodeCompletionTags($q);
+        $this->instance->question['question'] = CompletionQuestion::decodeCompletionTags($question);
     }
 
     public function isSettingsGeneralPropertyDisabled($property): bool

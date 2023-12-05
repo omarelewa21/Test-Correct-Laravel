@@ -25,22 +25,21 @@ class CompileWordListModal extends TCModalComponent
 
     public array $columnHeads;
     public array $wordListUuids = [];
+    public array $newLists = [];
 
     private Collection $wordLists;
     public array $wordData;
     public string $testUuid;
+    public $relationQuestionUuid = null;
 
     public $importFile;
 
-    public ?RelationQuestion $relationQuestion = null;
-
     public function mount(
-        array             $wordData,
-        string            $testUuid,
-        ?RelationQuestion $relationQuestion = null,
+        array  $wordData,
+        string $testUuid,
+        mixed  $relationQuestionUuid = null,
     ) {
-        $this->columnHeads = WordType::casesWithDescription()->toArray();
-        $this->relationQuestion = $relationQuestion;
+        $this->columnHeads = CompileWordListService::columnHeads($testUuid);
 
         $this->setWordLists(
             WordList::whereIn('id', collect($wordData)->pluck('subject.word_list_id')->unique()),
@@ -53,10 +52,11 @@ class CompileWordListModal extends TCModalComponent
         return view('livewire.teacher.cms.compile-word-list-modal');
     }
 
-    public function hydrateWordListUuids()
+    public function hydrateWordListUuids(): void
     {
+        $builder = empty($this->wordListUuids) ? null : WordList::whereUuidIn($this->wordListUuids);
         $this->setWordLists(
-            WordList::whereUuidIn($this->wordListUuids),
+            $builder,
             $this->wordData
         );
     }
@@ -66,8 +66,12 @@ class CompileWordListModal extends TCModalComponent
         return 'modal-full-screen';
     }
 
-    private function setWordLists(Builder $lists, array $wordData): void
+    private function setWordLists(?Builder $lists, array $wordData): void
     {
+        if (!$lists) {
+            $this->wordLists = collect();
+            return;
+        }
         $wordData = collect($wordData);
         $enabledRows = $wordData->pluck('subject.word_id');
 
@@ -100,6 +104,7 @@ class CompileWordListModal extends TCModalComponent
 
         $this->setRowPropertyOnList($newList, collect());
         $this->wordListUuids[] = $newList->uuid;
+        $this->newLists[] = $newList->uuid;
 
         return $toArray ? $newList->toArray() : $newList;
     }
@@ -109,15 +114,20 @@ class CompileWordListModal extends TCModalComponent
         $compileService = (new CompileWordListService(
             auth()->user(),
             $this->cleanWordLists(),
-            $this->relationQuestion
-        ))
-            ->updatesToProcess($updates)
-            ->handleNameChanges()
+            RelationQuestion::whereUuid($this->relationQuestionUuid)->first()
+        ))->updatesToProcess($updates);
+
+        try {
+            $compileService->validateUpdates();
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        $compileService->handleNameChanges()
             ->categorizeWordUpdatesInActions()
             ->performWordActions()
             ->compileRelationQuestionAnswersList();
 
-        /*Stap 2*/
         $this->closeModalWithEvents([
             Constructor::class => [
                 'relation-question-words-updated',
@@ -141,14 +151,15 @@ class CompileWordListModal extends TCModalComponent
                 ->mapWithKeys(function ($type) use ($omitListIdOnWordItems, $row, $list) {
                     $word = $row->first(fn($word) => $word->type === $type);
 
-                    return $word
-                        ? [
-                            $type->value => CompileWordListService::buildWordItem(
-                                $word,
-                                $omitListIdOnWordItems ? null : $list
-                            )
-                        ]
-                        : [];
+                    if (!$word) {
+                        return [];
+                    }
+                    return [
+                        $type->value => CompileWordListService::buildWordItem(
+                            $word,
+                            $omitListIdOnWordItems ? null : $list
+                        )
+                    ];
                 })
                 ->filter();
         });
@@ -217,9 +228,9 @@ class CompileWordListModal extends TCModalComponent
         }
     }
 
-    public function importIntoList($newList = false): array
+    public function importIntoList(bool $newList = false, array $columnOrder = []): array
     {
-        $words = $this->import();
+        $words = $this->import($columnOrder);
         if (!$newList || !$words) {
             return $words;
         }
@@ -230,18 +241,14 @@ class CompileWordListModal extends TCModalComponent
         return $emptyList->toArray();
     }
 
-    public function importIntoExisting(): ?array
+    private function import($columnOrder = []): array
     {
-        return $this->import();
-    }
-
-    private function import(): array
-    {
-        $this->validate([
-            'importFile' => ['required', File::types(['xlsx', 'xls'])],
-        ]);
+        $this->validate(['importFile' => ['required', File::types(['xlsx', 'xls'])]]);
 
         $importer = new WordsImport();
+        if ($columnOrder) {
+            $importer->setTypeOrder($columnOrder);
+        }
         try {
             Excel::import(
                 $importer,
@@ -274,5 +281,37 @@ class CompileWordListModal extends TCModalComponent
             $failedRows->count(),
             ['rows' => $failedRows->sort()->join(', ', sprintf(' %s ', __('test-take.and')))]
         );
+    }
+
+    public function validationMessages(): array
+    {
+        return [
+            'requiredTypeAmount'       => __('cms.validation_required_type_amount'),
+            'duplicateColumns'         => __('cms.validation_duplicate_columns'),
+            'wordsWithoutType'         => __('cms.validation_words_without_type'),
+            'wordsWithoutTypeMulti'    => __('cms.validation_words_without_type_multi'),
+            'columnWithoutWords'       => __('cms.validation_column_without_words'),
+            'columnWithoutWordsMulti'  => __('cms.validation_column_without_words_multi'),
+            'requiredSubjectWord'      => __('cms.validation_required_subject_word'),
+            'requiredSubjectWordMulti' => __('cms.validation_required_subject_word_multi'),
+            'requiredWordsPerRow'      => __('cms.validation_required_words_per_row'),
+            'requiredWordsPerRowMulti' => __('cms.validation_required_words_per_row_multi'),
+        ];
+    }
+
+    public function close()
+    {
+        if (empty($this->newLists)) {
+            $this->closeModal();
+            return;
+        }
+
+        $this->wordLists
+            ->whereIn('uuid', $this->newLists)
+            ->each(function ($list) {
+                if($list->words->isEmpty()) {
+                    $list->delete();
+                }
+            });
     }
 }

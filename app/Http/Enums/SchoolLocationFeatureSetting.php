@@ -3,6 +3,7 @@
 namespace tcCore\Http\Enums;
 
 use Illuminate\Support\Str;
+use tcCore\Http\Enums\Attributes\Initial;
 use tcCore\Http\Enums\Attributes\Type;
 use tcCore\Http\Enums\Traits\WithAttributes;
 use tcCore\Http\Enums\Traits\WithCasting;
@@ -32,7 +33,7 @@ enum SchoolLocationFeatureSetting: string
     #[Type('bool')]
     case ALLOW_TM_GEOGRAPHY = 'allow_tm_geography';
     #[Type('bool')]
-    case ALLOW_TM_DUTCH= 'allow_tm_dutch';
+    case ALLOW_TM_DUTCH = 'allow_tm_dutch';
     #[Type('bool')]
     case ALLOW_TM_ENGLISH = 'allow_tm_english';
     #[Type('bool')]
@@ -54,6 +55,9 @@ enum SchoolLocationFeatureSetting: string
     case ALLOW_NEW_TEST_TAKEN_PAGES = 'allow_new_test_taken_pages';
     #[Type('bool')]
     case ALLOW_MR_CHADD = 'allow_mr_chadd';
+    #[Type('bool')]
+    #[Initial(false)]
+    case ALLOW_RELATION_QUESTION = 'allow_relation_question';
 
 
     public static function validateTestPackage(TestPackages|string $testPackage): string|false

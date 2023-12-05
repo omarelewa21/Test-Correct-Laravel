@@ -13,10 +13,10 @@
                 {{ $wordsString }}
             </h3>
         </div>
-        <x-button.options id="test{{ $wordList->uuid }}"
-                          context="word-list-card"
-                          :uuid="$wordList->uuid"
-        />
+{{--        <x-button.options id="test{{ $wordList->uuid }}"--}}
+{{--                          context="word-list-card"--}}
+{{--                          :uuid="$wordList->uuid"--}}
+{{--        />--}}
     </div>
     <div class="flex w-full gap-8 text-base">
         <span class="bold">{{ __('question.relation') }}</span>
@@ -33,11 +33,7 @@
                         <x-icon.checkmark class="text-cta" />
                     </span>
                 @else
-                    <x-button.icon x-on:click="
-                                 add('list', '{{ $wordList->uuid }}');
-                                 $wire.call('addToUsed', {{ $wordList->getKey() }}, true);
-                                 $wire.emit('newListAdded', {{ $wordList->getKey() }})
-                             "
+                    <x-button.icon x-on:click="addList({{ js($wordList->only(['id', 'uuid', 'name'])) }})"
                                    :title="__('cms.Woordenlijst toevoegen')"
                     >
                         <x-icon.plus />
