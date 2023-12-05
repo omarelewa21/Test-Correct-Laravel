@@ -2,34 +2,58 @@
 
 namespace tcCore\View\Components\Answer\Teacher;
 
+use Illuminate\Support\Collection;
 use tcCore\Http\Traits\Questions\WithCompletionConversion;
 use tcCore\Word;
 
 class RelationQuestion extends QuestionComponent
 {
-    public $answerStruct;
-    public $questionStruct;
+    public $answerStruct; // id => (string) correct answer
+    public $questionStruct; // id => Word
 
+    /**
+     * Create AnswerModel answer struct:
+     *  The source of the RelationQuestion answer struct depends on whether the question is shuffled/a carousel
+     *  and whether the user is a student or a teacher.
+     *
+     *  The teacher sees: all words that are selected or the answer struct of the TestTake
+     */
     protected function setAnswerStruct($question): void
     {
-        $userIsStudent = ($this->answer && $this->answer->exists) ? true : false;
+        $answerModelWordIds = $this->getWordsToShowInAnswerModel($question);
 
-        if($question->shuffle && !$question->shuffle_per_participant) {
-            //Caroussel the same for all students
-            // get the answer struct from the test take
-            $this->answerStruct = collect($this->testTake->testTakeRelationQuestions()->where('question_id', $question->id)->first()->json);
-        } elseif(!$question->shuffle || !$userIsStudent) {
-            //No caroussel, or teacher screen
-            // get all words that are selected
-            $this->answerStruct = $question->wordsToAsk()->keyBy('id');
-        } else {
-            //Caroussel per student
-            // get the answer struct from the student answer
-            $this->answerStruct = collect(json_decode($this->answer->json, true));
+        $answerModelWords = Word::whereIn('id', $answerModelWordIds)->get()->keyBy('id');
+
+        $this->answerStruct = $answerModelWordIds->mapWithKeys(function($wordId) use ($answerModelWords) {
+            return [
+                $wordId => [
+                    'answer'   => $answerModelWords[$wordId]->correctAnswerWord()->text,
+                    'question' => $answerModelWords[$wordId]->text,
+                ]
+            ];
+        });
+    }
+
+    /**
+     * returns an Collection with the ids of the words that should be shown in the answer model of this screen as keys
+     *  depends on whether the user is a student or a teacher.
+     *  depends on whether the question is one fixed carousel for the entire TestTake, or a different one for each student
+     */
+    protected function getWordsToShowInAnswerModel($question): Collection
+    {
+        $userIsAStudent = $this->answer && $this->answer->exists;
+
+        //Caroussel the same for all students
+        if($question->shuffleCarouselPerTestTake()) {
+            return collect($this->testTake->testTakeRelationQuestions()->where('question_id', $question->id)->first()->json)->keys();
         }
 
-        $this->questionStruct = Word::whereIn('id', $this->answerStruct->keys())->get()->keyBy('id');
+        //Caroussel per student and created for a student screen
+        if ($userIsAStudent && $question->shuffleCarouselPerTestParticipant()) {
+            return collect(json_decode($this->answer->json, true))->keys();
+        }
 
-        $this->answerStruct = $this->answerStruct->map(fn($value, $key) => $this->questionStruct[$key]->correctAnswerWord()->text);
+        //No caroussel, or answer model for a teacher screen
+        return $question->wordsToAsk()->map->id;
     }
 }

@@ -29,9 +29,18 @@ class RelationQuestion extends QuestionComponent
 
     protected function setAnswerStruct($question, $answer): void
     {
-        //answerStruct contains student answer
-        $this->answerStruct = collect(json_decode($answer->json ?? '{}', true));
+        $studentAnswer = collect(json_decode($answer->json ?? '{}', true));
 
-        $this->questionStruct = Word::whereIn('id', $this->answerStruct->keys())->get()->keyBy('id');
+        $answerModelWords = Word::whereIn('id', $studentAnswer->keys())->get()->keyBy('id');
+
+        $this->answerStruct = $studentAnswer->mapWithKeys(function($studentAnswerText, $wordId) use ($answerModelWords) {
+            return [
+                $wordId => [
+                    'answer'   => $studentAnswerText,
+                    'question' => $answerModelWords[$wordId]->text,
+                ]
+            ];
+
+        });
     }
 }

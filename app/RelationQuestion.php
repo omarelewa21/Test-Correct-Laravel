@@ -69,6 +69,16 @@ class RelationQuestion extends Question implements QuestionInterface
             ->withPivot(['word_id', 'word_list_id', 'selected']);
     }
 
+    public function shuffleCarouselPerTestTake(): bool
+    {
+        return $this->shuffle && !$this->shuffle_per_participant;
+    }
+
+    public function shuffleCarouselPerTestParticipant(): bool
+    {
+        return $this->shuffle && $this->shuffle_per_participant;
+    }
+
     public function questionWords(): hasMany
     {
         return $this->hasMany(RelationQuestionWord::class)
@@ -107,18 +117,23 @@ class RelationQuestion extends Question implements QuestionInterface
         return parent::isClosedQuestion();
     }
 
+    // TODO: Implement checkAnswer() method.
+    //  this question is very simular to CompletionQuestion, open question fields and correct answers are known
     public function checkAnswer($answer)
     {
-        // TODO: Implement checkAnswer() method.
-        //  this question is very simular to CompletionQuestion, open question fields and correct answers are known
-
         // TODO implement or remove auto_check_answer and auto_check_answer_case_sensitive options (CMS, and here)
         //  Completion question has:
         //   $this->auto_check_answer
         //   $this->auto_check_answer_case_sensitive
 
-        $autoCheckAnswer = true;
+        $autoCheckAnswer = true; //checkAnswer should not have been called if this is false.
+//        $autoCheckAnswer = $this->getAttribute('auto_check_answer');
+        if(!$autoCheckAnswer) {
+            return false;
+        }
+
         $autoCheckAnswerCaseSensitive = true;
+//        $autoCheckAnswerCaseSensitive = $this->getAttribute('auto_check_answer_case_sensitive');
 
         //Student answer:
         $answers = collect(json_decode($answer->getAttribute('json'), true));
@@ -131,19 +146,12 @@ class RelationQuestion extends Question implements QuestionInterface
 
         $answerOptionsCount = count($answerModel);
 
-        if(!$autoCheckAnswer) {
-
-            throw new \Exception('You should never have reached this when RelationQuestion::auto_check_answer is false', 418);
-        }
-
-
-        if($autoCheckAnswerCaseSensitive) {
+        if(!$autoCheckAnswerCaseSensitive) {
             $answerModel = $answerModel->map(fn($answer) => Str::lower($answer));
             $answers = $answers->map(fn($answer) => Str::lower($answer));
         }
 
         $correctAnswersCount = $answers->reduce(function ($carry, $answer, $key) use ($answerModel, $answers){
-
             //condition2/3 checks are copied from CompletionQuestion
             $condition1 = $answerModel[$key] === $answer;
             $condition2 = $answerModel[$key] === trim(BaseHelper::transformHtmlCharsReverse($answer));
