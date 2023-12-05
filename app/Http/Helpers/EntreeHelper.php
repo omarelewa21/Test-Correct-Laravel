@@ -520,7 +520,11 @@ class EntreeHelper
             return false;
         }
         return ((optional($user->schoolLocation)->lvs_active && empty($user->eck_id)))
-                || ($user->isA('teacher') && optional($user->schoolLocation)->block_local_login);
+                || (
+                    !$user->isA('student')
+                    && optional($user->schoolLocation)->block_local_login
+                    && !substr_count($user->username,'@test-correct.nl')
+                );
     }
 
     private function getEckIdFromAttributes()
