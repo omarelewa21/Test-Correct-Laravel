@@ -76,7 +76,7 @@ class AnonymizeUsersAfterTooLongNoLoginJob extends Job implements ShouldQueue
                     $q->where('username', 'not like', '%test-correct.nl')
                     ->orWhere('guest',1); // also delete guest users after two years
                 })
-                ->where('username', 'not like', '%testcorrect.nl')
+                ->where('username', 'not like', '%testcorrect.nl') // without the dash
                 ->where(function ($q) use ($day) {
                     $q->where(function ($query) use ($day) {
                         $query->whereNull('login_logs_alias.user_id')
@@ -86,7 +86,12 @@ class AnonymizeUsersAfterTooLongNoLoginJob extends Job implements ShouldQueue
                 })->get()->each(function (User $user) {
                     $user->username = sprintf('%s-vervallenivm%ddagengeenlogin@test-correct.nl', $user->getKey(), $this->days);
                     $user->name_first = sprintf('%d', $this->days);
-                    $user->name = sprintf('former teacher');
+                    $roleName = match(true){
+                        $user->isA('teacher') => 'teacher',
+                        $user->isA('student') => 'student',
+                        default => 'user',
+                    };
+                    $user->name =sprintf('former %s',$roleName) ;
                     $user->time_dispensation = false;
                     $user->text2speech = false;
                     foreach ($this->fieldsToEmpty as $field) {
@@ -118,8 +123,8 @@ class AnonymizeUsersAfterTooLongNoLoginJob extends Job implements ShouldQueue
                 UserFeatureSetting::whereIn('user_id',$this->anonymisedUserIds)->forceDelete();
 
                 // delete all the messages for these users
-                Message::whereIn('user_id',$this->anonymisedUserIds)->forceDelete();
-                MessageReceiver::whereIn('user_id',$this->anonymisedUserIds)->forceDelete();
+//                Message::whereIn('user_id',$this->anonymisedUserIds)->forceDelete();
+//                MessageReceiver::whereIn('user_id',$this->anonymisedUserIds)->forceDelete();
             }
 
 
