@@ -26,6 +26,7 @@ class SchoolLocationUsersController extends Controller {
                 'name' => $location->name,
                 'active' => $location->is(Auth::user()->schoolLocation),
                 'language' => $location->school_language_cake,
+                'block_local_login' => $location->block_local_login,
             ];
         });
     }
@@ -37,7 +38,10 @@ class SchoolLocationUsersController extends Controller {
             abort(403);
         }
 
-        $user = Auth::user()->schoolLocation()->associate($schoolLocation);
+        $user = Auth::user();
+        $user->school_location_id = $schoolLocation->getKey();
+        $user->save();
+        $user->refresh();
         $user->createTrialPeriodRecordIfRequired();
         $user->save();
 
@@ -47,7 +51,8 @@ class SchoolLocationUsersController extends Controller {
                 'uuid' => $location->uuid,
                 'name' => $location->name,
                 'active' => $location->is(Auth::user()->schoolLocation),
-                'language' => $location->school_language_cake
+                'language' => $location->school_language_cake,
+                'block_local_login' => $location->block_local_login,
             ];
         });
     }
