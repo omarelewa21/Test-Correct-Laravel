@@ -84,7 +84,18 @@ class PreviewTestTakeController extends Controller
                 ]);
             }
         } catch (\Throwable $e){
-            bugsnag::notifyException($e);
+            bugsnag::notifyException($e, function ($report) use ($testTake) {
+                $report->setMetaData([
+                    'code_context' => [
+                        'file'      => __FILE__,
+                        'class'     => __CLASS__,
+                        'method'    => __METHOD__,
+                        'line'      => __LINE__,
+                        'timestamp' => date(DATE_ATOM),
+                        'testTakeId' => $testTake->getKey()
+                    ]
+                ]);
+            });
         }
         $request->request->set("error_id", 'PDF-'.$rand.'-'.$testTake->getKey());
         throw new UserFriendlyException(__('test-pdf.Sorry, the download could not be generated, please get in contact in order for us to help you with that.'),500);
