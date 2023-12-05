@@ -18,7 +18,6 @@
                                                      versionablePrefix="words"
                                                      searchProperty="filters.text"
             />
-
             {{-- Content --}}
             <x-partials.overview-content-section :$results :pagination="true">
                 <x-slot name="resultMessage">
@@ -35,6 +34,7 @@
                                           wire:loading.class="hidden"
                                           wire:target="filters,clearFilters,$set"
                                           :addable="$this->addable"
+                                          :used="in_array($word->getKey(), $this->used)"
                         />
                     @endforeach
                 </x-slot>

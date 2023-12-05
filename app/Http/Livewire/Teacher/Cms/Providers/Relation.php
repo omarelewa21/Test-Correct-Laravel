@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher\Cms\Providers;
 
 use tcCore\Http\Enums\WordType;
 use tcCore\RelationQuestionWord;
+use tcCore\Services\CompileWordListService;
 
 class Relation extends TypeProvider
 {
@@ -112,13 +113,12 @@ class Relation extends TypeProvider
         foreach (WordType::cases() as $type) {
             $questionWord = $empty ? null : $row?->first(fn($rela) => $rela->word->type === $type);
 
-            $columns[$type->value] = [
-                'text'         => $questionWord?->word->text,
-                'word_id'      => $questionWord?->word_id,
-                'word_list_id' => $questionWord?->word_list_id,
-                'selected'     => $questionWord?->selected ?? false,
-                'type'         => $type
-            ];
+            $columns[$type->value] = CompileWordListService::buildEmptyWordItem(
+                    $questionWord?->word?->text ?? '',
+                    $type,
+                    $questionWord?->word_id,
+                    $questionWord?->word_list_id
+                ) + ['selected' => $questionWord?->selected ?? false];
         }
         return $columns;
     }

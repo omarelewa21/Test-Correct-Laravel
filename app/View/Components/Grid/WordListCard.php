@@ -13,6 +13,7 @@ class WordListCard extends Component
     public function __construct(
         public WordList $wordList,
         public bool     $addable = false,
+        public bool     $used = false,
     ) {
         $this->wordsString = $wordList->words->map->text->join(', ');
     }

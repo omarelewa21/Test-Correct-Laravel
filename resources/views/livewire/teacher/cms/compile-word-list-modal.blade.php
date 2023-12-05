@@ -16,13 +16,19 @@
              x-data="compileWordListContainer(@js($this->wordLists))"
              x-on:add-new="addNewWordList();"
              x-on:open-add-existing-panel="openAddExistingWordListPanel()"
-             x-on:upload="console.log('upl')"
+             x-on:upload="uploadWordList();"
              x-on:add-list="addExistingWordList($event.detail.uuid)"
+             x-on:handle-upload="addUploadToNew($event.detail.file)"
              wire:ignore
         >
-            <template x-for="(wordList, wordListIndex) in wordLists">
+            <template x-for="(wordList, wordListIndex) in wordLists" :key="wordList.uuid">
                 <div class="word-list | flex flex-col isolate border-b border-bluegrey pb-4 pt-4 first:pt-0"
                      x-data="compileList(wordList, @js($this->columnHeads))"
+                     x-bind:data-list-uuid="wordList.uuid"
+                     x-on:add-list="addExistingWordListToList($event.detail.uuid)"
+                     x-on:add-word="addExistingWordToList($event.detail.uuid)"
+                     x-on:handle-upload="addUploadToList($event.detail.file)"
+                     wire:ignore
                 >
                     <div class=" | flex flex-col ">
                         <div class="flex w-full items-center gap-6">
@@ -55,7 +61,7 @@
                                                 >
                                                     <x-input.checkbox />
                                                 </div>
-                                                <template x-for="(type, headerIndex) in cols">
+                                                <template x-for="(type, headerIndex) in cols" >
                                                     <div class="grid-head"
                                                          x-bind:data-header-column="headerIndex"
                                                          x-on:change="columnValueUpdated(headerIndex, $event.target.dataset.value)"
@@ -72,7 +78,9 @@
                                                 </template>
                                             </div>
 
-                                            <template x-for="(row, rowIndex) in rows">
+                                            <template x-for="(row, rowIndex) in rows"
+                                                      x-bind:key="getTemplateRowKey(row, rowIndex)"
+                                            >
                                                 <div class="word-row contents relative"
                                                      x-bind:class="'row-'+rowIndex"
                                                 >
@@ -81,7 +89,9 @@
                                                     >
                                                         <x-input.checkbox />
                                                     </span>
-                                                    <template x-for="(word, wordIndex) in row">
+                                                    <template x-for="(word, wordIndex) in row"
+                                                              :key="getTemplateWordKey(word, wordIndex)"
+                                                    >
                                                         <div x-on:click.stop="$el.firstElementChild.focus()">
                                                             <span x-model="word.text"
                                                                   x-bind="gridcell"
@@ -93,6 +103,7 @@
                                                                   x-on:keydown.right="move('right', $el)"
                                                                   x-on:keydown.down="move('down', $el)"
                                                                   x-on:keydown.left="move('left', $el)"
+                                                                  wire:ignore
                                                             ></span>
                                                         </div>
                                                     </template>
@@ -169,6 +180,10 @@
                 </x-button.cta>
             </template>
         </div>
+
+        @foreach($errors->all() as $error)
+            <span class="bg-allred text-cta">{{ $error }}</span>
+        @endforeach
     </div>
 
     {{--FOOTER--}}
@@ -186,5 +201,7 @@
         </div>
     </div>
 
-    <x-modal.compile-word-list-add-list-modal/>
+    <x-modal.compile-word-list-add-list-modal />
+
+    <x-modal.compile-word-list-upload-modal />
 </div>
