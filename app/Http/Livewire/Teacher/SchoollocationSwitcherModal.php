@@ -11,7 +11,7 @@ class SchoollocationSwitcherModal extends TCModalComponent
     public function switchToSchoolLocation($uuid) {
         $schoolLocation = SchoolLocation::whereUuid($uuid)->first();
         $user = Auth::user();
-
+        $currentSchoolLocation = $user->schoolLocation;
         if (!$user) {
             abort(403);
         }
@@ -22,9 +22,18 @@ class SchoollocationSwitcherModal extends TCModalComponent
             abort(403);
         }
 
-        $user->schoolLocation()->associate($schoolLocation);
+//        $user->schoolLocation()->associate($schoolLocation);
+        $user->school_location_id = $schoolLocation->getKey();
+        $user->save();
+        $user->refresh();
         $user->createTrialPeriodRecordIfRequired();
         $user->save();
+        if(!$currentSchoolLocation->block_local_login && $schoolLocation->block_local_login){
+            // we need to move away towards entree;
+            auth()->logout();
+            $redirectUrl = route('saml2_login', ['entree']);
+            return redirect()->to($redirectUrl);
+        }
         $this->dispatchBrowserEvent('notify', ['message' => __('general.Actieve schoollocatie aangepast')]);
         return $user->redirectToCakeWithTemporaryLogin();
 //        $this->closeModal();
