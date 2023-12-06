@@ -37,7 +37,7 @@ trait HasFeatureSettings
 
         $cast = $enum->castValue($this->featureSettings()->getSetting($enum->value)->pluck('value')->first());
 
-        return $cast ?: $this->featureSettings()->getSetting($enum->value)->exists();
+        return ($cast || $cast === false) ? $cast : $this->featureSettings()->getSetting($enum->value)->exists();
     }
 
     public function __isset($key)
