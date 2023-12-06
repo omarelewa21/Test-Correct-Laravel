@@ -219,7 +219,7 @@ class Login extends TCComponent
     protected function doWeNeedToRedirectToEntreeDueToLocalLoginBlock($username)
     {
         $user = User::whereUsername($username)->first();
-        if($user && $user->isA('teacher') && optional($user->schoolLocation)->block_local_login){
+        if($user && EntreeHelper::shouldPromptForEntree($user)){
             return true;
         }
         return false;
