@@ -7161,6 +7161,7 @@ document.addEventListener("alpine:init", function () {
     };
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("choices", function (wireModel, multiple, options, config, filterContainer) {
+    var initWidth = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 100;
     return {
       multiple: multiple,
       value: wireModel,
@@ -7170,6 +7171,7 @@ document.addEventListener("alpine:init", function () {
       activeFiltersContainer: null,
       choices: null,
       activeGroups: [],
+      initWidth: initWidth,
       init: function init() {
         var _window,
           _window$registeredEve,
@@ -7181,7 +7183,7 @@ document.addEventListener("alpine:init", function () {
         var label = document.querySelector("[for=\"".concat(this.$root.querySelector("select").id, "\"]"));
         this.$nextTick(function () {
           var helper = _this19.$root.querySelector("#text-length-helper");
-          var minWidth = helper.offsetWidth;
+          var minWidth = helper.offsetWidth ? helper.offsetWidth : _this19.initWidth;
           helper.style.display = "none";
           var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_1___default())(_this19.$root.querySelector("select"), _this19.getChoicesConfig());
           var refreshChoices = function refreshChoices() {
@@ -12533,7 +12535,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "51d7221bf733999d7138",
   cluster: "eu",
   forceTLS: true
 });

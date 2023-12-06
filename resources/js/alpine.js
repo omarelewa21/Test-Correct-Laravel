@@ -731,7 +731,7 @@ document.addEventListener("alpine:init", () => {
             return scrollToSettings;
         }
     }));
-    Alpine.data("choices", (wireModel, multiple, options, config, filterContainer) => ({
+    Alpine.data("choices", (wireModel, multiple, options, config, filterContainer, initWidth=100) => ({
         multiple: multiple,
         value: wireModel,
         options: options,
@@ -740,6 +740,7 @@ document.addEventListener("alpine:init", () => {
         activeFiltersContainer: null,
         choices: null,
         activeGroups: [],
+        initWidth: initWidth,
         init() {
             // some new fancy way of setting a value when undefined
             window.registeredEventHandlers ??= [];
@@ -749,7 +750,7 @@ document.addEventListener("alpine:init", () => {
             const label = document.querySelector(`[for="${this.$root.querySelector("select").id}"]`);
             this.$nextTick(() => {
                 let helper = this.$root.querySelector("#text-length-helper");
-                let minWidth = helper.offsetWidth;
+                let minWidth = helper.offsetWidth? helper.offsetWidth : this.initWidth ;
                 helper.style.display = "none";
 
                 let choices = new Choices(
