@@ -41,7 +41,7 @@
                             placeholderText="{{ __('general.Categorie') }}"
                             wire:model="filters.base_subject_id"
                             filterContainer="testbank-{{ $this->openTab }}-active-filters"
-                            initWidth = "27"
+                            initWidth="27"
                     />
                 @else
                     <x-input.choices-select

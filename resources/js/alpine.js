@@ -731,7 +731,7 @@ document.addEventListener("alpine:init", () => {
             return scrollToSettings;
         }
     }));
-    Alpine.data("choices", (wireModel, multiple, options, config, filterContainer, initWidth=100) => ({
+    Alpine.data("choices", (wireModel, multiple, options, config, filterContainer, initWidth) => ({
         multiple: multiple,
         value: wireModel,
         options: options,

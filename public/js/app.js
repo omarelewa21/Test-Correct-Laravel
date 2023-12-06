@@ -7160,8 +7160,7 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("choices", function (wireModel, multiple, options, config, filterContainer) {
-    var initWidth = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 100;
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("choices", function (wireModel, multiple, options, config, filterContainer, initWidth) {
     return {
       multiple: multiple,
       value: wireModel,

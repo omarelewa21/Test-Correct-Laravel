@@ -31,7 +31,7 @@
                         position: 'bottom'
                     },
                     '{{ $filterContainer }}',
-                    {{ $initWidth }}
+                    '{{ $initWidth }}'
              )"
          class="{{ $attributes->get('class') }} custom-choices bg-offwhite rounded-10 relative"
          @if($multiple)
