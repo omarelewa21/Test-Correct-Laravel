@@ -48,7 +48,6 @@ trait ContentSourceTabsTrait
 
         $this->schoolLocationInternalContentTabs = $this->allowedTabs->filter(fn($contentSourceClass, $sourceName) => in_array($sourceName, ['personal', 'school_location']));
         $this->schoolLocationExternalContentTabs = $this->allowedTabs->reject(fn($contentSourceClass, $sourceName) => in_array($sourceName, ['personal', 'school_location']));
-
         $this->rejectExcludedTabs();
 
         $this->abortIfTabNotAllowed();
@@ -90,7 +89,6 @@ trait ContentSourceTabsTrait
         if (collect($this->schoolLocationInternalContentTabs)->has($this->openTab)) {
             return EducationLevel::filtered(['school_location_id' => Auth::user()->school_location_id])->optionList();
         }
-
         if ($this->isExternalContentTab()) {
             if ($serviceClass = ContentSourceFactory::makeWithTabExternalOnly($this->openTab)) {
                 return EducationLevel::whereIn(

@@ -84,6 +84,7 @@ class ContentSourceFactory
             'olympiade'         => new OlympiadeService,
             'olympiade_archive' => new OlympiadeArchiveService,
             'thieme_meulenhoff' => new ThiemeMeulenhoffService,
+            'national'          => new NationalItemBankService,
             default             => null,
         };
     }

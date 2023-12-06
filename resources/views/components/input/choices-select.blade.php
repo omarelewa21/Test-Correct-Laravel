@@ -7,6 +7,7 @@
     'hasErrors' => false,
     'searchPlaceholder' => __('cms.Search...'),
     'sortOptions' => true,
+    'initWidth' => 100,
  ])
 <div class="{{ $hasErrors ? 'has-error' : ''  }}">
     <div wire:ignore x-cloak
@@ -29,7 +30,8 @@
                         shouldSort: @js($sortOptions),
                         position: 'bottom'
                     },
-                    '{{ $filterContainer }}'
+                    '{{ $filterContainer }}',
+                    '{{ $initWidth }}'
              )"
          class="{{ $attributes->get('class') }} custom-choices bg-offwhite rounded-10 relative"
          @if($multiple)

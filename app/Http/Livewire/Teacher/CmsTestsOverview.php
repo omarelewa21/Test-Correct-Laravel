@@ -59,8 +59,8 @@ class CmsTestsOverview extends TestsOverview
     {
         $test = Test::whereUuid($this->cmsTestUuid)->first();
         return [
-            'education_level_year' => [$test->education_level_year],
-            'education_level_id'   => [$test->education_level_id],
+//            'education_level_year' => [$test->education_level_year],
+//            'education_level_id'   => [$test->education_level_id],
             'base_subject_id'      => $test->subject()->pluck('base_subject_id'),
             'subject_id'           => [$test->subject_id],
         ];

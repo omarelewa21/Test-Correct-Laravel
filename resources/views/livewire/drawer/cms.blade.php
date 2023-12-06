@@ -174,11 +174,11 @@
 
                 <div class="flex flex-1 w-full" wire:key="selected-tab-{{ $sliderButtonSelected }}">
                     <div class="w-full flex flex-1" x-cloak x-show="showBank === 'tests'">
-                        <livewire:teacher.cms-tests-overview :cmsTestUuid="$this->testId"/>
+                        <livewire:teacher.cms-tests-overview :cmsTestUuid="$this->testId" />
                     </div>
 
                     <div class="w-full flex flex-1" x-cloak x-show="showBank === 'questions'">
-                        <livewire:teacher.question-bank :testId="$this->testId" mode="cms"/>
+                        <livewire:teacher.question-bank :testId="$this->testId" mode="cms" />
                     </div>
                 </div>
             </x-sidebar.slide-container>

@@ -299,8 +299,8 @@ class QuestionBank extends TCComponent
     private function defaultFilters(): array
     {
         return array_merge($this->filterableAttributes, [
-            'education_level_year' => [$this->test->education_level_year],
-            'education_level_id'   => [$this->test->education_level_id],
+//            'education_level_year' => [$this->test->education_level_year],
+//            'education_level_id'   => [$this->test->education_level_id],
             'subject_id'           => [$this->test->subject_id],
             'base_subject_id'      => $this->test->subject()->pluck('base_subject_id')
         ]);

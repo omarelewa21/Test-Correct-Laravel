@@ -41,6 +41,7 @@
                             placeholderText="{{ __('general.Categorie') }}"
                             wire:model="filters.base_subject_id"
                             filterContainer="testbank-{{ $this->openTab }}-active-filters"
+                            initWidth="27"
                     />
                 @else
                     <x-input.choices-select
@@ -51,6 +52,7 @@
                             placeholderText="{{ __('student.subject') }}"
                             wire:model="filters.subject_id"
                             filterContainer="testbank-{{ $this->openTab }}-active-filters"
+                            initWidth="27"
                     />
                 @endif
                 <x-input.choices-select
@@ -61,6 +63,7 @@
                         placeholderText="{{ __('general.Leerjaar') }}"
                         wire:model="filters.education_level_year"
                         filterContainer="testbank-{{ $this->openTab }}-active-filters"
+                        initWidth="58"
                 />
                 <x-input.choices-select
                         wire:key="educationLevel_{{ $this->openTab }}"
@@ -70,6 +73,7 @@
                         placeholderText="{{ __('general.Niveau') }}"
                         wire:model="filters.education_level_id"
                         filterContainer="testbank-{{ $this->openTab }}-active-filters"
+                        initWidth="50"
                 />
                 <x-input.choices-select
                         wire:key="taxonomy_{{ $this->openTab }}"
@@ -80,6 +84,7 @@
                         placeholderText="{{ __('cms.Taxonomie') }}"
                         wire:model="filters.taxonomy"
                         filterContainer="testbank-{{ $this->openTab }}-active-filters"
+                        initWidth="78"
                 />
 
                 @if ($this->canFilterOnAuthors())
@@ -92,6 +97,7 @@
                                 placeholderText="{{ __('general.Auteurs') }}"
                                 wire:model="filters.shared_sections_author_id"
                                 filterContainer="testbank-{{ $this->openTab }}-active-filters"
+                                initWidth="43"
                         />
                     @else
                         <x-input.choices-select
@@ -102,6 +108,7 @@
                                 placeholderText="{{ __('general.Auteurs') }}"
                                 wire:model="filters.author_id"
                                 filterContainer="testbank-{{ $this->openTab }}-active-filters"
+                                initWidth="43"
                         />
                     @endif
                 @endif

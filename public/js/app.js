@@ -7160,7 +7160,7 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("choices", function (wireModel, multiple, options, config, filterContainer) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("choices", function (wireModel, multiple, options, config, filterContainer, initWidth) {
     return {
       multiple: multiple,
       value: wireModel,
@@ -7170,6 +7170,7 @@ document.addEventListener("alpine:init", function () {
       activeFiltersContainer: null,
       choices: null,
       activeGroups: [],
+      initWidth: initWidth,
       init: function init() {
         var _window,
           _window$registeredEve,
@@ -7181,7 +7182,7 @@ document.addEventListener("alpine:init", function () {
         var label = document.querySelector("[for=\"".concat(this.$root.querySelector("select").id, "\"]"));
         this.$nextTick(function () {
           var helper = _this19.$root.querySelector("#text-length-helper");
-          var minWidth = helper.offsetWidth;
+          var minWidth = helper.offsetWidth ? helper.offsetWidth : _this19.initWidth;
           helper.style.display = "none";
           var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_1___default())(_this19.$root.querySelector("select"), _this19.getChoicesConfig());
           var refreshChoices = function refreshChoices() {
