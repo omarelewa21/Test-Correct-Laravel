@@ -9,7 +9,7 @@
          style="width:40px;height:40px">
         <x-icon.exclamation style="transform: scale(1.5)"/>
     </div>
-    <div>
-        <h6 class="all-red">{{__('test_take.attention_required')}}</h6>
-    </div>
+{{--    <div>--}}
+{{--        <h6 class="all-red">{{__('test_take.attention_required')}}</h6>--}}
+{{--    </div>--}}
 </div>

@@ -4528,6 +4528,8 @@ document.addEventListener("alpine:init", () => {
     Alpine.data("initReadSpeakerLanguage", () => ({
         languages: [],
         currentLanguage: "nl_nl",
+        isOpen: false,
+
         init() {
             this.$nextTick(() => {
                     this.waitForElement(".rsicn", (el) => {
@@ -4537,6 +4539,13 @@ document.addEventListener("alpine:init", () => {
                     });
             });
         },
+        openPopover() {
+            this.isOpen = true;
+        },
+        closePopover() {
+            this.isOpen = false;
+        },
+
         setCurrentLanguage() {
           var domNode = document.querySelector(".rsbtn_tool_voice_settings .rs-contextmenu-item.active");
           if (domNode) {

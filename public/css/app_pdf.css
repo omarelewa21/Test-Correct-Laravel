@@ -5224,7 +5224,7 @@ ul ul ul {
 
 
 /*
-! tailwindcss v3.3.2 | MIT License | https://tailwindcss.com
+! tailwindcss v3.3.5 | MIT License | https://tailwindcss.com
 */
 
 
@@ -5423,6 +5423,8 @@ optgroup,
 select,
 textarea {
   font-family: inherit; /* 1 */
+  font-feature-settings: inherit; /* 1 */
+  font-variation-settings: inherit; /* 1 */
   font-size: 100%; /* 1 */
   font-weight: inherit; /* 1 */
   line-height: inherit; /* 1 */
@@ -5582,6 +5584,16 @@ ul,
 menu {
   list-style: none;
   margin: 0;
+  padding: 0;
+}
+
+
+/*
+Reset default styling for dialogs.
+*/
+
+
+dialog {
   padding: 0;
 }
 
@@ -7729,6 +7741,10 @@ video {
   border-bottom-right-radius: 10px;
   border-bottom-left-radius: 10px;
 }
+.rounded-b-full{
+  border-bottom-right-radius: 9999px;
+  border-bottom-left-radius: 9999px;
+}
 .rounded-b-lg{
   border-bottom-right-radius: 0.5rem;
   border-bottom-left-radius: 0.5rem;
@@ -7764,6 +7780,10 @@ video {
 .rounded-t-\[10px\]{
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
+}
+.rounded-t-full{
+  border-top-left-radius: 9999px;
+  border-top-right-radius: 9999px;
 }
 .rounded-bl-md{
   border-bottom-left-radius: 0.375rem;
@@ -8086,6 +8106,14 @@ video {
 }
 .bg-white\/95{
   background-color: rgb(255 255 255 / 0.95);
+}
+.bg-blue-100{
+  --tw-bg-opacity: 1;
+  background-color: rgb(219 234 254 / var(--tw-bg-opacity));
+}
+.bg-blue-50{
+  --tw-bg-opacity: 1;
+  background-color: rgb(239 246 255 / var(--tw-bg-opacity));
 }
 .bg-opacity-0{
   --tw-bg-opacity: 0;
@@ -8660,10 +8688,6 @@ video {
 .text-allred{
   --tw-text-opacity: 1;
   color: rgb(207 27 4 / var(--tw-text-opacity));
-}
-.text-blue-500{
-  --tw-text-opacity: 1;
-  color: rgb(59 130 246 / var(--tw-text-opacity));
 }
 .text-blue-600{
   --tw-text-opacity: 1;
@@ -9249,10 +9273,8 @@ div.input-group u, div.input-group strong, div.input-group span, p strong {
 .children-block-pdf p {
     display: block;
     white-space: normal;
-    -webkit-margin-before: 1em;
-            margin-block-start: 1em;
-    -webkit-margin-after: 1em;
-            margin-block-end: 1em;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
     vertical-align: middle;
 }
 

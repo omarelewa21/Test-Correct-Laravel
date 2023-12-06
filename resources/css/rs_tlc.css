@@ -179,6 +179,9 @@
     width: 40px;
     background-repeat: no-repeat;
 }
+.rsbtn_tool_voice_settings{
+    display: none;
+}
 
 .rsicn-arrow-down2:before {
     content: "\edc0"
