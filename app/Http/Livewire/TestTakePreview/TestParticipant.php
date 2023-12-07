@@ -21,6 +21,7 @@ class TestParticipant extends TCComponent
     public $styling;
     public $current = 1;
     public $studentName;
+    public $showQuestionText = false;
 
     public function mount(\tcCore\TestParticipant $testParticipant,TestTake $testTake)
     {

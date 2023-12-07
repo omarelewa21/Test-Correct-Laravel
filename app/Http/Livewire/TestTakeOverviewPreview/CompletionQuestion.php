@@ -23,6 +23,8 @@ class CompletionQuestion extends TCComponent
     public $number;
     public $searchPattern = "/\[([0-9]+)\]/i";
 
+    public $showQuestionText;
+
     public function mount()
     {
         $this->answer = (array)json_decode($this->answers[$this->question->uuid]['answer']);

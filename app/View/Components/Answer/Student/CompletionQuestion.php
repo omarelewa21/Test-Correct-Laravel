@@ -81,13 +81,16 @@ class CompletionQuestion extends QuestionComponent
             }
         }
 
-        if ($this->question->isSubType('completion') && !$this->question->auto_check_answer) {
-            return null;
+        $correctAnswers = Arr::wrap($correctAnswer->answer);
+
+        if ($this->question->isSubType('completion') && $this->question->auto_check_incorrect_answer) {
+            return QuestionHelper::compareTextAnswers($givenAnswer, $correctAnswers, $this->question->auto_check_answer_case_sensitive);
         }
 
-        return QuestionHelper::compareTextAnswers($givenAnswer, $correctAnswer->answer, $this->question->auto_check_answer_case_sensitive)
+        //returns null if answer is not the same, only determines which answers are correct
+        return QuestionHelper::compareTextAnswers($givenAnswer, $correctAnswers, $this->question->auto_check_answer_case_sensitive)
             ? true
-            : null; //returns null if answer is not the same, only determines which answers are correct
+            : null;
     }
 
     private function createCompletionAnswerStruct(mixed $answers, $correctAnswers, $answer)
@@ -106,9 +109,11 @@ class CompletionQuestion extends QuestionComponent
                 ->unique('tag')
                 ->count();
 
-        return $answerStruct->map(function ($link, $key) use ($answer, $answers, $score) {
+        $mtep = $answerStruct->map(function ($link, $key) use ($answer, $answers, $score) {
             return $this->setAnswerPropertiesOnObject($link, $key, $link, $answers, $score);
         });
+//        dd($mtep);
+        return $mtep;
     }
 
     private function createSelectionAnswerStruct(mixed $answers, $correctAnswers)

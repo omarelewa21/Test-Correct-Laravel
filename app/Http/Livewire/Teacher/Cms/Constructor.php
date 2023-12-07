@@ -1501,10 +1501,10 @@ class Constructor extends TCComponent implements QuestionCms
     {
         $featureSettings = UserFeatureSettingEnum::initialValues()->merge(UserFeatureSetting::getAll(Auth::user()));
         return [
-            'add_to_database'   => $featureSettings[UserFeatureSettingEnum::QUESTION_PUBLICLY_AVAILABLE->value],
-            'score'             => $featureSettings[UserFeatureSettingEnum::QUESTION_DEFAULT_POINTS->value],
-            'decimal_score'     => $featureSettings[UserFeatureSettingEnum::QUESTION_HALF_POINTS_POSSIBLE->value],
-            'auto_check_answer' => $featureSettings[UserFeatureSettingEnum::QUESTION_AUTO_SCORE_COMPLETION->value],
+            'add_to_database'             => $featureSettings[UserFeatureSettingEnum::QUESTION_PUBLICLY_AVAILABLE->value],
+            'score'                       => $featureSettings[UserFeatureSettingEnum::QUESTION_DEFAULT_POINTS->value],
+            'decimal_score'               => $featureSettings[UserFeatureSettingEnum::QUESTION_HALF_POINTS_POSSIBLE->value],
+            'auto_check_incorrect_answer' => $featureSettings[UserFeatureSettingEnum::QUESTION_AUTO_SCORE_INCORRECT_COMPLETION->value],
         ];
     }
 

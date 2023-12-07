@@ -4,6 +4,9 @@
 'answer',
 'pdf_type' => 'answer_model'
 ])
+@php
+    $showGroupQuestionText = $pdf_type == 'student_test_take' ? ($this->showQuestionText && $this->group) : $this->group
+@endphp
 
 <div class="flex flex-col p-8 sm:p-10 content-section rs_readable page-no-break" >
     <div class="question-title inline-flex-pdf justify-between items-center question-indicator border-bottom mb-6 question-indicator-no-break"  style="position:relative;">
@@ -41,7 +44,7 @@
             </div>
         @endif
     </div>
-    @if($this->group)
+    @if($showGroupQuestionText)
         <div class="mb-5 group-question-description" >{!! $this->group->question->converted_question_html !!}&nbsp;</div>
     @endif
     <div class="flex flex-1 overview">

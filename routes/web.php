@@ -103,8 +103,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/tests', tcCore\Http\Livewire\Teacher\TestsOverview::class)->name('tests');
         Route::get('/test-detail/{uuid}', tcCore\Http\Livewire\Teacher\TestDetail::class)->name('test-detail');
         Route::get('/preview/answer_model/{test}', [tcCore\Http\Controllers\PreviewAnswerModelController::class, 'show'])->name('test-answer-model');
-        // @TODO PreviewTestTakeController printsTestTakeWithStudentAnswers this should be renamed;
-        Route::get('/preview/test_take/{test_take}', [tcCore\Http\Controllers\PreviewTestTakeController::class, 'show'])->name('preview.test_take');
+        Route::get('/preview/pdf/test_take_answers/{test_take}', [tcCore\Http\Controllers\PreviewTestTakeController::class, 'show'])->name('preview.test_take_answers_pdf');
         Route::get('/preview/pdf/test/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'showTest'])->name('preview.test_pdf');
         Route::get('/preview/pdf/test_opgaven/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestOpgaven'])->name('preview.test_opgaven_pdf');
         Route::get('/preview/pdf/test_take/{test_take}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestTake'])->name('preview.test_take_pdf');

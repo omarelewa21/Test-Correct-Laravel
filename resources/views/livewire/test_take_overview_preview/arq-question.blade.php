@@ -1,13 +1,18 @@
 <x-partials.answer-model-question-container :number="$number" :question="$question" :answer="$answer">
 
     <div class="w-full space-y-3">
-        <div>
-            <span>{!! __('test_take.instruction_arq') !!}</span>
-        </div>
-        <div class="flex flex-col space-y-5 xl:space-y-0 xl:flex-row xl:space-x-5">
-            <div class="flex flex-1 flex-col space-y-6 children-block-pdf questionContainer questionhtml">
-                {!! $question->converted_question_html !!}&nbsp;
+        @if($showQuestionText)
+            <div>
+                <span>{!! __('test_take.instruction_arq') !!}</span>
             </div>
+        @endif
+        <div class="flex flex-col space-y-5 xl:space-y-0 xl:flex-row xl:space-x-5">
+            @if($showQuestionText)
+                <div class="flex flex-1 flex-col space-y-6 children-block-pdf questionContainer questionhtml">
+                    &nbsp;
+                    {!! $question->converted_question_html !!}&nbsp;
+                </div>
+            @endif
             <div class="flex flex-1 flex-col question-no-break-arq-option">
                 <div>
                     <div class="px-5 space-x-4 text-base bold flex flex-row">
@@ -19,6 +24,27 @@
                 </div>
                 <div class="divider my-2"></div>
                 <div class="space-y-2">
+                    @if($this->answer === "")
+                        {{-- not answered --}}
+                        <label
+                                class="block p-5 border-2 border-blue-grey rounded-10 base multiple-choice-question transition ease-in-out duration-150 focus:outline-none disabled"
+                                >
+                            <input
+                                    id="link"
+                                    name="Question_{{ $question->id }}"
+                                    type="radio"
+                                    class="hidden"
+                                    value=""
+                            >
+                            <span class="w-16" style="display:inline-block;">-</span>
+                            <span class="mr-4  w-20" style="display:inline-block;">-</span>
+                            <span class="mr-4  w-20" style="display:inline-block;">-</span>
+                            <span class="max-w-max">-</span>
+                            <div class="ml-auto"  style="float:right;">
+                                <x-icon.close-pdf class="student_test_take_checkmark_pdf"/>
+                            </div>
+                        </label>
+                    @endif
                     @foreach( $this->getMultipleChoiceQuestionAnswers() as $loopCount => $link)
                         @if($this->answer == $link->id)
                             <label

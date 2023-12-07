@@ -1,7 +1,11 @@
 <?php
 
 use Illuminate\Support\Js;
+use Illuminate\Http\Request;
+use tcCore\Http\Controllers\PreviewTestTakeController;
 use tcCore\Http\Helpers\Settings;
+use Illuminate\Support\Facades\Storage;
+use tcCore\TestTake;
 
 if (!function_exists('settings')) {
     function settings(): Settings
@@ -19,5 +23,13 @@ if (!function_exists('js')) {
     function js($data): Js
     {
         return new Js($data);
+    }
+}
+
+if(!function_exists('pdf_answers_for_testtake')){
+    function pdf_answers_for_testtake($testTakeId) {
+        $testTake = \tcCore\TestTake::findOrFail($testTakeId);
+
+        (new PreviewTestTakeController)->show($testTake, new Request(), false);
     }
 }

@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Student;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use tcCore\AnswerRating;
 use tcCore\CompletionQuestion;
@@ -31,6 +32,7 @@ use tcCore\RelationQuestion;
 use tcCore\TestTake;
 use tcCore\TestTakeQuestion;
 use tcCore\TestTakeStatus;
+use tcCore\View\Components\CompletionQuestionConvertedHtml;
 
 class CoLearning extends TCComponent
 {
@@ -780,5 +782,13 @@ class CoLearning extends TCComponent
             || $discussingQuestion instanceof RelationQuestion
             || ($discussingQuestion instanceof MultipleChoiceQuestion
                 && ($discussingQuestion->isSubtype('MultipleChoice') || $discussingQuestion->isSubtype('TrueFalse')));
+    }
+
+    private function getDisplayableQuestionText()
+    {
+        if ($this->getDiscussingQuestion()->isType('Completion')) {
+            return Blade::renderComponent(new CompletionQuestionConvertedHtml($this->getDiscussingQuestion(), 'assessment'));
+        }
+        return $this->getDiscussingQuestion()->converted_question_html;
     }
 }

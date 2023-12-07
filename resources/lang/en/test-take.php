@@ -134,4 +134,5 @@ return [
     'grades'                                                                                                                                           => 'Grades',
     're discuss test text'                                                                                                                             => 'If you already have a finished session, this will override it. Score might change accordingly, but they won’t affect grades unless they are published again.',
     'Afname is niet mogelijk'                                                                                                                          => 'Starting test is not possible',
+    'amount_of_words'                                                                                                                                  => 'Amount of words:',
 ];

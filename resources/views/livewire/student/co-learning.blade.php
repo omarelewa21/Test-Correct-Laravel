@@ -131,7 +131,7 @@
                                     </div>
 
                                     <div class="max-w-full">
-                                        {!! $this->getDiscussingQuestion()->converted_question_html !!}
+                                        {!! $this->getDisplayableQuestionText()  !!}
                                     </div>
                                 </div>
                             </x-slot:body>

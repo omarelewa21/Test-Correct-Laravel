@@ -3537,7 +3537,7 @@ input[type=number] {
 }
 
 .questionContainer .input-group:has(p),
-.questionContainer .co-learning-completion {
+.questionContainer .completion-question-question-container {
     display: block;
 }
 

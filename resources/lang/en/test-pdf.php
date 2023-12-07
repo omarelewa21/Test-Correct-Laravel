@@ -42,4 +42,5 @@ return [
     'printversion_test_attachments'        => 'Printversion test pdf-attachments:',
     'pdf_download_wait_text'               => 'Please wait for the pdf to load, it may take a while.',
     'test_attachments_zip'                 => 'test-attachments',
+    'Sorry, the download could not be generated, please get in contact in order for us to help you with that.' => 'Sorry, the download could not be generated, please get in contact in order for us to help you with that.',
 ];

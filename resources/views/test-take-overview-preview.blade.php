@@ -5,6 +5,7 @@
                 <livewire:test-take-preview.test-participant
                         :testParticipant="$testParticipant"
                         :testTake="$testTake"
+                        :showQuestionText="$showQuestionText"
                 />
             @endforeach
         </div>

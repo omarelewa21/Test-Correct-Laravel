@@ -19,7 +19,7 @@ class CompletionQuestion extends Question implements QuestionInterface
 
     protected $casts = [
         'uuid'                             => EfficientUuid::class,
-        'auto_check_answer'                => 'boolean',
+        'auto_check_incorrect_answer'      => 'boolean',
         'auto_check_answer_case_sensitive' => 'boolean',
         'deleted_at'                       => 'datetime',
     ];
@@ -36,7 +36,7 @@ class CompletionQuestion extends Question implements QuestionInterface
      *
      * @var array
      */
-    protected $fillable = ['rating_method', 'subtype', 'auto_check_answer', 'auto_check_answer_case_sensitive'];
+    protected $fillable = ['rating_method', 'subtype', 'auto_check_incorrect_answer', 'auto_check_answer_case_sensitive'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -83,7 +83,7 @@ class CompletionQuestion extends Question implements QuestionInterface
         parent::boot();
 
         static::saving(function (CompletionQuestion $question) {
-            $question->auto_check_answer = !!$question->auto_check_answer;
+            $question->auto_check_incorrect_answer = !!$question->auto_check_incorrect_answer;
             $question->auto_check_answer_case_sensitive = !!$question->auto_check_answer_case_sensitive;
             return $question;
         });
@@ -114,7 +114,7 @@ class CompletionQuestion extends Question implements QuestionInterface
 
     public function canCheckAnswer()
     {
-        if ($this->isClosedQuestion()) { // cito based
+        if ($this->subtype == 'multi' || ($this->subtype == 'completion' && $this->auto_check_incorrect_answer)) { // cito based
             return true;
         } else if ($this->subtype == 'completion') { // don't auto check gatentekst
             return false;
@@ -149,7 +149,7 @@ class CompletionQuestion extends Question implements QuestionInterface
 
     protected function isClosedQuestion()
     {
-        return $this->isCitoQuestion() || $this->auto_check_answer;
+        return $this->isCitoQuestion();
     }
 
     public function checkAnswerCompletion($answer)
