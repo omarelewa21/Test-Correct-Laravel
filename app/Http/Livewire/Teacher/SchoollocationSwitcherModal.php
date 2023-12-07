@@ -30,9 +30,12 @@ class SchoollocationSwitcherModal extends TCModalComponent
         $user->save();
         if(!$currentSchoolLocation->block_local_login && $schoolLocation->block_local_login){
             // we need to move away towards entree;
-            auth()->logout();
-            $redirectUrl = route('saml2_login', ['entree']);
+            // but first we need to go to cake to logout there, then come back to laravel, logout and move to entree
+//            auth()->logout();
+//            $redirectUrl = route('saml2_login', ['entree']);
+            $redirectUrl = config('app.url_roundtrip_entree');
             return redirect()->to($redirectUrl);
+
         }
         $this->dispatchBrowserEvent('notify', ['message' => __('general.Actieve schoollocatie aangepast')]);
         return $user->redirectToCakeWithTemporaryLogin();
