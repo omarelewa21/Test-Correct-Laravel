@@ -80,17 +80,20 @@ class CompletionQuestion extends QuestionComponent
             }
         }
 
-        if ($this->question->isSubType('completion') && !$this->question->auto_check_answer) {
-            return null;
+        $correctAnswers = Arr::wrap($correctAnswer->answer);
+
+        if (!$this->question->auto_check_answer_case_sensitive) {
+            $correctAnswers = array_map('strtolower', $correctAnswers);
+            $givenAnswer = Str::lower($givenAnswer);
         }
 
-        if ($this->question->auto_check_answer_case_sensitive) {
-            return in_array($givenAnswer, Arr::wrap($correctAnswer->answer)) ?: null;
+
+        if ($this->question->isSubType('completion') && $this->question->auto_check_incorrect_answer) {
+            return in_array($givenAnswer, $correctAnswers);
         }
 
-        $lowercaseAnswers = array_map('strtolower', Arr::wrap($correctAnswer->answer));
-
-        return in_array(Str::lower($givenAnswer), $lowercaseAnswers) ?: null;
+        return in_array($givenAnswer, $correctAnswers)
+            ?: null;
     }
 
     private function createCompletionAnswerStruct(mixed $answers, $correctAnswers, $answer)
@@ -109,9 +112,11 @@ class CompletionQuestion extends QuestionComponent
                 ->unique('tag')
                 ->count();
 
-        return $answerStruct->map(function ($link, $key) use ($answer, $answers, $score) {
+        $mtep = $answerStruct->map(function ($link, $key) use ($answer, $answers, $score) {
             return $this->setAnswerPropertiesOnObject($link, $key, $link, $answers, $score);
         });
+//        dd($mtep);
+        return $mtep;
     }
 
     private function createSelectionAnswerStruct(mixed $answers, $correctAnswers)

@@ -180,7 +180,7 @@
                         @endif
                         @if($this->questionModel->isType('Completion'))
                             <x-input.toggle-row-with-title :disabled="true"
-                                                           :checked="$this->questionModel->auto_check_answer"
+                                                           :checked="$this->questionModel->auto_check_incorrect_answer"
                             >
                                 <x-icon.autocheck/>
                                 <span>{{ __('cms.Automatisch nakijken') }}</span>

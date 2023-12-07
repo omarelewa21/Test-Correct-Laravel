@@ -282,13 +282,13 @@
                             </x-input.toggle-row-with-title>
                         @endif
 
-                        @if($this->isSettingsGeneralPropertyVisible('autoCheckAnswer'))
-                            <x-input.toggle-row-with-title wire:model="question.auto_check_answer"
-                                                           class="{{ $this->isSettingsGeneralPropertyDisabled('autoCheckAnswer') ? 'text-disabled' : '' }}"
-                                                           :disabled="$this->isSettingsGeneralPropertyDisabled('autoCheckAnswer')"
+                        @if($this->isSettingsGeneralPropertyVisible('autoCheckIncorrectAnswer'))
+                            <x-input.toggle-row-with-title wire:model="question.auto_check_incorrect_answer"
+                                                           class="{{ $this->isSettingsGeneralPropertyDisabled('autoCheckIncorrectAnswer') ? 'text-disabled' : '' }}"
+                                                           :disabled="$this->isSettingsGeneralPropertyDisabled('autoCheckIncorrectAnswer')"
                             >
                                 <x-icon.autocheck/>
-                                <span class="bold @if($this->isSettingsGeneralPropertyDisabled('autoCheckAnswer')) disabled @endif"> {{ __('cms.Automatisch nakijken') }}</span>
+                                <span class="bold @if($this->isSettingsGeneralPropertyDisabled('autoCheckIncorrectAnswer')) disabled @endif"> {{ __('cms.Automatisch nakijken') }}</span>
                             </x-input.toggle-row-with-title>
                         @endif
 

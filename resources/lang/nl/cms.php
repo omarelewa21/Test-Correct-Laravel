@@ -92,7 +92,7 @@ return [
     'Notities toestaan'                                                                      => 'Notities toestaan',
     'Halve puntenbeoordeling mogelijk'                                                       => 'Halve puntenbeoordeling mogelijk',
     'Taalcontrole beschikbaar tijdens nakijken'                                              => 'Taalcontrole beschikbaar tijdens nakijken',
-    'Automatisch nakijken'                                                                   => 'Automatisch nakijken',
+    'Automatisch nakijken'                                                                   => 'Afwijkende antwoorden fout rekenen',
     'Hoofdlettergevoelig nakijken'                                                          => 'Hoofdlettergevoelig nakijken',
     'Taxonomie'                                                                              => 'Taxonomie',
     'methode'                                                                                => 'methode',

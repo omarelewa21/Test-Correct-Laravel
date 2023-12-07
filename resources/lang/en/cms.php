@@ -93,7 +93,7 @@ return [
     'Notities toestaan'                                                                      => 'Allow notes',
     'Halve puntenbeoordeling mogelijk'                                                       => 'Allow halve points review',
     'Taalcontrole beschikbaar tijdens nakijken'                                              => 'Spelling and grammar check available during assessing answers',
-    'Automatisch nakijken'                                                                   => 'Automatic review',
+    'Automatisch nakijken'                                                                   => 'Score deviant answers as incorrect',
     'Hoofdlettergevoelig nakijken'                                                          => 'Case sensitive review',
     'Taxonomie'                                                                              => 'Taxonomy',
     'methode'                                                                                => 'method',
