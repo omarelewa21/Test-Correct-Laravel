@@ -32,15 +32,46 @@ class RelationQuestion extends QuestionComponent
         $studentAnswer = collect(json_decode($answer->json ?? '{}', true));
 
         $answerModelWords = Word::whereIn('id', $studentAnswer->keys())->get()->keyBy('id');
+        $answerModelWordsCorrectWord = $answerModelWords->map->correctAnswerWord();
 
-        $this->answerStruct = $studentAnswer->mapWithKeys(function($studentAnswerText, $wordId) use ($answerModelWords) {
+        $score_per_toggle = $answer->question->score / count($studentAnswer);
+
+        //todo when auto_checking, set initial value to correct if correct, if incorrect show null
+
+        $this->answerStruct = $studentAnswer->mapWithKeys(function($studentAnswerText, $wordId) use ($answerModelWords, $score_per_toggle, $answerModelWordsCorrectWord) {
             return [
                 $wordId => [
                     'answer'   => $studentAnswerText,
                     'question' => $answerModelWords[$wordId]->text,
+                    'not_answered' => $studentAnswerText === null || $studentAnswerText === '',
+                    'initial_value' => $this->getInitialValueForWordId($wordId, $studentAnswerText, $answerModelWordsCorrectWord),
+                    'toggle_value' => $score_per_toggle,
                 ]
             ];
 
         });
+    }
+
+    protected function getInitialValueForWordId($wordId, $studentAnswer, $answerModelWordsCorrectWord)
+    {
+        if(isset($this->answerRating->json[$wordId]) && ($this->answerRating->json[$wordId] !== null || $this->answerRating->json[$wordId] !== '')) {
+            return $this->answerRating->json[$wordId];
+        }
+
+        //todo add case or not case checking?
+        //$question->auto_check_answer
+        //$question->auto_check_answer_case_sensitive
+
+//        if($question->auto_check_answer) {
+//            return $question->auto_check_answer_case_sensitive
+//                ? $answerModelWordsCorrectWord[$wordId]->text === $studentAnswer
+//                : strtolower($answerModelWordsCorrectWord[$wordId]->text) === strtolower($studentAnswer);
+//        }
+
+        if($answerModelWordsCorrectWord[$wordId]->text === $studentAnswer) {
+            return 1;
+        }
+
+        return null;
     }
 }

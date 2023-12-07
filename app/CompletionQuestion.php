@@ -1,6 +1,7 @@
 <?php namespace tcCore;
 
 use Dyrynda\Database\Casts\EfficientUuid;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Validator;
 use Ramsey\Uuid\Uuid;
@@ -177,25 +178,9 @@ class CompletionQuestion extends Question implements QuestionInterface
                 continue;
             }
 
-            if ($this->auto_check_answer && !$this->auto_check_answer_case_sensitive) {
-                $answers[$refTag] = Str::lower($answers[$refTag]);
-                $tagAnswersAr = $tagAnswers;
-                $tagAnswers = [];
-                foreach ($tagAnswersAr as $key => $val) {
-                    $tagAnswers[$key] = Str::lower($val);
-                }
-            }
-            $tagAnswers = collect($tagAnswers)->map(function ($tagAnswer) {
-                return BaseHelper::transformHtmlCharsReverse(
-                    trim($tagAnswer)
-                );
-            })->toArray();
-            if (in_array(trim($answers[$refTag]), $tagAnswers)
-                || in_array(trim(BaseHelper::transformHtmlCharsReverse($answers[$refTag])), $tagAnswers)
-                || in_array(trim(htmlentities($answers[$refTag])), $tagAnswers)
-            ) {
-                $correct++;
-            }
+            QuestionHelper::compareTextAnswers($answers[$refTag], $tagAnswers, $this->auto_check_answer_case_sensitive)
+                ? $correct++
+                : null;
         }
 
         if ($this->allOrNothingQuestion()) {

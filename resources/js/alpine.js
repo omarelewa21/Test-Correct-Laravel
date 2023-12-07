@@ -1597,9 +1597,21 @@ document.addEventListener("alpine:init", () => {
                 }
                 ;
                 /* dispatch with a static (question score) value, not value/key of button-option, only works with true/false  */
+                let state = 'off';
+                switch(parseFloat(this.value)){
+                    case 1.0:
+                        state = 'on';
+                        break;
+                    case 0.5:
+                        state = 'half';
+                        break;
+                    default:
+                        state = 'off';
+                        break;
+                }
                 this.$dispatch("slider-toggle-value-updated", {
                     value: this.$root.dataset.toggleValue,
-                    state: parseInt(this.value) === 1 ? "on" : "off",
+                    state: state,
                     firstTick: oldValue === null,
                     identifier: this.identifier
                 });
@@ -2024,6 +2036,7 @@ document.addEventListener("alpine:init", () => {
         drawerScoringDisabled: array.drawerScoringDisabled,
         pageUpdated: array.pageUpdated,
         isCoLearningScore: array.isCoLearningScore,
+        toggleValues: array.toggleValues || {},
         init() {
             if (this.pageUpdated) {
                 this.resetStoredData();
@@ -2048,7 +2061,7 @@ document.addEventListener("alpine:init", () => {
         },
         toggleTicked(event) {
             const parsedValue = isFloat(event.value) ? parseFloat(event.value) : parseInt(event.value);
-            this.setNewScore(parsedValue, event.state, event.firstTick);
+            this.setNewScore(parsedValue, event.state, event.firstTick, event?.identifier);
 
             this.updateAssessmentStore();
 
@@ -2057,25 +2070,36 @@ document.addEventListener("alpine:init", () => {
             this.updateLivewireComponent(event);
         },
         getCurrentScore() {
+            const toggleValuesCount = Object.keys(this.toggleValues).length;
+            const toggleValuesSum = Object.values(this.toggleValues).reduce((sum, value) => sum + value, 0);
+
+            this.shadowScore = this.maxScore / toggleValuesCount * toggleValuesSum;
+
+            if (this.shadowScore < 0) this.shadowScore = 0;
+            if (this.shadowScore > this.maxScore) this.shadowScore = this.maxScore;
+
             return this.halfPoints
-                ? Math.round(this.shadowScore * 2) / 2
-                : Math.round(this.shadowScore);
+                ? Math.floor(this.shadowScore * 2) / 2
+                : Math.floor(this.shadowScore);
         },
-        setNewScore(newScore, state, firstTick) {
+        setNewScore(newScore, state, firstTick, identifier = null) {
             if (firstTick && this.isCoLearningScore) {
                 this.isCoLearningScore = false;
                 this.shadowScore = 0;
             }
-            if (firstTick && state === "off") {
-                this.shadowScore ??= 0;
-            } else {
-                this.shadowScore = state === "on"
-                    ? this.shadowScore + newScore
-                    : this.shadowScore - newScore;
+            // new scoring mechanism:
+            switch(state){
+                case 'on':
+                    this.toggleValues[identifier] = 1;
+                    break;
+                case 'half':
+                    this.toggleValues[identifier] = 0.5;
+                    break;
+                default:
+                    this.toggleValues[identifier] = 0;
+                    break;
             }
 
-            if (this.shadowScore < 0) this.shadowScore = 0;
-            if (this.shadowScore > this.maxScore) this.shadowScore = this.maxScore;
             this.score = this.getCurrentScore();
         },
         updateAssessmentStore() {

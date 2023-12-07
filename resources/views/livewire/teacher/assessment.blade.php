@@ -138,6 +138,7 @@
                                             :commentMarkerStyles="$this->commentMarkerStyles"
                                             :enableComments="true"
                                             :answerFeedbackFilter="$this->answerFeedbackFilter"
+                                            :answerRating="$this->currentAnswer->answerRatings->where('type', 'TEACHER')->first()"
                                     />
                                 </div>
                             </x-slot:body>

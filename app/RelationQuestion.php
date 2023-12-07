@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 use tcCore\Http\Enums\WordType;
 use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\Http\Traits\Questions\WithQuestionDuplicating;
 
@@ -99,6 +100,7 @@ class RelationQuestion extends Question implements QuestionInterface
         // TODO: is it an open question? in cms it is now a closed question
         //  there is no toggle to enable/disable auto checking
         //  does it allways check or never?
+        return true;
         if($this->getAttribute('auto_check_answer')) {
             return true;
         }
@@ -132,7 +134,7 @@ class RelationQuestion extends Question implements QuestionInterface
             return false;
         }
 
-        $autoCheckAnswerCaseSensitive = true;
+        $autoCheckAnswerCaseSensitive = false;
 //        $autoCheckAnswerCaseSensitive = $this->getAttribute('auto_check_answer_case_sensitive');
 
         //Student answer:
@@ -142,6 +144,7 @@ class RelationQuestion extends Question implements QuestionInterface
         $answerModel = $this->wordsToAsk()
             ->filter(fn($word) => $answers->has($word->id))
             ->keyBy('id')
+            ->map->correctAnswerWord()
             ->map->text;
 
         $answerOptionsCount = count($answerModel);
@@ -152,12 +155,11 @@ class RelationQuestion extends Question implements QuestionInterface
         }
 
         $correctAnswersCount = $answers->reduce(function ($carry, $answer, $key) use ($answerModel, $answers){
-            //condition2/3 checks are copied from CompletionQuestion
-            $condition1 = $answerModel[$key] === $answer;
-            $condition2 = $answerModel[$key] === trim(BaseHelper::transformHtmlCharsReverse($answer));
-            $condition3 = $answerModel[$key] === trim(htmlentities($answer));
+            if($answer === null || $answer === '') {
+                return $carry;
+            }
 
-            return $condition1 || $condition2 || $condition3 ? ++$carry : $carry;
+            return QuestionHelper::compareTextAnswers($answer, $answerModel[$key]) ? ++$carry : $carry;
         }, 0);
 
         $score = $this->getAttribute('score') * ($correctAnswersCount / $answerOptionsCount);
