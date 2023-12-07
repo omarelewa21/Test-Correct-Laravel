@@ -6,6 +6,7 @@ use Aacotroneo\Saml2\Saml2Auth;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use tcCore\SamlMessage;
@@ -15,6 +16,14 @@ class Saml2Controller extends Controller
     private function logger($data)
     {
         //logger($data);
+    }
+
+    public function redirectToEntree()
+    {
+        if(Auth::user()){
+            Auth::logout();
+        }
+        return response()->redirectTo(route('saml2_login',['entree']));
     }
 
     /**
