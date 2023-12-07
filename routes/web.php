@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('redirect-to-dashboard', [\tcCore\Http\Controllers\DashboardController::class, 'index'])->name('redirect-to-dashboard');
+Route::get('redirect-to-entree', [\tcCore\Http\Controllers\Saml2Controller::class, 'redirectToEntree'])->name('redirect-to-entree');
 
 Route::get('appapi/feature_flags',[tcCore\Http\Controllers\AppApiController::class,'featureFlags'])->name('appapi.feature_flags');
 
