@@ -170,7 +170,8 @@ class GradesServiceTest extends TestCase
             ->setProperties(['name' => 'Test for gradelist. [with 9 questions] ' . Carbon::now()->format('ymd-Hi')])
             ->addQuestions( // question number in test:
                 [
-                    FactoryQuestionInfoscreen::create(), //question 1
+//                    FactoryQuestionInfoscreen::create(), //question 1 // needed to be removed otherwise you would always have an X
+                    FactoryQuestionRanking::create(), //question 1
                     FactoryQuestionRanking::create(), //question 2
                     FactoryQuestionGroup::create()
                         ->setProperties(
