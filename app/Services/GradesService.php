@@ -47,13 +47,25 @@ class GradesService
             $answers = $testParticipant->answers;
             $questionOrderList->each(function ($question) use (&$result, $answers) {
                 // infoscreen then an X
-                // if answer available then calculate the rating
-                // if not available then check for caroussel and if so set X
-                // otherwise set -
-                $result[$question['question_id']] = "-";
+                if(strtolower($question['question_type']) == 'infoscreenquestion'){
+                    $result[$question['question_id']] = 'X';
+                } else if($answer = $answers->where('question_id',$question['question_id'])->first()){
+                    $result[$question['question_id']] = number_format($answer->final_rating ?? $answer->calculateFinalRating(), 1, ',', '.');
+                } else if($question['carousel_question']) {
+                    $result[$question['question_id']] = "X";
+                } else {
+                    // if answer available then calculate the rating
+                    // if not available then check for caroussel and if so set X
+                    // otherwise set -
+
+                    $result[$question['question_id']] = "-";
+                }
             });
 
-
+/*
+            $questionOrderList->each(function ($question) use (&$result, $answers) {
+                    $result[$question['question_id']] = "-";
+            });
 
             //refactor to map result? do both steps in one map:
 
@@ -78,6 +90,7 @@ class GradesService
                     $result[$key] = "X";
                 }
             }
+*/
 
             return $result;
 
