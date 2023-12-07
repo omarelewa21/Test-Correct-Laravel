@@ -73,7 +73,7 @@ class AnswerChecker {
             return $changed;
         }
 
-        if (!$question->canCheckAnswer()) {
+        if (!$question->canCheckAnswer($answer)) {
             return false;
         }
 

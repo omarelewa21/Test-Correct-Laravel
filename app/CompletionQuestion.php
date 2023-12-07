@@ -112,12 +112,19 @@ class CompletionQuestion extends Question implements QuestionInterface
         return $question;
     }
 
-    public function canCheckAnswer()
+    public function canCheckAnswer($answer = null)
     {
-        if ($this->subtype == 'multi' || ($this->subtype == 'completion' && $this->auto_check_incorrect_answer)) { // cito based
+        if ($this->subtype == 'multi' || ($this->subtype == 'completion' && $this->auto_check_incorrect_answer)) {
             return true;
-        } else if ($this->subtype == 'completion') { // don't auto check gatentekst
-            return false;
+        } else if ($this->subtype == 'completion') {
+            //todo if $this->auto_check_incorrect_answer === false, but all answers are CORRECT,
+            // then we can check the answer so that it gets a score (because it is correct)
+            // EXTRA: filter out not filled in answers, and if the rest is correct, then we can check the answer
+
+            if($answer === null){
+                return false;
+            }
+            return $this->checkAnswerCompletionTwo($answer)['all_answers_correct'];
         }
 
         $completionQuestionAnswers = $this->completionQuestionAnswers->groupBy('tag');
@@ -153,6 +160,20 @@ class CompletionQuestion extends Question implements QuestionInterface
     }
 
     public function checkAnswerCompletion($answer)
+    {
+        $score = $this->checkAnswerCompletionTwo($answer)['score'];
+
+        if ($this->getAttribute('decimal_score') == true) {
+            $score = floor($score * 2) / 2;
+        } else {
+            $score = floor($score);
+        }
+
+        return $score;
+
+    }
+
+    protected function checkAnswerCompletionTwo($answer)
     {
         $completionQuestionAnswers = $this->completionQuestionAnswers->groupBy('tag');
         foreach ($completionQuestionAnswers as $tag => $choices) {
@@ -191,16 +212,10 @@ class CompletionQuestion extends Question implements QuestionInterface
             }
         }
 
-
-        $score = $this->getAttribute('score') * ($correct / count($completionQuestionAnswers));
-        if ($this->getAttribute('decimal_score') == true) {
-            $score = floor($score * 2) / 2;
-        } else {
-            $score = floor($score);
-        }
-
-        return $score;
-
+        return [
+            'score' =>$this->getAttribute('score') * ($correct / count($completionQuestionAnswers)),
+            'all_answers_correct' => count(array_filter($answers)) == $correct
+        ];
     }
 
     public function checkAnswerMulti($answer)
