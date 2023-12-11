@@ -97,11 +97,16 @@ class RelationQuestion extends Question implements QuestionInterface
     {
         // TODO: Implement canCheckAnswer() method.
 
-        // TODO: is it an open question? in cms it is now a closed question
-        //  there is no toggle to enable/disable auto checking
-        //  does it allways check or never?
+
+        //TODO the same as CompletionQUesiton, check:
+        // auto check completely if auto_check_incorrect_answer is true
+        // auto check if all answers are correct, or
+        //  if all filled in answers are correct. (not filled in answers are incorrect even if auto_check_incorrect_answer is false)
+
+        throw new \Exception('TODO next time: ' . __METHOD__ . ' - not implemented ');
+
         return true;
-        if($this->getAttribute('auto_check_answer')) {
+        if($this->getAttribute('auto_check_incorrect_answer')) {
             return true;
         }
 
@@ -125,14 +130,16 @@ class RelationQuestion extends Question implements QuestionInterface
     {
         // TODO implement or remove auto_check_answer and auto_check_answer_case_sensitive options (CMS, and here)
         //  Completion question has:
-        //   $this->auto_check_answer
+        //   $this->auto_check_incorrect_answer
         //   $this->auto_check_answer_case_sensitive
 
-        $autoCheckAnswer = true; //checkAnswer should not have been called if this is false.
-//        $autoCheckAnswer = $this->getAttribute('auto_check_answer');
-        if(!$autoCheckAnswer) {
-            return false;
-        }
+
+
+//        $autoCheckAnswer = true; //checkAnswer should not have been called if this is false.
+////        $autoCheckAnswer = $this->getAttribute('auto_check_answer');
+//        if(!$autoCheckAnswer) {
+//            return false;
+//        }
 
         $autoCheckAnswerCaseSensitive = false;
 //        $autoCheckAnswerCaseSensitive = $this->getAttribute('auto_check_answer_case_sensitive');
