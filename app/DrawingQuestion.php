@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -265,13 +266,13 @@ class DrawingQuestion extends Question implements QuestionInterface {
                 '=',
                 'test_questions.test_id'
             )
-            ->join(
+            ->leftJoin(
                 'group_questions',
                 'test_questions.question_id',
                 '=',
-                'group_questions.id'
+                'group_questions.id',
             )
-            ->join(
+            ->leftJoin(
                 'group_question_questions',
                 'group_question_questions.group_question_id',
                 '=',
