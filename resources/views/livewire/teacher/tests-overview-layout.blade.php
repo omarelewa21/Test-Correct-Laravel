@@ -41,7 +41,7 @@
                             placeholderText="{{ __('general.Categorie') }}"
                             wire:model="filters.base_subject_id"
                             filterContainer="testbank-{{ $this->openTab }}-active-filters"
-                            initWidth="27"
+                            initWidth="62"
                     />
                 @else
                     <x-input.choices-select
@@ -52,7 +52,7 @@
                             placeholderText="{{ __('student.subject') }}"
                             wire:model="filters.subject_id"
                             filterContainer="testbank-{{ $this->openTab }}-active-filters"
-                            initWidth="27"
+                            initWidth="52"
                     />
                 @endif
                 <x-input.choices-select
@@ -63,7 +63,7 @@
                         placeholderText="{{ __('general.Leerjaar') }}"
                         wire:model="filters.education_level_year"
                         filterContainer="testbank-{{ $this->openTab }}-active-filters"
-                        initWidth="58"
+                        initWidth="73"
                 />
                 <x-input.choices-select
                         wire:key="educationLevel_{{ $this->openTab }}"

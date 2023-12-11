@@ -1003,7 +1003,7 @@ document.addEventListener("alpine:init", () => {
         },
         handleContainerWidth(minWidth) {
             if (this.$root.classList.contains("super")) return;
-            this.$root.querySelector("input.choices__input[type=\"search\"]").style.width = minWidth + 16 + "px";
+            this.$root.querySelector("input.choices__input[type=\"search\"]").style.width = (parseInt(minWidth,10) + 16) + "px";
             this.$root.querySelector("input.choices__input[type=\"search\"]").style.minWidth = "auto";
         }
     }));
