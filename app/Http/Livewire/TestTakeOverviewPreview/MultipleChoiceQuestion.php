@@ -33,6 +33,8 @@ class MultipleChoiceQuestion extends TCComponent
 
     public $answerText;
 
+    public $showQuestionText;
+
     public function mount()
     {
         $this->arqStructure = \tcCore\MultipleChoiceQuestion::getArqStructure();

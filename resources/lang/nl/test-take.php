@@ -129,8 +129,9 @@ return [
     'Naar nakijken'                                                                                                                                    => 'Naar nakijken',
     're assess test text'                                                                                                                              => 'Weet je zeker dat je wil nakijken? De wijzigingen die je maakt kunnen van invloed zijn op de resultaten. Het kan zijn dat je daarna opnieuw moet kijken naar ‘resultaten instellen’ en eventueel opnieuw de resultaten moet publiceren.',
     'Naar CO-Learning'                                                                                                                                 => 'Naar CO-Learning',
-    'CO-Learning niet mogelijk met alleen carrousel vragen'                                                                                             => 'CO-Learning niet mogelijk met alleen carrousel vragen',
+    'CO-Learning niet mogelijk met alleen carrousel vragen'                                                                                            => 'CO-Learning niet mogelijk met alleen carrousel vragen',
     'grades'                                                                                                                                           => 'Cijfers',
     're discuss test text'                                                                                                                             => 'Als je al een sessie hebt afgerond, dan wordt deze overschreden. Scores kunnen hierdoor veranderen, maar cijfers blijven ongewijzigd als je ze niet opnieuw publiceert.',
     'Afname is niet mogelijk'                                                                                                                          => 'Afname is niet mogelijk',
+    'amount_of_words'                                                                                                                                  => 'Aantal woorden:',
 ];

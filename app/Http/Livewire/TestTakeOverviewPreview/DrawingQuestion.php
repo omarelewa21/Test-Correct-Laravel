@@ -30,6 +30,8 @@ class DrawingQuestion extends TCComponent
     public $additionalText;
     public $imgSrc;
 
+    public $showQuestionText;
+
     public function mount()
     {
         $answer = Answer::where('id', $this->answers[$this->question->uuid]['id'])

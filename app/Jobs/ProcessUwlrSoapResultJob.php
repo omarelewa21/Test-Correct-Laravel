@@ -54,6 +54,9 @@ class ProcessUwlrSoapResultJob extends Job implements ShouldQueue
     public function handle()
     {
         set_time_limit(0);
+        logger('before memory limit => '.ini_get('memory_limit'));
+        ini_set('memory_limit', '-1');
+        logger('after memory limit => '.ini_get('memory_limit'));
         $resultSet = UwlrSoapResult::find($this->uwlrSoapResultId);
         if(!$resultSet){
             $this->runNextIfNeeded();

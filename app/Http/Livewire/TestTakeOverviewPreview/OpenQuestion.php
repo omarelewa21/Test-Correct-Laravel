@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\TestTakeOverviewPreview;
 
+use Illuminate\Support\Str;
 use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
@@ -18,6 +19,8 @@ class OpenQuestion extends TCComponent
     public $number;
     public $answers;
     public $editorId;
+    public $wordCount = 0;
+    public $showQuestionText;
 
     public function mount()
     {
@@ -46,5 +49,17 @@ class OpenQuestion extends TCComponent
     public function isQuestionFullyAnswered(): bool
     {
         return true;
+    }
+
+    public function getWordCountText()
+    {
+        $wordCount = Str::plainTextWordCount($this->answer);
+        $maxWords = $this->question?->max_words;
+
+        return sprintf('<span style="margin-right: 0.25rem;">%s</span>
+            <span>%s</span>',
+            __('test-take.amount_of_words'),
+            is_null($maxWords) ? $wordCount : $wordCount . '/' . $maxWords,
+        );
     }
 }
