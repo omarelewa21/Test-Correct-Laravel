@@ -220,7 +220,6 @@ class QuestionBank extends TCComponent
             }, function ($query) {
                 $query->where('type', '!=', 'GroupQuestion');
             })
-            ->where('type' , '!=', 'RelationQuestion') //TODO REMOVE THIS LINE!!!
             ->orderby('created_at', 'desc')
             ->distinct();
     }
