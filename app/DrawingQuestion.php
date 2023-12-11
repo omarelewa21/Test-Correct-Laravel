@@ -197,11 +197,16 @@ class DrawingQuestion extends Question implements QuestionInterface {
         return $question;
     }
 
-    public function canCheckAnswer() {
+    public function canCheckAnswer($answer) {
         return false;
     }
 
     public function checkAnswer($answer) {
+        return false;
+    }
+
+    public function isClosedQuestion(): bool
+    {
         return false;
     }
 

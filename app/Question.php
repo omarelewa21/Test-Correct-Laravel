@@ -463,7 +463,7 @@ class Question extends MtiBaseModel
         $this->authors = null;
     }
 
-    protected function isClosedQuestion()
+    public function isClosedQuestion(): bool
     {
         return $this->isCitoQuestion();
     }

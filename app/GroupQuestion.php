@@ -347,12 +347,17 @@ class GroupQuestion extends Question implements QuestionInterface
         return $tests;
     }
 
-    public function canCheckAnswer()
+    public function canCheckAnswer($answer)
     {
         return false;
     }
 
     public function checkAnswer($answer)
+    {
+        return false;
+    }
+
+    public function isClosedQuestion(): bool
     {
         return false;
     }

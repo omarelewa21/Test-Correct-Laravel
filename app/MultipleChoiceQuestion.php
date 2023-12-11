@@ -119,7 +119,7 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface
         return $question;
     }
 
-    public function canCheckAnswer()
+    public function canCheckAnswer($answer)
     {
         return true;
     }
@@ -177,6 +177,11 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface
 
 
         return $score;
+    }
+
+    public function isClosedQuestion(): bool
+    {
+        return true;
     }
 
     public function deleteAnswers()

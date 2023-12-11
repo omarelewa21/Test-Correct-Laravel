@@ -113,7 +113,7 @@ class MatchingQuestion extends Question implements QuestionInterface
         return $question;
     }
 
-    public function canCheckAnswer()
+    public function canCheckAnswer($answer)
     {
         return true;
     }
@@ -168,6 +168,11 @@ class MatchingQuestion extends Question implements QuestionInterface
         }
 
         return $score;
+    }
+
+    public function isClosedQuestion(): bool
+    {
+        return true;
     }
 
     public function getClassifyAnswersFromAnswer($answer)

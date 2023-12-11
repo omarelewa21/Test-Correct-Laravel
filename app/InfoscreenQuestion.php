@@ -67,7 +67,7 @@ class InfoscreenQuestion extends Question implements QuestionInterface {
         return $question;
     }
 
-    public function canCheckAnswer() {
+    public function canCheckAnswer($answer) {
         return true;
     }
 
@@ -75,5 +75,9 @@ class InfoscreenQuestion extends Question implements QuestionInterface {
         return 0;
     }
 
+    public function isClosedQuestion(): bool
+    {
+        return false;
+    }
 
 }
