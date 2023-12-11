@@ -179,14 +179,6 @@ class WaitingRoom extends TCComponent
         Auth::user()->redirectToCakeWithTemporaryLogin($options);
     }
 
-    // todo remove after refactoring colearning students
-//    public function destroyExistingCoLearningCompletionQuestionSession()
-//    {
-//        if (session()->has(CompletionQuestion::SESSION_KEY)) {
-//            session()->forget(CompletionQuestion::SESSION_KEY);
-//        }
-//    }
-
     public function startReview()
     {
         if (Auth::user()->schoolLocation->allow_new_reviewing) {
