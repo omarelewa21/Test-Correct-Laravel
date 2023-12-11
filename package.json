@@ -22,7 +22,7 @@
     },
     "dependencies": {
         "@alpinejs/collapse": "^3.10.5",
-        "@alpinejs/focus": "^3.12.2",
+        "@alpinejs/focus": "^3.13.3",
         "@alpinejs/intersect": "^3.9.6",
         "@ryangjchandler/alpine-clipboard": "^2.2.0",
         "alpinejs": "^3.2.4",

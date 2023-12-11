@@ -85,4 +85,9 @@ return [
     'hide_grade_tooltip'                           => 'Bij formatieve toetsen staan inzicht en voortgang centraal. Daarom zie je hier geen cijfer.',
     'waiting_grade'                                => "Bezig met nakijken & becijferen. Cijfer nog niet beschikbaar",
     'infoscreen_answer_text'                       => 'Dit is een informatiescherm, een antwoord is niet nodig.',
+    'language.en'                                  => 'Engels',
+    'language.nl'                                  => 'Nederlands',
+    'language.de'                                  => 'Duits',
+    'language.fr'                                  => 'Frans',
+    'language.es'                                  => 'Spaans',
 ];
