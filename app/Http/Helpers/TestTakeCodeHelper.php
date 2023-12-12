@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use tcCore\Lib\TestParticipant\Factory as ParticipantFactory;
 use tcCore\Lib\User\Factory as UserFactory;
 use tcCore\SchoolClass;
+use tcCore\TestKind;
 use tcCore\TestParticipant;
 use tcCore\TestTakeCode;
 use tcCore\TestTakeStatus;
@@ -14,6 +15,44 @@ use tcCore\User;
 
 class TestTakeCodeHelper extends BaseHelper
 {
+    public static function getTestTakeCodeModelFromCode($testTakeCode)
+    {
+        $code = is_array($testTakeCode) ? implode('', $testTakeCode) : $testTakeCode;
+        return TestTakeCode::whereCode($code)->first();
+    }
+
+    public function checkAccessViaTestTakeCodeIfExists($testTakeCode)
+    {
+
+        $foundTestTakeCode = self::getTestTakeCodeModelFromCode($testTakeCode);
+        return ($foundTestTakeCode
+            && $foundTestTakeCode->testTake
+            && $foundTestTakeCode->testTake->test
+            && (
+                Auth::user()->isA('teacher')
+                ||
+                (
+                    Auth::user()->isA('student')
+                    &&
+                    (
+                        ( // fail if not an assignment and doesn't start today
+                            $foundTestTakeCode->testTake->test->test_kind_id !== TestKind::ASSIGNMENT_TYPE
+                            && $foundTestTakeCode->testTake->time_start != Carbon::today()
+                        )
+                        || ( // fail if it is an assignment, and the time_start is later than today (starts later than today) or the time_end smaller than today (ends earlier than today)
+                            $foundTestTakeCode->testTake->test->test_kind_id == TestKind::ASSIGNMENT_TYPE
+                            && (
+                                $foundTestTakeCode->testTake->time_start > Carbon::today()
+                                || $foundTestTakeCode->testTake->time_end < Carbon::today()
+                            )
+
+                        )
+                    )
+                )
+            )
+        );
+    }
+
     public function getTestTakeCodeIfExists($testTakeCode)
     {
         $code = is_array($testTakeCode) ? implode('', $testTakeCode) : $testTakeCode;
