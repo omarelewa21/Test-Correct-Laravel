@@ -89,7 +89,6 @@ class PreviewTestTakeController extends Controller
                 ]);
             }
         } catch (\Throwable $e){
-            throw $e;
             bugsnag::notifyException($e, function ($report) use ($testTake) {
                 $report->setMetaData([
                     'code_context' => [
