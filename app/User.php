@@ -2811,16 +2811,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             return $trialPeriod->uuid;
         }
 
-        $this->trialPeriods()->create([
+        $trialPeriod = $this->trialPeriods()->create([
             'school_location_id' => $schoolLocation->getKey(),
             'trial_started_at' => $setTrialStarted && $schoolLocation->getKey() === $this->school_location_id ? Carbon::now() : null,
         ]);
 
-        return $this->trialPeriods()
-            ->withSchoolLocation($schoolLocation)
-            ->orderByDesc('created_at')
-            ->first()
-            ->uuid;
+        return $trialPeriod->uuid;
     }
 
     public function canHaveGeneralText2SpeechPrice()
