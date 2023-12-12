@@ -2781,7 +2781,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 return $carry;
             }
             if ($this->trialPeriods()->withSchoolLocation($location)->exists()) {
-                $trialPeriod = $this->trialPeriods()->where('school_location_id', $this->school_location_id)->first();
+                $trialPeriod = $this->trialPeriods()->where('school_location_id', $location->getKey())->first();
 
                 if($trialPeriod->trial_started_at === null && $setTrialStarted) {
                     $trialPeriod->trial_started_at = Carbon::now();
