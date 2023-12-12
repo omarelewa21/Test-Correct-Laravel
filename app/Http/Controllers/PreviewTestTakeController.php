@@ -39,6 +39,7 @@ class PreviewTestTakeController extends Controller
 
         try {
             ini_set('max_execution_time', 100);
+            $startTime = Carbon::now()->timestamp;
 
             $titleForPdfPage = $testTake->test->name.' '.Carbon::now()->format('d-m-Y H:i');
             view()->share('titleForPdfPage',$titleForPdfPage);
@@ -58,17 +59,15 @@ class PreviewTestTakeController extends Controller
             $html = view('test-take-overview-preview',compact(['testTake','testParticipants','showQuestionText']))->render();
             file_put_contents($htmlStoragePath,$html);
 
-        dispatch(new CreatePdfFromHtmlFileAndSaveJob($storagePath,$htmlStoragePath));
-        $runner = 0;
-        $doneFile = $storagePath . '.done';
-        while(!file_exists($doneFile) && $runner < 90) {
-            sleep(1);
-            $runner++;
-        }
-        // SOLVED THROUGH LOCKFILE
-//        // the file exists the moment is starts to write, but that may not be the same time as it is closed, we've got to wait for that
-//        // as a fail safe we wait another 2 seconds;
-//        sleep(2);
+            dispatch(new CreatePdfFromHtmlFileAndSaveJob($storagePath, $htmlStoragePath));
+            $doneFile = $storagePath . '.done';
+            while (!file_exists($doneFile) && (Carbon::now()->timestamp - $startTime) < 75) {
+                sleep(1);
+            }
+            // SOLVED THROUGH LOCKFILE
+            //        // the file exists the moment is starts to write, but that may not be the same time as it is closed, we've got to wait for that
+            //        // as a fail safe we wait another 2 seconds;
+            //        sleep(2);
 
             if (file_exists($storagePath) && $doDelete) {
 
