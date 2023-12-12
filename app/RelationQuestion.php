@@ -24,14 +24,18 @@ class RelationQuestion extends Question implements QuestionInterface
         'shuffle',
         'selection_count',
         'shuffle_per_participant',
+        'auto_check_incorrect_answer',
+        'auto_check_answer_case_sensitive',
     ];
     protected $table = 'relation_questions';
 
     protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
-        'uuid'       => EfficientUuid::class
+        'created_at'                       => 'datetime',
+        'updated_at'                       => 'datetime',
+        'deleted_at'                       => 'datetime',
+        'auto_check_incorrect_answer'      => 'boolean',
+        'auto_check_answer_case_sensitive' => 'boolean',
+        'uuid'                             => EfficientUuid::class
     ];
 
     public function wordLists(): BelongsToMany
@@ -93,32 +97,22 @@ class RelationQuestion extends Question implements QuestionInterface
         $this->load(['words', 'wordLists', 'testTakeRelationQuestions']);
     }
 
+    /**
+     * if 'auto_check_incorrect_answer' is true, the answer can be checked completely.
+     * if it is false, the teacher still needs to check the answers that were not (completely) correct.
+     * @return bool
+     */
     public function canCheckAnswer()
     {
-        // TODO: Implement canCheckAnswer() method.
-
-
-        //TODO the same as CompletionQUesiton, check:
-        // auto check completely if auto_check_incorrect_answer is true
-        // auto check if all answers are correct, or
-        //  if all filled in answers are correct. (not filled in answers are incorrect even if auto_check_incorrect_answer is false)
-
-        throw new \Exception('TODO next time: ' . __METHOD__ . ' - not implemented ');
-
-        return true;
-        if($this->getAttribute('auto_check_incorrect_answer')) {
-            return true;
-        }
-
-        return false;
+        return (bool)$this->getAttribute('auto_check_incorrect_answer');
     }
 
     protected function isClosedQuestion()
     {
-        // TODO implement or remove auto_check_answer and auto_check_answer_case_sensitive options (CMS, and here)
+        // TODO implement auto_check_incorrect_answer and auto_check_answer_case_sensitive options (CMS, and here)
         //  this question is very simular to CompletionQuestion, open question fields; and correct answers are known
         //  Completion question has:
-        //   $this->auto_check_answer
+        //   $this->auto_check_incorrect_answer
         //   $this->auto_check_answer_case_sensitive
 //        return parent::isClosedQuestion() || $this->auto_check_answer;
         return parent::isClosedQuestion();
@@ -128,7 +122,7 @@ class RelationQuestion extends Question implements QuestionInterface
     //  this question is very simular to CompletionQuestion, open question fields and correct answers are known
     public function checkAnswer($answer)
     {
-        // TODO implement or remove auto_check_answer and auto_check_answer_case_sensitive options (CMS, and here)
+        // TODO implement or remove auto_check_incorrect_answer and auto_check_answer_case_sensitive options (CMS, and here)
         //  Completion question has:
         //   $this->auto_check_incorrect_answer
         //   $this->auto_check_answer_case_sensitive
@@ -166,7 +160,11 @@ class RelationQuestion extends Question implements QuestionInterface
                 return $carry;
             }
 
-            return QuestionHelper::compareTextAnswers($answer, $answerModel[$key]) ? ++$carry : $carry;
+            return QuestionHelper::compareTextAnswers(
+                answerToCheck     : $answer,
+                correctAnswers    : $answerModel[$key],
+                checkCaseSensitive: $this->getAttribute('auto_check_answer_case_sensitive')
+            ) ? ++$carry : $carry;
         }, 0);
 
         $score = $this->getAttribute('score') * ($correctAnswersCount / $answerOptionsCount);

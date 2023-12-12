@@ -120,6 +120,7 @@ class CompletionQuestion extends Question implements QuestionInterface
             //todo if $this->auto_check_incorrect_answer === false, but all answers are CORRECT,
             // then we can check the answer so that it gets a score (because it is correct)
             // EXTRA: filter out not filled in answers, and if the rest is correct, then we can check the answer
+            // This is being fixed in TCP-3564, replace the code here with the code in that branch when it's done/merged
 
             if($answer === null){
                 return false;
