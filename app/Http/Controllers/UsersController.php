@@ -653,7 +653,7 @@ class UsersController extends Controller
 
     public function createTrialRecord(Request $request, User $user)
     {
-        $createdTrialRecordUuid = $user->createTrialPeriodRecordIfRequired(false);
+        $createdTrialRecordUuid = $user->createTrialPeriodRecordIfRequired(false, $request->get('school_location_uuid'));
 
         if($createdTrialRecordUuid) {
             return Response::make(["uuid" => $createdTrialRecordUuid], 200);
