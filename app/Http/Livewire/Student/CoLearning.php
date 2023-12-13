@@ -664,8 +664,11 @@ class CoLearning extends TCComponent
             }
             $this->testParticipant->update(['discussing_question_id' => null]);
         }
-
         $discussingQuestion = $this->testTake->discussingQuestion;
+
+        if($this->selfPacedNavigation && !$this->testParticipant->discussingQuestion) {
+            $this->testParticipant->update(['discussing_question_id' => $discussingQuestion->getKey()]);
+        }
 
         if(collect($this->questionOrderList)->has($discussingQuestion->getKey())) {
             return $discussingQuestion;
