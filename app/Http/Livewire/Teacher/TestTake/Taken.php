@@ -554,7 +554,7 @@ class Taken extends TestTakeComponent
         if ($max > 40 && $max <= 80) {
             $max = 80;
         }
-        if ($max > 80 && $max <= 160) {
+        if ($max > 80 /*&& $max <= 160*/) {
             $max = 160;
         }
         return $max;
