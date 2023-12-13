@@ -1,5 +1,8 @@
 <x-partials.question-container :number="$number" :question="$question">
-    <div>Lekker relateren (test take)</div>
+    <div class="mb-6">
+        Lekker relateren (test take)
+        Question text here
+    </div>
 
     <x-question.relation-question-grid :viewStruct="$viewStruct" :words="$words"/>
 

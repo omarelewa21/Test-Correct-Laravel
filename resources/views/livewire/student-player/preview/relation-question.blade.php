@@ -1,5 +1,7 @@
 <x-partials.question-container :number="$number" :question="$question">
-    <div>Lekker relateren (preview)</div>
+    <div class="mb-6">
+        <span>{!!   $question->convertedQuestionHtml !!}</span>
+    </div>
 
     <x-question.relation-question-grid :viewStruct="$viewStruct" :words="$words"/>
 

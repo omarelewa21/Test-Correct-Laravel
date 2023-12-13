@@ -38,6 +38,11 @@ class RelationQuestion extends Question implements QuestionInterface
         'uuid'                             => EfficientUuid::class
     ];
 
+    public function question()
+    {
+        return $this->belongsTo('tcCore\Question', $this->getKeyName());
+    }
+
     public function wordLists(): BelongsToMany
     {
         return $this->belongsToMany(

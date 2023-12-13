@@ -1,10 +1,10 @@
 @props(['viewStruct', 'words'])
 
-<div class="grid grid-cols-2">
+<div class="question-relation-question-grid">
     @foreach($viewStruct as $key)
         <div class="flex">
-            <input :id="'relation-question-' . $key" type="text" wire:model="answerStruct.{{$key}}" />
-            <label :for="'relation-question-' . $key" class="border border-bluegrey p-2 my-2 rounded">word: {{ $key }} - text: {{ $words[$key]['text'] }}</label>
+            <input :id="'relation-question-' . $key" type="text" wire:model="answerStruct.{{$key}}" class="form-input"/>
+            <span :for="'relation-question-' . $key" class="relation-question-label">word: {{ $key }} - text: {{ $words[$key]['text'] }}</span>
         </div>
     @endforeach
 </div>

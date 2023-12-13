@@ -268,3 +268,46 @@
 .compile-list-modal .relation-question-grid-container {
     max-height: calc(66px + calc(10 * 41px));
 }
+
+/* test take view elements */
+.content-section .question-relation-question-grid {
+    display: grid;
+
+    /* take 1rem extra padding in even column into account: */
+    grid-template-columns: minmax(0, calc(50% - 0.5rem)) minmax(0, 1fr);
+}
+
+.content-section .question-relation-question-grid > div {
+    align-items: center;
+    padding-bottom: 1rem;
+}
+
+.content-section .question-relation-question-grid > div:nth-child(even) {
+    margin-left: 1rem;
+}
+.content-section .question-relation-question-grid > div:nth-child(odd) {
+    border-right: 1px solid var(--blue-grey);
+}
+
+.content-section .question-relation-question-grid > div input {
+    @apply truncate overflow-ellipsis;
+
+    /* design: input 235px, label is 300px and with padding: 324px
+        235px + 324px = 559px total width
+        235/559 = 42% width for input
+        324/559 = 58% width for label
+     */
+    width: 42%;
+}
+
+.content-section .question-relation-question-grid .relation-question-label {
+    @apply py-2 ml-2 mr-4;
+    display: flex;
+
+    /* design: input 235px, label is 300px and with padding: 324px
+        235px + 324px = 559px total width
+        235/559 = 42% width for input
+        324/559 = 58% width for label
+     */
+    width: 58%;
+}

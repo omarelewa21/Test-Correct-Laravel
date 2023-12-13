@@ -10,10 +10,13 @@ use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Http\Livewire\Teacher\Cms\Providers\MultipleChoice;
 use tcCore\Http\Livewire\Teacher\Cms\TypeFactory;
+use tcCore\Http\Traits\WithRelationQuestionAttributes;
 use tcCore\Question;
 
 class QuestionCmsPreviewModal extends TCModalComponent implements QuestionCms
 {
+    use WithRelationQuestionAttributes;
+
     public array $question = [
         'add_to_database'        => 1,
         'answer'                 => '',
@@ -157,7 +160,10 @@ class QuestionCmsPreviewModal extends TCModalComponent implements QuestionCms
             $this->obj->preparePropertyBag();
         }
 
+        logger(__METHOD__);
+        logger($question::class, [$question]);
         $question = (new QuestionHelper())->getTotalQuestion($question->question);
+        logger(__METHOD__);
         $this->pValues = $question->getQuestionInstance()->getRelation('pValue');
 
         $this->questionId = $question->question->getKey();
