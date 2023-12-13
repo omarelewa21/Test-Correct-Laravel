@@ -65,7 +65,9 @@ class MatchingQuestion extends TCComponent
     {
         $matchingQuestionAnswersIds = [];
         $matchingQuestionAnswers = [];
-        collect($this->answerStruct)->each(function($key,$value) use (&$matchingQuestionAnswersIds){
+        collect($this->answerStruct)
+            ->reject(fn($i, $key) => $key == 'order' )
+            ->each(function($key,$value) use (&$matchingQuestionAnswersIds){
             $matchingQuestionAnswersIds[] = (int) $key;
             $matchingQuestionAnswersIds[] = (int) $value ;
         });
@@ -74,7 +76,9 @@ class MatchingQuestion extends TCComponent
             $matchingQuestionAnswersIds = $this->repairForMissingAnswers($matchingQuestionAnswersIds);
         }
         sort($matchingQuestionAnswersIds);
-        collect($matchingQuestionAnswersIds)->each(function($value,$key) use (&$matchingQuestionAnswers){
+        collect($matchingQuestionAnswersIds)
+            ->reject(fn($i, $key) => $key == 'order' )
+            ->each(function($value,$key) use (&$matchingQuestionAnswers){
             $matchingQuestionAnswer = MatchingQuestionAnswer::withTrashed()->find($value);
             if(is_null($matchingQuestionAnswer)){
                 return true;
