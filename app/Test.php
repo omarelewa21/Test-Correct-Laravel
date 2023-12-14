@@ -1026,7 +1026,7 @@ class Test extends BaseModel
     }
 
 
-    public function maxScore($ignoreQuestions = [])
+    public function maxScore($ignoreQuestions = []): int
     {
         if (is_null($ignoreQuestions)) {
             $ignoreQuestions = [];
