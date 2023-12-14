@@ -247,7 +247,6 @@ See https://github.com/adobe-type-tools/cmap-resources
                                     <span class="rsbtn_left rsimg rspart oval"><x-icon.rs-audio-inverse/></span>
                                     <span class="rsbtn_right rsimg rsplay rspart"></span>
                                 </a>
-                                <x-readspeaker-language-toggle/>
                             </div>
                         @endif
                     </div>
