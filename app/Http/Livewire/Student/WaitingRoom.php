@@ -293,4 +293,12 @@ class WaitingRoom extends TCComponent
         return false;
     }
 
+    public function needsApp(): bool
+    {
+        if (!in_array($this->testTakeStatusStage, ['planned', 'taken', 'discuss'])) {
+            return false;
+        }
+
+        return $this->testTakeStatusStage === 'planned' ? $this->needsAppForTestTake : $this->needsAppForCoLearning;
+    }
 }
