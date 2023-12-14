@@ -267,10 +267,10 @@
                         - previous/next answers have a chevron icon
                         - previous/next questions have an arrow icon
                     --}}
-
+                    @php($clearCkeditor = \Illuminate\Support\Js::from($this->answerRating->answer->question->isType('OpenQuestion')))
                     @if($this->isPreviousQuestionButtonVisible())
                         <x-button.text class="rotate-svg-180 previous-question-btn whitespace-nowrap"
-                                       x-on:click="await goToPreviousQuestion()"
+                                       x-on:click="await goToPreviousQuestion({{ $clearCkeditor }})"
                                        wire:loading.attr="disabled"
                         >
                             <x-icon.arrow/>
@@ -281,7 +281,7 @@
                     @if($this->isPreviousAnswerRatingButtonVisible())
                         <x-dynamic-component :component="$selfPacedNavigation ? 'button.text' : 'button.primary' "
                                              class="rotate-svg-180 previous-answer-rating-btn whitespace-nowrap !min-w-10"
-                                             x-on:click="await goToPreviousAnswerRating()"
+                                             x-on:click="await goToPreviousAnswerRating({{ $clearCkeditor }})"
                                              wire:loading.attr="disabled"
                         >
                             <x-icon.chevron/>
@@ -290,7 +290,7 @@
                     @endif
 
                     @if($this->isNextAnswerRatingButtonVisible())
-                        <x-button.primary x-on:click="await goToNextAnswerRating()"
+                        <x-button.primary x-on:click="await goToNextAnswerRating({{ $clearCkeditor }})"
                                           wire:loading.attr="disabled"
                                           class="next-answer-rating-btn whitespace-nowrap"
                                           :disabled="$this->isNextButtonDisabled()"
@@ -301,7 +301,7 @@
                     @endif
 
                     @if($this->isNextQuestionButtonVisible())
-                        <x-button.primary x-on:click="await goToNextQuestion()"
+                        <x-button.primary x-on:click="await goToNextQuestion({{ $clearCkeditor }})"
                                           wire:loading.attr="disabled"
                                           class="next-question-btn whitespace-nowrap"
                                           :disabled="$this->isNextButtonDisabled()"

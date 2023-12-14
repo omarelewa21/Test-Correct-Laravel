@@ -750,7 +750,7 @@ document.addEventListener("alpine:init", () => {
             const label = document.querySelector(`[for="${this.$root.querySelector("select").id}"]`);
             this.$nextTick(() => {
                 let helper = this.$root.querySelector("#text-length-helper");
-                let minWidth = helper.offsetWidth? helper.offsetWidth : this.initWidth ;
+                let minWidth = helper.offsetWidth ? helper.offsetWidth : this.initWidth;
                 helper.style.display = "none";
 
                 let choices = new Choices(
@@ -1003,7 +1003,7 @@ document.addEventListener("alpine:init", () => {
         },
         handleContainerWidth(minWidth) {
             if (this.$root.classList.contains("super")) return;
-            this.$root.querySelector("input.choices__input[type=\"search\"]").style.width = (parseInt(minWidth,10) + 16) + "px";
+            this.$root.querySelector("input.choices__input[type=\"search\"]").style.width = (parseInt(minWidth, 10) + 16) + "px";
             this.$root.querySelector("input.choices__input[type=\"search\"]").style.minWidth = "auto";
         }
     }));
@@ -1590,13 +1590,14 @@ document.addEventListener("alpine:init", () => {
 
             this.$root.dataset.hasValue = this.value !== null;
             if (oldValue?.toString() !== this.value?.toString() || allowClickingCurrentValue) {
-                if([null, 'null'].includes(this.$root.dataset.toggleValue)) {
+                if ([null, "null"].includes(this.$root.dataset.toggleValue)) {
                     this.$dispatch("multi-slider-toggle-value-updated", {
                         value: target.firstElementChild.dataset.id,
                         firstTick: oldValue === null
                     });
                     return;
-                };
+                }
+                ;
                 /* dispatch with a static (question score) value, not value/key of button-option, only works with true/false  */
                 this.$dispatch("slider-toggle-value-updated", {
                     value: this.$root.dataset.toggleValue,
@@ -3462,28 +3463,21 @@ document.addEventListener("alpine:init", () => {
 
     }));
     Alpine.data("coLearningStudent", () => ({
-        async goToPreviousAnswerRating() {
-            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                return this.$store.answerFeedback.openConfirmationModal(this.$root, "goToPreviousAnswerRating");
-            }
+        async goToPreviousAnswerRating(clearCkeditorProperties = false) {
+            if (!this.canNavigate("goToPreviousAnswerRating", clearCkeditorProperties)) return;
             this.$wire.goToPreviousAnswerRating();
         },
-        async goToNextAnswerRating() {
-            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                return this.$store.answerFeedback.openConfirmationModal(this.$root, "goToNextAnswerRating");
-            }
+        async goToNextAnswerRating(clearCkeditorProperties = false) {
+            if (!this.canNavigate("goToNextAnswerRating", clearCkeditorProperties)) return;
             this.$wire.goToNextAnswerRating();
         },
-        async goToPreviousQuestion() {
-            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                return this.$store.answerFeedback.openConfirmationModal(this.$root, "goToPreviousQuestion");
-            }
+        async goToPreviousQuestion(clearCkeditorProperties = false) {
+            if (!this.canNavigate("goToPreviousQuestion", clearCkeditorProperties)) return;
             this.$wire.goToPreviousQuestion();
         },
-        async goToNextQuestion() {
-            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                return this.$store.answerFeedback.openConfirmationModal(this.$root, "goToNextQuestion");
-            }
+        async goToNextQuestion(clearCkeditorProperties = false) {
+            if (!this.canNavigate("goToNextQuestion", clearCkeditorProperties)) return;
+
             this.$wire.goToNextQuestion();
         },
         async goToFinishedCoLearningPage() {
@@ -3500,6 +3494,17 @@ document.addEventListener("alpine:init", () => {
             if (event.hasOwnProperty("identifier")) {
                 this.$wire.toggleValueUpdated(event.identifier, event.state, event.value);
             }
+        },
+        canNavigate(method, clearCkeditorProperties = false) {
+            if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+                this.$store.answerFeedback.openConfirmationModal(this.$root, method);
+                return false;
+            }
+
+            if (clearCkeditorProperties && document.querySelector(".ck-body-wrapper")) {
+                document.querySelector(".ck-body-wrapper").innerHTML = "";
+            }
+            return true;
         }
     }));
     Alpine.data("drawingQuestionImagePreview", () => ({
@@ -4479,8 +4484,8 @@ document.addEventListener("alpine:init", () => {
         maxRating() {
             return {
                 rating: Math.max(...this.getRatings()),
-                locator: '.max-rating'
-            }
+                locator: ".max-rating"
+            };
         },
         avgRating() {
             let ratings = this.getRatings();
@@ -4488,27 +4493,27 @@ document.addEventListener("alpine:init", () => {
 
             return {
                 rating: sum / ratings.length,
-                locator: '.avg-rating'
-            }
+                locator: ".avg-rating"
+            };
         },
         minRating() {
             return {
                 rating: Math.min(...this.getRatings()),
-                locator: '.min-rating'
-            }
+                locator: ".min-rating"
+            };
         }
     }));
 
     Alpine.data("ckEditorInlineImageUpload", (errorTranslation) => ({
         allowedMimeTypes: {
-            jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif',
+            jpeg: "image/jpeg", png: "image/png", gif: "image/gif"
         },
         /**
          * Check if the dropped file is an allowed image,
          * !! after it has already passed the ckeditor image config check (config.image.upload.types) !!
          * @param event
          */
-        checkMimeType: function (event) {
+        checkMimeType: function(event) {
             for (let i = 0; i < event.dataTransfer.files.length; i++) {
 
                 let mimeType = event.dataTransfer.files[i].type;
@@ -4520,7 +4525,7 @@ document.addEventListener("alpine:init", () => {
                         }
                     }
 
-                    Notify.notify(errorTranslation + mimeType, 'error');
+                    Notify.notify(errorTranslation + mimeType, "error");
                 }
             }
             ;
@@ -4533,11 +4538,11 @@ document.addEventListener("alpine:init", () => {
 
         init() {
             this.$nextTick(() => {
-                    this.waitForElement(".rsicn", (el) => {
-                        el.click();
-                        this.languages = window.rsConf.general.customTransLangs;
-                        this.setCurrentLanguage();
-                    });
+                this.waitForElement(".rsicn", (el) => {
+                    el.click();
+                    this.languages = window.rsConf.general.customTransLangs;
+                    this.setCurrentLanguage();
+                });
             });
         },
         openPopover() {
@@ -4548,13 +4553,13 @@ document.addEventListener("alpine:init", () => {
         },
 
         setCurrentLanguage() {
-          var domNode = document.querySelector(".rsbtn_tool_voice_settings .rs-contextmenu-item.active");
-          if (domNode) {
-            this.currentLanguage = domNode.getAttribute("data-rs-itemval").split("_")[0];
-          }
+            var domNode = document.querySelector(".rsbtn_tool_voice_settings .rs-contextmenu-item.active");
+            if (domNode) {
+                this.currentLanguage = domNode.getAttribute("data-rs-itemval").split("_")[0];
+            }
         },
-        isCurrent(language)  {
-          return this.currentLanguage.substring(0,2) === language.substring(0,2);
+        isCurrent(language) {
+            return this.currentLanguage.substring(0, 2) === language.substring(0, 2);
         },
 
         selectLanguage(languageCode) {
@@ -4563,8 +4568,8 @@ document.addEventListener("alpine:init", () => {
                 if (links[i].getAttribute("data-rs-itemval").startsWith(languageCode)) {
                     window.rsConf.cb.ui.stop();
                     window.rsConf.general.userDefinedVoice = links[i].dataset.rsItemval.substring(6);
-                    window.rsConf.general.userDefinedLang = links[i].dataset.rsItemval.substring(0,5);
-                    document.querySelector('.rsbtn_play').click();
+                    window.rsConf.general.userDefinedLang = links[i].dataset.rsItemval.substring(0, 5);
+                    document.querySelector(".rsbtn_play").click();
                     this.currentLanguage = languageCode;
 
                     break;
@@ -4585,39 +4590,39 @@ document.addEventListener("alpine:init", () => {
             });
 
             var config = { childList: true, subtree: true };
-            observer.observe(document.getElementById('readspeaker_button1'), config);
+            observer.observe(document.getElementById("readspeaker_button1"), config);
         }
 
     }));
 
     Alpine.data("markBadge", (initialRating) => ({
         markBadgeRating: initialRating,
-        displayMarkBadgeRating: '?',
+        displayMarkBadgeRating: "?",
         color: null,
         init() {
             this.setDisplayRating();
         },
         hasValue() {
-            return ![null, '', 0, 0.0].includes(this.markBadgeRating)
+            return ![null, "", 0, 0.0].includes(this.markBadgeRating);
         },
         setNewRating(rating) {
             this.markBadgeRating = rating;
             this.setDisplayRating();
         },
         setDisplayRating() {
-            if(!this.hasValue()) {
-                if(this.displayMarkBadgeRating !== '?') {
-                    this.displayMarkBadgeRating = '?';
+            if (!this.hasValue()) {
+                if (this.displayMarkBadgeRating !== "?") {
+                    this.displayMarkBadgeRating = "?";
                 }
                 return;
             }
 
-            if (typeof this.markBadgeRating === 'string') {
+            if (typeof this.markBadgeRating === "string") {
                 this.markBadgeRating = parseFloat(this.markBadgeRating);
             }
 
-            if (this.markBadgeRating.toString().includes('.')) {
-                this.displayMarkBadgeRating = this.markBadgeRating.toFixed(1).replace('.', ',');
+            if (this.markBadgeRating.toString().includes(".")) {
+                this.displayMarkBadgeRating = this.markBadgeRating.toFixed(1).replace(".", ",");
             } else {
                 this.displayMarkBadgeRating = this.markBadgeRating.toString();
             }
