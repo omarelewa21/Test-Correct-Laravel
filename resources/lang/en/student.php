@@ -174,4 +174,6 @@ return [
     'Verder in Test-Correct app'                               => 'Continue in Test-Correct app',
     'Deleted student'                                          => 'Deleted student',
     'starting_not_possible'                                    => 'Starting test not possible',
+    'Er is iets misgegaan met het ophalen van de vragen'       => 'Something went wrong with retrieving the questions',
+    'Probeer opnieuw'                                          => 'Try again',
 ];

@@ -5,6 +5,7 @@ namespace tcCore\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use tcCore\Exceptions\StudentTestTakeException;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Traits\TestTakeNavigationForController;
@@ -13,7 +14,6 @@ use tcCore\TestKind;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TemporaryLogin;
-use tcCore\TestTake as Test;
 use Ramsey\Uuid\Uuid;
 
 class TestTakeLaravelController extends Controller
@@ -53,7 +53,11 @@ class TestTakeLaravelController extends Controller
         }
 
         $data = self::getData($testParticipant, $testTake);
-        $answers = $this->getAnswers($testTake, $data, $testParticipant);
+        try {
+            $answers = $this->getAnswers($testTake, $data, $testParticipant);
+        } catch (StudentTestTakeException $e) {
+            return view('student-test-take-exception');
+        }
         $nav = $this->getNavigationData($data, $answers);
         $data = $this->applyAnswerOrderForParticipant($data, $answers);
 
@@ -80,9 +84,20 @@ class TestTakeLaravelController extends Controller
 
     public function getAnswers($testTake, $testQuestions, $testParticipant): array
     {
+        $testQuestionCount = $testTake->test->getQuestionCount();
+        $break = 0;
+        while ($testQuestionCount !== $testParticipant->answers()->count() && $break < 20) {
+            usleep(100000);
+            $break++;
+        }
+        if ($testQuestionCount !== $testParticipant->answers()->count()) {
+            throw new StudentTestTakeException('sync error');
+        }
+
         $result = [];
         $testParticipant
-            ->answers
+            ->answers()
+            ->get()
             ->sortBy(function ($answer) {
                 return $answer->order;
             })
