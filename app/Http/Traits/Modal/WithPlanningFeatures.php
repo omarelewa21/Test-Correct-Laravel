@@ -95,18 +95,18 @@ trait WithPlanningFeatures
         $featureSettings = UserFeatureSettingEnum::initialValues()->merge(UserFeatureSetting::getAll(Auth::user()));
 
         $plannableSettings = [
-            'weight'                  => UserFeatureSettingEnum::TEST_TAKE_DEFAULT_WEIGHT,
-            'guest_accounts'          => UserFeatureSettingEnum::TEST_TAKE_TEST_DIRECT,
-            'notify_students'         => UserFeatureSettingEnum::TEST_TAKE_NOTIFY_STUDENTS,
-            'show_grades'             => UserFeatureSettingEnum::REVIEW_SHOW_GRADES,
-            'show_correction_model'   => UserFeatureSettingEnum::REVIEW_SHOW_CORRECTION_MODEL,
+            'weight'                  => $featureSettings[UserFeatureSettingEnum::TEST_TAKE_DEFAULT_WEIGHT->value],
+            'guest_accounts'          => $featureSettings[UserFeatureSettingEnum::TEST_TAKE_TEST_DIRECT->value],
+            'notify_students'         => $featureSettings[UserFeatureSettingEnum::TEST_TAKE_NOTIFY_STUDENTS->value],
+            'show_grades'             => $featureSettings[UserFeatureSettingEnum::REVIEW_SHOW_GRADES->value],
+            'show_correction_model'   => $featureSettings[UserFeatureSettingEnum::REVIEW_SHOW_CORRECTION_MODEL->value],
             'allow_inbrowser_testing' => $this->isAssignmentType()
                 ? true
                 : $featureSettings[UserFeatureSettingEnum::TEST_TAKE_BROWSER_TESTING->value],
         ];
 
         foreach ($plannableSettings as $property => $setting) {
-            $plannable[$property] = $featureSettings[$setting->value];
+            $plannable[$property] = $setting;
         }
     }
 
