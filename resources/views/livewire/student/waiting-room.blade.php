@@ -51,17 +51,17 @@
                                                   :participatingClasses="$participatingClasses"/>
                 </div>
                 <div class="flex w-full items-center h-10">
-                    @if(!$needsAppForTestTake && !$needsAppForCoLearning)
+                    @if(!$this->needsApp())
                         <x-partials.waiting-room-action-button
                            :testTakeStatusStage="$this->testTakeStatusStage"
                            :isTakeOpen="$this->isTakeOpen"
                         />
                     @else
                         @if($meetsAppRequirement)
-                        <x-partials.waiting-room-action-button
-                            :testTakeStatusStage="$this->testTakeStatusStage"
-                            :isTakeOpen="$this->isTakeOpen"
-                        />
+                            <x-partials.waiting-room-action-button
+                                :testTakeStatusStage="$this->testTakeStatusStage"
+                                :isTakeOpen="$this->isTakeOpen"
+                            />
                         @else
                             <div class="divider flex flex-1"></div>
                             <div class="flex flex-col justify-center">
