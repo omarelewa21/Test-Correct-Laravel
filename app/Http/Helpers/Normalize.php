@@ -78,7 +78,7 @@ class Normalize
             || is_null($this->testTake->getAttribute($value));
     }
 
-    private function getTotalScore(): ?int
+    private function getTotalScore(): ?float
     {
         if (
             ($this->isNotInRequest('ppp') && $this->isInRequest('epp'))
