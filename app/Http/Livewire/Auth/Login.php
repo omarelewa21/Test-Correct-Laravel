@@ -195,9 +195,11 @@ class Login extends TCComponent
         AppVersionDetector::handleHeaderCheck();
         $this->doLoginProcedure();
 
-        if ($this->checkIfShouldRedirectToTestTake()) {
-            return;
-        };
+        $testCodeHelper = new TestTakeCodeHelper();
+
+        if($testCodeHelper->checkAccessViaTestTakeCodeIfExists($this->testTakeCode)) {
+            $this->directToTestTakeBasedOnTestTakeCode($this->testTakeCode);
+        }
 
         $user = auth()->user();
         $route = $user->getTemporaryCakeLoginUrl();
@@ -238,34 +240,20 @@ class Login extends TCComponent
 
         $testCodeHelper = new TestTakeCodeHelper();
 
-        $testTakeCode = $testCodeHelper->getTestTakeCodeIfExists($this->testTakeCode);
-        if (!$testTakeCode
-            || !$testTakeCode->testTake
-            || !$testTakeCode->testTake->test
-            || ( // fail if not an assignment and doesn't start today
-                $testTakeCode->testTake->test->test_kind_id !== TestKind::ASSIGNMENT_TYPE
-                && $testTakeCode->testTake->time_start != Carbon::today()
-            )
-            || ( // fail if it is an assignment, and the time_start is later than today (starts later than today) or the time_end smaller than today (ends earlier than today)
-                $testTakeCode->testTake->test->test_kind_id == TestKind::ASSIGNMENT_TYPE
-                && (
-                    $testTakeCode->testTake->time_start > Carbon::today()
-                    || $testTakeCode->testTake->time_end < Carbon::today()
-                )
-            )
-        ) {
+        if (!$testCodeHelper->checkAccessViaTestTakeCodeIfExists($this->testTakeCode)) {
             $this->errorKeys[] = 'no_test_found_with_code';
             return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
         }
 
-        if (!$testTakeCode->testTake->guest_accounts) {
+        $testTakeCodeModel = TestTakeCodeHelper::getTestTakeCodeModelFromCode($this->testTakeCode);
+        if (!$testTakeCodeModel || !$testTakeCodeModel->testTake->guest_accounts) {
             $this->errorKeys[] = 'guest_account_not_allowed';
             return $this->addError('guest_account_not_allowed', __('auth.guest_account_not_allowed'));
         }
 
         AppVersionDetector::handleHeaderCheck();
 
-        $error = $testCodeHelper->handleGuestLogin($this->gatherGuestData(), $testTakeCode);
+        $error = $testCodeHelper->handleGuestLogin($this->gatherGuestData(), $testTakeCodeModel);
         if (!empty($error)) {
             $this->errorKeys[] = $error[0];
             return $this->addError($error[0], $error[0]);
@@ -700,21 +688,10 @@ class Login extends TCComponent
         );
     }
 
-    private function checkIfShouldRedirectToTestTake()
+    private function directToTestTakeBasedOnTestTakeCode($testTakeCode)
     {
-        if ($this->take) {
-            return redirect()->route('take.directLink', ['testTakeUuid' => $this->take]);
-        }
-
-        if ($this->isTestTakeCodeCorrectFormat()) {
-            $code = implode('', $this->testTakeCode);
-            $testTakeCode = TestTakeCode::where('code', $code)->with('testTake')->first();
-            if (is_null($testTakeCode)) {
-                return false;
-            }
-            return redirect()->route('take.directLink', ['testTakeUuid' => $testTakeCode->testTake->uuid]);
-        }
-        return false;
+        $testTakeCodeModel = TestTakeCodeHelper::getTestTakeCodeModelFromCode($this->testTakeCode);
+        return redirect()->route('take.directLink', ['testTakeUuid' => $testTakeCodeModel->testTake->uuid]);
     }
 
     private function handleDirectLinkOnEnter(): void
