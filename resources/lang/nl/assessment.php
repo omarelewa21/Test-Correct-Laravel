@@ -57,4 +57,5 @@ return [
     'Het nieuwe nakijken'                          => 'Het nieuwe nakijken',
     'new_assessment_notification'                  => 'Nakijken is geüpdatet. Er zijn nieuwe functionaliteiten in een andere indeling, waardoor het net anders werkt.',
     'new_assessment_knowledge_bank'                => 'Leer hier meer over in dit Kennisbank artikel.',
+    'no_current_answer_please_refresh_notification'=> 'Er ging iets fout bij het opslaan van de score, ververs de pagina en probeer het opnieuw',
 ];
