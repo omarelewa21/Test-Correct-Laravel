@@ -569,19 +569,28 @@ class CoLearning extends TCComponent
     {
         if (isset($this->answerRatingId)) {
             if ($navigateDirection == 'next' && $this->nextAnswerAvailable) {
-                $this->answerRating = $this->answerRatings->filter(fn($ar) => $ar->getKey() > $this->answerRatingId)->first();
-                $this->answerRatingId = $this->answerRating->getKey();
-                return;
+                $answerRating = $this->answerRatings->filter(fn($ar) => $ar->getKey() > $this->answerRatingId)->first();
+                if($answerRating){
+                    $this->answerRating = $answerRating;
+                    $this->answerRatingId = $this->answerRating->getKey();
+                    return;
+                }
             }
             if ($navigateDirection == 'previous' && $this->previousAnswerAvailable) {
-                $this->answerRating = $this->answerRatings->filter(fn($ar) => $ar->getKey() < $this->answerRatingId)->last();
-                $this->answerRatingId = $this->answerRating->getKey();
-                return;
+                $answerRating = $this->answerRatings->filter(fn($ar) => $ar->getKey() < $this->answerRatingId)->last();
+                if($answerRating){
+                    $this->answerRating = $answerRating;
+                    $this->answerRatingId = $this->answerRating->getKey();
+                    return;
+                }
             }
 
             if ($this->answerRatings->map->id->contains($this->answerRatingId)) {
-                $this->answerRating = $this->answerRatings->where('id', $this->answerRatingId)->first();
-                return;
+                $answerRating = $this->answerRatings->where('id', $this->answerRatingId)->first();
+                if($answerRating){
+                    $this->answerRating = $answerRating;
+                    return;
+                }
             }
         }
         $this->answerRating = $this->answerRatings->first();
