@@ -37,7 +37,7 @@ class RelationQuestion extends QuestionComponent
         $score_per_toggle = $answer->question->score / count($studentAnswer);
 
         $this->answerStruct = $studentAnswer->mapWithKeys(function($studentAnswerText, $wordId) use ($answerModelWords, $score_per_toggle, $answerModelWordsCorrectWord) {
-            $questionPrefixTranslation = $answerModelWords[$wordId]?->type->value !== 'subject'
+            $questionPrefixTranslation = !in_array($answerModelWords[$wordId]?->type->value, ['subject', 'translation'])
                 ? __('question.word_type_'.$answerModelWords[$wordId]?->type->value)
                 : null;
 //todo fix getInitialValueForWordId()

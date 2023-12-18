@@ -60,7 +60,7 @@ abstract class RelationQuestion extends StudentPlayerQuestion
             ->filter()
             ->flip()
             ->mapWithKeys(function ($null, $wordId) {
-                $questionPrefixTranslation = $this->words[$wordId]['type'] !== 'subject'
+                $questionPrefixTranslation = !in_array($this->words[$wordId]['type'], ['subject', 'translation'])
                     ? __('question.word_type_'.$this->words[$wordId]['type'])
                     : null;
                 return [

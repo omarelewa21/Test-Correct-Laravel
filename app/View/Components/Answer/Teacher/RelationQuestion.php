@@ -25,7 +25,7 @@ class RelationQuestion extends QuestionComponent
         $answerModelWords = Word::whereIn('id', $answerModelWordIds)->get()->keyBy('id');
 
         $this->answerStruct = $answerModelWordIds->mapWithKeys(function($wordId) use ($answerModelWords) {
-            $questionPrefixTranslation = $answerModelWords[$wordId]?->type->value !== 'subject'
+            $questionPrefixTranslation = !in_array($answerModelWords[$wordId]?->type->value, ['subject', 'translation'])
                 ? __('question.word_type_'.$answerModelWords[$wordId]?->type->value)
                 : null;
 
