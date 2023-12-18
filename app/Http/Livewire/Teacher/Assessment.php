@@ -148,6 +148,13 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function updatedScore($value): void
     {
+        if($this->currentAnswer){
+            $this->dispatchBrowserEvent(
+                'notify',
+                ['message' => __('assessment.no_current_answer_please_refresh_notification'), 'type' => 'error']
+            );
+            return;
+        }
         $this->updateOrCreateAnswerRating(['rating' => $value]);
         $this->dispatchScoreNotificationForQuestion();
     }

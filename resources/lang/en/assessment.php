@@ -57,4 +57,5 @@ return [
     'Het nieuwe nakijken'                          => 'New assessment',
     'new_assessment_notification'                  => 'Assessment has been updated. We have new functions in a different lay-out, which means things work a little different.',
     'new_assessment_knowledge_bank'                => 'Learn more in this Knowledge base article.',
+    'no_current_answer_please_refresh_notification'=> 'Something went wrong while saving your score, please refresh the page and try again',
 ];
