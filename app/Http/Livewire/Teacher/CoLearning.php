@@ -820,9 +820,10 @@ class CoLearning extends TCComponent implements CollapsableHeader
     private function setTestTakeQuestionDiscussed()
     {
         $discussingTestTakeQuestion = $this->testTake->testTakeQuestions->where('question_id', $this->discussingQuestion->id)->first();
-
-        if(!$discussingTestTakeQuestion->discussed) {
-            $discussingTestTakeQuestion->update(['discussed' => true]);
+        if($discussingTestTakeQuestion) {
+            if (!$discussingTestTakeQuestion->discussed) {
+                $discussingTestTakeQuestion->update(['discussed' => true]);
+            }
         }
     }
 
