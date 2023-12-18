@@ -109,22 +109,18 @@ class RelationQuestion extends Question implements QuestionInterface
      */
     public function canCheckAnswer()
     {
+        //todo combine auto_check_incorrect_answer with checking if all answers are correct
+        // if all answers are correct, but auto_check_incorrect_answer is false, we still need to check the answer
+
         return (bool)$this->getAttribute('auto_check_incorrect_answer');
     }
 
     protected function isClosedQuestion()
     {
-        // TODO implement auto_check_incorrect_answer and auto_check_answer_case_sensitive options (CMS, and here)
-        //  this question is very simular to CompletionQuestion, open question fields; and correct answers are known
-        //  Completion question has:
-        //   $this->auto_check_incorrect_answer
-        //   $this->auto_check_answer_case_sensitive
-//        return parent::isClosedQuestion() || $this->auto_check_answer;
-        return parent::isClosedQuestion();
+        return $this->isCitoQuestion();
     }
 
     // TODO: Implement checkAnswer() method.
-    //  this question is very simular to CompletionQuestion, open question fields and correct answers are known
     public function checkAnswer($answer)
     {
         // TODO implement or remove auto_check_incorrect_answer and auto_check_answer_case_sensitive options (CMS, and here)
@@ -132,16 +128,6 @@ class RelationQuestion extends Question implements QuestionInterface
         //   $this->auto_check_incorrect_answer
         //   $this->auto_check_answer_case_sensitive
 
-
-
-//        $autoCheckAnswer = true; //checkAnswer should not have been called if this is false.
-////        $autoCheckAnswer = $this->getAttribute('auto_check_answer');
-//        if(!$autoCheckAnswer) {
-//            return false;
-//        }
-
-        $autoCheckAnswerCaseSensitive = false;
-//        $autoCheckAnswerCaseSensitive = $this->getAttribute('auto_check_answer_case_sensitive');
 
         //Student answer:
         $answers = collect(json_decode($answer->getAttribute('json'), true));
@@ -154,11 +140,6 @@ class RelationQuestion extends Question implements QuestionInterface
             ->map->text;
 
         $answerOptionsCount = count($answerModel);
-
-        if(!$autoCheckAnswerCaseSensitive) {
-            $answerModel = $answerModel->map(fn($answer) => Str::lower($answer));
-            $answers = $answers->map(fn($answer) => Str::lower($answer));
-        }
 
         $correctAnswersCount = $answers->reduce(function ($carry, $answer, $key) use ($answerModel, $answers){
             if($answer === null || $answer === '') {

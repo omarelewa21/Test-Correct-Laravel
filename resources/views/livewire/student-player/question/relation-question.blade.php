@@ -1,7 +1,6 @@
 <x-partials.question-container :number="$number" :question="$question">
     <div class="mb-6">
-        Lekker relateren (test take)
-        Question text here
+        <span>{!!   $question->convertedQuestionHtml !!}</span>
     </div>
 
     <x-question.relation-question-grid :viewStruct="$viewStruct" :words="$words"/>

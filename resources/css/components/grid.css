@@ -270,26 +270,41 @@
 }
 
 /* test take view elements */
-.content-section .question-relation-question-grid {
+.question-relation-question-grid {
     display: grid;
 
     /* take 1rem extra padding in even column into account: */
     grid-template-columns: minmax(0, calc(50% - 0.5rem)) minmax(0, 1fr);
 }
+.question-relation-answer-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+}
 
-.content-section .question-relation-question-grid > div {
+.question-relation-answer-grid > div,
+.question-relation-question-grid > div {
     align-items: center;
     padding-bottom: 1rem;
 }
 
-.content-section .question-relation-question-grid > div:nth-child(even) {
+.question-relation-answer-grid > div {
+    max-width: 559px;
+}
+
+.question-relation-answer-grid.relation-student-answer > div {
+    max-width: 687px; /* add more width for the three way toggle */
+}
+
+.question-relation-question-grid > div:nth-child(even) {
     margin-left: 1rem;
 }
-.content-section .question-relation-question-grid > div:nth-child(odd) {
+.question-relation-question-grid > div:nth-child(odd) {
     border-right: 1px solid var(--blue-grey);
 }
 
-.content-section .question-relation-question-grid > div input {
+.question-relation-answer-grid > div input,
+.question-relation-question-grid > div input {
     @apply truncate overflow-ellipsis;
 
     /* design: input 235px, label is 300px and with padding: 324px
@@ -300,9 +315,18 @@
     width: 42%;
 }
 
-.content-section .question-relation-question-grid .relation-question-label {
+
+.question-relation-answer-grid > div input:disabled:hover,
+.question-relation-question-grid > div input:disabled:hover,
+.question-relation-answer-grid > div input:disabled,
+.question-relation-question-grid > div input:disabled {
+    color: var(--system-base);
+}
+
+.question-relation-answer-grid .relation-question-label,
+.question-relation-question-grid .relation-question-label {
     @apply py-2 ml-2 mr-4;
-    display: flex;
+    display: inline-block;
 
     /* design: input 235px, label is 300px and with padding: 324px
         235px + 324px = 559px total width
@@ -310,4 +334,24 @@
         324/559 = 58% width for label
      */
     width: 58%;
+}
+
+.question-relation-answer-grid.relation-student-answer .relation-question-label {
+    /* design: input 235px, label is 300px and with padding: 324px, toggle 128px
+        235px + 324px + 128px = 687px total width
+        235/687 = 35% width for input
+        324/687 = 47% width for label
+        128/687 = 18% width for toggle
+     */
+    width: 47%;
+}
+
+.question-relation-answer-grid.relation-student-answer > div input {
+    /* design: input 235px, label is 300px and with padding: 324px, toggle 128px
+        235px + 324px + 128px = 687px total width
+        235/687 = 35% width for input
+        324/687 = 47% width for label
+        128/687 = 18% width for toggle
+     */
+    width: 34%;
 }

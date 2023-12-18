@@ -1,20 +1,32 @@
 @props(['answerStruct', 'studentAnswer', 'showToggles' => false])
 
-<div class="grid grid-cols-1">
+<div @class([
+    "question-relation-answer-grid",
+    "relation-student-answer" => $studentAnswer,
+])>
     @foreach($answerStruct as $wordId => $data)
         <div class="flex">
-            <input :id="'relation-question-' . $wordId" type="text" disabled value="{{ $data['answer'] }}" />
-            <label :for="'relation-question-' . $wordId" class="border border-bluegrey p-2 my-2 rounded">{{ $data['question'] }}</label>
-
-
             @if($studentAnswer && $showToggles)
-                <x-button.evaluation-toggle
-                        :disabled="$data['not_answered']"
-                        :initialStatus="$data['initial_value']"
-                        :toggleValue="$data['toggle_value']"
-                        :identifier="$wordId"
-                />
+                <span class="mr-2">
+                    <x-button.evaluation-toggle
+                            :disabled="$data['not_answered']"
+                            :initialStatus="$data['initial_value']"
+                            :toggleValue="$data['toggle_value']"
+                            :identifier="$wordId"
+                    />
+                </span>
             @endif
+
+            <input :id="'relation-question-' . $wordId" type="text" disabled value="{{ $data['answer'] }}" class="form-input" />
+            <span :for="'relation-question-' . $wordId" class="relation-question-label">
+                @isset($data['question_prefix'])
+                    <span class="mr-1">{{ $data['question_prefix'] }}:</span>
+                @endif
+                <b>{{ $data['question'] }}</b>
+            </span>
+
+
+
         </div>
     @endforeach
 </div>

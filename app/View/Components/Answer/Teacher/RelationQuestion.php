@@ -25,14 +25,20 @@ class RelationQuestion extends QuestionComponent
         $answerModelWords = Word::whereIn('id', $answerModelWordIds)->get()->keyBy('id');
 
         $this->answerStruct = $answerModelWordIds->mapWithKeys(function($wordId) use ($answerModelWords) {
+            $questionPrefixTranslation = $answerModelWords[$wordId]?->type->value !== 'subject'
+                ? __('question.word_type_'.$answerModelWords[$wordId]?->type->value)
+                : null;
+
             return [
                 $wordId => [
                     'answer'   => $answerModelWords[$wordId]->correctAnswerWord()->text,
                     'question' => $answerModelWords[$wordId]->text,
+                    'question_prefix' =>  $questionPrefixTranslation,
                 ]
             ];
         });
     }
+
 
     /**
      * returns an Collection with the ids of the words that should be shown in the answer model of this screen as keys

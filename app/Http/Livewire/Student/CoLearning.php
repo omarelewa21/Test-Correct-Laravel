@@ -739,7 +739,10 @@ class CoLearning extends TCComponent
                 return;
             case 'relationquestion-':
                 $scorePerToggle = round($this->maxRating / $correctAnswerStructure->count(), 2);
-                $ratingPerAnswerOption = $correctAnswerStructure->mapWithKeys(fn($null, $wordId) => [$wordId => $scorePerToggle]);
+                $ratingPerAnswerOption = $correctAnswerStructure
+                    ->mapWithKeys(fn($null, $wordId) => [
+                        $wordId => isset($json[$wordId]) ? $scorePerToggle * $json[$wordId] : null
+                    ]);
 
                 $amountOfToggles = collect(json_decode($this->answerRating->answer->json, true))->filter(fn($value) => $value)->count();
                 break;
@@ -748,13 +751,15 @@ class CoLearning extends TCComponent
         }
         $amountOfTogglesUsed = collect($json)->count();
 
+        //first filter out all false values (toggle == off), then reduce the remaining values to a single value
+        $calculatedRating = floor(collect($json)
+            ->filter(fn($value) => $value)
+            ->reduce(fn($carry, $value, $key) => $carry + ($ratingPerAnswerOption[$key] ?? 0), 0));
+
         $this->updateAnswerRating(
             json      : $json,
             fullyRated: $amountOfTogglesUsed === $amountOfToggles,
-            rating    : collect($json)
-                            ->filter(fn($value) => $value)
-                            ->reduce(fn($carry, $value, $key) => $carry + ($ratingPerAnswerOption[$key] ?? 0), 0)
-        //first filter out all false values (toggle == off), then reduce the remaining values to a single value
+            rating    : $calculatedRating
         );
         if($amountOfTogglesUsed === $amountOfToggles) {
             $this->answerRatingsRated = array_unique(array_merge($this->answerRatingsRated, [$this->answerRating->getKey()]));

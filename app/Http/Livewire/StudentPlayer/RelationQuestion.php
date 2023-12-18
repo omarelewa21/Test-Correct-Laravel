@@ -58,6 +58,19 @@ abstract class RelationQuestion extends StudentPlayerQuestion
             ->zip($secondHalf)
             ->flatten(1)
             ->filter()
+            ->flip()
+            ->mapWithKeys(function ($null, $wordId) {
+                $questionPrefixTranslation = $this->words[$wordId]['type'] !== 'subject'
+                    ? __('question.word_type_'.$this->words[$wordId]['type'])
+                    : null;
+                return [
+                    $wordId => [
+                        'answer' => null,
+                        'question' => $this->words[$wordId]['text'],
+                        'question_prefix' => $questionPrefixTranslation,
+                    ]
+                ];
+            })
             ->toArray();
 
         $this->viewStruct = $answerStructMappedIntoColumns;

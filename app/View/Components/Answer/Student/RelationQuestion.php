@@ -36,15 +36,18 @@ class RelationQuestion extends QuestionComponent
 
         $score_per_toggle = $answer->question->score / count($studentAnswer);
 
-        //todo when auto_checking, set initial value to correct if correct, if incorrect show null
-
         $this->answerStruct = $studentAnswer->mapWithKeys(function($studentAnswerText, $wordId) use ($answerModelWords, $score_per_toggle, $answerModelWordsCorrectWord) {
+            $questionPrefixTranslation = $answerModelWords[$wordId]?->type->value !== 'subject'
+                ? __('question.word_type_'.$answerModelWords[$wordId]?->type->value)
+                : null;
+//todo fix getInitialValueForWordId()
             return [
                 $wordId => [
                     'answer'   => $studentAnswerText,
                     'question' => $answerModelWords[$wordId]->text,
+                    'question_prefix' =>  $questionPrefixTranslation,
                     'not_answered' => $studentAnswerText === null || $studentAnswerText === '',
-                    'initial_value' => $this->getInitialValueForWordId($wordId, $studentAnswerText, $answerModelWordsCorrectWord),
+                    'initial_value' => !$this->inCoLearning ? $this->getInitialValueForWordId($wordId, $studentAnswerText, $answerModelWordsCorrectWord) : null,
                     'toggle_value' => $score_per_toggle,
                 ]
             ];
@@ -71,7 +74,8 @@ class RelationQuestion extends QuestionComponent
         if($answerModelWordsCorrectWord[$wordId]->text === $studentAnswer) {
             return 1;
         }
+//        if($question->auto_check_incorrect_answer) {
 
-        return null;
+        return null; //$question->auto_check_incorrect_answer ? false : null;
     }
 }
