@@ -42,61 +42,50 @@
         @endif
         @if($question->subtype == 'Matching')
             <div class="flex flex-col space-y-1 matching">
-                <div class="flex">
-                    <x-dropzone wire:key="group-start" startGroup="true">
-                        <div class="h-full-pdf space-x-1 focus:outline-none">
-                            @foreach($shuffledAnswers as $option)
-                                @if(  $option->correct_answer_id !== null )
-                                    @if($answerStruct[$option->id] === '')
-                                        <x-drag-item-disabled wire:key="option-{{ $option->id }}" sortableHandle="false"
-                                                              wire:sortable-group.item="{{ $option->id }}">
-                                            {{ $option->answer }}
-                                        </x-drag-item-disabled>
-                                    @endif
-                                @endif
-                            @endforeach
-                        </div>
-                    </x-dropzone>
-                </div>
-                <div class="flex flex-col space-y-3">
-                    <table class="no-border question-no-break-matching-option" border="0" >
-                    @foreach ($this->getMatchingQuestionAnswers() as $group)
-                        @if(  $group->correct_answer_id === null )
-                                <tr class="no-border" style="border: 0;">
-                                    <td class="no-border" style="width: 400px;height: 60px;">
-                                        <div class="w-full label-dropzone" style="height: 50px;">
-                                            <div class="block w-full h-full py-2 px-4 border-2 border-blue-grey rounded-10
-                                                         bg-primary-light font-size-18 bold base leading-5" style="height: 50px;">
-                                                            {{ $group->answer }}
-                                                </div>
-                                        </div>
-                                    </td>
-                                    <td class="no-border" style="width:600px;border: 0;">
-                                        <div class="flex-1 matching-dropzone">
-                                            <x-dropzone type="matching" wire:key="group-{{ $group->id }}"
-                                                        wire:sortable.item="{{ $group->id }}">
-                                                <div class="flex w-full dropzone-height" selid="drag-block-input">
-                                                    @foreach($shuffledAnswers as $option)
-                                                        @if(  $option->correct_answer_id !== null )
-                                                            @if($answerStruct[$option->id] == $group->id)
-                                                                <div class="bg-light-grey base border-light-grey border-2
-                                                                 rounded-10 inline-flex px-4 py-1.5 items-center justify-between drag-item drag-item-test-take-overview-preview bold font-size-18 pdf-80 pdf-minh-40"
-                                                                >
-                                                                    <span class="mr-3 flex items-center pdf-align-center" >{{ $option->answer }}</span>
-                                                                    <div class="w-4">
-                                                                        <x-icon.drag-pdf/>
-                                                                    </div>
-                                                                </div>
-                                                            @endif
-                                                        @endif
-                                                    @endforeach
-                                                </div>
-                                            </x-dropzone>
-                                        </div>
-                                    </td>
-                                </tr>
+                <div class="matching-question-answers-pdf-unused">
+                    @foreach($shuffledAnswers as $option)
+                        @if(  $option->correct_answer_id !== null )
+                            @if($answerStruct[$option->id] === '')
+                                  <div class="matching-question-drag-item">
+                                      {{ $option->answer }}
+                                  </div>
+                            @endif
                         @endif
                     @endforeach
+                </div>
+                <div class="flex flex-col space-y-3">
+                    <table class="no-border matching-question-answers-pdf" border="0" >
+                        @foreach ($this->getMatchingQuestionAnswers() as $group)
+                            @if(  $group->correct_answer_id === null )
+                                <tr>
+                                    <td class="left-side-td">
+                                        <div>
+                                            <span>
+                                                {{ $group->answer }}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="right-side-td">
+                                        @foreach($shuffledAnswers as $option)
+                                            @if(  $option->correct_answer_id !== null )
+                                                @php
+                                                    logger($answerStruct, [$answerStruct[$option->id], $option->id, $group->id]);
+                                                @endphp
+                                                @if(!in_array($group->id, $answerStruct))
+                                                    <div style="padding: 6px 16px; ">&nbsp;</div>
+                                                    @break
+                                                @endif
+                                                @if($answerStruct[$option->id] == $group->id)
+                                                    <div>
+                                                        <span >{{ $option->answer ?? "&nbsp;" }}</span>
+                                                    </div>
+                                                @endif
+                                            @endif
+                                        @endforeach
+                                    </td>
+                                </tr>
+                            @endif
+                        @endforeach
                     </table>
                 </div>
             </div>
