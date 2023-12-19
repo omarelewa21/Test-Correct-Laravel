@@ -44,7 +44,7 @@ class TestTakeCodeHelper extends BaseHelper
                             $foundTestTakeCode->testTake->test->test_kind_id == TestKind::ASSIGNMENT_TYPE
                             && (
                                 $foundTestTakeCode->testTake->time_start <= Carbon::today()
-                                || $foundTestTakeCode->testTake->time_end > Carbon::today()
+                                && $foundTestTakeCode->testTake->time_end > Carbon::today()
                             )
 
                         )
