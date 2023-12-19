@@ -21,7 +21,7 @@ class TestTakeCodeHelper extends BaseHelper
         return TestTakeCode::whereCode($code)->first();
     }
 
-    public function checkAccessViaTestTakeCodeIfExists($testTakeCode)
+    public function checkAccessViaTestTakeCodeIfExists($testTakeCode, $isGuestUser = false)
     {
 
         $foundTestTakeCode = self::getTestTakeCodeModelFromCode($testTakeCode);
@@ -29,10 +29,10 @@ class TestTakeCodeHelper extends BaseHelper
             && $foundTestTakeCode->testTake
             && $foundTestTakeCode->testTake->test
             && (
-                Auth::user()->isA('teacher')
+            (!$isGuestUser && Auth::user()->isA('teacher'))
                 ||
                 (
-                    Auth::user()->isA('student')
+                    ($isGuestUser || Auth::user()->isA('student'))
                     &&
                     (
                         ( // fail if not an assignment and doesn't start today

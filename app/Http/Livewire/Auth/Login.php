@@ -240,7 +240,7 @@ class Login extends TCComponent
 
         $testCodeHelper = new TestTakeCodeHelper();
 
-        if (!$testCodeHelper->checkAccessViaTestTakeCodeIfExists($this->testTakeCode)) {
+        if (!$testCodeHelper->checkAccessViaTestTakeCodeIfExists($this->testTakeCode,true)) {
             $this->errorKeys[] = 'no_test_found_with_code';
             return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
         }
