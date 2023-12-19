@@ -120,7 +120,8 @@ class MatrixQuestion extends Question implements QuestionInterface {
         return $question;
     }
 
-    public function canCheckAnswer($answer) {
+    public function canCreateSystemRatingForAnswer($answer): bool
+    {
 
 //        if($this->subtype === 'SingleChoice'){
 //            return true;

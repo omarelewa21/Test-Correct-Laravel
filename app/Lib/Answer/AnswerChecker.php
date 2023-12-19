@@ -73,7 +73,7 @@ class AnswerChecker {
             return $changed;
         }
 
-        if (!$question->canCheckAnswer($answer)) {
+        if (!$question->canCreateSystemRatingForAnswer($answer)) {
             return false;
         }
 
@@ -82,6 +82,7 @@ class AnswerChecker {
         }
 
         $rating = $question->checkAnswer($answer);
+        logger(__METHOD__, ['rating' => $rating, 'answer' => $answer->getKey()]);
         if ($rating !== false) {
             $answerRating = self::getAnswerRating($testTakeId, $answer, $recalculate);
             if($recalculate && null !== $commandEnv){

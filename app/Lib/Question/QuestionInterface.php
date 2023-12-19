@@ -4,7 +4,7 @@ interface QuestionInterface {
 
     public function loadRelated();
 
-    public function canCheckAnswer($answer);
+    public function canCreateSystemRatingForAnswer($answer): bool;
 
     public function checkAnswer($answer);
 

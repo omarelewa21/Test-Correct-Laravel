@@ -67,17 +67,13 @@ class InfoscreenQuestion extends Question implements QuestionInterface {
         return $question;
     }
 
-    public function canCheckAnswer($answer) {
+    public function canCreateSystemRatingForAnswer($answer): bool
+    {
         return true;
     }
 
     public function checkAnswer($answer) {
         return 0;
-    }
-
-    public function isClosedQuestion(): bool
-    {
-        return false;
     }
 
 }

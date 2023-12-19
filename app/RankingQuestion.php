@@ -149,7 +149,7 @@ class RankingQuestion extends Question implements QuestionInterface
         return true;
     }
 
-    public function canCheckAnswer($answer)
+    public function canCreateSystemRatingForAnswer($answer): bool
     {
         return true;
     }

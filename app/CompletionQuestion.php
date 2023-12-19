@@ -125,7 +125,7 @@ class CompletionQuestion extends Question implements QuestionInterface
         return $question;
     }
 
-    public function canCheckAnswer($answer)
+    public function canCreateSystemRatingForAnswer($answer): bool
     {
         if (
             $this->isCitoQuestion()
@@ -137,7 +137,8 @@ class CompletionQuestion extends Question implements QuestionInterface
 
         if ($this->subtype == 'completion') {
             //if all given answers are correct, we can check the answer
-            return $this->checkAnswerCompletionSub($answer)['all_answers_correct'];
+            $this->checkAnswerCompletionSub($answer);
+            return $answer->allAnswerFieldsCorrect;
         }
 
         Bugsnag::notifyException(new RuntimeException('Dead code marker detected please delete the marker the code is not dead.'), function ($report) {
@@ -180,12 +181,20 @@ class CompletionQuestion extends Question implements QuestionInterface
 
     public function isClosedQuestion(): bool
     {
-        return $this->isCitoQuestion() || $this->subtype == 'multi';
+        return parent::isClosedQuestion() || $this->subtype == 'multi';
     }
 
     public function checkAnswerCompletion($answer)
     {
-        $score = $this->checkAnswerCompletionSub($answer)['score'];
+        if(
+            isset($answer->allAnswerFieldsCorrect)
+            && $answer->allAnswerFieldsCorrect
+            && isset($answer->allAnswerFieldsCorrectScore)
+        ) {
+            $score = $answer->allAnswerFieldsCorrectScore;
+        } else {
+            $score = $this->checkAnswerCompletionSub($answer);
+        }
 
         if ($this->getAttribute('decimal_score') == true) {
             $score = floor($score * 2) / 2;
@@ -194,7 +203,6 @@ class CompletionQuestion extends Question implements QuestionInterface
         }
 
         return $score;
-
     }
 
     protected function checkAnswerCompletionSub($answer)
@@ -230,16 +238,20 @@ class CompletionQuestion extends Question implements QuestionInterface
 
         if ($this->allOrNothingQuestion()) {
             if ($correct == count($completionQuestionAnswers)) {
+                $answer->allAnswerFieldsCorrect = true;
+                $answer->allAnswerFieldsCorrectScore = $this->score;
                 return $this->score;
             } else {
+                $answer->allAnswerFieldsCorrect = false;
+                $answer->allAnswerFieldsCorrectScore = 0;
                 return 0;
             }
         }
 
-        return [
-            'score' =>$this->getAttribute('score') * ($correct / count($completionQuestionAnswers)),
-            'all_answers_correct' => count(array_filter($answers)) == $correct
-        ];
+        $answer->allAnswerFieldsCorrect = count(array_filter($answers)) == $correct;
+        $answer->allAnswerFieldsCorrectScore = $this->getAttribute('score') * ($correct / count($completionQuestionAnswers));
+
+        return $this->getAttribute('score') * ($correct / count($completionQuestionAnswers));
     }
 
     public function checkAnswerMulti($answer)
