@@ -25,11 +25,12 @@ class TestTakeCodeHelper extends BaseHelper
     {
 
         $foundTestTakeCode = self::getTestTakeCodeModelFromCode($testTakeCode);
+
         return ($foundTestTakeCode
             && $foundTestTakeCode->testTake
             && $foundTestTakeCode->testTake->test
             && (
-            (!$isGuestUser && Auth::user()->isA('teacher'))
+                (!$isGuestUser && Auth::user()->isA('teacher'))
                 ||
                 (
                     ($isGuestUser || Auth::user()->isA('student'))
@@ -37,13 +38,13 @@ class TestTakeCodeHelper extends BaseHelper
                     (
                         ( // fail if not an assignment and doesn't start today
                             $foundTestTakeCode->testTake->test->test_kind_id !== TestKind::ASSIGNMENT_TYPE
-                            && $foundTestTakeCode->testTake->time_start != Carbon::today()
+                            && $foundTestTakeCode->testTake->time_start == Carbon::today()
                         )
                         || ( // fail if it is an assignment, and the time_start is later than today (starts later than today) or the time_end smaller than today (ends earlier than today)
                             $foundTestTakeCode->testTake->test->test_kind_id == TestKind::ASSIGNMENT_TYPE
                             && (
-                                $foundTestTakeCode->testTake->time_start > Carbon::today()
-                                || $foundTestTakeCode->testTake->time_end < Carbon::today()
+                                $foundTestTakeCode->testTake->time_start <= Carbon::today()
+                                || $foundTestTakeCode->testTake->time_end > Carbon::today()
                             )
 
                         )

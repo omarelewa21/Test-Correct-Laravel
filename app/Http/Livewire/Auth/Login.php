@@ -671,7 +671,7 @@ class Login extends TCComponent
 
     private function directToTestTakeBasedOnTestTakeCode($testTakeCode)
     {
-        $testTakeCodeModel = TestTakeCodeHelper::getTestTakeCodeModelFromCode($this->testTakeCode);
+        $testTakeCodeModel = TestTakeCodeHelper::getTestTakeCodeModelFromCode($testTakeCode);
         return redirect()->route('take.directLink', ['testTakeUuid' => $testTakeCodeModel->testTake->uuid]);
     }
 
