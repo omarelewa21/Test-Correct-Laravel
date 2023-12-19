@@ -20,6 +20,9 @@ class Answer extends BaseModel
     use SoftDeletes;
     use UuidTrait;
 
+    public $allAnswerFieldsCorrect;
+    public $allAnswerFieldsCorrectScore;
+
     protected $casts = [
         'uuid'       => EfficientUuid::class,
         'deleted_at' => 'datetime',

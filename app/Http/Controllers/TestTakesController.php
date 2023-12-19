@@ -44,7 +44,7 @@ class TestTakesController extends Controller
     private function hasOpenQuestion($test_id)
     {
         return !!QuestionGatherer::getQuestionsOfTest($test_id, true)->search(function (Question $question) {
-            return !$question->canCheckAnswer();
+            return !$question->isClosedQuestion();
         });
     }
 

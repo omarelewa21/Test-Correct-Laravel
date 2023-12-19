@@ -73,7 +73,7 @@ class AnswerChecker {
             return $changed;
         }
 
-        if (!$question->canCheckAnswer($answer)) {
+        if (!$question->canCreateSystemRatingForAnswer($answer)) {
             return false;
         }
 

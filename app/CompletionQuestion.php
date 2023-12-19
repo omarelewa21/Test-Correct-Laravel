@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -11,6 +12,7 @@ use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Traits\Questions\WithQuestionDuplicating;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\Traits\UuidTrait;
+use RuntimeException;
 
 class CompletionQuestion extends Question implements QuestionInterface
 {
@@ -112,22 +114,33 @@ class CompletionQuestion extends Question implements QuestionInterface
         return $question;
     }
 
-    public function canCheckAnswer($answer = null)
+    public function canCreateSystemRatingForAnswer($answer): bool
     {
-        if ($this->subtype == 'multi' || ($this->subtype == 'completion' && $this->auto_check_incorrect_answer)) {
+        if (
+            $this->isCitoQuestion()
+            || $this->subtype == 'multi'
+            || ($this->subtype == 'completion' && $this->auto_check_incorrect_answer)
+        ) {
             return true;
-        } else if ($this->subtype == 'completion') {
-            //todo if $this->auto_check_incorrect_answer === false, but all answers are CORRECT,
-            // then we can check the answer so that it gets a score (because it is correct)
-            // EXTRA: filter out not filled in answers, and if the rest is correct, then we can check the answer
-            // This is being fixed in TCP-3564, replace the code here with the code in that branch when it's done/merged
-
-            if($answer === null){
-                return false;
-            }
-            return $this->checkAnswerCompletionTwo($answer)['all_answers_correct'];
         }
 
+        if ($this->subtype == 'completion') {
+            //if all given answers are correct, we can check the answer
+            $this->checkAnswerCompletionSub($answer);
+            return $answer->allAnswerFieldsCorrect;
+        }
+
+        Bugsnag::notifyException(new RuntimeException('Dead code marker detected please delete the marker the code is not dead.'), function ($report) {
+            $report->setMetaData([
+                'code_context' => [
+                    'file' => __FILE__,
+                    'class' => __CLASS__,
+                    'method' => __METHOD__,
+                    'line' => __LINE__,
+                    'timestamp' => date(DATE_ATOM),
+                ]
+            ]);
+        });
         $completionQuestionAnswers = $this->completionQuestionAnswers->groupBy('tag');
         unset($this->completionQuestionAnswers);
 
@@ -155,14 +168,22 @@ class CompletionQuestion extends Question implements QuestionInterface
         return true;
     }
 
-    protected function isClosedQuestion()
+    public function isClosedQuestion(): bool
     {
-        return $this->isCitoQuestion();
+        return parent::isClosedQuestion() || $this->subtype == 'multi';
     }
 
     public function checkAnswerCompletion($answer)
     {
-        $score = $this->checkAnswerCompletionTwo($answer)['score'];
+        if(
+            isset($answer->allAnswerFieldsCorrect)
+            && $answer->allAnswerFieldsCorrect
+            && isset($answer->allAnswerFieldsCorrectScore)
+        ) {
+            $score = $answer->allAnswerFieldsCorrectScore;
+        } else {
+            $score = $this->checkAnswerCompletionSub($answer);
+        }
 
         if ($this->getAttribute('decimal_score') == true) {
             $score = floor($score * 2) / 2;
@@ -171,10 +192,9 @@ class CompletionQuestion extends Question implements QuestionInterface
         }
 
         return $score;
-
     }
 
-    protected function checkAnswerCompletionTwo($answer)
+    protected function checkAnswerCompletionSub($answer)
     {
         $completionQuestionAnswers = $this->completionQuestionAnswers->groupBy('tag');
         foreach ($completionQuestionAnswers as $tag => $choices) {
@@ -207,16 +227,20 @@ class CompletionQuestion extends Question implements QuestionInterface
 
         if ($this->allOrNothingQuestion()) {
             if ($correct == count($completionQuestionAnswers)) {
+                $answer->allAnswerFieldsCorrect = true;
+                $answer->allAnswerFieldsCorrectScore = $this->score;
                 return $this->score;
             } else {
+                $answer->allAnswerFieldsCorrect = false;
+                $answer->allAnswerFieldsCorrectScore = 0;
                 return 0;
             }
         }
 
-        return [
-            'score' =>$this->getAttribute('score') * ($correct / count($completionQuestionAnswers)),
-            'all_answers_correct' => count(array_filter($answers)) == $correct
-        ];
+        $answer->allAnswerFieldsCorrect = count(array_filter($answers)) == $correct;
+        $answer->allAnswerFieldsCorrectScore = $this->getAttribute('score') * ($correct / count($completionQuestionAnswers));
+
+        return $this->getAttribute('score') * ($correct / count($completionQuestionAnswers));
     }
 
     public function checkAnswerMulti($answer)

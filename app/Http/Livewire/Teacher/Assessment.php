@@ -1174,7 +1174,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             ->test
             ->getFlatQuestionList(
                 function ($relationModel) {
-                    $relationModel->question->isDiscussionTypeOpen = !$relationModel->question->canCheckAnswer();
+                    $relationModel->question->isDiscussionTypeOpen = !$relationModel->question->isClosedQuestion();
                 }
             );
     }
