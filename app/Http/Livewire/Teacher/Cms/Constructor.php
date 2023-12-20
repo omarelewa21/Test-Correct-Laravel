@@ -491,7 +491,7 @@ class Constructor extends TCComponent implements QuestionCms
 
     public function updating($name, $value)
     {
-        $method = 'updating' . ucfirst($name);
+        $method = 'updating' . Str::dotToPascal($name);
         if ($this->obj && method_exists($this->obj, $method)) {
             $this->obj->$method($value);
         }

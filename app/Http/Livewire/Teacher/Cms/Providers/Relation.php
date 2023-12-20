@@ -235,4 +235,13 @@ class Relation extends TypeProvider
             ->map(fn($row) => !in_array($row['subject']['text'], [null, '']) ? $row : null)
             ->filter();
     }
+
+    public function updatedQuestionSelectionCount($value): void
+    {
+        if ($value > count($this->rowsWithoutEmptyValues())) {
+            $this->instance->question['selection_count'] = count($this->rowsWithoutEmptyValues());
+        }
+
+        $this->instance->question['score'] = $this->instance->question['selection_count'];
+    }
 }
