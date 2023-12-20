@@ -152,8 +152,8 @@ class PdfDownloadModal extends TCModalComponent
                 ['test_take' => $this->testTake->uuid]
             );
             $options['studentanswers']['link'] = route(
-                'teacher.preview.test_take',
-                ['test_take' => $this->testTake->uuid]
+                'teacher.preview.test_take_answers_pdf',
+                ['test_take' => $this->testTake->uuid, 'showQuestionText' => false]
             );
         }
 

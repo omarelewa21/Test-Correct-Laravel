@@ -763,9 +763,13 @@ ul ul ul {
     color: var(--note) !important;
 }
 
-.co-learning-break {
+.completion-question-break {
     flex-basis: 100%;
     height: 0;
+}
+
+[questionhtml] p span.mr-1{
+    white-space: nowrap;
 }
 
 .filemanagement-status {

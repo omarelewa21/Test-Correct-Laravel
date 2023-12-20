@@ -10,10 +10,13 @@ use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Http\Livewire\Teacher\Cms\Providers\MultipleChoice;
 use tcCore\Http\Livewire\Teacher\Cms\TypeFactory;
+use tcCore\Http\Traits\WithRelationQuestionAttributes;
 use tcCore\Question;
 
 class QuestionCmsPreviewModal extends TCModalComponent implements QuestionCms
 {
+    use WithRelationQuestionAttributes;
+
     public array $question = [
         'add_to_database'        => 1,
         'answer'                 => '',

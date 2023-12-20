@@ -12,7 +12,7 @@ class Completion extends TypeProvider
     public $requiresAnswer = false;
 
     protected $questionOptions = [
-        'auto_check_answer' => false,
+        'auto_check_incorrect_answer' => false,
         'auto_check_answer_case_sensitive' => false,
     ];
 
@@ -34,10 +34,6 @@ class Completion extends TypeProvider
 
     public function isSettingsGeneralPropertyDisabled($property): bool
     {
-        if ($property === 'autoCheckAnswerCaseSensitive' && !$this->instance->question['auto_check_answer']) {
-            return true;
-        }
-
         return false;
     }
 

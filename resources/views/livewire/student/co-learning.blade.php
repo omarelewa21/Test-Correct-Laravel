@@ -131,7 +131,7 @@
                                     </div>
 
                                     <div class="max-w-full">
-                                        {!! $this->getDiscussingQuestion()->converted_question_html !!}
+                                        {!! $this->getDisplayableQuestionText()  !!}
                                     </div>
                                 </div>
                             </x-slot:body>
@@ -222,6 +222,9 @@
                                             :component="'answer.teacher.'. str($this->getDiscussingQuestion()->type)->kebab()"
                                             :question="$this->getDiscussingQuestion()"
                                             :editorId="'editor-'.$this->getDiscussingQuestion()->uuid"
+                                            :testTake="$this->testTake"
+                                            :answer="$this->answerRating->answer"
+                                            :student-answer-rating="$this->answerRating"
                                     />
                                 </div>
                             </x-slot:body>

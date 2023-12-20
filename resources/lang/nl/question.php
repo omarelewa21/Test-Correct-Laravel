@@ -60,4 +60,8 @@ return [
     'relationquestion'                     => 'Relatievraag',
     'relationquestionrelation'             => 'Relatievraag',
     'relation_description'                 => 'Geef korte antwoorden in een lange lijst, zoals vocabulaire',
+    'word_type_subject'                    => 'Onderwerp',
+    'word_type_translation'                => 'Vertaling',
+    'word_type_definition'                 => 'Definitie',
+    'word_type_synonym'                    => 'Synoniem',
 ];

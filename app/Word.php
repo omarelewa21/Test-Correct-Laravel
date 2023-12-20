@@ -145,4 +145,14 @@ class Word extends Versionable
     {
         return $this->type === WordType::SUBJECT;
     }
+
+    public function correctAnswerWord() {
+        if ($this->isSubjectWord()) {
+            return $this->associations
+                ->sortBy(fn($association) => $association->type->getOrder())
+                ->first();
+        }
+
+        return $this->subjectWord;
+    }
 }

@@ -42,4 +42,5 @@ return [
     'printversion_test_attachments'        => 'Printversie toets pdf-bijlagen:',
     'pdf_download_wait_text'               => 'Wacht alstublieft tot de pdf geladen is, het kan even duren.',
     'test_attachments_zip'                 => 'toets-bijlagen',
+    'Sorry, the download could not be generated, please get in contact in order for us to help you with that.' => 'Sorry, de pdf is te groot geworden om te downloaden, neem contact met ons op om te kijken of wij deze kunnen genereren',
 ];

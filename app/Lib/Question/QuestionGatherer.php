@@ -175,7 +175,7 @@ class QuestionGatherer
                 }
                 if ($skipClosed) {
                     $question = static::$questionsDotted[$testId][$questionId];
-                    if (!$question->canCheckAnswer()) {
+                    if (!$question->isClosedQuestion()) {
                         return $questionId;
                     }
                     continue;

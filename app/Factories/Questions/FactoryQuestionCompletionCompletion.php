@@ -12,7 +12,7 @@ class FactoryQuestionCompletionCompletion extends FactoryQuestionCompletion
         return array_merge(
             parent::definition(),
             [
-                'auto_check_answer'                => false,
+                'auto_check_incorrect_answer'      => false,
                 'auto_check_answer_case_sensitive' => false,
             ]
         );

@@ -44,7 +44,7 @@ class TestTakesController extends Controller
     private function hasOpenQuestion($test_id)
     {
         return !!QuestionGatherer::getQuestionsOfTest($test_id, true)->search(function (Question $question) {
-            return !$question->canCheckAnswer();
+            return !$question->isClosedQuestion();
         });
     }
 
@@ -1286,7 +1286,7 @@ class TestTakesController extends Controller
 
         $temporaryLogin = TemporaryLogin::createWithOptionsForUser('app_details', request()->get('app_details'), auth()->user());
 
-        return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($temporaryLogin->uuid, route('teacher.preview.test_take', $testTake->uuid, false));
+        return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($temporaryLogin->uuid, route('teacher.preview.test_take_answers_pdf', $testTake->uuid, false));
 
     }
 

@@ -1,6 +1,8 @@
 <?php namespace tcCore;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Dyrynda\Database\Casts\EfficientUuid;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Validator;
 use Ramsey\Uuid\Uuid;
@@ -10,6 +12,7 @@ use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Traits\Questions\WithQuestionDuplicating;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\Traits\UuidTrait;
+use RuntimeException;
 
 class CompletionQuestion extends Question implements QuestionInterface
 {
@@ -18,7 +21,7 @@ class CompletionQuestion extends Question implements QuestionInterface
 
     protected $casts = [
         'uuid'                             => EfficientUuid::class,
-        'auto_check_answer'                => 'boolean',
+        'auto_check_incorrect_answer'      => 'boolean',
         'auto_check_answer_case_sensitive' => 'boolean',
         'deleted_at'                       => 'datetime',
     ];
@@ -35,7 +38,7 @@ class CompletionQuestion extends Question implements QuestionInterface
      *
      * @var array
      */
-    protected $fillable = ['rating_method', 'subtype', 'auto_check_answer', 'auto_check_answer_case_sensitive'];
+    protected $fillable = ['rating_method', 'subtype', 'auto_check_incorrect_answer', 'auto_check_answer_case_sensitive'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -82,7 +85,7 @@ class CompletionQuestion extends Question implements QuestionInterface
         parent::boot();
 
         static::saving(function (CompletionQuestion $question) {
-            $question->auto_check_answer = !!$question->auto_check_answer;
+            $question->auto_check_incorrect_answer = !!$question->auto_check_incorrect_answer;
             $question->auto_check_answer_case_sensitive = !!$question->auto_check_answer_case_sensitive;
             return $question;
         });
@@ -111,14 +114,33 @@ class CompletionQuestion extends Question implements QuestionInterface
         return $question;
     }
 
-    public function canCheckAnswer()
+    public function canCreateSystemRatingForAnswer($answer): bool
     {
-        if ($this->isClosedQuestion()) { // cito based
+        if (
+            $this->isCitoQuestion()
+            || $this->subtype == 'multi'
+            || ($this->subtype == 'completion' && $this->auto_check_incorrect_answer)
+        ) {
             return true;
-        } else if ($this->subtype == 'completion') { // don't auto check gatentekst
-            return false;
         }
 
+        if ($this->subtype == 'completion') {
+            //if all given answers are correct, we can check the answer
+            $this->checkAnswerCompletionSub($answer);
+            return $answer->allAnswerFieldsCorrect;
+        }
+
+        Bugsnag::notifyException(new RuntimeException('Dead code marker detected please delete the marker the code is not dead.'), function ($report) {
+            $report->setMetaData([
+                'code_context' => [
+                    'file' => __FILE__,
+                    'class' => __CLASS__,
+                    'method' => __METHOD__,
+                    'line' => __LINE__,
+                    'timestamp' => date(DATE_ATOM),
+                ]
+            ]);
+        });
         $completionQuestionAnswers = $this->completionQuestionAnswers->groupBy('tag');
         unset($this->completionQuestionAnswers);
 
@@ -146,12 +168,33 @@ class CompletionQuestion extends Question implements QuestionInterface
         return true;
     }
 
-    protected function isClosedQuestion()
+    public function isClosedQuestion(): bool
     {
-        return $this->isCitoQuestion() || $this->auto_check_answer;
+        return parent::isClosedQuestion() || $this->subtype == 'multi';
     }
 
     public function checkAnswerCompletion($answer)
+    {
+        if(
+            isset($answer->allAnswerFieldsCorrect)
+            && $answer->allAnswerFieldsCorrect
+            && isset($answer->allAnswerFieldsCorrectScore)
+        ) {
+            $score = $answer->allAnswerFieldsCorrectScore;
+        } else {
+            $score = $this->checkAnswerCompletionSub($answer);
+        }
+
+        if ($this->getAttribute('decimal_score') == true) {
+            $score = floor($score * 2) / 2;
+        } else {
+            $score = floor($score);
+        }
+
+        return $score;
+    }
+
+    protected function checkAnswerCompletionSub($answer)
     {
         $completionQuestionAnswers = $this->completionQuestionAnswers->groupBy('tag');
         foreach ($completionQuestionAnswers as $tag => $choices) {
@@ -177,45 +220,27 @@ class CompletionQuestion extends Question implements QuestionInterface
                 continue;
             }
 
-            if ($this->auto_check_answer && !$this->auto_check_answer_case_sensitive) {
-                $answers[$refTag] = Str::lower($answers[$refTag]);
-                $tagAnswersAr = $tagAnswers;
-                $tagAnswers = [];
-                foreach ($tagAnswersAr as $key => $val) {
-                    $tagAnswers[$key] = Str::lower($val);
-                }
-            }
-            $tagAnswers = collect($tagAnswers)->map(function ($tagAnswer) {
-                return BaseHelper::transformHtmlCharsReverse(
-                    trim($tagAnswer)
-                );
-            })->toArray();
-            if (in_array(trim($answers[$refTag]), $tagAnswers)
-                || in_array(trim(BaseHelper::transformHtmlCharsReverse($answers[$refTag])), $tagAnswers)
-                || in_array(trim(htmlentities($answers[$refTag])), $tagAnswers)
-            ) {
-                $correct++;
-            }
+            QuestionHelper::compareTextAnswers($answers[$refTag], $tagAnswers, $this->auto_check_answer_case_sensitive)
+                ? $correct++
+                : null;
         }
 
         if ($this->allOrNothingQuestion()) {
             if ($correct == count($completionQuestionAnswers)) {
+                $answer->allAnswerFieldsCorrect = true;
+                $answer->allAnswerFieldsCorrectScore = $this->score;
                 return $this->score;
             } else {
+                $answer->allAnswerFieldsCorrect = false;
+                $answer->allAnswerFieldsCorrectScore = 0;
                 return 0;
             }
         }
 
+        $answer->allAnswerFieldsCorrect = count(array_filter($answers)) == $correct;
+        $answer->allAnswerFieldsCorrectScore = $this->getAttribute('score') * ($correct / count($completionQuestionAnswers));
 
-        $score = $this->getAttribute('score') * ($correct / count($completionQuestionAnswers));
-        if ($this->getAttribute('decimal_score') == true) {
-            $score = floor($score * 2) / 2;
-        } else {
-            $score = floor($score);
-        }
-
-        return $score;
-
+        return $this->getAttribute('score') * ($correct / count($completionQuestionAnswers));
     }
 
     public function checkAnswerMulti($answer)

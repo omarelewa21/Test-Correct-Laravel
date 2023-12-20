@@ -47,4 +47,14 @@ abstract class QuestionComponent extends Component
         if (!$rating) return false;
         return isset($rating->json[$id]) && is_bool($rating->json[$id]);
     }
+
+    /**
+     * @param $rating
+     * @return bool
+     */
+    protected function ratingContainsValidToggleValue($rating, $id): bool
+    {
+        if (!$rating) return false;
+        return isset($rating->json[$id]) && in_array((float)$rating->json[$id], [0.0, 1.0, 0.5]);
+    }
 }

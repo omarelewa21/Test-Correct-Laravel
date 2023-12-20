@@ -60,4 +60,8 @@ return [
     'relationquestion'                     => 'Relation question',
     'relationquestionrelation'             => 'Relation question',
     'relation_description'                 => 'Give short answers in a longer list, f.i. vocabulary',
+    'word_type_subject'                    => 'Subject',
+    'word_type_translation'                => 'Translation',
+    'word_type_definition'                 => 'Definition',
+    'word_type_synonym'                    => 'Synonym',
 ];

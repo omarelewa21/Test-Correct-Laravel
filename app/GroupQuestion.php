@@ -344,7 +344,7 @@ class GroupQuestion extends Question implements QuestionInterface
         return $tests;
     }
 
-    public function canCheckAnswer()
+    public function canCreateSystemRatingForAnswer($answer): bool
     {
         return false;
     }

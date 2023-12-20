@@ -197,7 +197,8 @@ class DrawingQuestion extends Question implements QuestionInterface {
         return $question;
     }
 
-    public function canCheckAnswer() {
+    public function canCreateSystemRatingForAnswer($answer): bool
+    {
         return false;
     }
 

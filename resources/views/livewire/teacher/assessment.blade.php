@@ -30,6 +30,7 @@
                                                 :answer-model-panel="$this->answerModelPanel"
                                                 :show-correction-model="true"
                                                 class="mt-20"
+                                                :test-take="$this->testTakeData"
             >
                 <x-slot:subHeader>
                     <div class="nav-container | fixed-sub-header-container h-20 bg-lightGrey border-bluegrey border-b top-[var(--header-height)] z-1">
@@ -137,6 +138,7 @@
                                             :commentMarkerStyles="$this->commentMarkerStyles"
                                             :enableComments="true"
                                             :answerFeedbackFilter="$this->answerFeedbackFilter"
+                                            :answerRating="$this->currentAnswer->answerRatings->where('type', 'TEACHER')->first()"
                                     />
                                 </div>
                             </x-slot:body>

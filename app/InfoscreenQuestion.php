@@ -53,7 +53,8 @@ class InfoscreenQuestion extends Question implements QuestionInterface {
         return $this->specificDuplication($attributes, $ignore);
     }
 
-    public function canCheckAnswer() {
+    public function canCreateSystemRatingForAnswer($answer): bool
+    {
         return true;
     }
 

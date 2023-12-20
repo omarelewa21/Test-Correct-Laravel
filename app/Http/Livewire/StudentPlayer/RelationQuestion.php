@@ -9,6 +9,7 @@ abstract class RelationQuestion extends StudentPlayerQuestion
 {
     public $uuid;
     public $answerStruct;
+    public $answerStructOrder;
     public $answerText = [];
 
     public $words = [];
@@ -22,6 +23,16 @@ abstract class RelationQuestion extends StudentPlayerQuestion
         $this->getWords();
 
         $this->createViewKeyStruct();
+    }
+
+    public function hydrate()
+    {
+        //Livewire resets the order every time the page is refreshed, so we need to set it again
+        $this->answerStruct = collect($this->answerStructOrder)
+            ->mapWithKeys(function ($wordId) {
+                return [$wordId => $this->answerStruct[$wordId]];
+            })
+            ->toArray();
     }
 
     public function isQuestionFullyAnswered(): bool
@@ -39,6 +50,7 @@ abstract class RelationQuestion extends StudentPlayerQuestion
             $this->setDefaultStruct();
             $this->saveEmptyAnswerStruct();
         }
+        $this->answerStructOrder = array_keys($this->answerStruct);
     }
 
     /**
@@ -50,17 +62,22 @@ abstract class RelationQuestion extends StudentPlayerQuestion
      */
     protected function createViewKeyStruct()
     {
-        [$firstHalf, $secondHalf] = collect($this->answerStruct)
+        $this->viewStruct = collect($this->answerStruct)
             ->keys()
-            ->split(2);
-
-        $answerStructMappedIntoColumns = $firstHalf
-            ->zip($secondHalf)
-            ->flatten(1)
-            ->filter()
-            ->toArray();
-
-        $this->viewStruct = $answerStructMappedIntoColumns;
+            ->split(2)
+            ->each(function($item, $wordId) {
+            $item->transform(function($wordId, $key) {
+                $questionPrefixTranslation = !in_array($this->words[$wordId]['type'], ['subject', 'translation'])
+                    ? __('question.word_type_'.$this->words[$wordId]['type'])
+                    : null;
+                return [
+                    'answer' => null,
+                    'question' => $this->words[$wordId]['text'],
+                    'question_prefix' => $questionPrefixTranslation,
+                    'wordId' => $wordId,
+                ];
+            });
+        })->map->toArray();
     }
 
     protected function getWords()
@@ -99,7 +116,7 @@ abstract class RelationQuestion extends StudentPlayerQuestion
     {
         if($this instanceof Preview\RelationQuestion) return false;
 
-        return !empty(json_decode($this->answers[$this->question->uuid]['answer']));
+        return !empty(json_decode($this->answers[$this->question->uuid]['answer'], true));
     }
 
     final protected function getStructFromAnswer(): array

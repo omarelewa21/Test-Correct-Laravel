@@ -9201,9 +9201,21 @@ document.addEventListener("alpine:init", function () {
           }
           ;
           /* dispatch with a static (question score) value, not value/key of button-option, only works with true/false  */
+          var state = 'off';
+          switch (parseFloat(this.value)) {
+            case 1.0:
+              state = 'on';
+              break;
+            case 0.5:
+              state = 'half';
+              break;
+            default:
+              state = 'off';
+              break;
+          }
           this.$dispatch("slider-toggle-value-updated", {
             value: this.$root.dataset.toggleValue,
-            state: parseInt(this.value) === 1 ? "on" : "off",
+            state: state,
             firstTick: oldValue === null,
             identifier: this.identifier
           });
@@ -9671,6 +9683,7 @@ document.addEventListener("alpine:init", function () {
       drawerScoringDisabled: array.drawerScoringDisabled,
       pageUpdated: array.pageUpdated,
       isCoLearningScore: array.isCoLearningScore,
+      toggleValues: array.toggleValues || {},
       init: function init() {
         var _this37 = this;
         if (this.pageUpdated) {
@@ -9701,27 +9714,39 @@ document.addEventListener("alpine:init", function () {
       },
       toggleTicked: function toggleTicked(event) {
         var parsedValue = isFloat(event.value) ? parseFloat(event.value) : parseInt(event.value);
-        this.setNewScore(parsedValue, event.state, event.firstTick);
+        this.setNewScore(parsedValue, event.state, event.firstTick, event === null || event === void 0 ? void 0 : event.identifier);
         this.updateAssessmentStore();
         this.dispatchNewScoreToSlider();
         this.updateLivewireComponent(event);
       },
       getCurrentScore: function getCurrentScore() {
-        return this.halfPoints ? Math.round(this.shadowScore * 2) / 2 : Math.round(this.shadowScore);
+        var toggleValuesCount = Object.keys(this.toggleValues).length;
+        var toggleValuesSum = Object.values(this.toggleValues).reduce(function (sum, value) {
+          return sum + value;
+        }, 0);
+        this.shadowScore = this.maxScore / toggleValuesCount * toggleValuesSum;
+        if (this.shadowScore < 0) this.shadowScore = 0;
+        if (this.shadowScore > this.maxScore) this.shadowScore = this.maxScore;
+        return this.halfPoints ? Math.floor(this.shadowScore * 2) / 2 : Math.floor(this.shadowScore);
       },
       setNewScore: function setNewScore(newScore, state, firstTick) {
+        var identifier = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
         if (firstTick && this.isCoLearningScore) {
           this.isCoLearningScore = false;
           this.shadowScore = 0;
         }
-        if (firstTick && state === "off") {
-          var _this$shadowScore;
-          (_this$shadowScore = this.shadowScore) !== null && _this$shadowScore !== void 0 ? _this$shadowScore : this.shadowScore = 0;
-        } else {
-          this.shadowScore = state === "on" ? this.shadowScore + newScore : this.shadowScore - newScore;
+        // new scoring mechanism:
+        switch (state) {
+          case 'on':
+            this.toggleValues[identifier] = 1;
+            break;
+          case 'half':
+            this.toggleValues[identifier] = 0.5;
+            break;
+          default:
+            this.toggleValues[identifier] = 0;
+            break;
         }
-        if (this.shadowScore < 0) this.shadowScore = 0;
-        if (this.shadowScore > this.maxScore) this.shadowScore = this.maxScore;
         this.score = this.getCurrentScore();
       },
       updateAssessmentStore: function updateAssessmentStore() {
@@ -13821,7 +13846,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "662d128370816e2bbb66",
   cluster: "eu",
   forceTLS: true
 });

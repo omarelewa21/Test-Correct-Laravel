@@ -13,15 +13,18 @@ use tcCore\AnswerRating;
 use tcCore\Exceptions\AssessmentException;
 use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
 use tcCore\Http\Helpers\CakeRedirectHelper;
+use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Interfaces\CollapsableHeader;
 use tcCore\Http\Livewire\EvaluationComponent;
 use tcCore\Question;
+use tcCore\RelationQuestion;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 use tcCore\User;
 use tcCore\UserFeatureSetting;
 use tcCore\View\Components\CompletionQuestionConvertedHtml;
+use tcCore\Word;
 
 class Assessment extends EvaluationComponent implements CollapsableHeader
 {
@@ -251,6 +254,10 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             return true;
         }
 
+        if($this->currentQuestion instanceof RelationQuestion) {
+            return true;
+        }
+
         return !$this->currentAnswer->isAnswered;
     }
 
@@ -424,7 +431,11 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
         $json = $this->teacherRating()?->json ?? [];
 
-        $json[$id] = $state === 'on';
+        $json[$id] = match ($state) {
+            'on' => 1,
+            'half' => 0.5,
+            default => 0,
+        };
 
         $this->updateOrCreateAnswerRating(['json' => $json]);
     }
@@ -1163,7 +1174,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             ->test
             ->getFlatQuestionList(
                 function ($relationModel) {
-                    $relationModel->question->isDiscussionTypeOpen = !$relationModel->question->canCheckAnswer();
+                    $relationModel->question->isDiscussionTypeOpen = !$relationModel->question->isClosedQuestion();
                 }
             );
     }
@@ -1201,7 +1212,66 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             'drawerScoringDisabled' => $this->drawerScoringDisabled,
             'pageUpdated'           => $this->updatePage,
             'isCoLearningScore'     => $this->isCoLearningScore,
+            'toggleValues'          => $this->getToggleValues(),
         ];
+    }
+
+    private function getToggleValues()
+    {
+        if(!$this->headerCollapsed) {
+            return [];
+        }
+
+        $studentAnswerJson = collect(json_decode($this->getCurrentAnswer()->json, true));
+        $answerRatingToggleValuesJson = $this->getCurrentAnswer()->answerRatings->where('type', AnswerRating::TYPE_TEACHER)->first()->json ?? [];
+
+        $correctAnswers = [];
+        if ($this->getCurrentQuestion()->isType("RelationQuestion")) {
+            collect($studentAnswerJson)->each(function ($value, $key) use (&$correctAnswers) {
+                $correctAnswers[$key][] = Word::find($key)->correctAnswerWord()->text;
+            });
+        }
+        if($this->getCurrentQuestion()->isType("CompletionQuestion") && $this->getCurrentQuestion()->subtype === "completion") {
+            $this->getCurrentQuestion()->completionQuestionAnswers->each(function ($answer) use (&$correctAnswers) {
+                $correctAnswers[$answer->tag][] = $answer->answer;
+            });
+        }
+
+        $studentAnswerJson->each(function ($value, $key) use (&$answerRatingToggleValuesJson, $correctAnswers) {
+            if($this->getCurrentQuestion()->isType("CompletionQuestion") && $this->getCurrentQuestion()->subtype === "completion") {
+                //completion question json is a 1 based array
+                $tagKey = $key = $key + 1;
+            }
+
+            if (array_key_exists($key, $answerRatingToggleValuesJson)) {
+                return;
+            }
+
+            if ($value === null) { //not answered === not correct
+                $answerRatingToggleValuesJson[$key] = null; //todo: add new functionality to automatically rate answers FALSE if the option is enabled in CMS
+                return;
+            }
+
+            if ($this->getCurrentQuestion()->isType("RelationQuestion")) {
+                $answerRatingToggleValuesJson[$key] = QuestionHelper::compareTextAnswers(
+                    answerToCheck : $value,
+                    correctAnswers: $correctAnswers[$key]
+                ) ? 1 : null; //todo: add new functionality to automatically rate answers FALSE if the option is enabled in CMS
+                return;
+            }
+            if($this->getCurrentQuestion()->isType("CompletionQuestion") && $this->getCurrentQuestion()->subtype === "completion") {
+                //completion question json is a 1 based array
+                $answerRatingToggleValuesJson[$tagKey] = QuestionHelper::compareTextAnswers(
+                    answerToCheck : $value,
+                    correctAnswers: $correctAnswers[$tagKey]
+                ) ? 1 : null; //todo: add new functionality to automatically rate answers FALSE if the option is enabled in CMS
+                return;
+            }
+
+            $answerRatingToggleValuesJson[$key] = null;
+        });
+
+        return $answerRatingToggleValuesJson;
     }
 
     private function getSessionSettingValue($setting): bool

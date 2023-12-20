@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Student;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use tcCore\AnswerRating;
 use tcCore\CompletionQuestion;
@@ -27,9 +28,11 @@ use tcCore\InfoscreenQuestion;
 use tcCore\MatchingQuestion;
 use tcCore\MultipleChoiceQuestion;
 use tcCore\Question;
+use tcCore\RelationQuestion;
 use tcCore\TestTake;
 use tcCore\TestTakeQuestion;
 use tcCore\TestTakeStatus;
+use tcCore\View\Components\CompletionQuestionConvertedHtml;
 
 class CoLearning extends TCComponent
 {
@@ -677,9 +680,17 @@ class CoLearning extends TCComponent
     {
         $json = $this->answerRating?->fresh()?->json ?? [];
 
-        $json[$id] = $state === 'on';
+        $json[$id] = match ($state) {
+            'on' => 1,
+            'half' => 0.5,
+            default => 0,
+        };
 
-        $correctAnswerStructure = $this->getCurrentQuestion()->getCorrectAnswerStructure();
+        if(strtolower($this->getCurrentQuestion()->type) === 'relationquestion') {
+            $correctAnswerStructure = collect(json_decode($this->answerRating->answer->json, true));
+        } else {
+            $correctAnswerStructure = $this->getCurrentQuestion()->getCorrectAnswerStructure();
+        }
 
         switch (strtolower($this->getCurrentQuestion()->type . '-' . $this->getCurrentQuestion()->subtype)) {
             case 'matchingquestion-classify':
@@ -726,18 +737,29 @@ class CoLearning extends TCComponent
                 );
                 $this->answerRatingsRated = array_unique(array_merge($this->answerRatingsRated, [$this->answerRating->getKey()]));
                 return;
+            case 'relationquestion-':
+                $scorePerToggle = round($this->maxRating / $correctAnswerStructure->count(), 2);
+                $ratingPerAnswerOption = $correctAnswerStructure
+                    ->mapWithKeys(fn($null, $wordId) => [
+                        $wordId => isset($json[$wordId]) ? $scorePerToggle * $json[$wordId] : null
+                    ]);
+
+                $amountOfToggles = collect(json_decode($this->answerRating->answer->json, true))->filter(fn($value) => $value)->count();
+                break;
             default:
                 $ratingPerAnswerOption = [];
         }
         $amountOfTogglesUsed = collect($json)->count();
 
+        //first filter out all false values (toggle == off), then reduce the remaining values to a single value
+        $calculatedRating = floor(collect($json)
+            ->filter(fn($value) => $value)
+            ->reduce(fn($carry, $value, $key) => $carry + ($ratingPerAnswerOption[$key] ?? 0), 0));
+
         $this->updateAnswerRating(
             json      : $json,
             fullyRated: $amountOfTogglesUsed === $amountOfToggles,
-            rating    : collect($json)
-                            ->filter(fn($value) => $value)
-                            ->reduce(fn($carry, $value, $key) => $carry + ($ratingPerAnswerOption[$key] ?? 0), 0)
-        //first filter out all false values (toggle == off), then reduce the remaining values to a single value
+            rating    : $calculatedRating
         );
         if($amountOfTogglesUsed === $amountOfToggles) {
             $this->answerRatingsRated = array_unique(array_merge($this->answerRatingsRated, [$this->answerRating->getKey()]));
@@ -755,21 +777,23 @@ class CoLearning extends TCComponent
     {
         $isQuestionNotAnswered = !$this->answerRating?->answer->isAnswered;
 
-        $discussingQuestion = $this->getDiscussingQuestion();
-        $isCompletionOrMatchingQuestion = $this->isCompletionOrMatchingQuestion($discussingQuestion);
-        $isMultipleChoiceOrTrueFalseQuestion = $this->isMultipleChoiceOrTrueFalseQuestion($discussingQuestion);
-
-        $this->scoreSliderDisabled = $isQuestionNotAnswered || $isCompletionOrMatchingQuestion || $isMultipleChoiceOrTrueFalseQuestion;
+        $this->scoreSliderDisabled = $isQuestionNotAnswered || $this->questionTypeIsRatedByToggles($this->getDiscussingQuestion());
     }
 
-    private function isCompletionOrMatchingQuestion($discussingQuestion) : bool
+    private function questionTypeIsRatedByToggles($discussingQuestion) : bool
     {
-        return $discussingQuestion instanceof CompletionQuestion || $discussingQuestion instanceof MatchingQuestion;
+        return $discussingQuestion instanceof CompletionQuestion
+            || $discussingQuestion instanceof MatchingQuestion
+            || $discussingQuestion instanceof RelationQuestion
+            || ($discussingQuestion instanceof MultipleChoiceQuestion
+                && ($discussingQuestion->isSubtype('MultipleChoice') || $discussingQuestion->isSubtype('TrueFalse')));
     }
 
-    private function isMultipleChoiceOrTrueFalseQuestion($discussingQuestion) : bool
+    private function getDisplayableQuestionText()
     {
-        return $discussingQuestion instanceof MultipleChoiceQuestion
-            && ($discussingQuestion->isSubtype('MultipleChoice') || $discussingQuestion->isSubtype('TrueFalse'));
+        if ($this->getDiscussingQuestion()->isType('Completion')) {
+            return Blade::renderComponent(new CompletionQuestionConvertedHtml($this->getDiscussingQuestion(), 'assessment'));
+        }
+        return $this->getDiscussingQuestion()->converted_question_html;
     }
 }

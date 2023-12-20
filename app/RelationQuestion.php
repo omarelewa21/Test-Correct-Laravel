@@ -6,7 +6,12 @@ use Dyrynda\Database\Casts\EfficientUuid;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 use tcCore\Http\Enums\WordType;
+use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\Http\Traits\Questions\WithQuestionDuplicating;
 use tcCore\Services\CompileWordListService;
@@ -20,15 +25,24 @@ class RelationQuestion extends Question implements QuestionInterface
         'shuffle',
         'selection_count',
         'shuffle_per_participant',
+        'auto_check_incorrect_answer',
+        'auto_check_answer_case_sensitive',
     ];
     protected $table = 'relation_questions';
 
     protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
-        'uuid'       => EfficientUuid::class
+        'created_at'                       => 'datetime',
+        'updated_at'                       => 'datetime',
+        'deleted_at'                       => 'datetime',
+        'auto_check_incorrect_answer'      => 'boolean',
+        'auto_check_answer_case_sensitive' => 'boolean',
+        'uuid'                             => EfficientUuid::class
     ];
+
+    public function question()
+    {
+        return $this->belongsTo('tcCore\Question', $this->getKeyName());
+    }
 
     public function wordLists(): BelongsToMany
     {
@@ -68,6 +82,16 @@ class RelationQuestion extends Question implements QuestionInterface
             ->withPivot(['word_id', 'word_list_id', 'selected']);
     }
 
+    public function shuffleCarouselPerTestTake(): bool
+    {
+        return $this->shuffle && !$this->shuffle_per_participant;
+    }
+
+    public function shuffleCarouselPerTestParticipant(): bool
+    {
+        return $this->shuffle && $this->shuffle_per_participant;
+    }
+
     public function questionWords(): hasMany
     {
         return $this->hasMany(RelationQuestionWord::class)
@@ -77,19 +101,71 @@ class RelationQuestion extends Question implements QuestionInterface
 
     public function loadRelated()
     {
-        // TODO: Implement loadRelated() method.
+        // TODO: Implement loadRelated() method properly.
+        $this->load(['words', 'wordLists', 'testTakeRelationQuestions']);
     }
 
-    public function canCheckAnswer()
+    /**
+     * if 'auto_check_incorrect_answer' is true, the answer can be checked completely.
+     * if it is false, the teacher still needs to check the answers that were not (completely) correct.
+     * @return bool
+     */
+    public function canCreateSystemRatingForAnswer($answer): bool
     {
-        // TODO: Implement canCheckAnswer() method.
-        throw new \Exception('Not implemented: '. __METHOD__);
+        if((bool)$this->getAttribute('auto_check_incorrect_answer')) {
+            return true;
+        }
+        $this->checkAnswerSub($answer);
+        return $answer->allAnswerFieldsCorrect;
     }
 
     public function checkAnswer($answer)
     {
-        // TODO: Implement checkAnswer() method.
-        throw new \Exception('Not implemented: '. __METHOD__);
+        if(
+            isset($answer->allAnswerFieldsCorrect)
+            && $answer->allAnswerFieldsCorrect
+            && isset($answer->allAnswerFieldsCorrectScore)
+        ) {
+            $score = $answer->allAnswerFieldsCorrectScore;
+        } else {
+            $score = $this->checkAnswerSub($answer);
+        }
+
+        return $this->getAttribute('decimal_score') == true
+            ? floor($score * 2) / 2
+            : floor($score);
+    }
+
+    protected function checkAnswerSub($answer)
+    {
+        //Student answer:
+        $answers = collect(json_decode($answer->getAttribute('json'), true));
+
+        //correct answers:
+        $answerModel = $this->wordsToAsk()
+            ->filter(fn($word) => $answers->has($word->id))
+            ->keyBy('id')
+            ->map->correctAnswerWord()
+            ->map->text;
+
+        $answerOptionsCount = count($answerModel);
+
+        $correctAnswersCount = $answers->reduce(function ($carry, $answer, $key) use ($answerModel, $answers){
+            if($answer === null || $answer === '') {
+                return $carry;
+            }
+
+            return QuestionHelper::compareTextAnswers(
+                answerToCheck     : $answer,
+                correctAnswers    : $answerModel[$key],
+                checkCaseSensitive: $this->getAttribute('auto_check_answer_case_sensitive')
+            ) ? ++$carry : $carry;
+        }, 0);
+
+        $answer->allAnswerFieldsCorrect = count($answers->filter()) == $correctAnswersCount;
+        $answer->allAnswerFieldsCorrectScore = $this->getAttribute('score') * ($correctAnswersCount / $answerOptionsCount);
+
+        return $this->getAttribute('score') * ($correctAnswersCount / $answerOptionsCount);
     }
 
     public function addAnswers($mainQuestion, $answers): void
@@ -131,13 +207,7 @@ class RelationQuestion extends Question implements QuestionInterface
 
     public function answerForWord(Word $word): Word
     {
-        if ($word->isSubjectWord()) {
-            return $word->associations
-                ->sortBy(fn($association) => $association->type->getOrder())
-                ->first();
-        }
-
-        return $word->subjectWord;
+        return $word->correctAnswerWord();
     }
 
     public function needsToBeUpdated($request)
@@ -306,6 +376,13 @@ class RelationQuestion extends Question implements QuestionInterface
         return $answerStruct;
     }
 
+    public function isFullyAnswered(Answer $answer): bool
+    {
+        return collect(json_decode($answer->json, true))
+                ->filter(fn($answer) => $answer === null || $answer === '')
+                ->isEmpty();
+    }
+
     public function getQuestionWordsForCms(): array
     {
         return $this->questionWords
@@ -330,5 +407,4 @@ class RelationQuestion extends Question implements QuestionInterface
         }
         return $columns;
     }
-
 }

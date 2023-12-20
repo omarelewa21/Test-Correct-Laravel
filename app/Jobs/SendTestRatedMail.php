@@ -39,7 +39,9 @@ class SendTestRatedMail extends Job implements ShouldQueue
     {
         $urlLogin = getenv('URL_LOGIN');
         if ($this->testTake->testTakeStatus->name === 'Rated'
-            && $this->testTake->show_results > Carbon::now()) {
+            && $this->testTake->show_results > Carbon::now()
+            && $this->testTake->isNotPartOfOlympiade()
+        ) {
             foreach ($this->testTake->testParticipants as $testParticipant) {
                 if(null == $testParticipant->user || $testParticipant->user->shouldNotSendMail()) {
                     continue;
