@@ -313,5 +313,7 @@ class CompileWordListModal extends TCModalComponent
                     $list->delete();
                 }
             });
+
+        $this->closeModal();
     }
 }

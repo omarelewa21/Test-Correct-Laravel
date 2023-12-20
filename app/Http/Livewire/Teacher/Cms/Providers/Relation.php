@@ -38,7 +38,7 @@ class Relation extends TypeProvider
 
         $this->handleRowCountDependentAttributes($question->questionWords->count());
 
-        if($question->wordLists->first(fn($list) => $list->hasNewVersion())) {
+        if ($question->wordLists->first(fn($list) => $list->hasNewVersion())) {
             $this->instance->cmsPropertyBag['unhandled_list_changes'] = true;
         }
     }
@@ -101,6 +101,7 @@ class Relation extends TypeProvider
 
     public function prepareForSave()
     {
+        $this->instance->question['score'] = $this->getQuestionScore();
         $this->instance->question['answers'] = collect($this->instance->cmsPropertyBag['rows'])
             ->flatMap(function ($row) {
                 return collect($row)
@@ -181,7 +182,7 @@ class Relation extends TypeProvider
 
         if (count($this->instance->cmsPropertyBag['rows']) < 18) {
             $rowsToAdd = 18 - count($this->instance->cmsPropertyBag['rows']);
-            $this->instance->cmsPropertyBag['rows'] = $this->instance->cmsPropertyBag['rows']
+            $this->instance->cmsPropertyBag['rows'] = collect($this->instance->cmsPropertyBag['rows'])
                 ->concat($this->getEmptyGridRows($rowsToAdd))
                 ->values();
         }
@@ -191,7 +192,7 @@ class Relation extends TypeProvider
     {
         return $this->instance->question['shuffle']
             ? $this->instance->question['selection_count']
-            : count($this->instance->cmsPropertyBag['rows']);
+            : count($this->rowsWithoutEmptyValues());
     }
 
     private function handleDirtyStateFromWordsUpdate(array $incomingData): void

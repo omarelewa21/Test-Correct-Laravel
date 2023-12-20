@@ -102,7 +102,7 @@ class RelationQuestion extends Question implements QuestionInterface
     public function loadRelated()
     {
         // TODO: Implement loadRelated() method properly.
-        $this->load(['words', 'wordLists', 'testTakeRelationQuestions']);
+//        $this->load(['words', 'wordLists', 'testTakeRelationQuestions']);
     }
 
     /**
@@ -221,6 +221,10 @@ class RelationQuestion extends Question implements QuestionInterface
 
     public function isDirtyAnswerOptions($totalData): bool
     {
+        if(!isset($totalData['answers'])) {
+            return false;
+        }
+
         $newAnswers = collect($totalData['answers'])->map(function ($item) {
             return [
                 'word_id'      => $item['word_id'],
