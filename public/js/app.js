@@ -7355,18 +7355,19 @@ document.addEventListener("alpine:init", function () {
                   return element._x_dataStack[0];
                 });
                 if (!_this30.listsValidationFailed(listComponents)) {
-                  _context8.next = 4;
+                  _context8.next = 5;
                   break;
                 }
+                _this30.compiling = false;
                 return _context8.abrupt("return");
-              case 4:
+              case 5:
                 updates = [];
                 listComponents.forEach(function (component) {
                   return updates[component.list.id] = component.getUpdatesForCompiling();
                 });
-                _context8.next = 8;
+                _context8.next = 9;
                 return _this30.$wire.call("compile", updates);
-              case 8:
+              case 9:
                 changesCompiled = _context8.sent;
                 if (!changesCompiled) {
                   _this30.$dispatch("notify", {
@@ -7375,7 +7376,7 @@ document.addEventListener("alpine:init", function () {
                   });
                 }
                 _this30.compiling = false;
-              case 11:
+              case 12:
               case "end":
                 return _context8.stop();
             }
@@ -13846,7 +13847,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "662d128370816e2bbb66",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });

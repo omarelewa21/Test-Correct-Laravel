@@ -824,6 +824,7 @@ document.addEventListener("alpine:init", () => {
                 .map(element => element._x_dataStack[0]);
 
             if (this.listsValidationFailed(listComponents)) {
+                this.compiling = false;
                 return;
             }
 

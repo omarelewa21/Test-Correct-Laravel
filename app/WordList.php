@@ -334,6 +334,6 @@ class WordList extends Versionable
 
     public function scopeFiltered($query, array|Collection $filters = [], array|Collection $sorting = [])
     {
-        return parent::scopeFiltered($query, $filters, $sorting)->where('hidden', false);
+        return parent::scopeFiltered($query, $filters, $sorting)->where('hidden','!=', true);
     }
 }
