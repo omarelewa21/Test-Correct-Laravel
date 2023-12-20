@@ -45,7 +45,7 @@
 @endsection
 
 @section('question-cms-answer')
-    <div class="relation-answer-list | "
+    <div @class(["relation-answer-list | ", 'pointer-events-none' => isset($preview)])
          wire:key="relation-question-section-{{ $this->uniqueQuestionKey }}"
     >
 
@@ -65,13 +65,17 @@
                      x-on:input="selectColumn($event.target.value)"
                 >
                     @foreach($this->cmsPropertyBag['column_heads'] as $case => $description)
-                        <div class="grid-head" wire:key="case-{{ $case }}" x-bind:class="{'radio-disabled': disabledColumns.includes(@js($case))}">
+                        <div class="grid-head"
+                             wire:key="case-{{ $case }}"
+                             x-bind:class="{'radio-disabled': disabledColumns.includes(@js($case))}"
+                        >
                             <x-input.radio :value="$case"
                                            name="relation-column"
                                            :text-left="$description"
                                            label-classes="bold gap-2 hover:text-primary"
                                            x-bind:checked="selectedColumn === $el.value"
                                            x-bind:disabled="disabledColumns.includes($el.value)"
+                                           :disabled="isset($preview)"
                             />
                         </div>
                     @endforeach
@@ -100,6 +104,7 @@
 
             <x-button.primary class="w-full mt-4 mb-2"
                               wire:click="openCompileListsModal"
+                              :disabled="isset($preview)"
             >
                 <x-icon.edit />
                 <span>@lang('cms.Woorden opstellen')</span>

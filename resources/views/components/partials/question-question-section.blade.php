@@ -1,10 +1,11 @@
+@props(['withUpload' => false])
 <x-accordion.container active-container-key="question-section"
                        :wire:key="'question-section-'.$this->uniqueQuestionKey"
 >
     <x-accordion.block key="question-section"
-                       :upload="true"
+                       :upload="$withUpload"
                        uploadModel="uploads"
-                       :uploadRules="$this->uploadRules"
+                       :uploadRules="$this->uploadRules ?? []"
                        :wire:key="'question-block-'.$this->uniqueQuestionKey"
     >
         <x-slot:title>

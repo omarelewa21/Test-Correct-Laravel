@@ -24,7 +24,7 @@ class Relation extends TypeProvider
         $this->instance->cmsPropertyBag['rows'] = $this->getEmptyGridRows(18);
         $this->instance->cmsPropertyBag['word_count'] = 0;
         $this->instance->question['uuid'] = null;
-        $this->instance->cmsPropertyBag['column_heads'] = CompileWordListService::columnHeads($this->instance->testId);
+        $this->instance->cmsPropertyBag['column_heads'] = CompileWordListService::columnHeads($this->instance->subjectId);
         $this->instance->cmsPropertyBag['unhandled_list_changes'] = false;
     }
 

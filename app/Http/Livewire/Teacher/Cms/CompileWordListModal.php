@@ -39,7 +39,8 @@ class CompileWordListModal extends TCModalComponent
         string $testUuid,
         mixed  $relationQuestionUuid = null,
     ) {
-        $this->columnHeads = CompileWordListService::columnHeads($testUuid);
+        $relationQuestion = RelationQuestion::whereUuid($relationQuestionUuid)->first();
+        $this->columnHeads = CompileWordListService::columnHeads($relationQuestion->subject);
 
         $this->setWordLists(
             WordList::whereIn('id', collect($wordData)->pluck('subject.word_list_id')->unique()),

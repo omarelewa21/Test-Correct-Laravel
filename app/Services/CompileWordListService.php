@@ -5,13 +5,12 @@ namespace tcCore\Services;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use Ramsey\Uuid\Uuid;
 use tcCore\Http\Enums\WordType;
 use tcCore\Observers\VersionableObserver;
 use tcCore\Lib\Models\VersionManager;
 use tcCore\RelationQuestion;
 use tcCore\Rules\WordList\RowRules;
-use tcCore\Test;
+use tcCore\Subject;
 use tcCore\User;
 use tcCore\Word;
 use tcCore\WordList;
@@ -428,19 +427,21 @@ class CompileWordListService
         return $this;
     }
 
-    public static function columnHeads(Test|string $test): array
+    public static function columnHeads(Subject|int|null $subject = null): array
     {
         $heads = WordType::casesWithDescription();
-
-        if (!($test instanceof Test)) {
-            if (!Uuid::isValid($test)) {
-                return $heads->toArray();
-            }
-
-            $test = Test::whereUuid($test)->first();
+        if ($subject === null) {
+            return $heads->toArray();
         }
 
-        $baseSubjectLanguage = $test->getBaseSubjectLanguage('name');
+        if (!($subject instanceof Subject)) {
+            $subject = Subject::find($subject);
+            if (!$subject) {
+                return $heads->toArray();
+            }
+        }
+
+        $baseSubjectLanguage = $subject->baseSubject->name;
         $mutations = match ($baseSubjectLanguage) {
             'Nederlands' => ['subject' => __('cms.Woord') . ' NL'],
             'Engels'     => ['subject' => __('cms.Woord') . ' EN', 'translation' => __('cms.Woord') . ' NL'],

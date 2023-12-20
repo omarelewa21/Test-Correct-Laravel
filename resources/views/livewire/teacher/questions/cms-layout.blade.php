@@ -177,7 +177,7 @@
 
                     @yield('upload-section-for-group-question')
                 @else
-                    <x-partials.question-question-section />
+                    <x-partials.question-question-section :with-upload="true"/>
                 @endif
 
                 @hasSection('question-cms-settings')
