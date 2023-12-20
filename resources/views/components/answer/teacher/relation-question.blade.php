@@ -3,6 +3,7 @@
     <x-question.relation-answer-grid :answer-struct="$answerStruct"
                                      :student-answer="$studentAnswer"
                                      :show-toggles="$showToggles ?? false"
+                                     :toggles-disabled="isset($inReview) && $inReview"
     />
 
 </span>

@@ -160,10 +160,7 @@ class QuestionCmsPreviewModal extends TCModalComponent implements QuestionCms
             $this->obj->preparePropertyBag();
         }
 
-        logger(__METHOD__);
-        logger($question::class, [$question]);
         $question = (new QuestionHelper())->getTotalQuestion($question->question);
-        logger(__METHOD__);
         $this->pValues = $question->getQuestionInstance()->getRelation('pValue');
 
         $this->questionId = $question->question->getKey();

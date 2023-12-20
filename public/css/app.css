@@ -1997,15 +1997,29 @@ button.button {
 
 /* test take view elements */
 .question-relation-question-grid {
-    display: grid;
+    /*display: grid;*/
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    flex-grow: 1;
+
+    max-height: 450px;
+    width: -moz-min-content;
+    width: min-content;
 
     /* take 1rem extra padding in even column into account: */
     grid-template-columns: minmax(0, calc(50% - 0.5rem)) minmax(0, 1fr);
 }
-.question-relation-answer-grid {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr;
+
+.question-relation-question-grid > div:nth-child(even) {
+    /*margin-left: 1rem;*/
+}
+.question-relation-question-grid > div:nth-child(odd) {
+    /*border-right: 1px solid var(--blue-grey);*/
+}
+
+.question-relation-question-grid > div {
+    /*width: ;*/
 }
 
 .question-relation-answer-grid > div,
@@ -2014,20 +2028,21 @@ button.button {
     padding-bottom: 1rem;
 }
 
-.question-relation-answer-grid > div {
-    max-width: 559px;
+
+.question-relation-answer-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
 }
 
-.question-relation-answer-grid.relation-student-answer > div {
-    max-width: 687px; /* add more width for the three way toggle */
-}
+/*.question-relation-answer-grid > div {*/
+/*    !*max-width: 559px;*!*/
+/*}*/
 
-.question-relation-question-grid > div:nth-child(even) {
-    margin-left: 1rem;
-}
-.question-relation-question-grid > div:nth-child(odd) {
-    border-right: 1px solid var(--blue-grey);
-}
+/*.question-relation-answer-grid.relation-student-answer > div {*/
+/*    !*max-width: 687px; !* add more width for the three way toggle *!*!*/
+/*}*/
+
 
 .question-relation-answer-grid > div input,
 .question-relation-question-grid > div input {
@@ -2040,6 +2055,8 @@ button.button {
         235/559 = 42% width for input
         324/559 = 58% width for label
      */
+    min-width: 120px;
+    min-height: 40px;
     width: 42%;
 }
 
@@ -2064,6 +2081,8 @@ button.button {
         235/559 = 42% width for input
         324/559 = 58% width for label
      */
+    min-width: 300px;
+    min-height: 40px;
     width: 58%;
 }
 

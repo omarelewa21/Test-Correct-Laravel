@@ -112,7 +112,7 @@ class CompletionQuestion extends QuestionComponent
         $mtep = $answerStruct->map(function ($link, $key) use ($answer, $answers, $score) {
             return $this->setAnswerPropertiesOnObject($link, $key, $link, $answers, $score);
         });
-//        dd($mtep);
+
         return $mtep;
     }
 

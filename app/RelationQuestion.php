@@ -98,7 +98,7 @@ class RelationQuestion extends Question implements QuestionInterface
 
     public function loadRelated()
     {
-        // TODO: Implement loadRelated() method.
+        // TODO: Implement loadRelated() method properly.
         $this->load(['words', 'wordLists', 'testTakeRelationQuestions']);
     }
 
@@ -107,28 +107,34 @@ class RelationQuestion extends Question implements QuestionInterface
      * if it is false, the teacher still needs to check the answers that were not (completely) correct.
      * @return bool
      */
-    public function canCheckAnswer()
+    public function canCreateSystemRatingForAnswer($answer): bool
     {
-        //todo combine auto_check_incorrect_answer with checking if all answers are correct
-        // if all answers are correct, but auto_check_incorrect_answer is false, we still need to check the answer
-
-        return (bool)$this->getAttribute('auto_check_incorrect_answer');
+        if((bool)$this->getAttribute('auto_check_incorrect_answer')) {
+            return true;
+        }
+        $this->checkAnswerSub($answer);
+        return $answer->allAnswerFieldsCorrect;
     }
 
-    protected function isClosedQuestion()
-    {
-        return $this->isCitoQuestion();
-    }
-
-    // TODO: Implement checkAnswer() method.
     public function checkAnswer($answer)
     {
-        // TODO implement or remove auto_check_incorrect_answer and auto_check_answer_case_sensitive options (CMS, and here)
-        //  Completion question has:
-        //   $this->auto_check_incorrect_answer
-        //   $this->auto_check_answer_case_sensitive
+        if(
+            isset($answer->allAnswerFieldsCorrect)
+            && $answer->allAnswerFieldsCorrect
+            && isset($answer->allAnswerFieldsCorrectScore)
+        ) {
+            $score = $answer->allAnswerFieldsCorrectScore;
+        } else {
+            $score = $this->checkAnswerSub($answer);
+        }
 
+        return $this->getAttribute('decimal_score') == true
+            ? floor($score * 2) / 2
+            : floor($score);
+    }
 
+    protected function checkAnswerSub($answer)
+    {
         //Student answer:
         $answers = collect(json_decode($answer->getAttribute('json'), true));
 
@@ -153,11 +159,10 @@ class RelationQuestion extends Question implements QuestionInterface
             ) ? ++$carry : $carry;
         }, 0);
 
-        $score = $this->getAttribute('score') * ($correctAnswersCount / $answerOptionsCount);
+        $answer->allAnswerFieldsCorrect = count($answers->filter()) == $correctAnswersCount;
+        $answer->allAnswerFieldsCorrectScore = $this->getAttribute('score') * ($correctAnswersCount / $answerOptionsCount);
 
-        return $this->getAttribute('decimal_score') == true
-            ? floor($score * 2) / 2
-            : floor($score);
+        return $this->getAttribute('score') * ($correctAnswersCount / $answerOptionsCount);
     }
 
     public function addAnswers($mainQuestion, $answers): void

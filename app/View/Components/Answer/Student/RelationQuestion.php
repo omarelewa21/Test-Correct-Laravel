@@ -6,6 +6,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use tcCore\Answer;
 use tcCore\AnswerRating;
+use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Traits\Questions\WithCompletionConversion;
 use tcCore\Question;
 use tcCore\Word;
@@ -14,6 +15,7 @@ class RelationQuestion extends QuestionComponent
 {
     public $answerStruct;
     public $questionStruct;
+    public bool $inReview;
 
     public function __construct(
         public Question      $question,
@@ -25,6 +27,8 @@ class RelationQuestion extends QuestionComponent
         public ?AnswerRating $answerRating = null,
     ) {
         parent::__construct($question, $answer);
+        
+        $this->inReview = !$this->inAssessment && !$this->inCoLearning;
     }
 
     protected function setAnswerStruct($question, $answer): void
@@ -36,18 +40,20 @@ class RelationQuestion extends QuestionComponent
 
         $score_per_toggle = $answer->question->score / count($studentAnswer);
 
+        $question->canCreateSystemRatingForAnswer($answer);
+
         $this->answerStruct = $studentAnswer->mapWithKeys(function($studentAnswerText, $wordId) use ($answerModelWords, $score_per_toggle, $answerModelWordsCorrectWord) {
             $questionPrefixTranslation = !in_array($answerModelWords[$wordId]?->type->value, ['subject', 'translation'])
                 ? __('question.word_type_'.$answerModelWords[$wordId]?->type->value)
                 : null;
-//todo fix getInitialValueForWordId()
+
             return [
                 $wordId => [
                     'answer'   => $studentAnswerText,
                     'question' => $answerModelWords[$wordId]->text,
                     'question_prefix' =>  $questionPrefixTranslation,
                     'not_answered' => $studentAnswerText === null || $studentAnswerText === '',
-                    'initial_value' => !$this->inCoLearning ? $this->getInitialValueForWordId($wordId, $studentAnswerText, $answerModelWordsCorrectWord) : null,
+                    'initial_value' => $this->getInitialValueForWordId($wordId, $studentAnswerText, $answerModelWordsCorrectWord),
                     'toggle_value' => $score_per_toggle,
                 ]
             ];
@@ -61,21 +67,18 @@ class RelationQuestion extends QuestionComponent
             return $this->answerRating->json[$wordId];
         }
 
-        //todo add case or not case checking?
-        //$question->auto_check_answer
-        //$question->auto_check_answer_case_sensitive
-
-//        if($question->auto_check_answer) {
-//            return $question->auto_check_answer_case_sensitive
-//                ? $answerModelWordsCorrectWord[$wordId]->text === $studentAnswer
-//                : strtolower($answerModelWordsCorrectWord[$wordId]->text) === strtolower($studentAnswer);
-//        }
-
-        if($answerModelWordsCorrectWord[$wordId]->text === $studentAnswer) {
-            return 1;
+        if(
+            (!$this->inAssessment && !isset($this->answer->allAnswerFieldsCorrect) && !$this->answer->allAnswerFieldsCorrect)
+            || $this->inCoLearning
+            || !$studentAnswer
+        ) {
+            return;
         }
-//        if($question->auto_check_incorrect_answer) {
 
-        return null; //$question->auto_check_incorrect_answer ? false : null;
+        return QuestionHelper::compareTextAnswers(
+            $studentAnswer,
+            $answerModelWordsCorrectWord[$wordId]->text,
+            $this->question->auto_check_answer_case_sensitive
+        ) ? true : null;
     }
 }

@@ -122,6 +122,7 @@
                                     :question="$question"
                                     :editorId="'editor-'.$question->uuid"
                                     :testTake="$testTake"
+                                    :answer="$this->currentAnswer"
                             />
                         </div>
                     </x-slot:body>

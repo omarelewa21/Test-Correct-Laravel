@@ -10,6 +10,7 @@ class RelationQuestion extends QuestionComponent
 {
     public $answerStruct; // id => (string) correct answer
     public $questionStruct; // id => Word
+    public $studentAnswerRating;
 
     /**
      * Create AnswerModel answer struct:
