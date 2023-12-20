@@ -34,7 +34,7 @@ class Relation extends TypeProvider
         $this->instance->question['selection_count'] = $question->selection_count;
         $this->instance->question['uuid'] = $question['uuid'];
 
-        $this->instance->cmsPropertyBag['rows'] = $question->getQuestionWordsForCMS();
+        $this->instance->cmsPropertyBag['rows'] = $question->getQuestionWordsForCms();
 
         $this->handleRowCountDependentAttributes($question->questionWords->count());
 
