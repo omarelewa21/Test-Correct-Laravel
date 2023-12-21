@@ -37,6 +37,12 @@ class PreviewTestTakeController extends Controller
 
         $rand = Str::random(25);
 
+        $path = sprintf('pdf/%s.pdf', $rand);
+        $storagePath = storage_path($path);
+        $htmlPath = sprintf('pdf/%s.html', $rand);
+        $htmlStoragePath = storage_path($htmlPath);
+        $doneFile = $storagePath . '.done';
+
         try {
             ini_set('max_execution_time', 100);
             $startTime = Carbon::now()->timestamp;
@@ -45,11 +51,6 @@ class PreviewTestTakeController extends Controller
             view()->share('titleForPdfPage',$titleForPdfPage);
             view()->share('pdf_type','student_test_take');
             $testParticipants = $testTake->testParticipants()->where('test_take_status_id','>',3)->get();
-
-            $path = sprintf('pdf/%s.pdf', $rand);
-            $storagePath = storage_path($path);
-            $htmlPath = sprintf('pdf/%s.html', $rand);
-            $htmlStoragePath = storage_path($htmlPath);
 
             $directoryPath = dirname($htmlStoragePath);
 
@@ -60,7 +61,7 @@ class PreviewTestTakeController extends Controller
             file_put_contents($htmlStoragePath,$html);
 
             dispatch(new CreatePdfFromHtmlFileAndSaveJob($storagePath, $htmlStoragePath));
-            $doneFile = $storagePath . '.done';
+
             while (!file_exists($doneFile) && (Carbon::now()->timestamp - $startTime) < 75) {
                 sleep(1);
             }
@@ -69,10 +70,10 @@ class PreviewTestTakeController extends Controller
             //        // as a fail safe we wait another 2 seconds;
             //        sleep(2);
 
-            if (file_exists($storagePath) && $doDelete) {
+            if (file_exists($storagePath)) {
 
-                AfterResponse::$performAction[] = function () use ($storagePath, $htmlStoragePath, $doneFile) {
-                    if (file_exists($storagePath)) {
+                AfterResponse::$performAction[] = function () use ($storagePath, $htmlStoragePath, $doneFile, $doDelete) {
+                    if (file_exists($storagePath) && $doDelete) {
                         unlink($storagePath);
                     }
                     if (file_exists($htmlStoragePath)) {
@@ -89,6 +90,16 @@ class PreviewTestTakeController extends Controller
                 ]);
             }
         } catch (\Throwable $e){
+            if (file_exists($storagePath)) {
+                unlink($storagePath);
+            }
+            if (file_exists($htmlStoragePath)) {
+                unlink($htmlStoragePath);
+            }
+            if (file_exists($doneFile)) {
+                unlink($doneFile);
+            }
+
             bugsnag::notifyException($e, function ($report) use ($testTake) {
                 $report->setMetaData([
                     'code_context' => [
