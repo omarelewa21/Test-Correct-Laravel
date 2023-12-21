@@ -12,6 +12,7 @@ use tcCore\Http\Livewire\Teacher\Cms\TypeFactory;
 use tcCore\Http\Traits\WithQueryStringSyncing;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Question;
+use tcCore\Subject;
 use tcCore\Test;
 use tcCore\TestQuestion;
 
@@ -50,6 +51,8 @@ class Cms extends TCComponent
     public $sliderButtonSelected = 'questions';
     public $sliderButtonDisabled = false;
 
+    private Subject $subject;
+
     protected function getListeners()
     {
         return [
@@ -81,7 +84,9 @@ class Cms extends TCComponent
 
     public function booted()
     {
-        $this->duplicateQuestions = Test::whereUuid($this->testId)->first()->getDuplicateQuestionIds();
+        $test = Test::whereUuid($this->testId)->first();
+        $this->duplicateQuestions = $test->getDuplicateQuestionIds();
+        $this->subject = $test->subject;
     }
 
     public function render()

@@ -191,7 +191,7 @@
                     </div>
                 </div>
 
-                <x-sidebar.cms.question-types/>
+                <x-sidebar.cms.question-types :subject="$this->subject" :confirm-relation-question="false" />
             </x-sidebar.slide-container>
         </div>
         <span class="invisible"></span>

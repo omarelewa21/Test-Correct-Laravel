@@ -91,4 +91,5 @@ return [
     'questions'                         => 'Vragen',
     'Formidable'                        => 'Formidable!',
     'Kies'                              => 'Kies',
+    'Toon niet opnieuw'                 => 'Toon niet opnieuw',
 ];

@@ -1,6 +1,6 @@
 <div {{ $attributes->merge(['class' => 'relative']) }}
      x-data="{checked: {{ $checked ? 'true' : 'false'}} }"
-     @click="checked = !checked;"
+     x-on:click="checked = !checked;"
      >
     <input class="checkbox-custom"
            name="checkbox"
