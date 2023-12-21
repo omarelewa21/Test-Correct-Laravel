@@ -84,6 +84,14 @@
                                 wire:key="'q-'.$testQuestion->uuid"
                                 :showQuestionText="$showQuestionText"
                         />
+                    @elseif($testQuestion->type === 'RelationQuestion')
+                        <livewire:test-take-overview-preview.relation-question
+                                :question="$testQuestion"
+                                :number="++$key"
+                                :answers="$answers"
+                                wire:key="'q-'.$testQuestion->uuid"
+                                :showQuestionText="$showQuestionText"
+                        />
                     @endif
 
 

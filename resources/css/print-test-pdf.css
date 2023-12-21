@@ -308,7 +308,8 @@
     margin-left: 0.25rem;
     margin-right: 0.5rem;
     height: 1rem;
-    width: 385px;
+    width: 380px;
+    border: 0px;
     border-bottom: 2px dotted #c3d0ed;
 }
 
@@ -592,6 +593,51 @@
 .test-print-pdf .cover-container-3 > div:first-child {
     margin-bottom: 1rem;
 }
+
+.test-print-pdf .citation-table * {
+    border: 0px;
+}
+
+.test-print-opgaven-pdf .header-table {
+    border: 0px;
+    border-collapse: collapse;
+}
+
+.test-print-opgaven-pdf .header-table * {
+    border: 0px;
+    border-collapse: collapse;
+}
+
+.test-print-opgaven-pdf .footer-table * {
+    border: 0px;
+    border-collapse: collapse;
+}
+
+.test-print-opgaven-pdf .footer-table {
+    border-collapse: collapse;
+    border: 0px;
+}
+
+.test-print-pdf .header-table {
+    border: 0px;
+    border-collapse: collapse;
+}
+
+.test-print-pdf .header-table * {
+    border: 0px;
+    border-collapse: collapse;
+}
+
+.test-print-pdf .footer-table * {
+    border: 0px;
+    border-collapse: collapse;
+}
+
+.test-print-pdf .footer-table {
+    border-collapse: collapse;
+    border: 0px;
+}
+
 
 .test-print-pdf .citation-table th {
     text-align: left;
