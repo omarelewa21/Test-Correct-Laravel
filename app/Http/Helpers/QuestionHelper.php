@@ -94,7 +94,7 @@ class QuestionHelper extends BaseHelper
                 $answerItems = explode('|',$matches[1]);
                 if($isNewQuestion && count($answerItems) < 2){
                     $error->status = true;
-                    $error->message = "U kunt niet slechts één selectie hebben, u moet in elk haakje ten minste één extra selectie toevoegen.";
+                    $error->message = __('cms.completion_one_selection');
                 }
                 foreach($answerItems as $id => $answerItem) {
                     if ($questionMarkUsed) {
