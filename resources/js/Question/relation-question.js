@@ -200,6 +200,7 @@ document.addEventListener("alpine:init", () => {
         disabledColumns: [],
         updates: [],
         updateTimer: false,
+        mutation: 1,
         async init() {
             this.rows = await this.$wire.retrieveWords();
             this.setDisabledColumns();
@@ -273,8 +274,11 @@ document.addEventListener("alpine:init", () => {
         },
         handleIncomingUpdatedRows(rows) {
             this.rows = rows;
-            this.setDisabledColumns();
-            this.setActiveColumn();
+            this.mutation++;
+            this.$nextTick(() => {
+                this.setDisabledColumns();
+                this.setActiveColumn();
+            })
         },
         setActiveColumn() {
             let activeColumns = [];
@@ -292,7 +296,13 @@ document.addEventListener("alpine:init", () => {
         },
         wordsInRow(row) {
             return row?.filter(item => ![null, ""].includes(item.text))?.length ?? false;
-        }
+        },
+        getTemplateRowKey(row, rowIndex) {
+            return `row-${rowIndex}-${this.mutation}`;
+        },
+        getTemplateWordKey(word, wordIndex) {
+            return `word-${wordIndex}-${this.mutation}`;
+        },
     }));
 
     Alpine.data("compileList", (list, columns) => ({
@@ -605,19 +615,19 @@ document.addEventListener("alpine:init", () => {
         async addExistingWordListToList(uuid) {
             const list = await this.$wire.call("addExistingWordList", uuid, true);
 
-            this._handleExternalList(list);
+            this.handleExternalList(list);
         },
         async addExistingWordToList(uuid) {
             const row = await this.$wire.call("addExistingWord", uuid);
 
-            this._handleExternalRows([row]);
+            this.handleExternalRows([row]);
         },
         async addUploadToList(file) {
             await this.$wire.upload(
                 "importFile",
                 file,
                 async (uploadedFilename) => {
-                    this._handleExternalRows(await this.$wire.call("importIntoList", false, this.cols));
+                    this.handleExternalRows(await this.$wire.call("importIntoList", false, this.cols));
                 },
                 () => {
                 },
@@ -650,7 +660,7 @@ document.addEventListener("alpine:init", () => {
                 words: _.uniq(this.rows.flatMap(r => _.uniq(r.map(w => w.word_id)))).filter(Boolean)
             };
         },
-        _handleExternalList(list) {
+        handleExternalList(list) {
             if (!list.id) return this.dispatchError();
 
             /*Prepare*/
@@ -663,7 +673,7 @@ document.addEventListener("alpine:init", () => {
 
             this.externalAdditionAfterCare();
         },
-        _handleExternalRows(rows) {
+        handleExternalRows(rows) {
             if (!Object.keys(rows).length) return this.dispatchError();
 
             /*Prepare*/

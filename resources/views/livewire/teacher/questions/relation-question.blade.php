@@ -82,11 +82,12 @@
                 </div>
 
                 <template x-for="(row, rowIndex) in rows">
-                    <div class="word-row contents" wire:key="">
+                    <div class="word-row contents" :key="getTemplateRowKey(row, rowIndex)">
 
                         <template x-for="(word, wordType) in row">
                             <div x-bind:class="{'selected': word.selected, 'empty': !word.word_id}"
                                  x-on:click="selectWord(rowIndex, word)"
+                                 :key="getTemplateWordKey(word, wordIndex)"
                             >
                                 <span x-text="getText(word, rowIndex)"></span>
                                 <x-icon.checkmark-small class="text-white min-w-[13px]" />

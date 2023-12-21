@@ -192,10 +192,9 @@ class WordList extends Versionable
         $this->delete();
     }
 
-    public function handleDuplication(): WordList
+    public function handleDuplication(bool $newOriginal = false): WordList
     {
-        $newList = $this->replicateWithVersion($this->getEditingAuthor())
-            ->syncRelationsFrom($this);
+        $newList = $this->replicateWithVersion($this->getEditingAuthor(), $newOriginal)->syncRelationsFrom($this);
         $this->setUpdatedVersion($newList);
 
         return $newList;
@@ -334,6 +333,7 @@ class WordList extends Versionable
 
     public function scopeFiltered($query, array|Collection $filters = [], array|Collection $sorting = [])
     {
-        return parent::scopeFiltered($query, $filters, $sorting)->where('hidden','!=', true);
+        return parent::scopeFiltered($query, $filters, $sorting)
+            ->where(fn($query) => $query->whereNull('word_lists.hidden')->orWhere('word_lists.hidden', false));
     }
 }

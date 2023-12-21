@@ -244,6 +244,10 @@ class RelationQuestion extends Question implements QuestionInterface
                 $isDirty = true;
                 return false;
             }
+            if ($answer['word_list_id'] !== $newAnswers[$key]['word_list_id']) {
+                $isDirty = true;
+                return false;
+            }
             if ($answer['selected'] !== $newAnswers[$key]['selected']) {
                 $isDirty = true;
                 return false;

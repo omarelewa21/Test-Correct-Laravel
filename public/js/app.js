@@ -6588,6 +6588,7 @@ document.addEventListener("alpine:init", function () {
       disabledColumns: [],
       updates: [],
       updateTimer: false,
+      mutation: 1,
       init: function init() {
         var _this6 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
@@ -6681,20 +6682,26 @@ document.addEventListener("alpine:init", function () {
         }, 750);
       },
       getText: function getText(word, rowIndex) {
-        var _word$text;
-        return (_word$text = word === null || word === void 0 ? void 0 : word.text) !== null && _word$text !== void 0 ? _word$text : "";
+        if (word !== null && word !== void 0 && word.text) {
+          return word === null || word === void 0 ? void 0 : word.text;
+        }
+        return "";
       },
       handleIncomingUpdatedRows: function handleIncomingUpdatedRows(rows) {
+        var _this11 = this;
         this.rows = rows;
-        this.setDisabledColumns();
-        this.setActiveColumn();
+        this.mutation++;
+        this.$nextTick(function () {
+          _this11.setDisabledColumns();
+          _this11.setActiveColumn();
+        });
       },
       setActiveColumn: function setActiveColumn() {
-        var _this11 = this;
+        var _this12 = this;
         var activeColumns = [];
         Object.values(this.rows).forEach(function (row) {
           row = Object.values(row);
-          if (!_this11.wordsInRow(row)) return;
+          if (!_this12.wordsInRow(row)) return;
           activeColumns.push(row.filter(function (w) {
             return w.selected === true;
           })[0].type);
@@ -6709,6 +6716,12 @@ document.addEventListener("alpine:init", function () {
         return (_row$filter$length = row === null || row === void 0 ? void 0 : (_row$filter = row.filter(function (item) {
           return ![null, ""].includes(item.text);
         })) === null || _row$filter === void 0 ? void 0 : _row$filter.length) !== null && _row$filter$length !== void 0 ? _row$filter$length : false;
+      },
+      getTemplateRowKey: function getTemplateRowKey(row, rowIndex) {
+        return "row-".concat(rowIndex, "-").concat(this.mutation);
+      },
+      getTemplateWordKey: function getTemplateWordKey(word, wordIndex) {
+        return "word-".concat(wordIndex, "-").concat(this.mutation);
       }
     };
   });
@@ -6724,24 +6737,24 @@ document.addEventListener("alpine:init", function () {
       mutation: 1,
       errorMessages: {},
       init: function init() {
-        var _this12 = this;
+        var _this13 = this;
         this.list.rows = Object.values(this.list.rows);
         this.buildGrid();
         this.countWords();
         this.$nextTick(function () {
-          _this12.setGridSizeProperties();
-          _this12.selectUsedColumnHeads();
-          _this12.setEnabledRows();
+          _this13.setGridSizeProperties();
+          _this13.selectUsedColumnHeads();
+          _this13.setEnabledRows();
         });
       },
       buildGrid: function buildGrid() {
-        var _this13 = this;
+        var _this14 = this;
         for (var i = 0; i < 7; i++) {
           var _this$getUsedTypes$i;
           this.cols[i] = (_this$getUsedTypes$i = this.getUsedTypes(this.list.rows)[i]) !== null && _this$getUsedTypes$i !== void 0 ? _this$getUsedTypes$i : null;
         }
         this.rows = this.list.rows.map(function (row) {
-          return _this13.buildRow(row);
+          return _this14.buildRow(row);
         });
         this.addMinimumAmountOfRows();
         this.addEmptyRowWhenLastIsFull();
@@ -6760,12 +6773,12 @@ document.addEventListener("alpine:init", function () {
         grid.style.setProperty("--relation-grid-cols", this.cols.length);
       },
       toggleAll: function toggleAll(element) {
-        var _this14 = this;
+        var _this15 = this;
         var enabled = element.checked;
         this.$root.querySelectorAll(".word-row .checkbox-container input").forEach(function (check, row) {
-          if (_this14.wordsInRow(_this14.rows[row]) === 0) return true;
+          if (_this15.wordsInRow(_this15.rows[row]) === 0) return true;
           check.checked = enabled;
-          _this14.toggleRow(check, row);
+          _this15.toggleRow(check, row);
         });
       },
       toggleRow: function toggleRow(checkbox, row) {
@@ -6796,11 +6809,11 @@ document.addEventListener("alpine:init", function () {
         this.countWords();
       },
       selectUsedColumnHeads: function selectUsedColumnHeads() {
-        var _this15 = this;
+        var _this16 = this;
         var usedCols = this.getUsedTypes(this.list.rows);
         var selectBoxes = this.$root.querySelectorAll(".single-select");
         usedCols.forEach(function (usedCol, key) {
-          var index = _this15.cols.findIndex(function (col) {
+          var index = _this16.cols.findIndex(function (col) {
             return col === usedCol;
           });
           selectBoxes[index].querySelector(".option[data-value=\"".concat(usedCol, "\"]")).click();
@@ -6831,24 +6844,24 @@ document.addEventListener("alpine:init", function () {
       },
       setEnabledRows: function setEnabledRows() {
         var _this$list,
-          _this16 = this;
+          _this17 = this;
         (_this$list = this.list) === null || _this$list === void 0 ? void 0 : _this$list.enabledRows.forEach(function (key) {
-          var input = _this16.$root.querySelector(".word-row.row-".concat(key, " .checkbox-container input"));
+          var input = _this17.$root.querySelector(".word-row.row-".concat(key, " .checkbox-container input"));
           input.checked = true;
-          _this16.toggleRow(input, key);
+          _this17.toggleRow(input, key);
         });
       },
       countWords: function countWords() {
-        var _this17 = this;
+        var _this18 = this;
         var oldWordCount = this.wordCount;
         var oldSelectedWordCount = this.selectedWordCount;
         this.wordCount = 0;
         this.selectedWordCount = 0;
         this.rows.forEach(function (row, key) {
-          var rowCount = _this17.wordsInRow(row);
-          _this17.wordCount += rowCount;
-          if (_this17.$root.querySelector(".word-row.row-".concat(key, " .row-checkmark input:checked"))) {
-            _this17.selectedWordCount += rowCount;
+          var rowCount = _this18.wordsInRow(row);
+          _this18.wordCount += rowCount;
+          if (_this18.$root.querySelector(".word-row.row-".concat(key, " .row-checkmark input:checked"))) {
+            _this18.selectedWordCount += rowCount;
           }
         });
         this.wordCountChanges(oldWordCount, this.wordCount);
@@ -6933,10 +6946,10 @@ document.addEventListener("alpine:init", function () {
         this.handleDisabledHeaders();
       },
       handleDisabledHeaders: function handleDisabledHeaders() {
-        var _this18 = this;
+        var _this19 = this;
         if (this.getUsedColumnHeads().length === Object.keys(columns).length) {
           this.$root.querySelectorAll(".grid-head .single-select").forEach(function (select, index) {
-            if (_this18.cols[index] === null) {
+            if (_this19.cols[index] === null) {
               select.dispatchEvent(new CustomEvent("disable-single-select", {
                 detail: {}
               }));
@@ -6962,19 +6975,19 @@ document.addEventListener("alpine:init", function () {
         return validator;
       },
       getUpdatesForCompiling: function getUpdatesForCompiling() {
-        var _this19 = this,
+        var _this20 = this,
           _Array$from;
         return {
           name: this.list.name,
           rows: this.rows.map(function (row, rowIndex) {
-            if (_this19.wordsInRow(row) === 0) {
+            if (_this20.wordsInRow(row) === 0) {
               return null;
             }
             return row.map(function (word, index) {
               if (word.text === null && word.word_id === null) {
                 return null;
               }
-              word.type = _this19.cols[index];
+              word.type = _this20.cols[index];
               return word;
             }).filter(Boolean);
           }).filter(Boolean),
@@ -7003,17 +7016,17 @@ document.addEventListener("alpine:init", function () {
         }));
       },
       addExistingWordListToList: function addExistingWordListToList(uuid) {
-        var _this20 = this;
+        var _this21 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
           var list;
           return _regeneratorRuntime().wrap(function _callee2$(_context2) {
             while (1) switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.next = 2;
-                return _this20.$wire.call("addExistingWordList", uuid, true);
+                return _this21.$wire.call("addExistingWordList", uuid, true);
               case 2:
                 list = _context2.sent;
-                _this20._handleExternalList(list);
+                _this21.handleExternalList(list);
               case 4:
               case "end":
                 return _context2.stop();
@@ -7022,17 +7035,17 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       addExistingWordToList: function addExistingWordToList(uuid) {
-        var _this21 = this;
+        var _this22 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
           var row;
           return _regeneratorRuntime().wrap(function _callee3$(_context3) {
             while (1) switch (_context3.prev = _context3.next) {
               case 0:
                 _context3.next = 2;
-                return _this21.$wire.call("addExistingWord", uuid);
+                return _this22.$wire.call("addExistingWord", uuid);
               case 2:
                 row = _context3.sent;
-                _this21._handleExternalRows([row]);
+                _this22.handleExternalRows([row]);
               case 4:
               case "end":
                 return _context3.stop();
@@ -7041,23 +7054,23 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       addUploadToList: function addUploadToList(file) {
-        var _this22 = this;
+        var _this23 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
           return _regeneratorRuntime().wrap(function _callee5$(_context5) {
             while (1) switch (_context5.prev = _context5.next) {
               case 0:
                 _context5.next = 2;
-                return _this22.$wire.upload("importFile", file, /*#__PURE__*/function () {
+                return _this23.$wire.upload("importFile", file, /*#__PURE__*/function () {
                   var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(uploadedFilename) {
                     return _regeneratorRuntime().wrap(function _callee4$(_context4) {
                       while (1) switch (_context4.prev = _context4.next) {
                         case 0:
-                          _context4.t0 = _this22;
+                          _context4.t0 = _this23;
                           _context4.next = 3;
-                          return _this22.$wire.call("importIntoList", false, _this22.cols);
+                          return _this23.$wire.call("importIntoList", false, _this23.cols);
                         case 3:
                           _context4.t1 = _context4.sent;
-                          _context4.t0._handleExternalRows.call(_context4.t0, _context4.t1);
+                          _context4.t0.handleExternalRows.call(_context4.t0, _context4.t1);
                         case 5:
                         case "end":
                           return _context4.stop();
@@ -7076,14 +7089,14 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       handleIncomingExistingColumns: function handleIncomingExistingColumns(list) {
-        var _this23 = this;
+        var _this24 = this;
         var newCols = this.getUsedTypes(list.rows).filter(function (c) {
-          return !_this23.cols.includes(c);
+          return !_this24.cols.includes(c);
         });
         if (newCols.length > 0) {
           var selectBoxes = this.$root.querySelectorAll(".single-select");
           newCols.forEach(function (newCol) {
-            var i = _this23.cols.findIndex(function (c) {
+            var i = _this24.cols.findIndex(function (c) {
               return c === null;
             });
             selectBoxes[i].querySelector(".option[data-value=\"".concat(newCol, "\"]")).click();
@@ -7113,9 +7126,9 @@ document.addEventListener("alpine:init", function () {
           })).filter(Boolean)
         };
       },
-      _handleExternalList: function _handleExternalList(list) {
+      handleExternalList: function handleExternalList(list) {
         var _this$rows2,
-          _this24 = this;
+          _this25 = this;
         if (!list.id) return this.dispatchError();
 
         /*Prepare*/
@@ -7124,13 +7137,13 @@ document.addEventListener("alpine:init", function () {
         /* Mutate */
         this.removeEmptyTrailingRow();
         (_this$rows2 = this.rows).push.apply(_this$rows2, _toConsumableArray(list.rows.map(function (row) {
-          return _this24.buildRow(row);
+          return _this25.buildRow(row);
         })));
         this.externalAdditionAfterCare();
       },
-      _handleExternalRows: function _handleExternalRows(rows) {
+      handleExternalRows: function handleExternalRows(rows) {
         var _this$rows3,
-          _this25 = this;
+          _this26 = this;
         if (!Object.keys(rows).length) return this.dispatchError();
 
         /*Prepare*/
@@ -7141,7 +7154,7 @@ document.addEventListener("alpine:init", function () {
         /* Mutate */
         this.removeEmptyTrailingRow();
         (_this$rows3 = this.rows).push.apply(_this$rows3, _toConsumableArray(Object.values(rows).map(function (row) {
-          return _this25.buildRow(row);
+          return _this26.buildRow(row);
         })));
         this.externalAdditionAfterCare();
       },
@@ -7175,7 +7188,7 @@ document.addEventListener("alpine:init", function () {
         this.errorState = false;
       },
       markFailedItemsWithErrors: function markFailedItemsWithErrors(errors) {
-        var _this26 = this;
+        var _this27 = this;
         var _iterator = _createForOfIteratorHelper(errors),
           _step;
         try {
@@ -7184,31 +7197,31 @@ document.addEventListener("alpine:init", function () {
               name = _step$value[0],
               error = _step$value[1];
             if (name === "requiredTypeAmount") {
-              var _this26$$root$querySe;
+              var _this27$$root$querySe;
               // => Highlight all non-set columns;
-              (_this26$$root$querySe = _this26.$root.querySelectorAll(".single-select[data-selected-value=\"none\"]:not(.disabled)")) === null || _this26$$root$querySe === void 0 ? void 0 : _this26$$root$querySe.forEach(function (select) {
+              (_this27$$root$querySe = _this27.$root.querySelectorAll(".single-select[data-selected-value=\"none\"]:not(.disabled)")) === null || _this27$$root$querySe === void 0 ? void 0 : _this27$$root$querySe.forEach(function (select) {
                 return select.dispatchEvent(new CustomEvent("enable-error-state"));
               });
             }
             if (name === "duplicateColumns") {
               // => Highlight all duplicate columns
               error.forEach(function (column) {
-                var _this26$$root$querySe2;
-                (_this26$$root$querySe2 = _this26.$root.querySelectorAll(".single-select[data-selected-value=\"".concat(column, "\"]"))) === null || _this26$$root$querySe2 === void 0 ? void 0 : _this26$$root$querySe2.forEach(function (select) {
+                var _this27$$root$querySe2;
+                (_this27$$root$querySe2 = _this27.$root.querySelectorAll(".single-select[data-selected-value=\"".concat(column, "\"]"))) === null || _this27$$root$querySe2 === void 0 ? void 0 : _this27$$root$querySe2.forEach(function (select) {
                   return select.dispatchEvent(new CustomEvent("enable-error-state"));
                 });
               });
             }
             if (name === "wordsWithoutType") {
               // => Highlight column without type set
-              _this26.$root.querySelectorAll(".single-select").forEach(function (select, key) {
+              _this27.$root.querySelectorAll(".single-select").forEach(function (select, key) {
                 if (!error.includes(key)) return;
                 select.dispatchEvent(new CustomEvent("enable-error-state"));
               });
             }
             if (name === "columnWithoutWords") {
               // => Highlight column without words
-              _this26.$root.querySelectorAll(".single-select").forEach(function (select, key) {
+              _this27.$root.querySelectorAll(".single-select").forEach(function (select, key) {
                 if (!error.includes(key)) return;
                 select.dispatchEvent(new CustomEvent("enable-error-state"));
               });
@@ -7216,14 +7229,14 @@ document.addEventListener("alpine:init", function () {
             if (name === "requiredSubjectWord") {
               // => Highlight subject column empty fields
               error.forEach(function (coords) {
-                var _this26$$root$querySe3;
-                (_this26$$root$querySe3 = _this26.$root.querySelector(rowSelector(coords[0]) + colSelector(coords[1]))) === null || _this26$$root$querySe3 === void 0 ? void 0 : _this26$$root$querySe3.parentElement.classList.add("validation-error");
+                var _this27$$root$querySe3;
+                (_this27$$root$querySe3 = _this27.$root.querySelector(rowSelector(coords[0]) + colSelector(coords[1]))) === null || _this27$$root$querySe3 === void 0 ? void 0 : _this27$$root$querySe3.parentElement.classList.add("validation-error");
               });
             }
             if (name === "requiredWordsPerRow") {
               // => Highlight row with missing fields
               error.forEach(function (row) {
-                _this26.$root.querySelectorAll(rowSelector(row)).forEach(function (cell) {
+                _this27.$root.querySelectorAll(rowSelector(row)).forEach(function (cell) {
                   cell === null || cell === void 0 ? void 0 : cell.parentElement.classList.add("validation-error");
                 });
               });
@@ -7260,10 +7273,10 @@ document.addEventListener("alpine:init", function () {
       compiling: false,
       showAddListModal: false,
       init: function init() {
-        var _this27 = this;
+        var _this28 = this;
         if (!Object.keys(this.wordLists).length) {
           this.$nextTick(function () {
-            return _this27.addWordList();
+            return _this28.addWordList();
           });
         }
       },
@@ -7282,14 +7295,14 @@ document.addEventListener("alpine:init", function () {
         this.$root.closest(".compile-list-modal").querySelector("#add-list-modal").dispatchEvent(new CustomEvent("open-modal"));
       },
       addNewWordList: function addNewWordList() {
-        var _this28 = this;
+        var _this29 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
           return _regeneratorRuntime().wrap(function _callee6$(_context6) {
             while (1) switch (_context6.prev = _context6.next) {
               case 0:
-                _context6.t0 = _this28.wordLists;
+                _context6.t0 = _this29.wordLists;
                 _context6.next = 3;
-                return _this28.$wire.call("createNewList");
+                return _this29.$wire.call("createNewList");
               case 3:
                 _context6.t1 = _context6.sent;
                 _context6.t0.push.call(_context6.t0, _context6.t1);
@@ -7309,28 +7322,28 @@ document.addEventListener("alpine:init", function () {
         });
       },
       addExistingWordList: function addExistingWordList(uuid) {
-        var _this29 = this;
+        var _this30 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
           var list;
           return _regeneratorRuntime().wrap(function _callee7$(_context7) {
             while (1) switch (_context7.prev = _context7.next) {
               case 0:
                 _context7.next = 2;
-                return _this29.$wire.call("addExistingWordList", uuid);
+                return _this30.$wire.call("addExistingWordList", uuid);
               case 2:
                 list = _context7.sent;
                 if (list.id) {
                   _context7.next = 6;
                   break;
                 }
-                _this29.$dispatch("notify", {
+                _this30.$dispatch("notify", {
                   message: "Er is iets misgegaan...",
                   type: "error"
                 });
                 return _context7.abrupt("return");
               case 6:
-                _this29.wordLists.push(list);
-                _this29.$dispatch("notify", {
+                _this30.wordLists.push(list);
+                _this30.$dispatch("notify", {
                   message: "Gelukt!"
                 });
               case 8:
@@ -7344,21 +7357,21 @@ document.addEventListener("alpine:init", function () {
         this.$root.closest(".compile-list-modal").querySelector("#compile-list-upload-modal").dispatchEvent(new CustomEvent("open-modal"));
       },
       compileLists: function compileLists() {
-        var _this30 = this;
+        var _this31 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
           var listComponents, updates, changesCompiled;
           return _regeneratorRuntime().wrap(function _callee8$(_context8) {
             while (1) switch (_context8.prev = _context8.next) {
               case 0:
-                _this30.compiling = true;
-                listComponents = Array.from(_this30.$root.querySelectorAll(".word-list")).map(function (element) {
+                _this31.compiling = true;
+                listComponents = Array.from(_this31.$root.querySelectorAll(".word-list")).map(function (element) {
                   return element._x_dataStack[0];
                 });
-                if (!_this30.listsValidationFailed(listComponents)) {
+                if (!_this31.listsValidationFailed(listComponents)) {
                   _context8.next = 5;
                   break;
                 }
-                _this30.compiling = false;
+                _this31.compiling = false;
                 return _context8.abrupt("return");
               case 5:
                 updates = [];
@@ -7366,16 +7379,16 @@ document.addEventListener("alpine:init", function () {
                   return updates[component.list.id] = component.getUpdatesForCompiling();
                 });
                 _context8.next = 9;
-                return _this30.$wire.call("compile", updates);
+                return _this31.$wire.call("compile", updates);
               case 9:
                 changesCompiled = _context8.sent;
                 if (!changesCompiled) {
-                  _this30.$dispatch("notify", {
+                  _this31.$dispatch("notify", {
                     message: "Something went wrong...",
                     type: "error"
                   });
                 }
-                _this30.compiling = false;
+                _this31.compiling = false;
               case 12:
               case "end":
                 return _context8.stop();
@@ -7413,34 +7426,34 @@ document.addEventListener("alpine:init", function () {
         });
       },
       addUploadToNew: function addUploadToNew(file) {
-        var _this31 = this;
+        var _this32 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10() {
           return _regeneratorRuntime().wrap(function _callee10$(_context10) {
             while (1) switch (_context10.prev = _context10.next) {
               case 0:
                 _context10.next = 2;
-                return _this31.$wire.upload("importFile", file, /*#__PURE__*/function () {
+                return _this32.$wire.upload("importFile", file, /*#__PURE__*/function () {
                   var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9(uploadedFilename) {
                     var list;
                     return _regeneratorRuntime().wrap(function _callee9$(_context9) {
                       while (1) switch (_context9.prev = _context9.next) {
                         case 0:
                           _context9.next = 2;
-                          return _this31.$wire.call("importIntoList", true);
+                          return _this32.$wire.call("importIntoList", true);
                         case 2:
                           list = _context9.sent;
                           if (list.id) {
                             _context9.next = 6;
                             break;
                           }
-                          _this31.$dispatch("notify", {
+                          _this32.$dispatch("notify", {
                             message: "Er is iets misgegaan...",
                             type: "error"
                           });
                           return _context9.abrupt("return");
                         case 6:
-                          _this31.wordLists.push(list);
-                          _this31.$dispatch("notify", {
+                          _this32.wordLists.push(list);
+                          _this32.$dispatch("notify", {
                             message: "Gelukt!"
                           });
                         case 8:
@@ -7453,7 +7466,7 @@ document.addEventListener("alpine:init", function () {
                     return _ref2.apply(this, arguments);
                   };
                 }(), function () {
-                  _this31.$dispatch("notify", {
+                  _this32.$dispatch("notify", {
                     message: "Er is iets misgegaan...",
                     type: "error"
                   });
@@ -7476,9 +7489,9 @@ document.addEventListener("alpine:init", function () {
       addListPromptShown: false,
       addListSeparate: false,
       init: function init() {
-        var _this32 = this;
+        var _this33 = this;
         this.$watch("view", function (value) {
-          _this32.nudgeOverviewToFixTheirChoices(value);
+          _this33.nudgeOverviewToFixTheirChoices(value);
         });
       },
       done: function done() {
@@ -7565,9 +7578,9 @@ document.addEventListener("alpine:init", function () {
       this.$el._x_model.set(this.$el.textContent);
       this.addEmptyRowWhenLastIsFull();
     }), _defineProperty(_ref3, "x-init", function xInit() {
-      var _this33 = this;
+      var _this34 = this;
       this.$nextTick(function () {
-        _this33.$el.textContent = _this33.$el._x_model.get();
+        _this34.$el.textContent = _this34.$el._x_model.get();
       });
     }), _ref3;
   });

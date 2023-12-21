@@ -133,23 +133,10 @@ class WordListChangesModal extends TCModalComponent
     public function acceptChanges(): bool
     {
         $relationQuestion = RelationQuestion::whereUuid($this->relationQuestionUuid)
-            ->with(['wordLists', 'wordLists'])
+            ->with(['wordLists'])
             ->first();
 
-        $questionWords = $relationQuestion
-            ->questionWords()
-            ->get()
-            ->map(function ($questionWord) {
-                return CompileWordListService::buildEmptyWordItem(
-                    $questionWord->word->text,
-                    $questionWord->word->type,
-                    $questionWord->word_id,
-                    $questionWord->word_list_id,
-                    $questionWord->selected,
-                );
-            });
-
-        $wordDataCollection = collect($this->wordData)->values();
+        [$questionWords, $wordDataCollection] = $this->getCurrentWordData($relationQuestion);
 
         $relationQuestion
             ->wordLists
@@ -168,10 +155,9 @@ class WordListChangesModal extends TCModalComponent
                     }
 
                     $updatedWord = $latestList->words->where('original_id', $item['word_id'])->first();
-                    if ($updatedWord->isSubjectWord() && isset($this->wordData[$item['word_id']])) {
+                    if ($updatedWord->isSubjectWord()) {
                         $wordDataCollection = $this->updateWordDataCollectionWithSubjectRow(
                             $wordDataCollection,
-                            $item['word_id'],
                             $latestList,
                             $updatedWord
                         );
@@ -204,24 +190,42 @@ class WordListChangesModal extends TCModalComponent
 
     public function declineChanges(): bool
     {
-        $relationQuestion = RelationQuestion::whereUuid($this->relationQuestionUuid)
-            ->with(['wordLists', 'wordLists'])
-            ->first();
-
-        $relationQuestion->wordLists
+        RelationQuestion::whereUuid($this->relationQuestionUuid)
+            ->with(['wordLists'])
+            ->first()
+            ->wordLists
             ->filter(fn($list) => $list->hasNewVersion())
-            ->each(fn($list) => $list->separateFromUpdatedVersion());
+            ->each(function ($currentList) {
+                $branchedList = $currentList->handleDuplication(true);
+
+                foreach ($this->wordData as $rowKey => $row) {
+                    foreach ($row as $type => $item) {
+                        if ($item['word_list_id'] === $currentList->getKey()) {
+                            $this->wordData[$rowKey][$type]['word_list_id'] = $branchedList->getKey();
+                        }
+                    }
+                }
+            });
+
+        $this->closeModalWithEvents([
+            Constructor::class => [
+                'relation-question-accepted-word-list-changes',
+                [$this->wordData, true]
+            ]
+        ]);
+
+        $this->wordLists = collect();
 
         return true;
     }
 
     private function updateWordDataCollectionWithSubjectRow(
         Collection $wordDataCollection,
-        int        $wordId,
         WordList   $latestList,
         Word       $updatedWord
     ): Collection {
-        $newRow = $this->wordData[$wordId];
+        $rowKey = $wordDataCollection->where('subject.word_id', $updatedWord->getKey())->keys()->first();
+        $newRow = $this->wordData[$rowKey];
         foreach ($newRow as $type => $data) {
             if ($data['word_list_id'] !== null) {
                 $newRow[$type]['word_list_id'] = $latestList->getKey();
@@ -233,14 +237,8 @@ class WordListChangesModal extends TCModalComponent
             }
         }
 
-        $wordDataCollection->put(collect($this->wordData)->keys()->search($wordId), $newRow);
+        $wordDataCollection->put($rowKey, $newRow);
         return $wordDataCollection;
-
-        return $wordDataCollection->replaceWithNewKey(
-            oldKey  : collect($this->wordData)->keys()->search($wordId),
-            newKey  : $updatedWord->getKey(),
-            newValue: $newRow
-        );
     }
 
     private function updateWordDataCollectionWithLatestListProperties(
@@ -277,5 +275,25 @@ class WordListChangesModal extends TCModalComponent
             }
             return $row;
         });
+    }
+
+    private function getCurrentWordData(RelationQuestion $relationQuestion): array
+    {
+        $questionWords = $relationQuestion
+            ->questionWords()
+            ->get()
+            ->map(function ($questionWord) {
+                return CompileWordListService::buildEmptyWordItem(
+                    $questionWord->word->text,
+                    $questionWord->word->type,
+                    $questionWord->word_id,
+                    $questionWord->word_list_id,
+                    $questionWord->selected,
+                );
+            });
+
+        $wordDataCollection = collect($this->wordData)->values();
+
+        return [$questionWords, $wordDataCollection];
     }
 }

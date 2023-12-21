@@ -145,9 +145,8 @@
                         <x-slot:action>
                             <button class="text-sm bold flex gap-1 items-center hover:text-[#b5a700] transition-colors"
                                     wire:click="openViewWordListChangesModal"
-                                    disabled
                             >
-                                <span>@lang('Bekijk wijzigingen woordenlijsten') (Still in progress)</span>
+                                <span>@lang('Bekijk wijzigingen woordenlijsten')</span>
                                 <x-icon.arrow-small/>
                             </button>
                         </x-slot:action>

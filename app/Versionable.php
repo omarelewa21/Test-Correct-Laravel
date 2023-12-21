@@ -55,14 +55,17 @@ abstract class Versionable extends BaseModel
         return $this;
     }
 
-    public function replicateWithVersion(User $newAuthor): Versionable
+    public function replicateWithVersion(User $newAuthor, bool $newOriginal = false): Versionable
     {
         $versionable = $this->replicate();
         $versionable->associateAuthor($newAuthor);
         $versionable->uuid = Uuid::uuid4();
         $versionable->save();
 
-        return $versionable->associateVersion($this->versions()->count() + 1, $this);
+        return $versionable->associateVersion(
+            $this->versions()->count() + 1,
+            $newOriginal ? null : $this
+        );
     }
 
     public function scopeFiltered($query, array|Collection $filters = [], array|Collection $sorting = [])

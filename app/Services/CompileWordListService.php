@@ -419,8 +419,12 @@ class CompileWordListService
             $existingList = $this->wordLists->first(fn($wl) => $wl->getKey() === $listId);
             if ($existingList->name !== $update['name']) {
                 $listToUpdate = $this->getListToUpdate($listId);
+                VersionableObserver::setMassUpdating($listToUpdate->getKey(), WordList::class);
+
                 $listToUpdate->name = $update['name'];
                 $listToUpdate->save();
+
+                VersionableObserver::clearMassUpdating($listToUpdate->getKey(), WordList::class);
             }
         }
 
