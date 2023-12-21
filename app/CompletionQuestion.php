@@ -437,9 +437,9 @@ class CompletionQuestion extends Question implements QuestionInterface
     {
         if (!strstr($questionString, '[') && !strstr($questionString, ']')) {
             if (request()->input('subtype') === 'completion') {
-                $validator->errors()->add($fieldPreFix . 'question', 'U dient één woord tussen vierkante haakjes te plaatsen.');
+                $validator->errors()->add($fieldPreFix . 'question', __('cms.completion_add_one_word'));
             } else {
-                $validator->errors()->add($fieldPreFix . 'question', 'U dient minimaal één woord tussen vierkante haakjes te plaatsen.');
+                $validator->errors()->add($fieldPreFix . 'question', __('cms.completion_min_one_word'));
             }
         }
 
@@ -448,7 +448,6 @@ class CompletionQuestion extends Question implements QuestionInterface
 //        }
 
         $check = false;
-        $errorMessage = "U heeft het verkeerde formaat van de vraag ingevoerd, zorg ervoor dat elk haakje '[' gesloten is en er geen overlap tussen haakjes is.";
         for ($charIndex = 0; $charIndex < strlen($questionString); $charIndex++) {
             if ($questionString[$charIndex] == '[' && !$check) {        // set check to true if [ char found
                 $check = true;
@@ -456,16 +455,16 @@ class CompletionQuestion extends Question implements QuestionInterface
                 $check = false;
             } elseif ($questionString[$charIndex] == ']' && !$check) {    // if ] char found and there was no [ before resutls in an error
                 $check = false;
-                $validator->errors()->add($fieldPreFix . 'question', $errorMessage);
+                $validator->errors()->add($fieldPreFix . 'question', __('cms.completion_wrong_format'));
                 break;
             } elseif ($check && $questionString[$charIndex] == '[') {     // if [ char found with check set to true results in an error
                 $check = false;
-                $validator->errors()->add($fieldPreFix . 'question', $errorMessage);
+                $validator->errors()->add($fieldPreFix . 'question', __('cms.completion_wrong_format'));
                 break;
             }
         }
         if ($check) {                                             // if check is true results in an error
-            $validator->errors()->add($fieldPreFix . 'question', $errorMessage);
+            $validator->errors()->add($fieldPreFix . 'question', __('cms.completion_wrong_format'));
         }
 
         $qHelper = new QuestionHelper();
@@ -479,15 +478,15 @@ class CompletionQuestion extends Question implements QuestionInterface
         foreach ($questionData['answers'] as $answer) {
             if (trim($answer['answer']) == '') {
                 if (request()->input('subtype') === 'completion') {
-                    $validator->errors()->add($fieldPreFix . 'question', 'U dient één woord tussen vierkante haakjes te plaatsen.');
+                    $validator->errors()->add($fieldPreFix . 'question', __('cms.completion_add_one_word'));
                 } else {
-                    $validator->errors()->add($fieldPreFix . 'question', 'U dient minimaal één woord tussen vierkante haakjes te plaatsen.');
+                    $validator->errors()->add($fieldPreFix . 'question', __('cms.completion_min_one_word'));
                 }
                 break;
             }
 
             if (trim(clean(html_entity_decode($answer['answer']))) == '') {
-                $validator->errors()->add($fieldPreFix . 'question', 'U heeft tekens gebruikt die hier niet mogelijk zijn');
+                $validator->errors()->add($fieldPreFix . 'question', __('cms.completion_illegal_characters'));
                 break;
             }
         }

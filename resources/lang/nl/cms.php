@@ -240,4 +240,10 @@ return [
     'Antwoord opties voor student'                                                           => 'Antwoord opties voor student',
     'resultaten'                                                                             => 'resultaten',
     'ckeditor_file_type_not_allowed'                                                         => 'Dit bestand is niet toegestaan als inline afbeelding.',
+    'completion_wrong_format'                                                                => 'U heeft het verkeerde formaat van de vraag ingevoerd, zorg ervoor dat elk haakje \'[\' gesloten is en er geen overlap tussen haakjes is.',
+    'completion_add_one_word'                                                                => 'U dient één woord tussen vierkante haakjes te plaatsen.',
+    'completion_min_one_word'                                                                => 'U dient minimaal één woord tussen vierkante haakjes te plaatsen.',
+    'completion_illegal_characters'                                                          => 'U heeft tekens gebruikt die hier niet mogelijk zijn',
+    'completion_one_selection'                                                               => 'U kunt niet slechts één selectie hebben, u moet in elk haakje ten minste één extra selectie toevoegen.',
+
 ];

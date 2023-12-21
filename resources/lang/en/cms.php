@@ -241,4 +241,9 @@ return [
     'Antwoord opties voor student'                                                           => 'Answer options for student',
     'resultaten'                                                                             => 'results',
     'ckeditor_file_type_not_allowed'                                                         => 'This type of file is not allowed as inline image',
+    'completion_wrong_format'                                                                => 'You have entered the wrong format for the question, make sure that each bracket \'[\' is closed and there is no overlap between brackets.',
+    'completion_add_one_word'                                                                => 'You need to place one word between square brackets.',
+    'completion_min_one_word'                                                                => 'You need to place at least one word between square brackets.',
+    'completion_illegal_characters'                                                          => 'You have used characters that are not allowed here',
+    'completion_one_selection'                                                               => 'You cannot have just one selection, you must add at least one additional selection in each bracket.',
 ];
