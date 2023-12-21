@@ -32,7 +32,7 @@
 </div>
 
 <div class="footer-line"></div>
-<table style="border:0; width: 100%;height: 20px; bottom: 0; ">
+<table class="footer-table" style="width: 100%;height: 20px; bottom: 0; ">
     <tr>
         <td colspan="3" style="width: 10em">
         </td>

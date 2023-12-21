@@ -80,6 +80,14 @@
                                 :attachment_counters="$attachment_counters"
                                 wire:key="'q-'.$testQuestion->uuid"
                         />
+                    @elseif($testQuestion->type === 'RelationQuestion')
+                        <livewire:test-opgaven-print.relation-question
+                                :question="$testQuestion"
+                                :number="$questionFollowUpNumber++"
+                                :test="$test"
+                                :attachment_counters="$attachment_counters"
+                                wire:key="'q-'.$testQuestion->uuid"
+                        />
                     @elseif($testQuestion->type === 'GroupQuestion' && $currentGroupQuestion !== $testQuestion->getKey())
                         @php $currentGroupQuestion = $testQuestion->getKey() @endphp
                         <livewire:test-opgaven-print.group-question
