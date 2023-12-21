@@ -119,11 +119,6 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface
         return $question;
     }
 
-    public function canCreateSystemRatingForAnswer($answer): bool
-    {
-        return true;
-    }
-
     public function checkAnswer($answer)
     {
         $multipleChoiceQuestionAnswers = $this->multipleChoiceQuestionAnswers;

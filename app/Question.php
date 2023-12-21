@@ -384,6 +384,11 @@ class Question extends MtiBaseModel
         return ['oldId' => $this->changedId, 'newId' => $this->getKey(), 'children' => $this->changedChildrenIds];
     }
 
+    public function canCreateSystemRatingForAnswer($answer): bool
+    {
+        return true;
+    }
+
     public function duplicate(array $attributes, $ignore = null)
     {
         $question = $this->replicate();
