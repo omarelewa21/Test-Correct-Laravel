@@ -107,7 +107,7 @@ class PreviewTestTakeController extends Controller
 
     protected function deleteJobFiles($storagePath,$htmlStoragePath,$doneFile, $keepPdfFile = false): void
     {
-        if (file_exists($storagePath && !$keepPdfFile)) {
+        if (file_exists($storagePath) && !$keepPdfFile) {
             unlink($storagePath);
         }
         if (file_exists($htmlStoragePath)) {
