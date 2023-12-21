@@ -6,11 +6,13 @@ use tcCore\Answer;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithStudentPlayerOverview;
 use tcCore\Http\Livewire\StudentPlayer\DrawingQuestion as AbstractDrawingQuestion;
+use tcCore\Http\Traits\WithAttachments;
 
 class DrawingQuestion extends AbstractDrawingQuestion
 {
     use WithGroups;
     use WithStudentPlayerOverview;
+    use WithAttachments;
 
     public $answered;
 

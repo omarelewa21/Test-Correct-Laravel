@@ -24,6 +24,20 @@
                 </style>
             @endpush
             @foreach($data as  $key => $testQuestion)
+                @foreach ($groupedQuestions as $groupedQuestion)
+                    @if ($groupedQuestion[0] == $testQuestion->id )
+                        @foreach ($groupQuestions as $groupQuestion)
+                            @if ($groupQuestion->id == $testQuestion->belongs_to_groupquestion_id)
+                                    <livewire:student-player.group-question
+                                        :question="$testQuestion"
+                                        :answers="$answers"
+                                        :number="++$key"
+                                        wire:key="'q-'.$testQuestion->uuid'q-'"
+                                    />
+                            @endif
+                        @endforeach
+                    @endif
+                @endforeach
                 <div class="flex flex-col space-y-4">
                     <livewire:is :component="$testQuestion->getStudentPlayerComponent('overview')"
                                  :question="$testQuestion"
@@ -44,6 +58,16 @@
                         </div>
                     @endif
                 </div>
+                @foreach ($groupedQuestions as $groupedQuestion)
+                    @if (end($groupedQuestion) == $testQuestion->id )
+                        <hr style="background: var(--all-Base);">
+                    @endif
+                @endforeach
+                @foreach ($nonGroupedQuestions as $nonGroupedQuestion)
+                    @if ($nonGroupedQuestion === $testQuestion->id)
+                        <hr style="background: var(--all-Base);">
+                    @endif
+                @endforeach
             @endforeach
         </div>
 

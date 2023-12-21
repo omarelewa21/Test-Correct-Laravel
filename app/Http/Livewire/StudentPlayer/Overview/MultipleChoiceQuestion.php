@@ -5,11 +5,13 @@ namespace tcCore\Http\Livewire\StudentPlayer\Overview;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithStudentPlayerOverview;
 use tcCore\Http\Livewire\StudentPlayer\MultipleChoiceQuestion as AbstractMultipleChoiceQuestion;
+use tcCore\Http\Traits\WithAttachments;
 
 class MultipleChoiceQuestion extends AbstractMultipleChoiceQuestion
 {
     use WithGroups;
     use WithStudentPlayerOverview;
+    use WithAttachments;
 
     public $queryString = ['q'];
     public $q;

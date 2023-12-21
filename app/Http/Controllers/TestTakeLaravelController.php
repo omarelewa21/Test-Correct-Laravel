@@ -2,19 +2,20 @@
 
 namespace tcCore\Http\Controllers;
 
+use tcCore\TestKind;
+use tcCore\TestTake;
+use Ramsey\Uuid\Uuid;
+use tcCore\GroupQuestion;
+use tcCore\TemporaryLogin;
+use tcCore\TestParticipant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use tcCore\Exceptions\StudentTestTakeException;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Helpers\BaseHelper;
-use tcCore\Http\Traits\TestTakeNavigationForController;
 use tcCore\Http\Traits\WithStudentTestTakes;
-use tcCore\TestKind;
-use tcCore\TestParticipant;
-use tcCore\TestTake;
-use tcCore\TemporaryLogin;
-use Ramsey\Uuid\Uuid;
+use tcCore\Http\Traits\TestTakeNavigationForController;
 
 class TestTakeLaravelController extends Controller
 {
@@ -31,6 +32,27 @@ class TestTakeLaravelController extends Controller
         $current = $request->get('q') ?: '1';
 
         $data = self::getData($testParticipant, $testTake);
+
+        $groupedQuestions = [];
+
+        foreach ($data as $question) {
+            $groupId = $question['belongs_to_groupquestion_id'];
+            $questionId = $question['id'];
+
+            if (!empty($groupId)) {
+                if (!isset($groupedQuestions[$groupId])) {
+                    $groupedQuestions[$groupId] = [];
+                }
+                $groupedQuestions[$groupId][] = $questionId;
+            }
+        }
+
+        $groupQuestionsId = array_keys($groupedQuestions);
+        $groupQuestions = GroupQuestion::whereIn('id', $groupQuestionsId)->get();
+
+        $nonGroupedQuestions = $data->where('is_subquestion', 0)->pluck('id')->toArray();
+
+
         $answers = $this->getAnswers($testTake, $data, $testParticipant);
 
         $data = $this->applyAnswerOrderForParticipant($data, $answers);;
@@ -40,10 +62,7 @@ class TestTakeLaravelController extends Controller
         $uuid = $testTake->uuid;
         // todo add check or failure when $current out of bounds $data;
         $styling = $this->getCustomStylingFromQuestions($data);
-        return view(
-            'test-take-overview',
-            compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling'])
-        );
+        return view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling' , 'groupedQuestions' , 'nonGroupedQuestions' , 'groupQuestions']));
     }
 
 
@@ -101,7 +120,7 @@ class TestTakeLaravelController extends Controller
             compact(['data', 'current', 'answers', 'nav', 'uuid', 'testParticipant', 'styling', 'allowMrChadd'])
         );
     }
-    
+
     public function getAnswers($testTake, $testQuestions, $testParticipant): array
     {
         $testQuestionCount = $testTake->test->getQuestionCount();

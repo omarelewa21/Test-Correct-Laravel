@@ -2,15 +2,16 @@
 
 namespace tcCore\Http\Livewire\StudentPlayer\Overview;
 
-use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithStudentPlayerOverview;
 use tcCore\Http\Livewire\StudentPlayer\CompletionQuestion as AbstractCompletionQuestion;
+use tcCore\Http\Traits\WithAttachments;
 
 class CompletionQuestion extends AbstractCompletionQuestion
 {
     use WithGroups;
     use WithStudentPlayerOverview;
+    use WithAttachments;
 
     public $answered;
     public $searchPattern = "/\[([0-9]+)\]/i";
