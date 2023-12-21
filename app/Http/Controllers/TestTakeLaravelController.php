@@ -132,7 +132,13 @@ class TestTakeLaravelController extends Controller
         if ($testQuestionCount !== $testParticipant->answers()->count()) {
             throw new StudentTestTakeException('sync error');
         }
-
+        if ($break > 1) {
+            \Bugsnag::notifyError(
+                'StudentAnswersFound',
+                'Student answers were found after some tries.',
+                ['tries' => $break, 'TestParticipant' => $testParticipant->getKey()],
+            );
+        }
         $result = [];
         $testParticipant
             ->answers()
