@@ -26,7 +26,7 @@ class PreviewTestTakeController extends Controller
 {
 
 
-    public function show(TestTake $testTake, Request $request, $doDelete = true)
+    public function show(TestTake $testTake, Request $request)
     {
         //to re enable the question and groupquestion text, set this to true
         $showQuestionText = false;
@@ -72,17 +72,13 @@ class PreviewTestTakeController extends Controller
 
             if (file_exists($storagePath)) {
 
-                AfterResponse::$performAction[] = function () use ($storagePath, $htmlStoragePath, $doneFile, $doDelete) {
-                    if (file_exists($storagePath) && $doDelete) {
-                        unlink($storagePath);
-                    }
-                    if (file_exists($htmlStoragePath)) {
-                        unlink($htmlStoragePath);
-                    }
-                    if (file_exists($doneFile)) {
-                        unlink($doneFile);
-                    }
+                AfterResponse::$performAction[] = function () use ($storagePath, $htmlStoragePath, $doneFile) {
+                    $this->deleteJobFiles($storagePath,$htmlStoragePath,$doneFile);
                 };
+
+                if(app()->runningInConsole()){
+                    $this->deleteJobFiles($storagePath,$htmlStoragePath,$doneFile,true);
+                }
 
                 return response()->file($storagePath, [
                     'Content-Type'        => 'application/pdf',
@@ -90,15 +86,7 @@ class PreviewTestTakeController extends Controller
                 ]);
             }
         } catch (\Throwable $e){
-            if (file_exists($storagePath)) {
-                unlink($storagePath);
-            }
-            if (file_exists($htmlStoragePath)) {
-                unlink($htmlStoragePath);
-            }
-            if (file_exists($doneFile)) {
-                unlink($doneFile);
-            }
+            $this->deleteJobFiles($storagePath,$htmlStoragePath,$doneFile);
 
             bugsnag::notifyException($e, function ($report) use ($testTake) {
                 $report->setMetaData([
@@ -117,6 +105,17 @@ class PreviewTestTakeController extends Controller
         throw new UserFriendlyException(__('test-pdf.Sorry, the download could not be generated, please get in contact in order for us to help you with that.'),500);
     }
 
-
+    protected function deleteJobFiles($storagePath,$htmlStoragePath,$doneFile, $keepPdfFile = false): void
+    {
+        if (file_exists($storagePath) && !$keepPdfFile) {
+            unlink($storagePath);
+        }
+        if (file_exists($htmlStoragePath)) {
+            unlink($htmlStoragePath);
+        }
+        if (file_exists($doneFile)) {
+            unlink($doneFile);
+        }
+    }
 
 }
