@@ -131,11 +131,6 @@ class RankingQuestion extends Question implements QuestionInterface
         return true;
     }
 
-    public function canCreateSystemRatingForAnswer($answer): bool
-    {
-        return true;
-    }
-
     public function checkAnswer($answer)
     {
         $answers = json_decode($answer->getAttribute('json'), true);
