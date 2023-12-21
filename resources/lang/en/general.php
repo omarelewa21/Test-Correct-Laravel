@@ -90,4 +90,5 @@ return [
     'tests'                             => 'Tests',
     'questions'                         => 'Questions',
     'Formidable'                        => 'Formidable!',
+    'Kies'                              => 'Kies',
 ];

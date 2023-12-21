@@ -519,6 +519,11 @@ input[type=number] {
     transform: scale(1);
 }
 
+.radio-disabled .radio-custom {
+    pointer-events: none;
+    color: var(--note);
+}
+
 .form-input::placeholder {
     font-size: 1rem;
     color: var(--system-base);

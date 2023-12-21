@@ -10,10 +10,13 @@ use tcCore\Http\Interfaces\QuestionCms;
 use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Http\Livewire\Teacher\Cms\Providers\MultipleChoice;
 use tcCore\Http\Livewire\Teacher\Cms\TypeFactory;
+use tcCore\Http\Traits\WithRelationQuestionAttributes;
 use tcCore\Question;
 
 class QuestionCmsPreviewModal extends TCModalComponent implements QuestionCms
 {
+    use WithRelationQuestionAttributes;
+
     public array $question = [
         'add_to_database'        => 1,
         'answer'                 => '',
@@ -150,6 +153,7 @@ class QuestionCmsPreviewModal extends TCModalComponent implements QuestionCms
         $this->questionEditorId = Str::uuid()->__toString();
         $this->uniqueQuestionKey = $question->uuid;
         $this->isCito = $question->isCitoQuestion();
+        $this->subjectId = $question->subject_id;
 
         $this->obj = TypeFactory::create($this);
 
@@ -184,7 +188,6 @@ class QuestionCmsPreviewModal extends TCModalComponent implements QuestionCms
         $this->attachments = $question->attachments;
         $this->attachmentsCount = count($this->attachments);
 
-        $this->subjectId = $question->subject_id;
         $this->educationLevelId = $question->education_level_id;
 
         $this->questionTitle = $question->isType('GroupQuestion') ? html_entity_decode($question->name) : $question->title;

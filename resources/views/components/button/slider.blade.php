@@ -1,6 +1,6 @@
 @props([
-'label' => null,
 'options',
+'label' => null,
 'buttonWidth' => '105px',
 'disabled' => false,
 'disabledStyling' => false,
@@ -49,7 +49,7 @@
                      @if(!$disabled) @click="clickButton($el, '{{$allowClickingCurrentValue}}')" @endif
                      data-active="false"
                 >
-                    <span data-id="{{$id}}"
+                    <span data-id="{{ $id }}"
                           class="inline-flex justify-center w-full px-3 border-r border-blue-grey group-last:border-r-0 pointer-events-none"
                     >
                         @if($useNamedSlots)

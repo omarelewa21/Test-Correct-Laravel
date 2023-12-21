@@ -4,7 +4,9 @@ interface QuestionInterface {
 
     public function loadRelated();
 
-    public function canCheckAnswer();
+    public function canCreateSystemRatingForAnswer($answer): bool;
 
     public function checkAnswer($answer);
+
+    public function isClosedQuestion(): bool;
 }

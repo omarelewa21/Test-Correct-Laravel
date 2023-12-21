@@ -1,4 +1,7 @@
-<div class="flex flex-col pt-4 pb-16" style="min-height: 500px" >
+<div @class(["flex flex-col pt-4 pb-16", $attributes->get('class') ])
+     style="min-height: 500px"
+     {{ $attributes->except('class') }}
+>
     <div class="flex justify-between">
         <span class="note text-sm" wire:loading
               wire:target="filters,clearFilters,$set">{{  __('general.searching') }}</span>
@@ -14,7 +17,7 @@
             {{ $header }}
         @endisset
     </div>
-    <x-grid class="my-4" selid="resultsContainer">
+    <x-grid class="my-4" selid="resultsContainer" :$maxColumns>
         @foreach(range(1, 6) as $value)
             <x-grid.loading-card
                     :delay="$value"

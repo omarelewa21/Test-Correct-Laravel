@@ -94,12 +94,9 @@ abstract class BaseModel extends Model
 
     public static function getPossibleEnumValues($column)
     {
-        //Create an instance of the model to be able to get the table name
-        $instance = new static;
-
         //Get the enum column from the DB with the type;
         $type = DB::select(
-            sprintf('SHOW COLUMNS FROM %s WHERE Field = "%s"', $instance->getTable(), $column)
+            sprintf('SHOW COLUMNS FROM %s WHERE Field = "%s"', static::getTableName(), $column)
         )[0]->Type;
 
         //Strip the enum word + ()'s
@@ -112,5 +109,10 @@ abstract class BaseModel extends Model
             $enum[] = $v;
         }
         return $enum;
+    }
+
+    public static function getTableName(): string
+    {
+        return (new static())->getTable();
     }
 }

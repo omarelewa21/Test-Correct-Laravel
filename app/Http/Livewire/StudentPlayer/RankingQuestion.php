@@ -2,23 +2,9 @@
 
 namespace tcCore\Http\Livewire\StudentPlayer;
 
-use tcCore\Answer;
-use tcCore\Http\Livewire\TCComponent;
-use tcCore\Http\Traits\WithAttachments;
-use tcCore\Http\Traits\WithCloseable;
-use tcCore\Http\Traits\WithGroups;
-use tcCore\Http\Traits\WithNotepad;
-use tcCore\Http\Traits\WithQuestionTimer;
-
-abstract class RankingQuestion extends TCComponent
+abstract class RankingQuestion extends StudentPlayerQuestion
 {
-    use withCloseable;
-
     public $uuid;
-    public $answer;
-    public $question;
-    public $number;
-    public $answers;
     public $answerStruct;
     public $answerText = [];
 

@@ -1,14 +1,15 @@
 <?php namespace tcCore;
 
+use tcCore\Http\Traits\Questions\WithQuestionDuplicating;
 use tcCore\Lib\Question\QuestionInterface;
 use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
-use Ramsey\Uuid\Uuid;
 use tcCore\Traits\UuidTrait;
 
 class InfoscreenQuestion extends Question implements QuestionInterface {
 
     use UuidTrait;
+    use WithQuestionDuplicating;
+
 
     protected $casts = [
         'uuid'       => EfficientUuid::class,
@@ -49,25 +50,11 @@ class InfoscreenQuestion extends Question implements QuestionInterface {
     }
 
     public function duplicate(array $attributes, $ignore = null) {
-        $question = $this->replicate();
-
-        $question->parentInstance = $this->parentInstance->duplicate($attributes, $ignore);
-        if ($question->parentInstance === false) {
-            return false;
-        }
-
-        $question->fill($attributes);
-
-        $question->setAttribute('uuid', Uuid::uuid4());
-
-        if ($question->save() === false) {
-            return false;
-        }
-
-        return $question;
+        return $this->specificDuplication($attributes, $ignore);
     }
 
-    public function canCheckAnswer() {
+    public function canCreateSystemRatingForAnswer($answer): bool
+    {
         return true;
     }
 
@@ -75,5 +62,9 @@ class InfoscreenQuestion extends Question implements QuestionInterface {
         return 0;
     }
 
+    public function getStudentPlayerComponent($context = 'question'): string
+    {
+        return str(parent::getStudentPlayerComponent($context))->replace('infoscreen', 'info-screen');
+    }
 
 }

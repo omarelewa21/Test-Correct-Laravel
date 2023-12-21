@@ -1,19 +1,16 @@
 <?php namespace tcCore;
 
-use Illuminate\Support\Facades\Log;
 use tcCore\Exceptions\QuestionException;
-use tcCore\Http\Requests\UpdateTestQuestionRequest;
+use tcCore\Http\Traits\Questions\WithQuestionDuplicating;
 use tcCore\Lib\Question\QuestionInterface;
 use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
-use Ramsey\Uuid\Uuid;
 use tcCore\Traits\UuidTrait;
 use Illuminate\Support\Str;
 
 class MatchingQuestion extends Question implements QuestionInterface
 {
-
     use UuidTrait;
+    use WithQuestionDuplicating;
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
@@ -71,20 +68,7 @@ class MatchingQuestion extends Question implements QuestionInterface
 
     public function duplicate(array $attributes, $ignore = null)
     {
-        $question = $this->replicate();
-
-        $question->parentInstance = $this->parentInstance->duplicate($attributes, $ignore);
-        if ($question->parentInstance === false) {
-            return false;
-        }
-
-        $question->fill($attributes);
-
-        $question->setAttribute('uuid', Uuid::uuid4());
-
-        if ($question->save() === false) {
-            return false;
-        }
+        $question = $this->specificDuplication($attributes, $ignore);
 
         $skipped = [];
         foreach ($this->matchingQuestionAnswerLinks as $matchingQuestionAnswerLink) {
@@ -113,7 +97,7 @@ class MatchingQuestion extends Question implements QuestionInterface
         return $question;
     }
 
-    public function canCheckAnswer()
+    public function canCreateSystemRatingForAnswer($answer): bool
     {
         return true;
     }
@@ -170,6 +154,11 @@ class MatchingQuestion extends Question implements QuestionInterface
         return $score;
     }
 
+    public function isClosedQuestion(): bool
+    {
+        return true;
+    }
+
     public function getClassifyAnswersFromAnswer($answer)
     {
         return explode("\n", $answer);
@@ -183,20 +172,7 @@ class MatchingQuestion extends Question implements QuestionInterface
      */
     public function addAnswers($mainQuestion, $answers)
     {
-
         $question = $this;
-//        if ($this->isUsed($mainQuestion)) {
-//            $question = $this->duplicate([]);
-//            if ($question === false) {
-//                throw new QuestionException('Failed to duplicate question',422);
-//            }
-//            $mainQuestion->setAttribute('question_id', $question->getKey());
-//
-//            if (!$mainQuestion->save()) {
-//                throw new QuestionException('Failed to update test question',422);
-//            }
-//        }
-
         if (!QuestionAuthor::addAuthorToQuestion($question)) {
             throw new QuestionException('Failed to attach author to question', 422);
         }
@@ -235,23 +211,6 @@ class MatchingQuestion extends Question implements QuestionInterface
                         $this->addAnswer($detail, $question);
                     }
                 }
-//                $detail = collect($detail);
-//
-//                $matchingQuestionAnswer = new MatchingQuestionAnswer();
-//
-//                $matchingQuestionAnswer->fill($detail->only($matchingQuestionAnswer->getFillable())->toArray());
-//                if (!$matchingQuestionAnswer->save()) {
-//                    throw new QuestionException('Failed to create matching question answer', 500);
-//                }
-//                $matchingQuestionAnswerLink = new MatchingQuestionAnswerLink();
-//                $matchingQuestionAnswerLink->fill($detail->only($matchingQuestionAnswerLink->getFillable())->toArray());
-//                $matchingQuestionAnswerLink->setAttribute('matching_question_id', $question->getKey());
-//                $matchingQuestionAnswerLink->setAttribute('matching_question_answer_id', $matchingQuestionAnswer->getKey());
-//
-//                if(!$matchingQuestionAnswerLink->save()) {
-//                    throw new QuestionException('Failed to create matching question answer link',422);
-//                }
-//                $lastId = $matchingQuestionAnswer->getKey();
             }
         }
         return true;
@@ -353,5 +312,14 @@ class MatchingQuestion extends Question implements QuestionInterface
 
         $givenAnswersCount = $givenAnswersOnlyInjson->filter()->count();
         return $givenAnswersCount === $this->matchingQuestionAnswers()->where('type', 'RIGHT')->count();
+    }
+
+    public function getStudentPlayerComponent($context = 'question'): string
+    {
+        return str(parent::getStudentPlayerComponent($context))
+            ->when(
+                strtolower($this->subtype) === 'classify',
+                fn($value) => $value->append('-classify')
+            );
     }
 }

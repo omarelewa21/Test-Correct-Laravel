@@ -110,29 +110,20 @@ class TestQuestion extends BaseModel {
         $totalData = array_merge($questionAttributes, $questionData);
         $question->fill($totalData);
         Question::setAttributesFromParentModel($question, $test);
-        
-        if ($question->save()) {
-            $testQuestion->setAttribute('question_id', $question->getKey());
-
-            if ($testQuestion->save()) {
-
-                if (Question::usesDeleteAndAddAnswersMethods($questionAttributes['type'])) {
-//                        // delete old answers
-//                        $question->deleteAnswers($question);
-
-                    // add new answers
-                    if (array_key_exists('answers', $totalData)) {
-                        $testQuestion->question->addAnswers($testQuestion, $totalData['answers']);
-                    }
-                }
-                $testQuestion->addCloneAttachmentsIfAppropriate($questionAttributes);
-            } else {
-                throw new QuestionException('Failed to create test question');
-            }
-
-        } else {
+        if (!$question->save()) {
             throw new QuestionException('Failed to create question');
         }
+
+        $testQuestion->setAttribute('question_id', $question->getKey());
+        if (!$testQuestion->save()) {
+            throw new QuestionException('Failed to create test question');
+        }
+
+        if (Question::usesDeleteAndAddAnswersMethods($questionAttributes['type'])
+            && array_key_exists('answers', $totalData)) {
+            $testQuestion->question->addAnswers($testQuestion, $totalData['answers']);
+        }
+        $testQuestion->addCloneAttachmentsIfAppropriate($questionAttributes);
 
         if (!QuestionAuthor::addAuthorToQuestion($question)) {
             throw new QuestionException('Failed to attach author to question');

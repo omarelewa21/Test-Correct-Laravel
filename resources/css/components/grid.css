@@ -8,14 +8,15 @@
     border: solid 1px;
     border-color: var(--card-tag-border-color);
     background-color: var(--card-tag-background-color);
-    color: var(--card-tag-text-color)!important;
+    color: var(--card-tag-text-color) !important;
     min-height: 26px;
 }
+
 .card-tag span {
-    color: var(--card-tag-text-color)!important;
+    color: var(--card-tag-text-color) !important;
     text-transform: uppercase;
     font-weight: bold;
-    font-size:10px;
+    font-size: 10px;
 }
 
 .card-tag.white {
@@ -28,4 +29,349 @@
     --card-tag-text-color: var(--note);
     --card-tag-border-color: var(--mid-grey);
     --card-tag-background-color: rgba(var(--mid-grey-rgb), .1);
+}
+
+.relation-question-grid-container {
+    --relation-question-total-max-width: 940px;
+    --relation-question-height: 788px;
+
+    position: relative;
+    overflow: auto;
+    width: 100%;
+    height: var(--relation-question-height);
+    max-width: var(--relation-question-total-max-width);
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+
+}
+
+.relation-question-grid-container .relation-grid-sticky-pseudo {
+    display: block;
+    position: sticky;
+    width: 100%;
+    height: calc(100% - 50px);
+    top: 50px;
+    left: 0;
+    z-index: 2;
+    box-shadow: inset 0 1px 6px 4px rgba(4, 31, 116, 0.06);
+    pointer-events: none;
+
+    border: 1px solid var(--blue-grey);
+    border-top: none;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+
+.relation-question-grid {
+    --relation-grid-cols: 4;
+    display: grid;
+    grid-template-columns: repeat(var(--relation-grid-cols), minmax(140px, 240px));
+    grid-template-rows: repeat(auto-fill, 1fr);
+    gap: 1px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: var(--blue-grey);
+}
+
+.relation-question-grid .grid-head::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -1px;
+    width: 1px;
+    height: 100%;
+    background-color: white;
+}
+.relation-question-grid .grid-head::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    right: -1px;
+    width: 1px;
+    height: 2px;
+    background-color: var(--system-base);
+}
+
+.relation-question-grid .grid-head:last-child::before,
+.relation-question-grid .grid-head:last-child::after {
+    width: 0;
+    right: 0;
+}
+
+.relation-question-grid .grid-head {
+    font-weight: bold;
+    background-color: white;
+    position: sticky;
+    top: 0;
+    padding-bottom: 14px;
+    padding-top: 10px;
+    border-bottom: 2px solid var(--system-base);
+    padding-inline: 1px;
+    z-index: 5
+}
+
+.relation-question-grid .word-row div {
+    min-height: 40px;
+    font-size: 1rem;
+    transition: background-color 150ms ease-in-out, color 150ms ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 13px;
+    padding-right: 6px;
+    background-color: white;
+}
+
+.relation-question-grid .word-row div:not(.empty):hover {
+    cursor: pointer;
+}
+
+.relation-question-grid .word-row div:not(.empty, .selected):hover {
+    background-color: rgba(var(--primary-rgb), 0.05);
+    color: var(--primary);
+}
+
+.relation-question-grid .word-row div:not(.empty, .selected):active {
+    background-color: rgba(var(--primary-rgb), 0.1);
+}
+
+.relation-question-grid .word-row div.selected {
+    background-color: var(--primary);
+    color: white;
+}
+
+.relation-question-grid .word-row:last-child div:last-child {
+    border-bottom-right-radius: 10px;
+}
+
+.relation-question-grid .word-row:last-child div:first-child {
+    border-bottom-left-radius: 10px;
+}
+
+.compile-list-modal .relation-question-grid-container {
+    border-bottom-left-radius: 0;
+}
+
+.compile-list-modal .relation-question-grid-container .relation-grid-sticky-pseudo:after {
+    content: '';
+    position: absolute;
+    left: -1px;
+    bottom: 0;
+    height: 6px;
+    width: 1px;
+    background-color: white;
+}
+
+.compile-list-modal .relation-question-grid {
+    grid-template-columns: 2rem repeat(var(--relation-grid-cols), minmax(140px, 240px));
+}
+
+.compile-list-modal .relation-question-grid .grid-head {
+    padding-bottom: 4px;
+}
+.compile-list-modal .relation-question-grid .grid-head.head-checkmark {
+    padding-bottom: 7px;
+    display: flex;
+    align-items: flex-end;
+}
+
+.compile-list-modal .relation-question-grid .word-row div {
+    background-color: var(--off-white);
+    color: var(--system-base);
+    padding-left: 6px;
+    width: auto;
+}
+
+.compile-list-modal .relation-question-grid .word-row span.row-checkmark {
+    background-color: white;
+    height: calc(100% + 1px);
+    z-index: 3;
+    display: flex;
+    align-items: center
+}
+
+.compile-list-modal .relation-question-grid .word-row div:hover {
+    background-color: var(--off-white);
+    color: var(--system-base);
+}
+
+.compile-list-modal .relation-question-grid .word-row div.focused {
+    color: var(--primary);
+    position: relative;
+}
+
+.compile-list-modal .relation-question-grid .word-row div.focused:before {
+    --focused-inset-top: 0;
+    --focused-inset-left: 0;
+    --focused-inset-bottom: 0;
+    --focused-inset-right: 0;
+    content: '';
+    position: absolute;
+    inset: var(--focused-inset-top) var(--focused-inset-left) var(--focused-inset-bottom) var(--focused-inset-right);
+    border: 1px solid var(--primary);
+}
+
+.compile-list-modal .relation-question-grid .word-row div:first-of-type.focused:before {
+}
+
+.compile-list-modal .relation-question-grid .word-row div:last-of-type.focused:before {
+    --focused-inset-left: 1px;
+    --focused-inset-right: -1px;
+}
+
+.compile-list-modal .relation-question-grid .word-row:first-of-type div.focused:before {
+}
+
+.compile-list-modal .relation-question-grid .word-row:last-of-type div.focused:before {
+}
+
+.compile-list-modal .relation-question-grid .word-row:last-of-type div:first-of-type.focused:before {
+}
+
+.compile-list-modal .relation-question-grid .word-row:last-of-type div:last-of-type.focused:before {
+    border-bottom-right-radius: 9px;
+}
+
+.compile-list-modal .relation-question-grid .word-row:last-of-type div:first-of-type {
+}
+
+.compile-list-modal .relation-question-grid .word-row:last-of-type div:first-of-type:before {
+}
+
+.compile-list-modal .relation-question-grid .word-row div span {
+    min-width: 1px;
+}
+
+.compile-list-modal .relation-question-grid .word-row div span:focus-visible {
+    outline: none;
+}
+
+.compile-list-modal .relation-question-grid-container {
+    max-height: calc(66px + calc(10 * 41px));
+}
+
+.compile-list-modal .relation-question-grid-container .word-row .word-cell.validation-error {
+    border: 1px solid var(--all-red);
+    margin-inline: -1px;
+}
+.compile-list-modal .relation-question-grid .word-row div.validation-error:last-of-type {
+    margin-right: 1px !important;
+}
+
+.compile-list-modal .relation-question-grid .word-row .word-cell.blue {
+    background: #c4d6ff;
+}
+.compile-list-modal .relation-question-grid .word-row .word-cell.red {
+    color: var(--mid-grey);
+    background: #edb7b4;
+
+}
+.compile-list-modal .relation-question-grid .word-row .word-cell.green {
+    background: #c1e8cd;
+}
+/* test take view elements */
+.question-relation-question-grid {
+    /*display: grid;*/
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    flex-grow: 1;
+
+    max-height: 450px;
+    width: min-content;
+
+    /* take 1rem extra padding in even column into account: */
+    grid-template-columns: minmax(0, calc(50% - 0.5rem)) minmax(0, 1fr);
+}
+
+.question-relation-question-grid > div:nth-child(even) {
+    /*margin-left: 1rem;*/
+}
+.question-relation-question-grid > div:nth-child(odd) {
+    /*border-right: 1px solid var(--blue-grey);*/
+}
+
+.question-relation-question-grid > div {
+    /*width: ;*/
+}
+
+.question-relation-answer-grid > div,
+.question-relation-question-grid > div {
+    align-items: center;
+    padding-bottom: 1rem;
+}
+
+
+.question-relation-answer-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+}
+
+/*.question-relation-answer-grid > div {*/
+/*    !*max-width: 559px;*!*/
+/*}*/
+
+/*.question-relation-answer-grid.relation-student-answer > div {*/
+/*    !*max-width: 687px; !* add more width for the three way toggle *!*!*/
+/*}*/
+
+
+.question-relation-answer-grid > div input,
+.question-relation-question-grid > div input {
+    @apply truncate overflow-ellipsis;
+
+    /* design: input 235px, label is 300px and with padding: 324px
+        235px + 324px = 559px total width
+        235/559 = 42% width for input
+        324/559 = 58% width for label
+     */
+    min-width: 120px;
+    min-height: 40px;
+    width: 42%;
+}
+
+
+.question-relation-answer-grid > div input:disabled:hover,
+.question-relation-question-grid > div input:disabled:hover,
+.question-relation-answer-grid > div input:disabled,
+.question-relation-question-grid > div input:disabled {
+    color: var(--system-base);
+}
+
+.question-relation-answer-grid .relation-question-label,
+.question-relation-question-grid .relation-question-label {
+    @apply py-2 ml-2 mr-4;
+    display: inline-block;
+
+    /* design: input 235px, label is 300px and with padding: 324px
+        235px + 324px = 559px total width
+        235/559 = 42% width for input
+        324/559 = 58% width for label
+     */
+    min-width: 300px;
+    min-height: 40px;
+    width: 58%;
+}
+
+.question-relation-answer-grid.relation-student-answer .relation-question-label {
+    /* design: input 235px, label is 300px and with padding: 324px, toggle 128px
+        235px + 324px + 128px = 687px total width
+        235/687 = 35% width for input
+        324/687 = 47% width for label
+        128/687 = 18% width for toggle
+     */
+    width: 47%;
+}
+
+.question-relation-answer-grid.relation-student-answer > div input {
+    /* design: input 235px, label is 300px and with padding: 324px, toggle 128px
+        235px + 324px + 128px = 687px total width
+        235/687 = 35% width for input
+        324/687 = 47% width for label
+        128/687 = 18% width for toggle
+     */
+    width: 34%;
 }

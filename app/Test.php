@@ -758,7 +758,7 @@ class Test extends BaseModel
     public function hasOpenQuestion()
     {
         return !!collect(QuestionGatherer::getQuestionsOfTest($this->getKey(), true))->search(function (Question $question) {
-            return !$question->canCheckAnswer();
+            return !$question->isClosedQuestion();
         });
     }
 
@@ -932,12 +932,12 @@ class Test extends BaseModel
                 return $testQuestion->question->groupQuestionQuestions()->get()->map(function ($item) use ($testQuestion) {
                     return [
                         'id' => $item->question->getKey(),
-                        'question_type' => $item->question->canCheckAnswer() ? Question::TYPE_CLOSED : Question::TYPE_OPEN,
+                        'question_type' => $item->question->isClosedQuestion() ? Question::TYPE_CLOSED : Question::TYPE_OPEN,
                         'discuss'       => (!$testQuestion->question->isCarouselQuestion()) && $item->discuss ? 1 : 0,
                     ];
                 });
             }
-            $questionType = $testQuestion->question->canCheckAnswer() ? Question::TYPE_CLOSED : Question::TYPE_OPEN;
+            $questionType = $testQuestion->question->isClosedQuestion() ? Question::TYPE_CLOSED : Question::TYPE_OPEN;
             return [['id' => $testQuestion->question->getKey(), 'question_type' => $questionType, 'discuss' => $testQuestion->discuss,]];
         })->mapWithKeys(function ($item, $key) use (&$orderOpenOnly, &$orderAllQuestion, &$orderInTest) {
             return [$item['id'] => [
@@ -975,7 +975,7 @@ class Test extends BaseModel
                             'question_title' => $item->question->title,
                             'group_question_id' => $testQuestion->question->getKey(),
                             'carousel_question' => $testQuestion->question->isCarouselQuestion(),
-                            'open_question' => !$item->question->canCheckAnswer(),
+                            'open_question' => !$item->question->isClosedQuestion(),
                             //                        'discuss'       => (!$testQuestion->question->isCarouselQuestion()) && $item->discuss ? 1 : 0,
                         ];
                     });
@@ -988,7 +988,7 @@ class Test extends BaseModel
                             'question_title' => $testQuestion->question->title,
                             'group_question_id' => null,
                             'carousel_question' => false,
-                            'open_question' => !$testQuestion->question->canCheckAnswer(),
+                            'open_question' => !$testQuestion->question->isClosedQuestion(),
                             //                'discuss' => $testQuestion->discuss,
                         ]];
             });
@@ -1387,5 +1387,13 @@ class Test extends BaseModel
                 return collect([$testQuestion->question]);
             })
             ->values();
+    }
+
+    public function getBaseSubjectLanguage(string $column = 'wsc_lang'): null|string|WscLanguage
+    {
+        return BaseSubject::join('subjects', 'subjects.base_subject_id', '=', 'base_subjects.id')
+            ->join('tests', 'tests.subject_id', '=', 'subjects.id')
+            ->where('tests.id', $this->getKey())
+            ->value('base_subjects.' . $column);
     }
 }

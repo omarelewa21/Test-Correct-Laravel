@@ -6,6 +6,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Component;
 use tcCore\Question;
+use tcCore\TestTake;
 use tcCore\View\Components\CompletionQuestionConvertedHtml;
 
 class MainContent extends Component
@@ -20,6 +21,7 @@ class MainContent extends Component
         public bool       $questionPanel,
         public bool       $answerModelPanel,
         public bool       $showCorrectionModel,
+        public TestTake   $testTake,
         public ?Question  $group = null,
     ) {
         $this->questionText = $this->getQuestionText($question);

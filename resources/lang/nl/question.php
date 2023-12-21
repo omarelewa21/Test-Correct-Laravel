@@ -25,7 +25,7 @@ return [
     'no_question_text'            => 'Geen vraagtekst',
 
     'openquestionmedium'                   => 'Schrijf op',
-    'openquestionwrite'                   => 'Schrijf op',
+    'openquestionwrite'                    => 'Schrijf op',
     'openquestionshort'                    => 'Schrijf op',
     'openquestionlong'                     => 'Schrijf op',
     'openquestionopen'                     => 'Schrijf op',
@@ -56,4 +56,12 @@ return [
     'groupquestion'                        => 'Groep',
     'Vraaggroep'                           => 'Vraaggroep',
     'selected_words'                       => 'Geselecteerde woorden',
+    'relation'                             => 'Relatie',
+    'relationquestion'                     => 'Relatievraag',
+    'relationquestionrelation'             => 'Relatievraag',
+    'relation_description'                 => 'Geef korte antwoorden in een lange lijst, zoals vocabulaire',
+    'word_type_subject'                    => 'Onderwerp',
+    'word_type_translation'                => 'Vertaling',
+    'word_type_definition'                 => 'Definitie',
+    'word_type_synonym'                    => 'Synoniem',
 ];

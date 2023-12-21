@@ -3,18 +3,9 @@
 namespace tcCore\Http\Livewire\StudentPlayer;
 
 use Illuminate\Support\Str;
-use tcCore\Answer;
-use tcCore\Http\Livewire\TCComponent;
-use tcCore\Http\Traits\WithCloseable;
 
-abstract class MatchingQuestion extends TCComponent
+abstract class MatchingQuestion extends StudentPlayerQuestion
 {
-    use withCloseable;
-
-    public $answer;
-    public $question;
-    public $number;
-    public $answers;
     public $answerStruct;
     public $shuffledAnswers;
 

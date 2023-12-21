@@ -138,7 +138,7 @@
 
             <x-slot name="cards">
                 @foreach($results as $test)
-                    <x-grid.test-card :test="$test" :mode="$cardMode ?? 'page'"/>
+                    <x-grid.test-card :test="$test" :mode="$cardMode ?? 'page'" :$openTab/>
                 @endforeach
             </x-slot>
 

@@ -6,14 +6,17 @@
         <style>{!! file_get_contents($cssPath) !!}</style>
     @endisset
 
-    <div
-            x-data="LivewireUIModal()"
-            x-init="init()"
-            x-on:close.stop="setShowPropertyTo(false)"
-            x-on:keydown.escape.window="closeModalOnEscape()"
-            x-show="show"
-            class="fixed inset-0 z-10 overflow-y-auto"
-            style="display: none;"
+    <div id="LivewireUIModal"
+         x-data="LivewireUIModal()"
+         x-init="init()"
+         x-on:close.stop="setShowPropertyTo(false)"
+         x-on:keydown.escape.window="closeModalOnEscape()"
+         x-on:hide-modal="$nextTick(() => {showActiveComponent = false; show = false})"
+         x-on:show-modal="show = true, $nextTick(() => showActiveComponent = true)"
+         x-on:reset-visibility="showActiveComponent = true"
+         x-show="show"
+         class="fixed inset-0 z-10 overflow-y-auto"
+         style="display: none;"
     >
         <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-10 text-center sm:block sm:p-0"
              :class="modalWidth === 'modal-full-screen' ? 'sm:p-6' : 'sm:p-0'"
@@ -32,7 +35,8 @@
                 <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
 
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true" :style="{'display': modalWidth === 'modal-full-screen' ? 'none' : 'inline-flex'}">&#8203;</span>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true"
+                  :style="{'display': modalWidth === 'modal-full-screen' ? 'none' : 'inline-flex'}">&#8203;</span>
 
             <div
                     x-show="show && showActiveComponent"
@@ -50,7 +54,8 @@
                     :style="{'height': modalWidth === 'modal-full-screen' ? '93vh' : 'auto'}"
             >
                 @forelse($components as $id => $component)
-                    <div x-show.immediate="activeComponent == '{{ $id }}'" x-ref="{{ $id }}" wire:key="{{ $id }}" :class="{'h-full': modalWidth === 'modal-full-screen'}">
+                    <div x-show.immediate="activeComponent == '{{ $id }}'" x-ref="{{ $id }}" wire:key="{{ $id }}"
+                         :class="{'h-full': modalWidth === 'modal-full-screen'}">
                         @livewire($component['name'], $component['attributes'], key($id))
                     </div>
                 @empty

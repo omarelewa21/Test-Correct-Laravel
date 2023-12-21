@@ -24,7 +24,7 @@ class FactoryScenarioSchoolRtti extends FactoryScenarioSchool
     protected $schoolLocationName = 'RttiSchoolLocation';
     protected $sectionName = 'Nederlands';
     protected $subjectName = 'Nederlandse gramatica';
-    protected $baseSubjectId = 1;
+    public $baseSubjectId = 1;
     protected $schoolClassName = 'Rtti class 1';
 
     public function __construct()

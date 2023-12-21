@@ -57,11 +57,45 @@ abstract class TypeProvider implements CmsProvider
         );
     }
 
-
-    public function initializePropertyBag($q)
+    public function preparePropertyBag()
     {
-        foreach($this->questionOptions as $key => $val){
-            $this->instance->question[$key] = $q[$key];
+        foreach ($this->questionOptions as $key => $value) {
+            $this->instance->question[$key] = $value;
         }
+    }
+
+    public function initializePropertyBag($question)
+    {
+        foreach ($this->questionOptions as $key => $val) {
+            $this->instance->question[$key] = $question[$key];
+        }
+    }
+
+    public function hasScoringDisabled(): bool
+    {
+        return false;
+    }
+
+    public function questionSectionTitle(): string
+    {
+        return __('cms.Vraagstelling');
+    }
+
+    public function answerSectionTitle(): string
+    {
+        return __('cms.Antwoordmodel');
+    }
+
+    public function isSettingVisible(string $property): bool
+    {
+        return !in_array(
+            $property,
+            ['autoCheckAnswer', 'autoCheckAnswerCaseSensitive']
+        );
+    }
+
+    public function isSettingDisabled(string $property): bool
+    {
+        return false;
     }
 }

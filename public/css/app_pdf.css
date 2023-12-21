@@ -1632,6 +1632,11 @@ input[type=number] {
     transform: scale(1);
 }
 
+.radio-disabled .radio-custom {
+    pointer-events: none;
+    color: var(--note);
+}
+
 .form-input::-moz-placeholder {
     font-size: 1rem;
     color: var(--system-base);
@@ -1844,6 +1849,7 @@ input[type=number] {
 .select-error > .multi-dropdown-select .select-input {
     border-color: var(--all-red);
 }
+
 .primary-gradient {
     background: linear-gradient(to right, var(--primary) 0%, var(--teacher-primary-light) 100%);
 }
@@ -2117,6 +2123,19 @@ input[type=number] {
 
 #sidebar-carousel-container > div {
     flex: 1 0 100%;
+}
+
+#sidebar-carousel-container .group-question-button.group-error.relation-error .question-button:not(.question-active) {
+    color: var(--all-red);
+}
+#sidebar-carousel-container .question-button .relation-question-button-error {
+    display: none;
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+}
+#sidebar-carousel-container .group-question-button.group-error.relation-error .question-button .relation-question-button-error{
+    display: flex;
 }
 
 .add-question-card:hover {
@@ -3536,8 +3555,7 @@ input[type=number] {
 }
 
 .questionContainer .input-group:has(p),
-.questionContainer .completion-question-question-container,
-.questionContainer .completion-question-answer-container{
+.questionContainer .completion-question-question-container {
     display: block;
 }
 
@@ -5934,6 +5952,9 @@ video {
 .-top-0{
   top: -0px;
 }
+.-top-1{
+  top: -0.25rem;
+}
 .-top-10{
   top: -2.5rem;
 }
@@ -5954,6 +5975,9 @@ video {
 }
 .bottom-0{
   bottom: 0px;
+}
+.bottom-2{
+  bottom: 0.5rem;
 }
 .bottom-3{
   bottom: 0.75rem;
@@ -6086,6 +6110,9 @@ video {
 }
 .isolate{
   isolation: isolate;
+}
+.-z-10{
+  z-index: -10;
 }
 .z-0{
   z-index: 0;
@@ -6347,6 +6374,9 @@ video {
 .mb-\[110px\]{
   margin-bottom: 110px;
 }
+.mb-\[30px\]{
+  margin-bottom: 30px;
+}
 .mb-\[5px\]{
   margin-bottom: 5px;
 }
@@ -6532,6 +6562,9 @@ video {
 }
 .\!h-4{
   height: 1rem !important;
+}
+.h-0{
+  height: 0px;
 }
 .h-1{
   height: 0.25rem;
@@ -6725,6 +6758,9 @@ video {
 }
 .min-h-\[100px\]{
   min-height: 100px;
+}
+.min-h-\[2rem\]{
+  min-height: 2rem;
 }
 .min-h-\[300px\]{
   min-height: 300px;
@@ -6957,14 +6993,24 @@ video {
   width: -moz-max-content;
   width: max-content;
 }
+.w-min{
+  width: -moz-min-content;
+  width: min-content;
+}
 .w-px{
   width: 1px;
+}
+.\!min-w-\[130px\]{
+  min-width: 130px !important;
 }
 .min-w-\[110px\]{
   min-width: 110px;
 }
 .min-w-\[125px\]{
   min-width: 125px;
+}
+.min-w-\[13px\]{
+  min-width: 13px;
 }
 .min-w-\[150px\]{
   min-width: 150px;
@@ -7166,12 +7212,20 @@ video {
   --tw-translate-x: -50%;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
+.-translate-x-full{
+  --tw-translate-x: -100%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
 .-translate-y-1{
   --tw-translate-y: -0.25rem;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 .-translate-y-1\/2{
   --tw-translate-y: -50%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+.translate-x-0{
+  --tw-translate-x: 0px;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 .translate-x-1\/2{
@@ -7664,6 +7718,9 @@ video {
 .overflow-y-hidden{
   overflow-y: hidden;
 }
+.overflow-y-scroll{
+  overflow-y: scroll;
+}
 .truncate{
   overflow: hidden;
   text-overflow: ellipsis;
@@ -7726,10 +7783,6 @@ video {
   border-bottom-right-radius: 10px;
   border-bottom-left-radius: 10px;
 }
-.rounded-b-full{
-  border-bottom-right-radius: 9999px;
-  border-bottom-left-radius: 9999px;
-}
 .rounded-b-lg{
   border-bottom-right-radius: 0.5rem;
   border-bottom-left-radius: 0.5rem;
@@ -7765,10 +7818,6 @@ video {
 .rounded-t-\[10px\]{
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
-}
-.rounded-t-full{
-  border-top-left-radius: 9999px;
-  border-top-right-radius: 9999px;
 }
 .rounded-bl-md{
   border-bottom-left-radius: 0.375rem;
@@ -7957,10 +8006,6 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(207 27 4 / var(--tw-bg-opacity));
 }
-.bg-blue-50{
-  --tw-bg-opacity: 1;
-  background-color: rgb(239 246 255 / var(--tw-bg-opacity));
-}
 .bg-bluegrey{
   --tw-bg-opacity: 1;
   background-color: rgb(195 208 237 / var(--tw-bg-opacity));
@@ -8011,6 +8056,12 @@ video {
 .bg-midgrey{
   --tw-bg-opacity: 1;
   background-color: rgb(146 157 175 / var(--tw-bg-opacity));
+}
+.bg-midgrey\/0{
+  background-color: rgb(146 157 175 / 0);
+}
+.bg-midgrey\/75{
+  background-color: rgb(146 157 175 / 0.75);
 }
 .bg-note{
   --tw-bg-opacity: 1;
@@ -8333,6 +8384,9 @@ video {
   padding-top: 1px;
   padding-bottom: 1px;
 }
+.\!pb-5{
+  padding-bottom: 1.25rem !important;
+}
 .pb-0{
   padding-bottom: 0px;
 }
@@ -8422,6 +8476,9 @@ video {
 }
 .pl-\[12px\]{
   padding-left: 12px;
+}
+.pl-\[66px\]{
+  padding-left: 66px;
 }
 .pr-0{
   padding-right: 0px;
@@ -8649,6 +8706,10 @@ video {
 }
 .leading-none{
   line-height: 1;
+}
+.\!text-allred{
+  --tw-text-opacity: 1 !important;
+  color: rgb(207 27 4 / var(--tw-text-opacity)) !important;
 }
 .\!text-note{
   --tw-text-opacity: 1 !important;
@@ -8915,6 +8976,9 @@ video {
   transition-property: transform;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
+}
+.delay-100{
+  transition-delay: 100ms;
 }
 .delay-200{
   transition-delay: 200ms;
@@ -9222,12 +9286,27 @@ p {
     width: 5%;
 }
 
+.pdf-student-answers-label.relation-question-pdf {
+    width: 300px;
+    min-width: 300px;
+}
+.pdf-student-answers-input.relation-question-pdf {
+    width: 120px;
+    min-width: 120px;
+    margin-right: 1rem;
+}
+
+.pdf-student-answers-label.relation-question-pdf strong {
+    text-shadow: 0.75px 0 currentColor, -0.75px 0 currentColor;
+}
+
 :is(.pdf-student-answers-input, .pdf-answer-model-input) {
     display: inline;
     border: solid 2px #c3d0ed;
     padding-left: 10px;
     padding-right: 10px;
     border-radius: 10px;
+    height: 30px;
 }
 
 .prevent-pagebreak-table {
@@ -9443,73 +9522,6 @@ h2.student-testtake-answers-separator span {
     padding: 0 10px;
 }
 
-table.matching-question-answers-pdf {
-    /**/
-}
-
-table.matching-question-answers-pdf tr ,
-table.matching-question-answers-pdf td ,
-table.matching-question-answers-pdf tbody ,
-table.matching-question-answers-pdf {
-    border: 0 !important;
-    border-width: 0 !important;
-    border-collapse: unset;
-}
-
-table.matching-question-answers-pdf tr {
-    /**/
-    margin-bottom: 2px;
-    margin-top: 2px;
-}
-
-table.matching-question-answers-pdf tr td.left-side-td {
-    width: 400px;
-}
-table.matching-question-answers-pdf tr td.left-side-td > div {
-    background: #e6edfa;
-    font-size: 18px;
-    font-weight: bold;
-    border: 2px solid #c3d0ed; /* blue-grey */
-}
-
-table.matching-question-answers-pdf tr td.right-side-td > div {
-    border: 2px dashed #c3d0ed; /* blue-grey */
-    border-radius: 12px;
-}
-
-table.matching-question-answers-pdf tr td.right-side-td > div span {
-    background: #F0F2F5; /* light-grey */
-}
-
-table.matching-question-answers-pdf tr td.right-side-td {
-    width: 600px;
-}
-
-table.matching-question-answers-pdf tr td.left-side-td > div,
-table.matching-question-answers-pdf tr td.right-side-td > div span {
-    border-radius: 10px;
-    padding: 6px 16px;
-}
-
-table.matching-question-answers-pdf tr td.right-side-td > div span:first-child {
-    display: inline-block;
-    width: 100%;
-}
-
-.matching-question-answers-pdf-unused {
-    width: 100%;
-    white-space: break-spaces;
-}
-
-.matching-question-answers-pdf-unused .matching-question-drag-item {
-    background: #F0F2F5; /* light-grey */
-    border-radius: 10px;
-    padding: 6px 16px;
-    display: inline-block;
-    margin-bottom: 4px;
-    margin-right: 4px;
-}
-
 .placeholder\:text-base::-moz-placeholder{
   font-size: 1rem;
   line-height: 1.5rem;
@@ -9527,6 +9539,10 @@ table.matching-question-answers-pdf tr td.right-side-td > div span:first-child {
 
 .first\:border-l:first-child{
   border-left-width: 1px;
+}
+
+.first\:pt-0:first-child{
+  padding-top: 0px;
 }
 
 .last\:rounded-r-lg:last-child{
@@ -9557,6 +9573,11 @@ table.matching-question-answers-pdf tr td.right-side-td > div span:first-child {
   --tw-scale-x: 1.1;
   --tw-scale-y: 1.1;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.hover\:\!border-primary:hover{
+  --tw-border-opacity: 1 !important;
+  border-color: rgb(0 77 245 / var(--tw-border-opacity)) !important;
 }
 
 .hover\:border-gray-300:hover{
@@ -9610,6 +9631,11 @@ table.matching-question-answers-pdf tr td.right-side-td > div span:first-child {
 .hover\:\!text-primary:hover{
   --tw-text-opacity: 1 !important;
   color: rgb(0 77 245 / var(--tw-text-opacity)) !important;
+}
+
+.hover\:text-\[\#b5a700\]:hover{
+  --tw-text-opacity: 1;
+  color: rgb(181 167 0 / var(--tw-text-opacity));
 }
 
 .hover\:text-gray-400:hover{
@@ -9769,6 +9795,10 @@ table.matching-question-answers-pdf tr td.right-side-td > div span:first-child {
   background-color: rgb(0 77 245 / 0.1);
 }
 
+.active\:bg-primary\/5:active{
+  background-color: rgb(0 77 245 / 0.05);
+}
+
 .active\:text-gray-500:active{
   --tw-text-opacity: 1;
   color: rgb(107 114 128 / var(--tw-text-opacity));
@@ -9782,11 +9812,6 @@ table.matching-question-answers-pdf tr td.right-side-td > div span:first-child {
 .active\:text-gray-800:active{
   --tw-text-opacity: 1;
   color: rgb(31 41 55 / var(--tw-text-opacity));
-}
-
-.active\:text-note:active{
-  --tw-text-opacity: 1;
-  color: rgb(107 119 137 / var(--tw-text-opacity));
 }
 
 .active\:text-primary:active{
@@ -9821,6 +9846,15 @@ table.matching-question-answers-pdf tr td.right-side-td > div span:first-child {
   background-color: rgb(0 77 245 / 0.05);
 }
 
+.group\/grid-item:hover .group-hover\/grid-item\:text-primary{
+  --tw-text-opacity: 1;
+  color: rgb(0 77 245 / var(--tw-text-opacity));
+}
+
+.group\/grid-item:hover .group-hover\/grid-item\:text-primary\/20{
+  color: rgb(0 77 245 / 0.2);
+}
+
 .group\/row:hover .group-hover\/row\:text-primary{
   --tw-text-opacity: 1;
   color: rgb(0 77 245 / var(--tw-text-opacity));
@@ -9834,11 +9868,6 @@ table.matching-question-answers-pdf tr td.right-side-td > div span:first-child {
 .group:hover .group-hover\:text-primary{
   --tw-text-opacity: 1;
   color: rgb(0 77 245 / var(--tw-text-opacity));
-}
-
-.group:hover .group-hover\:text-sysbase{
-  --tw-text-opacity: 1;
-  color: rgb(4 31 116 / var(--tw-text-opacity));
 }
 
 .group\/button:hover .group-hover\/button\:opacity-100{
@@ -9882,11 +9911,6 @@ table.matching-question-answers-pdf tr td.right-side-td > div span:first-child {
 .group:active .group-active\:text-primary{
   --tw-text-opacity: 1;
   color: rgb(0 77 245 / var(--tw-text-opacity));
-}
-
-.group:active .group-active\:text-sysbase{
-  --tw-text-opacity: 1;
-  color: rgb(4 31 116 / var(--tw-text-opacity));
 }
 
 @media (min-width: 640px){
@@ -10561,4 +10585,3 @@ table.matching-question-answers-pdf tr td.right-side-td > div span:first-child {
     max-width: 72rem;
   }
 }
-

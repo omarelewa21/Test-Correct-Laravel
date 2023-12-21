@@ -92,9 +92,9 @@ class TestUploadsOverview extends OverviewComponent
             ->map(fn($builder) => ['value' => $builder->test_builder_code, 'label' => $builder->test_builder_code]);
     }
 
-    public function clearFilters(): void
+    public function clearFilters(?bool $clearSystemSettings = false): void
     {
-        parent::clearFilters();
+        parent::clearFilters($clearSystemSettings);
         $this->dispatchBrowserEvent('clear-datepicker');
     }
 

@@ -62,29 +62,29 @@ class ContentSourceFactory
     public static function makeWithTab(string $tab): ContentSourceService
     {
         return match ($tab) {
-            'school_location'   => new SchoolLocationService,
-            'national'          => new NationalItemBankService,
-            'umbrella'          => new UmbrellaOrganizationService,
-            'formidable'        => new FormidableService,
-            'creathlon'         => new CreathlonService,
-            'olympiade'         => new OlympiadeService,
-            'olympiade_archive' => new OlympiadeArchiveService,
-            'thieme_meulenhoff' => new ThiemeMeulenhoffService,
-            'personal'          => new PersonalService,
-            default             => new PersonalService,
+            'school_location'   => new SchoolLocationService(),
+            'national'          => new NationalItemBankService(),
+            'umbrella'          => new UmbrellaOrganizationService(),
+            'formidable'        => new FormidableService(),
+            'creathlon'         => new CreathlonService(),
+            'olympiade'         => new OlympiadeService(),
+            'olympiade_archive' => new OlympiadeArchiveService(),
+            'thieme_meulenhoff' => new ThiemeMeulenhoffService(),
+            'personal'          => new PersonalService(),
+            default             => new PersonalService(),
         };
     }
 
     public static function makeWithTabExternalOnly(string $tab): ContentSourceService|null
     {
         return match ($tab) {
-            'umbrella'          => new UmbrellaOrganizationService,
-            'formidable'        => new FormidableService,
-            'creathlon'         => new CreathlonService,
-            'olympiade'         => new OlympiadeService,
-            'olympiade_archive' => new OlympiadeArchiveService,
-            'thieme_meulenhoff' => new ThiemeMeulenhoffService,
-            'national'          => new NationalItemBankService,
+            'umbrella'          => new UmbrellaOrganizationService(),
+            'formidable'        => new FormidableService(),
+            'creathlon'         => new CreathlonService(),
+            'olympiade'         => new OlympiadeService(),
+            'olympiade_archive' => new OlympiadeArchiveService(),
+            'thieme_meulenhoff' => new ThiemeMeulenhoffService(),
+            'national'          => new NationalItemBankService(),
             default             => null,
         };
     }

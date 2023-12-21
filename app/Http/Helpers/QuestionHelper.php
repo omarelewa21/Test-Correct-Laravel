@@ -9,8 +9,10 @@
 namespace tcCore\Http\Helpers;
 
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Str;
 use tcCore\CompletionQuestion;
 use tcCore\CompletionQuestionAnswer;
 use tcCore\CompletionQuestionAnswerLink;
@@ -29,15 +31,23 @@ class QuestionHelper extends BaseHelper
      * @return mixed
      */
     public function getTotalQuestion($question){
-        $question->getQuestionInstance()->load([    'attachments',
-                                                    'attainments',
-                                                    'authors',
-                                                    'tags',
-                                                    'pValue' => function($query) {
-                                                            $query->select('question_id', 'education_level_id', 'education_level_year', DB::raw('(SUM(score) / SUM(max_score)) as p_value'), DB::raw('count(1) as p_value_count'))->groupBy('education_level_id')->groupBy('education_level_year');
-                                                        },
-                                                    'pValue.educationLevel'
-                                                ]);
+        $question->getQuestionInstance()
+            ->load([
+                'attachments',
+                'attainments',
+                'authors',
+                'tags',
+                'pValue' => function ($query) {
+                    $query->select(
+                        'question_id',
+                        'education_level_id',
+                        'education_level_year',
+                        DB::raw('(SUM(score) / SUM(max_score)) as p_value'),
+                        DB::raw('count(1) as p_value_count')
+                    )->groupBy('education_level_id')->groupBy('education_level_year');
+                },
+                'pValue.educationLevel'
+            ]);
 
         if($question instanceof QuestionInterface) {
             $question->loadRelated();
@@ -225,5 +235,29 @@ class QuestionHelper extends BaseHelper
     {
         return Question::where('questions.id', '=', $questionId)
             ->update(['questions.draft' => 1]);
+    }
+
+
+    public static function compareTextAnswers(string $answerToCheck, string|array $correctAnswers, bool $checkCaseSensitive = false) : bool
+    {
+        $correctAnswers = Arr::wrap($correctAnswers);
+
+        if ($checkCaseSensitive) {
+            $answerToCheck = Str::lower($answerToCheck);
+            $correctAnswers = collect($correctAnswers)->map(fn($answer) => Str::lower($answer));
+        }
+        $correctAnswers = collect($correctAnswers)->map(function ($tagAnswer) {
+            return BaseHelper::transformHtmlCharsReverse(
+                trim($tagAnswer)
+            );
+        })->toArray();
+
+        if (in_array(trim($answerToCheck), $correctAnswers)
+            || in_array(trim(BaseHelper::transformHtmlCharsReverse($answerToCheck)), $correctAnswers)
+            || in_array(trim(htmlentities($answerToCheck)), $correctAnswers)
+        ) {
+            return true;
+        }
+        return false;
     }
 }

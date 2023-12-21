@@ -46,7 +46,7 @@ class Arq extends TypeProvider
         $this->createAnswerStruct();
     }
 
-    public function initializePropertyBag($q)
+    public function initializePropertyBag($question)
     {
 
     }

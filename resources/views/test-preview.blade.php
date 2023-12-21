@@ -9,71 +9,12 @@
             @endpush
             @foreach($data as  $key => $testQuestion)
                 <div class="">
-                    @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1 && $testQuestion->subtype != 'ARQ')
-                        <livewire:student-player.preview.multiple-select-question
-                                :question="$testQuestion"
-                                :number="++$key"
-                                :testId="$testId"
-                                wire:key="'q-'.$testQuestion->uuid'"
-                        />
-                    @elseif($testQuestion->type === 'MultipleChoiceQuestion')
-                        <livewire:student-player.preview.multiple-choice-question
-                                :question="$testQuestion"
-                                :number="++$key"
-                                :testId="$testId"
-                                wire:key="'q-'.$testQuestion->uuid'"
-                        />
-                    @elseif($testQuestion->type === 'OpenQuestion')
-                        <livewire:student-player.preview.open-question
-                                :question="$testQuestion"
-                                :number="++$key"
-                                :testId="$testId"
-                                wire:key="'q-'.$testQuestion->uuid'"
-                        />
-                    @elseif($testQuestion->type === 'MatchingQuestion')
-                        @php $componentName = sprintf('student-player.preview.matching-question%s', strtolower($testQuestion->subtype) === 'classify' ? '-classify' : '') @endphp
-                        <livewire:is :component="$componentName"
-                                :question="$testQuestion"
-                                :number="++$key"
-                                :testId="$testId"
-                                wire:key="'q-'.$testQuestion->uuid'"
-                        />
-                    @elseif($testQuestion->type === 'CompletionQuestion')
-                        <livewire:student-player.preview.completion-question
-                                :question="$testQuestion"
-                                :number="++$key"
-                                :testId="$testId"
-                                wire:key="'q-'.$testQuestion->uuid'"
-                        />
-                    @elseif($testQuestion->type === 'RankingQuestion')
-                        <livewire:student-player.preview.ranking-question
-                                :question="$testQuestion"
-                                :number="++$key"
-                                :testId="$testId"
-                                wire:key="'q-'.$testQuestion->uuid'"
-                        />
-                    @elseif($testQuestion->type === 'InfoscreenQuestion')
-                        <livewire:student-player.preview.info-screen-question
-                                :question="$testQuestion"
-                                :number="++$key"
-                                :testId="$testId"
-                                wire:key="'q-'.$testQuestion->uuid"
-                        />
-                    @elseif($testQuestion->type === 'DrawingQuestion')
-                        <livewire:student-player.preview.drawing-question
-                                :question="$testQuestion"
-                                :number="++$key"
-                                :testId="$testId"
-                                wire:key="'q-'.$testQuestion->uuid"
-                        />
-                    @elseif($testQuestion->type === 'MatrixQuestion')
-                        <livewire:student-player.preview.matrix-question
-                                :question="$testQuestion"
-                                :number="++$key"
-                                :testId="$testId"
-                                wire:key="'q-'.$testQuestion->uuid"
-                        />
-                    @endif
+                    <livewire:is :component="$testQuestion->getStudentPlayerComponent('preview')"
+                                 :question="$testQuestion"
+                                 :number="++$key"
+                                 :testId="$testId"
+                                 :wire:key="'q-'.$testQuestion->uuid"
+                    />
                 </div>
             @endforeach
         </div>

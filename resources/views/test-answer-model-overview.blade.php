@@ -88,6 +88,14 @@
                                 :test="$test"
                                 wire:key="'q-'.$testQuestion->uuid"
                         />
+                    @elseif($testQuestion->type === 'RelationQuestion')
+                        <livewire:answer-model.relation-question
+                                :question="$testQuestion"
+                                :number="++$key"
+                                :answers="$answers"
+                                :test="$test"
+                                wire:key="'q-'.$testQuestion->uuid"
+                        />
                     @endif
                 </div>
             @endforeach

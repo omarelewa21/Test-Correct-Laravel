@@ -197,4 +197,6 @@ return [
     'can-not-be-dictionary-word'        => 'Het wachtwoord mag geen woord uit het woordenboek zijn.',
     'can-not-be-repetitive-characters'  => 'Het wachtwoord mag geen herhalende tekens bevatten.',
     'can-not-be-sequential-characters'  => 'Het wachtwoord mag geen opeenvolgende tekens bevatten.',
+
+    'word_import_empty_values' => '{1} De rij :rows bevatten onjuiste waardes|[2,*] De rijen :rows bevatten onjuiste waardes'
 ];

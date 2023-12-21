@@ -6348,6 +6348,1246 @@ var CommentsIntegration = /*#__PURE__*/function () {
 
 /***/ }),
 
+/***/ "./resources/js/Question/relation-question.js":
+/*!****************************************************!*\
+  !*** ./resources/js/Question/relation-question.js ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var alpinejs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! alpinejs */ "./node_modules/alpinejs/dist/module.esm.js");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_1__);
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _iterableToArrayLimit(arr, i) { var _i = null == arr ? null : "undefined" != typeof Symbol && arr[Symbol.iterator] || arr["@@iterator"]; if (null != _i) { var _s, _e, _x, _r, _arr = [], _n = !0, _d = !1; try { if (_x = (_i = _i.call(arr)).next, 0 === i) { if (Object(_i) !== _i) return; _n = !1; } else for (; !(_n = (_s = _x.call(_i)).done) && (_arr.push(_s.value), _arr.length !== i); _n = !0); } catch (err) { _d = !0, _e = err; } finally { try { if (!_n && null != _i["return"] && (_r = _i["return"](), Object(_r) !== _r)) return; } finally { if (_d) throw _e; } } return _arr; } }
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, defineProperty = Object.defineProperty || function (obj, key, desc) { obj[key] = desc.value; }, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return defineProperty(generator, "_invoke", { value: makeInvokeMethod(innerFn, self, context) }), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; defineProperty(this, "_invoke", { value: function value(method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; } function maybeInvokeDelegate(delegate, context) { var methodName = context.method, method = delegate.iterator[methodName]; if (undefined === method) return context.delegate = null, "throw" === methodName && delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method) || "return" !== methodName && (context.method = "throw", context.arg = new TypeError("The iterator does not provide a '" + methodName + "' method")), ContinueSentinel; var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, defineProperty(Gp, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), defineProperty(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (val) { var object = Object(val), keys = []; for (var key in object) keys.push(key); return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
+
+
+var ListValidator = /*#__PURE__*/function () {
+  function ListValidator(component) {
+    _classCallCheck(this, ListValidator);
+    _defineProperty(this, "component", null);
+    _defineProperty(this, "passed", true);
+    _defineProperty(this, "errors", {});
+    _defineProperty(this, "messages", {});
+    _defineProperty(this, "localization", []);
+    _defineProperty(this, "methods", ["requiredTypeAmount", "duplicateColumns", "wordsWithoutType", "columnWithoutWords", "requiredSubjectWord", "requiredWordsPerRow"]);
+    this.component = component;
+    this.localization = document.getElementById("word-list-modal-validation-strings").dataset;
+  }
+  _createClass(ListValidator, [{
+    key: "validate",
+    value: function validate() {
+      var _this = this;
+      this.methods.forEach(function (method) {
+        return _this[method]();
+      });
+      return this;
+    }
+  }, {
+    key: "failed",
+    value: function failed(rule, perpetrators, message) {
+      this.passed = false;
+      this.errors[rule] = perpetrators;
+      this.messages[rule] = message;
+    }
+  }, {
+    key: "countingRule",
+    value: function countingRule(name, ruleCallback, messageCallback) {
+      var errorTracker = [];
+      ruleCallback(errorTracker);
+      if (errorTracker.length === 0) {
+        return;
+      }
+      var message = this.localization[errorTracker.length > 1 ? name + "Multi" : name];
+      this.failed(name, errorTracker, messageCallback(message, errorTracker));
+    }
+  }, {
+    key: "requiredTypeAmount",
+    value: function requiredTypeAmount() {
+      /* Need at least 2 columns set */
+      if (this.component.getUsedColumnHeads().length >= 2) {
+        return;
+      }
+      this.failed("requiredTypeAmount", [], this.localization["requiredTypeAmount"]);
+    }
+  }, {
+    key: "duplicateColumns",
+    value: function duplicateColumns() {
+      /* Has duplicate selected column heads */
+      if (lodash__WEBPACK_IMPORTED_MODULE_1___default().uniq(this.component.getUsedColumnHeads()).length === this.component.getUsedColumnHeads().length) {
+        return;
+      }
+      var duplicates = lodash__WEBPACK_IMPORTED_MODULE_1___default().filter(this.component.getUsedColumnHeads(), function (value, index, iteratee) {
+        return lodash__WEBPACK_IMPORTED_MODULE_1___default().includes(iteratee, value, index + 1);
+      });
+      this.failed("duplicateColumns", duplicates, this.localization["duplicateColumns"]);
+    }
+  }, {
+    key: "wordsWithoutType",
+    value: function wordsWithoutType() {
+      var _this2 = this;
+      /* Words in column without a column type set */
+      var unusedColumnsIndexes = this.component.cols.map(function (col, index) {
+        if (col === null) {
+          return index;
+        }
+      }).filter(function (c) {
+        return c !== undefined;
+      });
+      var ruleCallback = function ruleCallback(errorTracker) {
+        _this2.component.rows.forEach(function (row, rowIndex) {
+          row.forEach(function (word, index) {
+            if (errorTracker.includes(index)) return;
+            if (![null, ""].includes(word.text) && unusedColumnsIndexes.includes(index)) {
+              errorTracker.push(index);
+            }
+          });
+        });
+      };
+      var messageCallback = function messageCallback(message, errorTracker) {
+        return message.replace("%column%", _this2.joinErrorsForMessage(errorTracker));
+      };
+      this.countingRule("wordsWithoutType", function (errorTracker) {
+        return ruleCallback(errorTracker);
+      }, function (message, errorTracker) {
+        return messageCallback(message, errorTracker);
+      });
+    }
+  }, {
+    key: "columnWithoutWords",
+    value: function columnWithoutWords() {
+      var _this3 = this;
+      /* Column head selected without words in it */
+      var usedColumnsIndexes = this.component.cols.map(function (col, index) {
+        if (col !== null) {
+          return index;
+        }
+      }).filter(function (c) {
+        return c !== undefined;
+      });
+      var ruleCallback = function ruleCallback(errorTracker) {
+        _this3.component.rows.forEach(function (row) {
+          usedColumnsIndexes.forEach(function (columnIndex) {
+            if (!errorTracker.includes(columnIndex)) return;
+            if (![null, ""].includes(row[columnIndex].text)) {
+              errorTracker = errorTracker.filter(function (column) {
+                return column !== columnIndex;
+              });
+            }
+          });
+        });
+      };
+      var messageCallback = function messageCallback(message, errorTracker) {
+        var colNames = _this3.component.cols.map(function (col, index) {
+          if (errorTracker.includes(index)) {
+            return col;
+          }
+        }).filter(function (c) {
+          return c !== undefined;
+        });
+        return message.replace("%type%", _this3.joinErrorsForMessage(colNames));
+      };
+      this.countingRule("columnWithoutWords", function (errorTracker) {
+        return ruleCallback(errorTracker);
+      }, function (message, errorTracker) {
+        return messageCallback(message, errorTracker);
+      });
+    }
+  }, {
+    key: "requiredSubjectWord",
+    value: function requiredSubjectWord() {
+      var _this4 = this;
+      /* The subject column does not have a value while other columns in this row have */
+      var subjectIndex = this.component.cols.findIndex(function (c) {
+        return c === "subject";
+      });
+      if (subjectIndex === -1) {
+        return;
+      }
+      var ruleCallback = function ruleCallback(errorTracker) {
+        _this4.component.rows.forEach(function (row, rowIndex) {
+          var _row$subjectIndex;
+          if (_this4.component.wordsInRow(row) === 0) return;
+          if ([null, ""].includes((_row$subjectIndex = row[subjectIndex]) === null || _row$subjectIndex === void 0 ? void 0 : _row$subjectIndex.text)) {
+            errorTracker.push([rowIndex, subjectIndex]);
+          }
+        });
+      };
+      var messageCallback = function messageCallback(message, errorTracker) {
+        var rows = errorTracker.map(function (coords) {
+          return coords[0];
+        });
+        return message.replace("%row%", _this4.joinErrorsForMessage(rows));
+      };
+      this.countingRule("requiredSubjectWord", function (errorTracker) {
+        return ruleCallback(errorTracker);
+      }, function (message, errorTracker) {
+        return messageCallback(message, errorTracker);
+      });
+    }
+  }, {
+    key: "requiredWordsPerRow",
+    value: function requiredWordsPerRow() {
+      var _this5 = this;
+      /* Need at least 2 words in a row, Subject and a different one */
+      var ruleCallback = function ruleCallback(errorTracker) {
+        _this5.component.rows.forEach(function (row, rowIndex) {
+          if (_this5.component.wordsInRow(row) === 1) {
+            errorTracker.push(rowIndex);
+          }
+        });
+      };
+      var messageCallback = function messageCallback(message, errorTracker) {
+        return message.replace("%row%", _this5.joinErrorsForMessage(errorTracker));
+      };
+      this.countingRule("requiredWordsPerRow", function (errorTracker) {
+        return ruleCallback(errorTracker);
+      }, function (message, errorTracker) {
+        return messageCallback(message, errorTracker);
+      });
+    }
+  }, {
+    key: "joinErrorsForMessage",
+    value: function joinErrorsForMessage(errorTracker) {
+      if (errorTracker.length === 1) {
+        return (errorTracker[0] + 1).toString();
+      }
+      var joinedString = errorTracker.slice(0, -1).map(function (i) {
+        return i + 1;
+      }).join(", ");
+      return "".concat(joinedString, " ").concat(this.localization.and, " ").concat(errorTracker[errorTracker.length - 1] + 1);
+    }
+  }]);
+  return ListValidator;
+}();
+document.addEventListener("alpine:init", function () {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("relationQuestionGrid", function () {
+    return {
+      rows: [],
+      selectedColumn: null,
+      disabledColumns: [],
+      updates: [],
+      updateTimer: false,
+      mutation: 1,
+      init: function init() {
+        var _this6 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+          return _regeneratorRuntime().wrap(function _callee$(_context) {
+            while (1) switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return _this6.$wire.retrieveWords();
+              case 2:
+                _this6.rows = _context.sent;
+                _this6.setDisabledColumns();
+                _this6.setActiveColumn();
+              case 5:
+              case "end":
+                return _context.stop();
+            }
+          }, _callee);
+        }))();
+      },
+      selectColumn: function selectColumn(column) {
+        var _this7 = this;
+        var updateWords = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+        this.selectedColumn = column;
+        if (!updateWords) return;
+        this.loopRows().forEach(function (rowKey) {
+          var _word;
+          _this7.deselectColumns(_this7.rows[rowKey], rowKey);
+          var word = _this7.rows[rowKey][column];
+          if ([null, ""].includes((_word = word) === null || _word === void 0 ? void 0 : _word.text)) {
+            word = _this7.rows[rowKey]["subject"];
+          }
+          _this7.selectWord(rowKey, word);
+        });
+      },
+      selectWord: function selectWord(rowIndex, word) {
+        if ([null, ""].includes(word.text) || word.selected === true) return;
+        if (this.selectedColumn !== word.type) {
+          this.selectedColumn = null;
+        }
+        this.deselectColumns(this.rows[rowIndex], rowIndex);
+        this.addUpdate(rowIndex, word.word_id, true);
+        word.selected = true;
+      },
+      deselectColumns: function deselectColumns(row, index) {
+        var _this8 = this;
+        Object.keys(row).forEach(function (key) {
+          var word = row[key];
+          if (word.word_id && word.selected === true) {
+            _this8.addUpdate(index, row[key].word_id, false);
+            row[key].selected = false;
+          }
+        });
+      },
+      loopRows: function loopRows() {
+        return Object.keys(this.rows);
+      },
+      setDisabledColumns: function setDisabledColumns() {
+        var _this9 = this;
+        this.loopRows().reduce(function (count, key) {
+          var skipRow = [];
+          Object.keys(_this9.rows[key]).forEach(function (column) {
+            var word = _this9.rows[key][column];
+            if (skipRow.includes(key) || column === "subject" && [null, ""].includes(word.text)) {
+              skipRow.push(key);
+              return;
+            }
+            if ([null, ""].includes(word.text) && !_this9.disabledColumns.includes(column)) {
+              _this9.disabledColumns.push(column);
+            }
+          });
+        });
+      },
+      addUpdate: function addUpdate(row, word_id, selected) {
+        var _this10 = this;
+        var existing = this.updates.find(function (update) {
+          return update.row === parseInt(row) && update.word_id === word_id;
+        });
+        if (existing) {
+          existing.selected = selected;
+        } else {
+          this.updates.push({
+            row: parseInt(row),
+            word_id: word_id,
+            selected: selected
+          });
+        }
+        if (this.updateTimer) clearTimeout(this.updateTimer);
+        this.updateTimer = setTimeout(function () {
+          _this10.$wire.call("makeUpdates", _this10.updates);
+          _this10.updates = [];
+        }, 750);
+      },
+      getText: function getText(word, rowIndex) {
+        if (word !== null && word !== void 0 && word.text) {
+          return word === null || word === void 0 ? void 0 : word.text;
+        }
+        return "";
+      },
+      handleIncomingUpdatedRows: function handleIncomingUpdatedRows(rows) {
+        var _this11 = this;
+        this.rows = rows;
+        this.mutation++;
+        this.$nextTick(function () {
+          _this11.setDisabledColumns();
+          _this11.setActiveColumn();
+        });
+      },
+      setActiveColumn: function setActiveColumn() {
+        var _this12 = this;
+        var activeColumns = [];
+        Object.values(this.rows).forEach(function (row) {
+          row = Object.values(row);
+          if (!_this12.wordsInRow(row)) return;
+          activeColumns.push(row.filter(function (w) {
+            return w.selected === true;
+          })[0].type);
+        });
+        var uniqueColumns = lodash__WEBPACK_IMPORTED_MODULE_1___default().uniq(activeColumns);
+        if (uniqueColumns.length === 1) {
+          this.selectColumn(uniqueColumns[0], false);
+        }
+      },
+      wordsInRow: function wordsInRow(row) {
+        var _row$filter$length, _row$filter;
+        return (_row$filter$length = row === null || row === void 0 ? void 0 : (_row$filter = row.filter(function (item) {
+          return ![null, ""].includes(item.text);
+        })) === null || _row$filter === void 0 ? void 0 : _row$filter.length) !== null && _row$filter$length !== void 0 ? _row$filter$length : false;
+      },
+      getTemplateRowKey: function getTemplateRowKey(row, rowIndex) {
+        return "row-".concat(rowIndex, "-").concat(this.mutation);
+      },
+      getTemplateWordKey: function getTemplateWordKey(word, wordIndex) {
+        return "word-".concat(wordIndex, "-").concat(this.mutation);
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("compileList", function (list, columns) {
+    return {
+      expanded: true,
+      cols: [],
+      rows: [],
+      list: list,
+      wordCount: 0,
+      selectedWordCount: 0,
+      errorState: false,
+      mutation: 1,
+      errorMessages: {},
+      init: function init() {
+        var _this13 = this;
+        this.list.rows = Object.values(this.list.rows);
+        this.buildGrid();
+        this.countWords();
+        this.$nextTick(function () {
+          _this13.setGridSizeProperties();
+          _this13.selectUsedColumnHeads();
+          _this13.setEnabledRows();
+        });
+      },
+      buildGrid: function buildGrid() {
+        var _this14 = this;
+        for (var i = 0; i < 7; i++) {
+          var _this$getUsedTypes$i;
+          this.cols[i] = (_this$getUsedTypes$i = this.getUsedTypes(this.list.rows)[i]) !== null && _this$getUsedTypes$i !== void 0 ? _this$getUsedTypes$i : null;
+        }
+        this.rows = this.list.rows.map(function (row) {
+          return _this14.buildRow(row);
+        });
+        this.addMinimumAmountOfRows();
+        this.addEmptyRowWhenLastIsFull();
+      },
+      setGridSizeProperties: function setGridSizeProperties() {
+        var _this$rows$length, _this$rows;
+        var gridContainer = this.$root.querySelector(".relation-question-grid-container");
+        var grid = this.$root.querySelector(".relation-question-grid");
+        var heading = 57;
+        var cell = 40;
+        var gap = 1;
+        var maxCellWidth = 240;
+        var rows = (_this$rows$length = (_this$rows = this.rows) === null || _this$rows === void 0 ? void 0 : _this$rows.length) !== null && _this$rows$length !== void 0 ? _this$rows$length : 10;
+        gridContainer.style.setProperty("--relation-question-height", "calc(".concat(heading, "px + calc(").concat(rows, " * ").concat(cell + gap, "px))"));
+        gridContainer.style.setProperty("--relation-question-total-max-width", "calc(".concat(this.cols.length, " * ").concat(maxCellWidth, "px)"));
+        grid.style.setProperty("--relation-grid-cols", this.cols.length);
+      },
+      toggleAll: function toggleAll(element) {
+        var _this15 = this;
+        var enabled = element.checked;
+        this.$root.querySelectorAll(".word-row .checkbox-container input").forEach(function (check, row) {
+          if (_this15.wordsInRow(_this15.rows[row]) === 0) return true;
+          check.checked = enabled;
+          _this15.toggleRow(check, row);
+        });
+      },
+      toggleRow: function toggleRow(checkbox, row) {
+        var columnCheckbox = this.$root.querySelector(".head-checkmark .checkbox-container input");
+        var availableBoxes = Array.from(this.$root.querySelectorAll(".word-row .checkbox-container input"));
+        if (this.wordsInRow(this.rows[this.rows.length - 1]) === 0) {
+          availableBoxes.pop();
+        }
+        if (checkbox.checked === false) {
+          this.list.enabledRows = this.list.enabledRows.filter(function (value) {
+            return value !== row;
+          });
+          if (columnCheckbox.checked) {
+            columnCheckbox.checked = false;
+          }
+        }
+        if (checkbox.checked === true) {
+          if (!this.list.enabledRows.includes(row)) {
+            this.list.enabledRows.push(row);
+          }
+          var everythingChecked = availableBoxes.filter(function (check) {
+            return !check.checked;
+          }).length === 0;
+          if (columnCheckbox.checked === false && everythingChecked) {
+            columnCheckbox.checked = true;
+          }
+        }
+        this.countWords();
+      },
+      selectUsedColumnHeads: function selectUsedColumnHeads() {
+        var _this16 = this;
+        var usedCols = this.getUsedTypes(this.list.rows);
+        var selectBoxes = this.$root.querySelectorAll(".single-select");
+        usedCols.forEach(function (usedCol, key) {
+          var index = _this16.cols.findIndex(function (col) {
+            return col === usedCol;
+          });
+          selectBoxes[index].querySelector(".option[data-value=\"".concat(usedCol, "\"]")).click();
+        });
+      },
+      getUsedTypes: function getUsedTypes(rows) {
+        return lodash__WEBPACK_IMPORTED_MODULE_1___default().uniq(rows.flatMap(function (r) {
+          return Object.keys(r);
+        }));
+      },
+      getUsedColumnHeads: function getUsedColumnHeads() {
+        return this.cols.filter(function (c) {
+          return c !== null;
+        });
+      },
+      buildRow: function buildRow(row) {
+        var newRow = [];
+        for (var i = 0; i < this.cols.length; i++) {
+          var _row$this$cols$i;
+          newRow[i] = (_row$this$cols$i = row[this.cols[i]]) !== null && _row$this$cols$i !== void 0 ? _row$this$cols$i : {
+            text: null,
+            word_id: null,
+            word_list_id: this.list.id,
+            type: null
+          };
+        }
+        return newRow;
+      },
+      setEnabledRows: function setEnabledRows() {
+        var _this$list,
+          _this17 = this;
+        (_this$list = this.list) === null || _this$list === void 0 ? void 0 : _this$list.enabledRows.forEach(function (key) {
+          var input = _this17.$root.querySelector(".word-row.row-".concat(key, " .checkbox-container input"));
+          input.checked = true;
+          _this17.toggleRow(input, key);
+        });
+      },
+      countWords: function countWords() {
+        var _this18 = this;
+        var oldWordCount = this.wordCount;
+        var oldSelectedWordCount = this.selectedWordCount;
+        this.wordCount = 0;
+        this.selectedWordCount = 0;
+        this.rows.forEach(function (row, key) {
+          var rowCount = _this18.wordsInRow(row);
+          _this18.wordCount += rowCount;
+          if (_this18.$root.querySelector(".word-row.row-".concat(key, " .row-checkmark input:checked"))) {
+            _this18.selectedWordCount += rowCount;
+          }
+        });
+        this.wordCountChanges(oldWordCount, this.wordCount);
+        this.selectedWordCountChanges(oldSelectedWordCount, this.selectedWordCount);
+      },
+      wordsUpdated: function wordsUpdated(word, rowIndex, columnIndex) {
+        if (this.errorState) {
+          this.resetErrorState();
+        }
+        this.countWords();
+      },
+      placeCursor: function placeCursor(element) {
+        var _element$childNodes, _element$childNodes$l, _element$childNodes2;
+        if (!element.value) return;
+        var range = document.createRange();
+        var sel = window.getSelection();
+        range.setStart((_element$childNodes = element.childNodes[element.childNodes.length - 1]) !== null && _element$childNodes !== void 0 ? _element$childNodes : 0, (_element$childNodes$l = (_element$childNodes2 = element.childNodes[element.childNodes.length - 1]) === null || _element$childNodes2 === void 0 ? void 0 : _element$childNodes2.length) !== null && _element$childNodes$l !== void 0 ? _element$childNodes$l : 0);
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      },
+      move: function move(event, direction, currentElement) {
+        var _this$$root$querySele;
+        if (event.shiftKey || event.altKey) return;
+        var row = parseInt(currentElement.dataset.rowValue);
+        var column = parseInt(currentElement.dataset.columnValue);
+        switch (direction) {
+          case "up":
+            row = row - 1;
+            break;
+          case "right":
+            column = column + 1;
+            break;
+          case "down":
+            row = row + 1;
+            break;
+          case "left":
+            column = column - 1;
+            break;
+        }
+        (_this$$root$querySele = this.$root.querySelector(locator(row, column))) === null || _this$$root$querySele === void 0 ? void 0 : _this$$root$querySele.focus();
+        function locator(newRow, newColumn) {
+          return ".word-row span[data-row-value=\"".concat(newRow, "\"][data-column-value=\"").concat(newColumn, "\"]");
+        }
+      },
+      addMinimumAmountOfRows: function addMinimumAmountOfRows() {
+        if (this.rows.length < 10) {
+          var add = 10 - this.rows.length;
+          var index = this.rows.length;
+          for (var i = index; i < add + index; i++) {
+            this.rows[i] = this.buildRow([]);
+          }
+        }
+      },
+      addEmptyRowWhenLastIsFull: function addEmptyRowWhenLastIsFull() {
+        if (this.wordsInRow(this.rows[this.rows.length - 1]) > 0) {
+          this.rows[this.rows.length] = this.buildRow([]);
+        }
+      },
+      removeEmptyTrailingRow: function removeEmptyTrailingRow() {
+        if (this.wordsInRow(this.rows[this.rows.length - 1]) === 0) {
+          this.rows.pop();
+          if (this.rows.length !== 0) {
+            this.removeEmptyTrailingRow();
+          }
+        }
+      },
+      wordsInRow: function wordsInRow(row) {
+        var _row$filter$length2, _row$filter2;
+        return (_row$filter$length2 = row === null || row === void 0 ? void 0 : (_row$filter2 = row.filter(function (item) {
+          return ![null, ""].includes(item.text);
+        })) === null || _row$filter2 === void 0 ? void 0 : _row$filter2.length) !== null && _row$filter$length2 !== void 0 ? _row$filter$length2 : false;
+      },
+      columnValueUpdated: function columnValueUpdated(headerIndex, value) {
+        if (this.errorState) {
+          this.resetErrorState();
+        }
+        if (typeof value === "string" && value === "") {
+          value = null;
+        }
+        this.cols[headerIndex] = value;
+        this.handleDisabledHeaders();
+      },
+      handleDisabledHeaders: function handleDisabledHeaders() {
+        var _this19 = this;
+        if (this.getUsedColumnHeads().length === Object.keys(columns).length) {
+          this.$root.querySelectorAll(".grid-head .single-select").forEach(function (select, index) {
+            if (_this19.cols[index] === null) {
+              select.dispatchEvent(new CustomEvent("disable-single-select", {
+                detail: {}
+              }));
+            }
+          });
+          return;
+        }
+        this.$root.querySelectorAll(".grid-head .single-select.disabled").forEach(function (select, index) {
+          select.dispatchEvent(new CustomEvent("enable-single-select", {
+            detail: {}
+          }));
+        });
+      },
+      validate: function validate() {
+        var validator = new ListValidator(this).validate();
+        if (validator.passed) {
+          this.errorState = false;
+          return validator;
+        }
+        this.markFailedItemsWithErrors(Object.entries(validator.errors));
+        this.showErrorMessages(validator.messages);
+        this.errorState = true;
+        return validator;
+      },
+      getUpdatesForCompiling: function getUpdatesForCompiling() {
+        var _this20 = this,
+          _Array$from;
+        return {
+          name: this.list.name,
+          rows: this.rows.map(function (row, rowIndex) {
+            if (_this20.wordsInRow(row) === 0) {
+              return null;
+            }
+            return row.map(function (word, index) {
+              if (word.text === null && word.word_id === null) {
+                return null;
+              }
+              word.type = _this20.cols[index];
+              return word;
+            }).filter(Boolean);
+          }).filter(Boolean),
+          enabled: (_Array$from = Array.from(this.list.enabledRows)) !== null && _Array$from !== void 0 ? _Array$from : []
+        };
+      },
+      addFromWordListBank: function addFromWordListBank() {
+        this.openVersionablePanel({
+          sliderButtonSelected: "lists",
+          listUuid: this.list.uuid,
+          used: this.getUsedItemsForSidePanel()
+        });
+      },
+      addFromWordBank: function addFromWordBank() {
+        this.openVersionablePanel({
+          sliderButtonSelected: "words",
+          listUuid: this.list.uuid,
+          used: this.getUsedItemsForSidePanel()
+        });
+      },
+      addFromUpload: function addFromUpload() {
+        this.$root.closest(".compile-list-modal").querySelector("#compile-list-upload-modal").dispatchEvent(new CustomEvent("open-modal", {
+          detail: {
+            list: this.list.uuid
+          }
+        }));
+      },
+      addExistingWordListToList: function addExistingWordListToList(uuid) {
+        var _this21 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+          var list;
+          return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+            while (1) switch (_context2.prev = _context2.next) {
+              case 0:
+                _context2.next = 2;
+                return _this21.$wire.call("addExistingWordList", uuid, true);
+              case 2:
+                list = _context2.sent;
+                _this21.handleExternalList(list);
+              case 4:
+              case "end":
+                return _context2.stop();
+            }
+          }, _callee2);
+        }))();
+      },
+      addExistingWordToList: function addExistingWordToList(uuid) {
+        var _this22 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+          var row;
+          return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+            while (1) switch (_context3.prev = _context3.next) {
+              case 0:
+                _context3.next = 2;
+                return _this22.$wire.call("addExistingWord", uuid);
+              case 2:
+                row = _context3.sent;
+                _this22.handleExternalRows([row]);
+              case 4:
+              case "end":
+                return _context3.stop();
+            }
+          }, _callee3);
+        }))();
+      },
+      addUploadToList: function addUploadToList(file) {
+        var _this23 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
+          return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+            while (1) switch (_context5.prev = _context5.next) {
+              case 0:
+                _context5.next = 2;
+                return _this23.$wire.upload("importFile", file, /*#__PURE__*/function () {
+                  var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4(uploadedFilename) {
+                    return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+                      while (1) switch (_context4.prev = _context4.next) {
+                        case 0:
+                          _context4.t0 = _this23;
+                          _context4.next = 3;
+                          return _this23.$wire.call("importIntoList", false, _this23.cols);
+                        case 3:
+                          _context4.t1 = _context4.sent;
+                          _context4.t0.handleExternalRows.call(_context4.t0, _context4.t1);
+                        case 5:
+                        case "end":
+                          return _context4.stop();
+                      }
+                    }, _callee4);
+                  }));
+                  return function (_x) {
+                    return _ref.apply(this, arguments);
+                  };
+                }(), function () {}, function (event) {});
+              case 2:
+              case "end":
+                return _context5.stop();
+            }
+          }, _callee5);
+        }))();
+      },
+      handleIncomingExistingColumns: function handleIncomingExistingColumns(list) {
+        var _this24 = this;
+        var newCols = this.getUsedTypes(list.rows).filter(function (c) {
+          return !_this24.cols.includes(c);
+        });
+        if (newCols.length > 0) {
+          var selectBoxes = this.$root.querySelectorAll(".single-select");
+          newCols.forEach(function (newCol) {
+            var i = _this24.cols.findIndex(function (c) {
+              return c === null;
+            });
+            selectBoxes[i].querySelector(".option[data-value=\"".concat(newCol, "\"]")).click();
+          });
+        }
+      },
+      addTemplateMutation: function addTemplateMutation() {
+        this.mutation++;
+      },
+      getTemplateRowKey: function getTemplateRowKey(row, rowIndex) {
+        return "row-".concat(rowIndex, "-").concat(this.mutation);
+      },
+      getTemplateWordKey: function getTemplateWordKey(word, wordIndex) {
+        return "word-".concat(wordIndex, "-").concat(this.mutation);
+      },
+      getUsedItemsForSidePanel: function getUsedItemsForSidePanel() {
+        return {
+          lists: lodash__WEBPACK_IMPORTED_MODULE_1___default().uniq(this.rows.flatMap(function (r) {
+            return lodash__WEBPACK_IMPORTED_MODULE_1___default().uniq(r.map(function (w) {
+              return w.word_list_id;
+            }));
+          })),
+          words: lodash__WEBPACK_IMPORTED_MODULE_1___default().uniq(this.rows.flatMap(function (r) {
+            return lodash__WEBPACK_IMPORTED_MODULE_1___default().uniq(r.map(function (w) {
+              return w.word_id;
+            }));
+          })).filter(Boolean)
+        };
+      },
+      handleExternalList: function handleExternalList(list) {
+        var _this$rows2,
+          _this25 = this;
+        if (!list.id) return this.dispatchError();
+
+        /*Prepare*/
+        this.handleIncomingExistingColumns(list);
+
+        /* Mutate */
+        this.removeEmptyTrailingRow();
+        (_this$rows2 = this.rows).push.apply(_this$rows2, _toConsumableArray(list.rows.map(function (row) {
+          return _this25.buildRow(row);
+        })));
+        this.externalAdditionAfterCare();
+      },
+      handleExternalRows: function handleExternalRows(rows) {
+        var _this$rows3,
+          _this26 = this;
+        if (!Object.keys(rows).length) return this.dispatchError();
+
+        /*Prepare*/
+        this.handleIncomingExistingColumns({
+          rows: rows
+        });
+
+        /* Mutate */
+        this.removeEmptyTrailingRow();
+        (_this$rows3 = this.rows).push.apply(_this$rows3, _toConsumableArray(Object.values(rows).map(function (row) {
+          return _this26.buildRow(row);
+        })));
+        this.externalAdditionAfterCare();
+      },
+      externalAdditionAfterCare: function externalAdditionAfterCare() {
+        this.countWords();
+        this.addMinimumAmountOfRows();
+        this.addEmptyRowWhenLastIsFull();
+        this.addTemplateMutation();
+      },
+      dispatchError: function dispatchError() {
+        this.$dispatch("notify", {
+          message: "Er is iets misgegaan...",
+          type: "error"
+        });
+      },
+      dispatchSuccess: function dispatchSuccess() {
+        this.$dispatch("notify", {
+          message: "Gelukt!"
+        });
+      },
+      resetErrorState: function resetErrorState() {
+        this.$root.querySelectorAll(".single-select.error").forEach(function (select) {
+          return select.dispatchEvent(new CustomEvent("disable-error-state"));
+        });
+        this.$root.querySelectorAll(".word-cell.validation-error").forEach(function (cell) {
+          return cell.classList.remove("validation-error");
+        });
+        this.$root.querySelectorAll(".notification.error").forEach(function (notification) {
+          return notification.dispatchEvent(new CustomEvent("hide-error"));
+        });
+        this.errorState = false;
+      },
+      markFailedItemsWithErrors: function markFailedItemsWithErrors(errors) {
+        var _this27 = this;
+        var _iterator = _createForOfIteratorHelper(errors),
+          _step;
+        try {
+          var _loop = function _loop() {
+            var _step$value = _slicedToArray(_step.value, 2),
+              name = _step$value[0],
+              error = _step$value[1];
+            if (name === "requiredTypeAmount") {
+              var _this27$$root$querySe;
+              // => Highlight all non-set columns;
+              (_this27$$root$querySe = _this27.$root.querySelectorAll(".single-select[data-selected-value=\"none\"]:not(.disabled)")) === null || _this27$$root$querySe === void 0 ? void 0 : _this27$$root$querySe.forEach(function (select) {
+                return select.dispatchEvent(new CustomEvent("enable-error-state"));
+              });
+            }
+            if (name === "duplicateColumns") {
+              // => Highlight all duplicate columns
+              error.forEach(function (column) {
+                var _this27$$root$querySe2;
+                (_this27$$root$querySe2 = _this27.$root.querySelectorAll(".single-select[data-selected-value=\"".concat(column, "\"]"))) === null || _this27$$root$querySe2 === void 0 ? void 0 : _this27$$root$querySe2.forEach(function (select) {
+                  return select.dispatchEvent(new CustomEvent("enable-error-state"));
+                });
+              });
+            }
+            if (name === "wordsWithoutType") {
+              // => Highlight column without type set
+              _this27.$root.querySelectorAll(".single-select").forEach(function (select, key) {
+                if (!error.includes(key)) return;
+                select.dispatchEvent(new CustomEvent("enable-error-state"));
+              });
+            }
+            if (name === "columnWithoutWords") {
+              // => Highlight column without words
+              _this27.$root.querySelectorAll(".single-select").forEach(function (select, key) {
+                if (!error.includes(key)) return;
+                select.dispatchEvent(new CustomEvent("enable-error-state"));
+              });
+            }
+            if (name === "requiredSubjectWord") {
+              // => Highlight subject column empty fields
+              error.forEach(function (coords) {
+                var _this27$$root$querySe3;
+                (_this27$$root$querySe3 = _this27.$root.querySelector(rowSelector(coords[0]) + colSelector(coords[1]))) === null || _this27$$root$querySe3 === void 0 ? void 0 : _this27$$root$querySe3.parentElement.classList.add("validation-error");
+              });
+            }
+            if (name === "requiredWordsPerRow") {
+              // => Highlight row with missing fields
+              error.forEach(function (row) {
+                _this27.$root.querySelectorAll(rowSelector(row)).forEach(function (cell) {
+                  cell === null || cell === void 0 ? void 0 : cell.parentElement.classList.add("validation-error");
+                });
+              });
+            }
+          };
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            _loop();
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
+        }
+        function rowSelector(row) {
+          return "[data-row-value=\"".concat(row, "\"]");
+        }
+        function colSelector(col) {
+          return "[data-column-value=\"".concat(col, "\"]");
+        }
+      },
+      removeErrorMessage: function removeErrorMessage(message) {
+        delete this.errorMessages[message];
+      },
+      showErrorMessages: function showErrorMessages(messages) {
+        this.errorMessages = messages;
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("compileWordListContainer", function (wordLists) {
+    return {
+      wordLists: wordLists,
+      globalWordCount: 0,
+      globalSelectedWordCount: 0,
+      compiling: false,
+      showAddListModal: false,
+      init: function init() {
+        var _this28 = this;
+        if (!Object.keys(this.wordLists).length) {
+          this.$nextTick(function () {
+            return _this28.addWordList();
+          });
+        }
+      },
+      wordCountChanges: function wordCountChanges(old, newCount) {
+        this.globalWordCount = this.handleGlobalChanges(this.globalWordCount, old, newCount);
+      },
+      selectedWordCountChanges: function selectedWordCountChanges(old, newCount) {
+        this.globalSelectedWordCount = this.handleGlobalChanges(this.globalSelectedWordCount, old, newCount);
+      },
+      handleGlobalChanges: function handleGlobalChanges(property, old, newCount) {
+        property -= old;
+        property += newCount;
+        return property;
+      },
+      addWordList: function addWordList() {
+        this.$root.closest(".compile-list-modal").querySelector("#add-list-modal").dispatchEvent(new CustomEvent("open-modal"));
+      },
+      addNewWordList: function addNewWordList() {
+        var _this29 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
+          return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+            while (1) switch (_context6.prev = _context6.next) {
+              case 0:
+                _context6.t0 = _this29.wordLists;
+                _context6.next = 3;
+                return _this29.$wire.call("createNewList");
+              case 3:
+                _context6.t1 = _context6.sent;
+                _context6.t0.push.call(_context6.t0, _context6.t1);
+              case 5:
+              case "end":
+                return _context6.stop();
+            }
+          }, _callee6);
+        }))();
+      },
+      openAddExistingWordListPanel: function openAddExistingWordListPanel() {
+        this.openVersionablePanel({
+          sliderButtonDisabled: true,
+          sliderButtonSelected: "lists",
+          showSliderButtons: false,
+          closeOnFirstAdd: true
+        });
+      },
+      addExistingWordList: function addExistingWordList(uuid) {
+        var _this30 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
+          var list;
+          return _regeneratorRuntime().wrap(function _callee7$(_context7) {
+            while (1) switch (_context7.prev = _context7.next) {
+              case 0:
+                _context7.next = 2;
+                return _this30.$wire.call("addExistingWordList", uuid);
+              case 2:
+                list = _context7.sent;
+                if (list.id) {
+                  _context7.next = 6;
+                  break;
+                }
+                _this30.$dispatch("notify", {
+                  message: "Er is iets misgegaan...",
+                  type: "error"
+                });
+                return _context7.abrupt("return");
+              case 6:
+                _this30.wordLists.push(list);
+                _this30.$dispatch("notify", {
+                  message: "Gelukt!"
+                });
+              case 8:
+              case "end":
+                return _context7.stop();
+            }
+          }, _callee7);
+        }))();
+      },
+      uploadWordList: function uploadWordList() {
+        this.$root.closest(".compile-list-modal").querySelector("#compile-list-upload-modal").dispatchEvent(new CustomEvent("open-modal"));
+      },
+      compileLists: function compileLists() {
+        var _this31 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
+          var listComponents, updates, changesCompiled;
+          return _regeneratorRuntime().wrap(function _callee8$(_context8) {
+            while (1) switch (_context8.prev = _context8.next) {
+              case 0:
+                _this31.compiling = true;
+                listComponents = Array.from(_this31.$root.querySelectorAll(".word-list")).map(function (element) {
+                  return element._x_dataStack[0];
+                });
+                if (!_this31.listsValidationFailed(listComponents)) {
+                  _context8.next = 5;
+                  break;
+                }
+                _this31.compiling = false;
+                return _context8.abrupt("return");
+              case 5:
+                updates = [];
+                listComponents.forEach(function (component) {
+                  return updates[component.list.id] = component.getUpdatesForCompiling();
+                });
+                _context8.next = 9;
+                return _this31.$wire.call("compile", updates);
+              case 9:
+                changesCompiled = _context8.sent;
+                if (!changesCompiled) {
+                  _this31.$dispatch("notify", {
+                    message: "Something went wrong...",
+                    type: "error"
+                  });
+                }
+                _this31.compiling = false;
+              case 12:
+              case "end":
+                return _context8.stop();
+            }
+          }, _callee8);
+        }))();
+      },
+      listsValidationFailed: function listsValidationFailed(components) {
+        var failedValidation = false;
+        components.forEach(function (component) {
+          var validator = component.validate();
+          if (!validator.passed) {
+            console.log(validator);
+            failedValidation = true;
+          }
+        });
+        return failedValidation;
+      },
+      hideModal: function hideModal() {
+        document.querySelector("#LivewireUIModal").dispatchEvent(new CustomEvent("hide-modal"));
+      },
+      openVersionablePanel: function openVersionablePanel(config) {
+        var defaultConfig = {
+          sliderButtonDisabled: false,
+          sliderButtonSelected: "lists",
+          showSliderButtons: true,
+          closeOnFirstAdd: false,
+          listUuid: ""
+        };
+        this.hideModal();
+        this.$store.sidePanel.reopenModalWhenDone = true;
+        this.$wire.emit("openPanel", "teacher.versionable-side-panel-container", Object.assign({}, defaultConfig, config), {
+          offsetTop: 70,
+          width: "95vw"
+        });
+      },
+      addUploadToNew: function addUploadToNew(file) {
+        var _this32 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10() {
+          return _regeneratorRuntime().wrap(function _callee10$(_context10) {
+            while (1) switch (_context10.prev = _context10.next) {
+              case 0:
+                _context10.next = 2;
+                return _this32.$wire.upload("importFile", file, /*#__PURE__*/function () {
+                  var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9(uploadedFilename) {
+                    var list;
+                    return _regeneratorRuntime().wrap(function _callee9$(_context9) {
+                      while (1) switch (_context9.prev = _context9.next) {
+                        case 0:
+                          _context9.next = 2;
+                          return _this32.$wire.call("importIntoList", true);
+                        case 2:
+                          list = _context9.sent;
+                          if (list.id) {
+                            _context9.next = 6;
+                            break;
+                          }
+                          _this32.$dispatch("notify", {
+                            message: "Er is iets misgegaan...",
+                            type: "error"
+                          });
+                          return _context9.abrupt("return");
+                        case 6:
+                          _this32.wordLists.push(list);
+                          _this32.$dispatch("notify", {
+                            message: "Gelukt!"
+                          });
+                        case 8:
+                        case "end":
+                          return _context9.stop();
+                      }
+                    }, _callee9);
+                  }));
+                  return function (_x2) {
+                    return _ref2.apply(this, arguments);
+                  };
+                }(), function () {
+                  _this32.$dispatch("notify", {
+                    message: "Er is iets misgegaan...",
+                    type: "error"
+                  });
+                }, function (event) {});
+              case 2:
+              case "end":
+                return _context10.stop();
+            }
+          }, _callee10);
+        }))();
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("versionableOverviewManager", function (sliderButton, closeOnFirstAdd, listUuid, showSliderButtons) {
+    return {
+      view: sliderButton,
+      closeOnFirstAdd: closeOnFirstAdd,
+      listUuid: listUuid,
+      showSliderButtons: showSliderButtons,
+      addListPromptShown: false,
+      addListSeparate: false,
+      init: function init() {
+        var _this33 = this;
+        this.$watch("view", function (value) {
+          _this33.nudgeOverviewToFixTheirChoices(value);
+        });
+      },
+      done: function done() {
+        this.openSidePanel = false;
+      },
+      add: function add(type, uuid) {
+        this.dispatchUpdate(type, uuid);
+        if (this.closeOnFirstAdd) {
+          this.done();
+        }
+      },
+      dispatchUpdate: function dispatchUpdate(type, uuid) {
+        var selector = ".word-list-container";
+        if (this.listUuid && !this.addListSeparate) {
+          selector += " [data-list-uuid='".concat(this.listUuid, "']");
+        }
+        document.querySelector(selector).dispatchEvent(new CustomEvent("add-".concat(type), {
+          detail: {
+            uuid: uuid
+          }
+        }));
+        this.addListSeparate = false;
+      },
+      nudgeOverviewToFixTheirChoices: function nudgeOverviewToFixTheirChoices(value) {
+        this.$root.querySelectorAll("#".concat(value, "-view-container .custom-choices")).forEach(function (choice) {
+          setTimeout(function () {
+            choice.dispatchEvent(new CustomEvent("reset-width"));
+          }, 10);
+        });
+      },
+      addList: function addList(list) {
+        var separateOverride = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+        if (this.showSliderButtons === true && this.addListPromptShown === false) {
+          var _this$containerRoot$q;
+          // Prompt for adding list as a whole or insert in existing
+          this.addListPromptShown = true;
+          (_this$containerRoot$q = this.containerRoot().querySelector("#choose-add-list-modal")) === null || _this$containerRoot$q === void 0 ? void 0 : _this$containerRoot$q.dispatchEvent(new CustomEvent("open-modal", {
+            detail: {
+              list: list
+            }
+          }));
+          return;
+        }
+        if (separateOverride === true) {
+          this.addListSeparate = true;
+        }
+        this.add("list", list.uuid);
+        this.overviewWire('word-lists').call("addToUsed", list.id, true);
+        this.overviewWire('word-lists').emit("newListAdded", list.id);
+        this.addListPromptShown = false;
+      },
+      addWord: function addWord(uuid, id) {
+        this.add("word", uuid);
+        this.overviewWire('words').call("addToUsed", id);
+      },
+      wire: function wire(id) {
+        return window.Livewire.find(id);
+      },
+      containerRoot: function containerRoot() {
+        if (this.$root.id === 'versionable-side-panel-container') {
+          return this.$root;
+        }
+        return this.$root.closest("#versionable-side-panel-container");
+      },
+      containerWire: function containerWire() {
+        return this.wire(this.containerRoot().getAttribute('wire:id'));
+      },
+      overviewRoot: function overviewRoot(type) {
+        if (this.$root.id === type + '-overview') {
+          return this.$root;
+        }
+        return this.containerRoot().querySelector("#".concat(type, "-overview"));
+      },
+      overviewWire: function overviewWire(type) {
+        return this.wire(this.overviewRoot(type).getAttribute('wire:id'));
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].bind("gridcell", function () {
+    var _ref3;
+    return _ref3 = {
+      contenteditable: "plaintext-only"
+    }, _defineProperty(_ref3, "@input", function input() {
+      this.$el._x_model.set(this.$el.textContent);
+      this.addEmptyRowWhenLastIsFull();
+    }), _defineProperty(_ref3, "x-init", function xInit() {
+      var _this34 = this;
+      this.$nextTick(function () {
+        _this34.$el.textContent = _this34.$el._x_model.get();
+      });
+    }), _ref3;
+  });
+});
+
+/***/ }),
+
 /***/ "./resources/js/alpine.js":
 /*!********************************!*\
   !*** ./resources/js/alpine.js ***!
@@ -7160,7 +8400,7 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("choices", function (wireModel, multiple, options, config, filterContainer, initWidth) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("choices", function (wireModel, multiple, options, config, filterContainer) {
     return {
       multiple: multiple,
       value: wireModel,
@@ -7170,7 +8410,6 @@ document.addEventListener("alpine:init", function () {
       activeFiltersContainer: null,
       choices: null,
       activeGroups: [],
-      initWidth: initWidth,
       init: function init() {
         var _window,
           _window$registeredEve,
@@ -7181,9 +8420,6 @@ document.addEventListener("alpine:init", function () {
         this.multiple = multiple === 1;
         var label = document.querySelector("[for=\"".concat(this.$root.querySelector("select").id, "\"]"));
         this.$nextTick(function () {
-          var helper = _this19.$root.querySelector("#text-length-helper");
-          var minWidth = helper.offsetWidth ? helper.offsetWidth : _this19.initWidth;
-          helper.style.display = "none";
           var choices = new (choices_js__WEBPACK_IMPORTED_MODULE_1___default())(_this19.$root.querySelector("select"), _this19.getChoicesConfig());
           var refreshChoices = function refreshChoices() {
             var selection = _this19.multiple ? _this19.value : [_this19.value];
@@ -7204,7 +8440,7 @@ document.addEventListener("alpine:init", function () {
             });
             choices.setChoices(options);
             _this19.handleActiveFilters(choices.getValue());
-            _this19.handleContainerWidth(minWidth);
+            _this19.handleContainerWidth();
           };
           refreshChoices();
           _this19.$refs.select.addEventListener("choice", function (event) {
@@ -7442,9 +8678,12 @@ document.addEventListener("alpine:init", function () {
       getRemoveEventName: function getRemoveEventName() {
         return "removeFrom" + this.$root.getAttribute("wire:key");
       },
-      handleContainerWidth: function handleContainerWidth(minWidth) {
+      handleContainerWidth: function handleContainerWidth() {
         if (this.$root.classList.contains("super")) return;
-        this.$root.querySelector("input.choices__input[type=\"search\"]").style.width = parseInt(minWidth, 10) + 16 + "px";
+        var helper = this.$root.querySelector("#text-length-helper");
+        if (!helper) return;
+        var minWidth = helper.offsetWidth;
+        this.$root.querySelector("input.choices__input[type=\"search\"]").style.width = minWidth + 16 + "px";
         this.$root.querySelector("input.choices__input[type=\"search\"]").style.minWidth = "auto";
       }
     };
@@ -7967,7 +9206,7 @@ document.addEventListener("alpine:init", function () {
         this.value = target.firstElementChild.dataset.id;
         this.$root.dataset.hasValue = this.value !== null;
         if ((oldValue === null || oldValue === void 0 ? void 0 : oldValue.toString()) !== ((_this$value = this.value) === null || _this$value === void 0 ? void 0 : _this$value.toString()) || allowClickingCurrentValue) {
-          if ([null, 'null'].includes(this.$root.dataset.toggleValue)) {
+          if ([null, "null"].includes(this.$root.dataset.toggleValue)) {
             this.$dispatch("multi-slider-toggle-value-updated", {
               value: target.firstElementChild.dataset.id,
               firstTick: oldValue === null
@@ -7976,9 +9215,21 @@ document.addEventListener("alpine:init", function () {
           }
           ;
           /* dispatch with a static (question score) value, not value/key of button-option, only works with true/false  */
+          var state = 'off';
+          switch (parseFloat(this.value)) {
+            case 1.0:
+              state = 'on';
+              break;
+            case 0.5:
+              state = 'half';
+              break;
+            default:
+              state = 'off';
+              break;
+          }
           this.$dispatch("slider-toggle-value-updated", {
             value: this.$root.dataset.toggleValue,
-            state: parseInt(this.value) === 1 ? "on" : "off",
+            state: state,
             firstTick: oldValue === null,
             identifier: this.identifier
           });
@@ -8446,6 +9697,7 @@ document.addEventListener("alpine:init", function () {
       drawerScoringDisabled: array.drawerScoringDisabled,
       pageUpdated: array.pageUpdated,
       isCoLearningScore: array.isCoLearningScore,
+      toggleValues: array.toggleValues || {},
       init: function init() {
         var _this37 = this;
         if (this.pageUpdated) {
@@ -8476,27 +9728,39 @@ document.addEventListener("alpine:init", function () {
       },
       toggleTicked: function toggleTicked(event) {
         var parsedValue = isFloat(event.value) ? parseFloat(event.value) : parseInt(event.value);
-        this.setNewScore(parsedValue, event.state, event.firstTick);
+        this.setNewScore(parsedValue, event.state, event.firstTick, event === null || event === void 0 ? void 0 : event.identifier);
         this.updateAssessmentStore();
         this.dispatchNewScoreToSlider();
         this.updateLivewireComponent(event);
       },
       getCurrentScore: function getCurrentScore() {
-        return this.halfPoints ? Math.round(this.shadowScore * 2) / 2 : Math.round(this.shadowScore);
+        var toggleValuesCount = Object.keys(this.toggleValues).length;
+        var toggleValuesSum = Object.values(this.toggleValues).reduce(function (sum, value) {
+          return sum + value;
+        }, 0);
+        this.shadowScore = this.maxScore / toggleValuesCount * toggleValuesSum;
+        if (this.shadowScore < 0) this.shadowScore = 0;
+        if (this.shadowScore > this.maxScore) this.shadowScore = this.maxScore;
+        return this.halfPoints ? Math.floor(this.shadowScore * 2) / 2 : Math.floor(this.shadowScore);
       },
       setNewScore: function setNewScore(newScore, state, firstTick) {
+        var identifier = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
         if (firstTick && this.isCoLearningScore) {
           this.isCoLearningScore = false;
           this.shadowScore = 0;
         }
-        if (firstTick && state === "off") {
-          var _this$shadowScore;
-          (_this$shadowScore = this.shadowScore) !== null && _this$shadowScore !== void 0 ? _this$shadowScore : this.shadowScore = 0;
-        } else {
-          this.shadowScore = state === "on" ? this.shadowScore + newScore : this.shadowScore - newScore;
+        // new scoring mechanism:
+        switch (state) {
+          case 'on':
+            this.toggleValues[identifier] = 1;
+            break;
+          case 'half':
+            this.toggleValues[identifier] = 0.5;
+            break;
+          default:
+            this.toggleValues[identifier] = 0;
+            break;
         }
-        if (this.shadowScore < 0) this.shadowScore = 0;
-        if (this.shadowScore > this.maxScore) this.shadowScore = this.maxScore;
         this.score = this.getCurrentScore();
       },
       updateAssessmentStore: function updateAssessmentStore() {
@@ -10805,13 +12069,17 @@ document.addEventListener("alpine:init", function () {
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("singleSelect", function (containerId) {
     var entangleValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+    var disabled = arguments.length > 2 ? arguments[2] : undefined;
+    var error = arguments.length > 3 ? arguments[3] : undefined;
     return _objectSpread(_objectSpread({
       containerId: containerId,
       entangleValue: entangleValue !== null && entangleValue !== void 0 ? entangleValue : null,
       baseValue: null,
       singleSelectOpen: false,
-      selectedText: null
+      selectedText: null,
+      singleSelectDisabled: disabled
     }, selectFunctions), {}, {
+      errorState: error,
       init: function init() {
         var _this94 = this;
         this.selectedText = this.$root.querySelector("span.selected").dataset.selectText;
@@ -10819,6 +12087,11 @@ document.addEventListener("alpine:init", function () {
         this.$watch("singleSelectOpen", function (value) {
           if (value) _this94.handleDropdownLocation();
         });
+        if (this.singleSelectDisabled) {
+          this.$nextTick(function () {
+            return _this94.disableDropdown();
+          });
+        }
       },
       get value() {
         var _this$entangleValue;
@@ -10840,7 +12113,7 @@ document.addEventListener("alpine:init", function () {
           label = element.dataset.label;
         this.closeDropdown();
         if (this.value === value) return;
-        this.value = value;
+        this.value = this.isPlaceholder(element) ? null : value;
         element.dispatchEvent(new Event("change", {
           bubbles: true
         }));
@@ -10870,6 +12143,15 @@ document.addEventListener("alpine:init", function () {
       },
       closeDropdown: function closeDropdown() {
         this.singleSelectOpen = false;
+      },
+      isPlaceholder: function isPlaceholder(element) {
+        return element.hasAttribute("placeholder");
+      },
+      disableDropdown: function disableDropdown() {
+        this.singleSelectDisabled = true;
+      },
+      enableDropdown: function enableDropdown() {
+        this.singleSelectDisabled = false;
       }
     });
   });
@@ -11449,7 +12731,7 @@ document.addEventListener("alpine:init", function () {
       maxRating: function maxRating() {
         return {
           rating: Math.max.apply(Math, _toConsumableArray(this.getRatings())),
-          locator: '.max-rating'
+          locator: ".max-rating"
         };
       },
       avgRating: function avgRating() {
@@ -11459,139 +12741,27 @@ document.addEventListener("alpine:init", function () {
         }, 0);
         return {
           rating: sum / ratings.length,
-          locator: '.avg-rating'
+          locator: ".avg-rating"
         };
       },
       minRating: function minRating() {
         return {
           rating: Math.min.apply(Math, _toConsumableArray(this.getRatings())),
-          locator: '.min-rating'
+          locator: ".min-rating"
         };
-      }
-    };
-  });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("ckEditorInlineImageUpload", function (errorTranslation) {
-    return {
-      allowedMimeTypes: {
-        jpeg: 'image/jpeg',
-        png: 'image/png',
-        gif: 'image/gif'
-      },
-      /**
-       * Check if the dropped file is an allowed image,
-       * !! after it has already passed the ckeditor image config check (config.image.upload.types) !!
-       * @param event
-       */
-      checkMimeType: function checkMimeType(event) {
-        for (var i = 0; i < event.dataTransfer.files.length; i++) {
-          var mimeType = event.dataTransfer.files[i].type;
-          if (!Object.values(this.allowedMimeTypes).includes(mimeType)) {
-            for (var _i2 = 0, _Object$entries = Object.entries(this.allowedMimeTypes); _i2 < _Object$entries.length; _i2++) {
-              var _Object$entries$_i = _slicedToArray(_Object$entries[_i2], 2),
-                key = _Object$entries$_i[0],
-                value = _Object$entries$_i[1];
-              if (value === mimeType) {
-                mimeType = key;
-              }
-            }
-            Notify.notify(errorTranslation + mimeType, 'error');
-          }
-        }
-        ;
-      }
-    };
-  });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("initReadSpeakerLanguage", function () {
-    return {
-      languages: [],
-      currentLanguage: "nl_nl",
-      isOpen: false,
-      init: function init() {
-        var _this109 = this;
-        this.$nextTick(function () {
-          _this109.waitForElement(".rsicn", function (el) {
-            el.click();
-            _this109.languages = window.rsConf.general.customTransLangs;
-            _this109.setCurrentLanguage();
-          });
-        });
-      },
-      openPopover: function openPopover() {
-        this.isOpen = true;
-      },
-      closePopover: function closePopover() {
-        this.isOpen = false;
-      },
-      setCurrentLanguage: function setCurrentLanguage() {
-        var domNode = document.querySelector(".rsbtn_tool_voice_settings .rs-contextmenu-item.active");
-        if (domNode) {
-          this.currentLanguage = domNode.getAttribute("data-rs-itemval").split("_")[0];
-        }
-      },
-      isCurrent: function isCurrent(language) {
-        return this.currentLanguage.substring(0, 2) === language.substring(0, 2);
-      },
-      selectLanguage: function selectLanguage(languageCode) {
-        var links = document.querySelectorAll(".rsbtn_tool_voice_settings .rs-contextmenu-item");
-        for (var i = 0; i < links.length; i++) {
-          if (links[i].getAttribute("data-rs-itemval").startsWith(languageCode)) {
-            window.rsConf.cb.ui.stop();
-            window.rsConf.general.userDefinedVoice = links[i].dataset.rsItemval.substring(6);
-            window.rsConf.general.userDefinedLang = links[i].dataset.rsItemval.substring(0, 5);
-            document.querySelector('.rsbtn_play').click();
-            this.currentLanguage = languageCode;
-            break;
-          }
-        }
-      },
-      waitForElement: function waitForElement(selector, callback) {
-        var observer = new MutationObserver(function (mutations) {
-          var _iterator3 = _createForOfIteratorHelper(mutations),
-            _step3;
-          try {
-            for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-              var mutation = _step3.value;
-              var _iterator4 = _createForOfIteratorHelper(mutation.addedNodes),
-                _step4;
-              try {
-                for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
-                  var node = _step4.value;
-                  if (node.matches && node.matches(selector) || node.querySelector && node.querySelector(selector)) {
-                    callback(node);
-                    observer.disconnect();
-                    return;
-                  }
-                }
-              } catch (err) {
-                _iterator4.e(err);
-              } finally {
-                _iterator4.f();
-              }
-            }
-          } catch (err) {
-            _iterator3.e(err);
-          } finally {
-            _iterator3.f();
-          }
-        });
-        var config = {
-          childList: true,
-          subtree: true
-        };
-        observer.observe(document.getElementById('readspeaker_button1'), config);
       }
     };
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("markBadge", function (initialRating) {
     return {
       markBadgeRating: initialRating,
-      displayMarkBadgeRating: '?',
+      displayMarkBadgeRating: "?",
       color: null,
       init: function init() {
         this.setDisplayRating();
       },
       hasValue: function hasValue() {
-        return ![null, '', 0, 0.0].includes(this.markBadgeRating);
+        return ![null, "", 0, 0.0].includes(this.markBadgeRating);
       },
       setNewRating: function setNewRating(rating) {
         this.markBadgeRating = rating;
@@ -11599,19 +12769,59 @@ document.addEventListener("alpine:init", function () {
       },
       setDisplayRating: function setDisplayRating() {
         if (!this.hasValue()) {
-          if (this.displayMarkBadgeRating !== '?') {
-            this.displayMarkBadgeRating = '?';
+          if (this.displayMarkBadgeRating !== "?") {
+            this.displayMarkBadgeRating = "?";
           }
           return;
         }
-        if (typeof this.markBadgeRating === 'string') {
+        if (typeof this.markBadgeRating === "string") {
           this.markBadgeRating = parseFloat(this.markBadgeRating);
         }
-        if (this.markBadgeRating.toString().includes('.')) {
-          this.displayMarkBadgeRating = this.markBadgeRating.toFixed(1).replace('.', ',');
+        if (this.markBadgeRating.toString().includes(".")) {
+          this.displayMarkBadgeRating = this.markBadgeRating.toFixed(1).replace(".", ",");
         } else {
           this.displayMarkBadgeRating = this.markBadgeRating.toString();
         }
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("sidePanel", function (openSidePanel) {
+    return {
+      openSidePanel: openSidePanel,
+      componentName: null,
+      init: function init() {
+        var _this109 = this;
+        this.$watch('openSidePanel', function (value) {
+          if (value) return;
+          if (_this109.$store.sidePanel.reopenModalWhenDone) {
+            _this109.$store.sidePanel.reopenModalWhenDone = false;
+            var modal = document.querySelector('#LivewireUIModal');
+            modal.dispatchEvent(new CustomEvent('show-modal'));
+          }
+        });
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("overviewComponent", function (openTab, activeContainerKey) {
+    return {
+      openTab: openTab,
+      activeContainerKey: activeContainerKey,
+      clearFilters: function clearFilters() {
+        var _this110 = this;
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee41() {
+          return _regeneratorRuntime().wrap(function _callee41$(_context41) {
+            while (1) switch (_context41.prev = _context41.next) {
+              case 0:
+                _this110.$dispatch('enable-loading-grid');
+                _this110.$root.querySelector("#".concat(_this110.activeContainerKey)).innerHTML = '';
+                _context41.next = 4;
+                return _this110.$wire.call('clearFilters', true);
+              case 4:
+              case "end":
+                return _context41.stop();
+            }
+          }, _callee41);
+        }))();
       }
     };
   });
@@ -11766,6 +12976,9 @@ document.addEventListener("alpine:init", function () {
       this.getPlayer().call(method, methodParameter);
     }
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store('sidePanel', {
+    reopenModal: false
+  });
 });
 function getTitleForVideoUrl(videoUrl) {
   return fetch("https://noembed.com/embed?url=" + videoUrl).then(function (response) {
@@ -11809,6 +13022,7 @@ __webpack_require__(/*! ./navigation-bar */ "./resources/js/navigation-bar.js");
 __webpack_require__(/*! ../../vendor/wire-elements/modal/resources/js/modal */ "./vendor/wire-elements/modal/resources/js/modal.js");
 __webpack_require__(/*! ./webspellchecker_tlc */ "./resources/js/webspellchecker_tlc.js");
 __webpack_require__(/*! ./pdf-download */ "./resources/js/pdf-download.js");
+__webpack_require__(/*! ./Question/relation-question */ "./resources/js/Question/relation-question.js");
 window.ClassicEditors = [];
 makeHeaderMenuActive = function makeHeaderMenuActive(elementId) {
   document.getElementById(elementId).classList.add('active');
@@ -12646,7 +13860,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "662d128370816e2bbb66",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });
@@ -13041,7 +14255,6 @@ var validSvgElementKeys = {
   global: ["style", "class", "id", "stroke", "stroke-width", "stroke-dasharray", "fill", "fill-opacity", "opacity", "marker-start", "marker-mid", "marker-end"],
   rect: ["x", "y", "width", "height", "rx", "ry", "pathLength"],
   circle: ["cx", "cy", "r", "pathLength"],
-  ellipse: ["cx", "cy", "rx", "ry", "r", "pathLength"],
   line: ["x1", "y1", "x2", "y2", "pathLength"],
   path: ["d"],
   image: ["x", "y", "width", "height", "href", "preserveAspectRatio", "identifier"],
@@ -13081,13 +14294,12 @@ var panParams = {
 var elementClassNameForType = {
   "rect": "Rectangle",
   "circle": "Circle",
-  "ellipse": "Ellipse",
   "line": "Line",
   "text": "Text",
   "image": "Image",
   "path": "Path"
 };
-var resizableSvgShapes = ["rect", "circle", "image", "ellipse"];
+var resizableSvgShapes = ["rect", "circle", "image"];
 
 /***/ }),
 
@@ -13223,11 +14435,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         Canvas.layers.question.sidebar.style.display = "none";
       }
       this.warnings = {
-        // whenAnyToolButDragSelected: new warningBox(
-        //     UI.warningboxTemplate.dataset.text,
-        //     5000,
-        //     rootElement
-        // ),
+        whenAnyToolButDragSelected: new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.warningBox(UI.warningboxTemplate.dataset.text, 5000, rootElement)
       };
       if (!this.explainer) {
         var layerTemplate = rootElement.querySelector("#layer-group-template");
@@ -13287,10 +14495,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
       return this.getElementShapeType(shape) === this.params.currentTool;
     },
     getElementShapeType: function getElementShapeType(shape) {
-      return this.correctShapeId(shape.id).split("-")[0];
-    },
-    correctShapeId: function correctShapeId(shapeId) {
-      return shapeId.replace("ellipse", "circle");
+      return shape.id.split("-")[0];
     },
     isTeacher: function isTeacher() {
       return this.params.isTeacher;
@@ -13469,11 +14674,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         }
       },
       /**
-       * @param {HTML element} shape 
+       * @param {*} g element 
        * @returns object containing element svg (svgShape class) and its sidebar (Entry class)
        */
       getShapeDataObject: function getShapeDataObject(shape) {
-        return Canvas.layers[Canvas.layerID2Key(shape.parentElement.id)].shapes[drawingApp.correctShapeId(shape.id)];
+        return Canvas.layers[Canvas.layerID2Key(shape.parentElement.id)].shapes[shape.id];
       }
     };
     Obj.initCanvas();
@@ -14293,8 +15498,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
           group: copyAllAttributesFromElementToObject(groupElement),
           main: copyAllAttributesFromElementToObject(mainElement)
         };
-        var shapeID = drawingApp.correctShapeId(groupElement.id);
-        var shapeType = shapeID.substring(0, shapeID.indexOf("-"));
+        var shapeID = groupElement.id,
+          shapeType = shapeID.substring(0, shapeID.indexOf("-"));
         var newShape = makeNewSvgShapeWithSidebarEntry(shapeType, props, layerName, true, !(!drawingApp.isTeacher() && layerName === "question"));
         // Convert old dragging system (using SVGTransforms)
         // to new dragging system (all done with the SVG attributes of the element itself)
@@ -14779,7 +15984,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     var layerID = shapeGroup.parentElement.id;
     var layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
     if (!shapeMayBeDragged(shapeGroup, layerObject)) return;
-    var selectedSvgShape = layerObject.shapes[drawingApp.correctShapeId(shapeGroup.id)].svg;
+    var selectedSvgShape = layerObject.shapes[shapeGroup.id].svg;
     Canvas.params.drag = {
       enabled: true,
       selectedSvgShape: selectedSvgShape
@@ -14792,7 +15997,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     var layerID = shapeGroup.parentElement.id;
     var layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
     if (!shapeMayBeDragged(shapeGroup, layerObject)) return;
-    var selectedSvgShape = layerObject.shapes[drawingApp.correctShapeId(shapeGroup.id)].svg;
+    var selectedSvgShape = layerObject.shapes[shapeGroup.id].svg;
     if (!shapeIsResizable(selectedSvgShape)) return;
     Canvas.params.resize = {
       enabled: true,
@@ -15130,11 +16335,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     enableSpecificPropSelectInputs();
     setCursorTypeAccordingToCurrentType();
     unselectShapeIfNecessary();
-    // if (!drawingApp.currentToolIs("drag")) {
-    //     drawingApp.warnings.whenAnyToolButDragSelected.show();
-    // }
+    if (!drawingApp.currentToolIs("drag")) {
+      drawingApp.warnings.whenAnyToolButDragSelected.show();
+    }
   }
-
   function manualToolChange(tool) {
     var currentTool = drawingApp.params.currentTool;
     var newTool = tool;
@@ -15144,11 +16348,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
     makeSelectedBtnActive(btnElement);
     enableSpecificPropSelectInputs();
     setCursorTypeAccordingToCurrentType();
-    // if (!drawingApp.currentToolIs("drag")) {
-    //     drawingApp.warnings.whenAnyToolButDragSelected.show();
-    // }
+    if (!drawingApp.currentToolIs("drag")) {
+      drawingApp.warnings.whenAnyToolButDragSelected.show();
+    }
   }
-
   function determineNewTool(evt) {
     var id = evt.currentTarget.id;
     var startOfSlice = id.indexOf("-") + 1,
@@ -16191,15 +17394,9 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
     key: "showRelevantShapeMenu",
     value: function showRelevantShapeMenu() {
       var shapeType = this.svgShape.type;
-      switch (shapeType) {
-        case 'image':
-          return;
-        case 'path':
-          shapeType = 'freehand';
-          break;
-        case 'ellipse':
-          shapeType = 'circle';
-          break;
+      if (shapeType === 'image') return;
+      if (shapeType === 'path') {
+        shapeType = 'freehand';
       }
       document.querySelector("#add-".concat(shapeType, "-btn")).click();
     }
@@ -16596,7 +17793,6 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Circle: () => (/* binding */ Circle),
-/* harmony export */   Ellipse: () => (/* binding */ Ellipse),
 /* harmony export */   Group: () => (/* binding */ Group),
 /* harmony export */   Image: () => (/* binding */ Image),
 /* harmony export */   Line: () => (/* binding */ Line),
@@ -16734,7 +17930,6 @@ var svgElement = /*#__PURE__*/function () {
   }, {
     key: "setAllAttributesOnElement",
     value: function setAllAttributesOnElement() {
-      this.modifyPropsBeforeSettingAttributes();
       for (var _i = 0, _Object$entries = Object.entries(this.props); _i < _Object$entries.length; _i++) {
         var _Object$entries$_i = _slicedToArray(_Object$entries[_i], 2),
           key = _Object$entries$_i[0],
@@ -16831,12 +18026,6 @@ var svgElement = /*#__PURE__*/function () {
         dy: currentPosition.y - previousPosition.y
       };
     }
-  }, {
-    key: "onResizeStart",
-    value: function onResizeStart() {}
-  }, {
-    key: "modifyPropsBeforeSettingAttributes",
-    value: function modifyPropsBeforeSettingAttributes() {}
   }]);
   return svgElement;
 }();
@@ -16868,20 +18057,18 @@ var Rectangle = /*#__PURE__*/function (_svgElement) {
   }, {
     key: "onDraw",
     value: function onDraw(evt, cursor) {
-      var coords = this.calculateCoordsForDraw(cursor, evt.shiftKey);
+      var coords = this.calculateCoordsForDraw(cursor);
       this.updateAttributes(coords);
     }
 
     /**
      * Calculates values for the x, y, width and height properties of the rectangle.
      * @param {{x: number, y: number}} cursor
-     * @param {boolean} keepAspectRatio
      * @returns {RectangleCoords}
      */
   }, {
     key: "calculateCoordsForDraw",
     value: function calculateCoordsForDraw(cursor) {
-      var keepAspectRatio = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       var startingPosition = this.draw.startingPosition;
       var coords = {
         x: startingPosition.x,
@@ -16889,310 +18076,24 @@ var Rectangle = /*#__PURE__*/function (_svgElement) {
         width: cursor.x - startingPosition.x,
         height: cursor.y - startingPosition.y
       };
-      return this.getCorrectCords(cursor, coords, keepAspectRatio);
+      var replacements = {
+        x: cursor.x,
+        y: cursor.y,
+        width: -coords.width,
+        height: -coords.height
+      };
+      return this.correctNegativeSizes(coords, replacements);
     }
   }]);
   return Rectangle;
 }(svgElement);
-var Ellipse = /*#__PURE__*/function (_svgElement2) {
-  _inherits(Ellipse, _svgElement2);
-  var _super2 = _createSuper(Ellipse);
-  function Ellipse() {
-    var _this;
-    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-    _classCallCheck(this, Ellipse);
-    _this = _super2.call(this, "ellipse", props);
-    _this.startingPosition = {};
-    _this.startingPosition.cx = _this.props.cx;
-    _this.startingPosition.cy = _this.props.cy;
-    return _this;
-  }
-
-  /**
-   * Event handler called during drawing.
-   * @param {Event} evt
-   * @param {Cursor} cursor
-   */
-  _createClass(Ellipse, [{
-    key: "onDraw",
-    value: function onDraw(evt, cursor) {
-      this.thisSetPropertiesOnDraw(cursor, evt.shiftKey);
-    }
-
-    /** 
-     * Sets the properties of the ellipse on draw.
-     * @param {Cursor} cursor
-     * @param {boolean} keepAspectRatio
-    */
-  }, {
-    key: "thisSetPropertiesOnDraw",
-    value: function thisSetPropertiesOnDraw(cursor, keepAspectRatio) {
-      var properties = {
-        cx: cursor.x,
-        cy: cursor.y,
-        rx: this.calculateRX(cursor, this.startingPosition),
-        ry: this.calculateRY(cursor, this.startingPosition)
-      };
-      keepAspectRatio && this.fixPropertiesToKeepAspectRatioOnDraw(properties);
-      this.updateProperties(properties);
-    }
-
-    /**
-     * fix the properties to keep the aspect ratio
-     * @param {EllipseCoords} properties
-     */
-  }, {
-    key: "fixPropertiesToKeepAspectRatioOnDraw",
-    value: function fixPropertiesToKeepAspectRatioOnDraw(properties) {
-      properties.rx < properties.ry ? properties.ry = properties.rx : properties.rx = properties.ry;
-      properties.cy = this.startingPosition.cy;
-      properties.cx = this.startingPosition.cx;
-    }
-
-    /**
-     * Sets the properties of the ellipse.
-     * @param {EllipseCoords} properties
-    */
-  }, {
-    key: "updateProperties",
-    value: function updateProperties(properties) {
-      this.setCX(properties.cx);
-      this.setCY(properties.cy);
-      this.setRX(properties.rx);
-      this.setRY(properties.ry);
-    }
-
-    /**
-     * Sets the CX attribute on the shape and in the props.
-     * @param {number} value The value to be set.
-     */
-  }, {
-    key: "setCX",
-    value: function setCX(value) {
-      this.setCXAttribute(value);
-      this.setCXProperty(value);
-    }
-
-    /**
-     * Sets the CX attribute on the shape.
-     * @param {number} value The value to be given to the attribute.
-     */
-  }, {
-    key: "setCXAttribute",
-    value: function setCXAttribute(value) {
-      this.setAttributeOnElementWithValidation("cx", value);
-    }
-
-    /**
-     * Sets the CX attribute in the props.
-     * @param {number} value The value to be given to the property.
-     */
-  }, {
-    key: "setCXProperty",
-    value: function setCXProperty(value) {
-      this.props.cx = value;
-    }
-
-    /**
-     * Sets the CY attribute on the shape and in the props.
-     * @param {number} value The value to be set.
-     */
-  }, {
-    key: "setCY",
-    value: function setCY(value) {
-      this.setCYAttribute(value);
-      this.setCYProperty(value);
-    }
-
-    /**
-     * Sets the CY attribute on the shape.
-     * @param {number} value The value to be given to the attribute.
-     */
-  }, {
-    key: "setCYAttribute",
-    value: function setCYAttribute(value) {
-      this.setAttributeOnElementWithValidation("cy", value);
-    }
-
-    /**
-     * Sets the CY attribute in the props.
-     * @param {number} value The value to be given to the property.
-     */
-  }, {
-    key: "setCYProperty",
-    value: function setCYProperty(value) {
-      this.props.cy = value;
-    }
-
-    /**
-     * Sets the RX attribute on the shape and in the props.
-     * @param {Cursor} cursor
-     * @param {{cx: number, cy: number}} previousPosition
-     * @return {number} The value to be set.
-     */
-  }, {
-    key: "calculateRX",
-    value: function calculateRX(cursor, previousPosition) {
-      return Math.abs(cursor.x - previousPosition.cx);
-    }
-
-    /**
-     * Sets the RY attribute on the shape and in the props.
-     * @param {{x: number, y: number}} cursor
-     * @param {{cx: number, cy: number}} previousPosition
-     * @return {number} The value to be set.
-     */
-  }, {
-    key: "calculateRY",
-    value: function calculateRY(cursor, previousPosition) {
-      return Math.abs(cursor.y - previousPosition.cy);
-    }
-
-    /**
-     * Sets the RX attribute on the shape and in the props.
-     * @param {number} value The value to be set.
-     */
-  }, {
-    key: "setRX",
-    value: function setRX(value) {
-      this.setRXAttribute(value);
-      this.setRXProperty(value);
-    }
-
-    /** 
-     * Sets the RX attribute on the shape.
-     * @param {number} value The value to be given to the attribute.
-     */
-  }, {
-    key: "setRXAttribute",
-    value: function setRXAttribute(value) {
-      this.setAttributeOnElementWithValidation("rx", value);
-    }
-
-    /**
-     * Sets the RX attribute in the props.
-     * @param {number} value The value to be given to the property.
-     */
-  }, {
-    key: "setRXProperty",
-    value: function setRXProperty(value) {
-      this.props.rx = value;
-    }
-
-    /**
-     * Sets the RY attribute on the shape and in the props.
-     * @param {number} value The value to be set.
-     */
-  }, {
-    key: "setRY",
-    value: function setRY(value) {
-      this.setRYAttribute(value);
-      this.setRYProperty(value);
-    }
-
-    /**
-     * Sets the RY attribute on the shape.
-     * @param {number} value The value to be given to the attribute.
-     */
-  }, {
-    key: "setRYAttribute",
-    value: function setRYAttribute(value) {
-      this.setAttributeOnElementWithValidation("ry", value);
-    }
-
-    /**
-     * Sets the RY attribute in the props.
-     * @param {number} value The value to be given to the property.
-     */
-  }, {
-    key: "setRYProperty",
-    value: function setRYProperty(value) {
-      this.props.ry = value;
-    }
-
-    /**
-     * Event handler called at start of dragging
-     * @param {Event} evt
-     * @param {Cursor} cursor
-     */
-  }, {
-    key: "onDragStart",
-    value: function onDragStart(evt, cursor) {
-      this.drag.previousCursorPosition = cursor;
-      this.drag.startingPosition = {
-        x: this.props.cx,
-        y: this.props.cy
-      };
-    }
-
-    /**
-     * Sets the cx and cy values to the old values plus
-     * the offset specified by distance.dx and distance.dy
-     * @param {{dx: number, dy: number}} distance
-     */
-  }, {
-    key: "move",
-    value: function move(distance) {
-      this.setCX(parseFloat(this.props.cx) + distance.dx);
-      this.setCY(parseFloat(this.props.cy) + distance.dy);
-    }
-
-    /**
-     * Sets the specified position
-     * @param {{x: number, y: number}} position
-     */
-  }, {
-    key: "updatePosition",
-    value: function updatePosition(position) {
-      this.setCX(position.x);
-      this.setCY(position.y);
-    }
-
-    /**
-     * Event handler called during resize.
-     * @param {Event} evt
-     * @param {Cursor} cursor
-     */
-  }, {
-    key: "onResize",
-    value: function onResize(evt, cursor) {
-      this.thisSetPropertiesOnResize(cursor, evt.shiftKey);
-    }
-  }, {
-    key: "thisSetPropertiesOnResize",
-    value: function thisSetPropertiesOnResize(cursor, keepAspectRatio) {
-      var properties = {
-        cx: this.props.cx,
-        cy: this.props.cy,
-        rx: this.calculateRX(cursor, this.props),
-        ry: this.calculateRY(cursor, this.props)
-      };
-      keepAspectRatio && this.fixPropertiesToKeepAspectRatioOnResize(properties);
-      this.updateProperties(properties);
-    }
-  }, {
-    key: "fixPropertiesToKeepAspectRatioOnResize",
-    value: function fixPropertiesToKeepAspectRatioOnResize(properties) {
-      properties.rx > properties.ry ? properties.ry = properties.rx : properties.rx = properties.ry;
-    }
-  }, {
-    key: "modifyPropsBeforeSettingAttributes",
-    value: function modifyPropsBeforeSettingAttributes() {
-      if (this.props.hasOwnProperty("r") && this.props.r > 0) {
-        this.props.rx = this.props.ry = this.props.r;
-        this.props.r = "0";
-      }
-    }
-  }]);
-  return Ellipse;
-}(svgElement);
-var Circle = /*#__PURE__*/function (_svgElement3) {
-  _inherits(Circle, _svgElement3);
-  var _super3 = _createSuper(Circle);
+var Circle = /*#__PURE__*/function (_svgElement2) {
+  _inherits(Circle, _svgElement2);
+  var _super2 = _createSuper(Circle);
   function Circle() {
     var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     _classCallCheck(this, Circle);
-    return _super3.call(this, "circle", props);
+    return _super2.call(this, "circle", props);
   }
 
   /**
@@ -17290,6 +18191,29 @@ var Circle = /*#__PURE__*/function (_svgElement3) {
     }
 
     /**
+     * Sets the cx and cy values to the old values plus
+     * the offset specified by distance.dx and distance.dy
+     * @param {{dx: number, dy: number}} distance
+     */
+  }, {
+    key: "move",
+    value: function move(distance) {
+      this.setCX(parseFloat(this.props.cx) + distance.dx);
+      this.setCY(parseFloat(this.props.cy) + distance.dy);
+    }
+
+    /**
+     * Sets the specified position
+     * @param {{x: number, y: number}} position
+     */
+  }, {
+    key: "updatePosition",
+    value: function updatePosition(position) {
+      this.setCX(position.x);
+      this.setCY(position.y);
+    }
+
+    /**
      * Sets the CX attribute on the shape and in the props.
      * @param {number} value The value to be set.
      */
@@ -17350,101 +18274,16 @@ var Circle = /*#__PURE__*/function (_svgElement3) {
     value: function setCYProperty(value) {
       this.props.cy = value;
     }
-
-    /**
-     * Sets the RX attribute on the shape and in the props.
-     * @param {number} value The value to be set.
-     */
-  }, {
-    key: "setRX",
-    value: function setRX(value) {
-      this.setRXAttribute(value);
-      this.setRXProperty(value);
-    }
-
-    /** 
-     * Sets the RX attribute on the shape.
-     * @param {number} value The value to be given to the attribute.
-     */
-  }, {
-    key: "setRXAttribute",
-    value: function setRXAttribute(value) {
-      this.setAttributeOnElementWithValidation("rx", value);
-    }
-
-    /**
-     * Sets the RX attribute in the props.
-     * @param {number} value The value to be given to the property.
-     */
-  }, {
-    key: "setRXProperty",
-    value: function setRXProperty(value) {
-      this.props.rx = value;
-    }
-
-    /**
-     * Sets the RY attribute on the shape and in the props.
-     * @param {number} value The value to be set.
-     */
-  }, {
-    key: "setRY",
-    value: function setRY(value) {
-      this.setRYAttribute(value);
-      this.setRYProperty(value);
-    }
-
-    /**
-     * Sets the RY attribute on the shape.
-     * @param {number} value The value to be given to the attribute.
-     */
-  }, {
-    key: "setRYAttribute",
-    value: function setRYAttribute(value) {
-      this.setAttributeOnElementWithValidation("ry", value);
-    }
-
-    /**
-     * Sets the RY attribute in the props.
-     * @param {number} value The value to be given to the property.
-     */
-  }, {
-    key: "setRYProperty",
-    value: function setRYProperty(value) {
-      this.props.ry = value;
-    }
-
-    /**
-     * Sets the cx and cy values to the old values plus
-     * the offset specified by distance.dx and distance.dy
-     * @param {{dx: number, dy: number}} distance
-     */
-  }, {
-    key: "move",
-    value: function move(distance) {
-      this.setCX(parseFloat(this.props.cx) + distance.dx);
-      this.setCY(parseFloat(this.props.cy) + distance.dy);
-    }
-
-    /**
-     * Sets the specified position
-     * @param {{x: number, y: number}} position
-     */
-  }, {
-    key: "updatePosition",
-    value: function updatePosition(position) {
-      this.setCX(position.x);
-      this.setCY(position.y);
-    }
   }]);
   return Circle;
 }(svgElement);
-var Line = /*#__PURE__*/function (_svgElement4) {
-  _inherits(Line, _svgElement4);
-  var _super4 = _createSuper(Line);
+var Line = /*#__PURE__*/function (_svgElement3) {
+  _inherits(Line, _svgElement3);
+  var _super3 = _createSuper(Line);
   function Line() {
     var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     _classCallCheck(this, Line);
-    return _super4.call(this, "line", props);
+    return _super3.call(this, "line", props);
   }
 
   /**
@@ -17616,13 +18455,13 @@ var Line = /*#__PURE__*/function (_svgElement4) {
   }]);
   return Line;
 }(svgElement);
-var Image = /*#__PURE__*/function (_svgElement5) {
-  _inherits(Image, _svgElement5);
-  var _super5 = _createSuper(Image);
+var Image = /*#__PURE__*/function (_svgElement4) {
+  _inherits(Image, _svgElement4);
+  var _super4 = _createSuper(Image);
   function Image() {
     var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     _classCallCheck(this, Image);
-    return _super5.call(this, "image", props);
+    return _super4.call(this, "image", props);
   }
 
   /**
@@ -17658,13 +18497,13 @@ var Image = /*#__PURE__*/function (_svgElement5) {
   }]);
   return Image;
 }(svgElement);
-var Path = /*#__PURE__*/function (_svgElement6) {
-  _inherits(Path, _svgElement6);
-  var _super6 = _createSuper(Path);
+var Path = /*#__PURE__*/function (_svgElement5) {
+  _inherits(Path, _svgElement5);
+  var _super5 = _createSuper(Path);
   function Path() {
     var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     _classCallCheck(this, Path);
-    return _super6.call(this, "path", props);
+    return _super5.call(this, "path", props);
   }
 
   /**
@@ -17771,13 +18610,13 @@ var Path = /*#__PURE__*/function (_svgElement6) {
   }]);
   return Path;
 }(svgElement);
-var Text = /*#__PURE__*/function (_svgElement7) {
-  _inherits(Text, _svgElement7);
-  var _super7 = _createSuper(Text);
+var Text = /*#__PURE__*/function (_svgElement6) {
+  _inherits(Text, _svgElement6);
+  var _super6 = _createSuper(Text);
   function Text() {
     var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     _classCallCheck(this, Text);
-    return _super7.call(this, "text", props);
+    return _super6.call(this, "text", props);
   }
 
   /**
@@ -17912,23 +18751,23 @@ var Text = /*#__PURE__*/function (_svgElement7) {
   }]);
   return Text;
 }(svgElement);
-var Textbox = /*#__PURE__*/function (_svgElement8) {
-  _inherits(Textbox, _svgElement8);
-  var _super8 = _createSuper(Textbox);
+var Textbox = /*#__PURE__*/function (_svgElement7) {
+  _inherits(Textbox, _svgElement7);
+  var _super7 = _createSuper(Textbox);
   function Textbox() {
     var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     _classCallCheck(this, Textbox);
-    return _super8.call(this, "text", props);
+    return _super7.call(this, "text", props);
   }
   return _createClass(Textbox);
 }(svgElement);
-var Group = /*#__PURE__*/function (_svgElement9) {
-  _inherits(Group, _svgElement9);
-  var _super9 = _createSuper(Group);
+var Group = /*#__PURE__*/function (_svgElement8) {
+  _inherits(Group, _svgElement8);
+  var _super8 = _createSuper(Group);
   function Group() {
     var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
     _classCallCheck(this, Group);
-    return _super9.call(this, "g", props);
+    return _super8.call(this, "g", props);
   }
   return _createClass(Group);
 }(svgElement);
@@ -18083,17 +18922,15 @@ var rectangularFunctionality = {
    * @param {Cursor} cursor
    */
   onResize: function onResize(evt, cursor) {
-    var coords = this.calculateCoordsForResize(cursor, evt.shiftKey);
+    var coords = this.calculateCoordsForResize(cursor);
     this.updateAttributes(coords);
   },
   /**
    * Calculates new values for the x, y, width and height properties of the rectangle.
    * @param {{x: number, y: number}} cursor
-   * @param {boolean} keepAspectRatio
    * @returns {RectangleCoords}
    */
   calculateCoordsForResize: function calculateCoordsForResize(cursor) {
-    var keepAspectRatio = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
     var startingCoords = this.resize.startingCoords;
     var coords = {
       x: startingCoords.x,
@@ -18135,12 +18972,7 @@ var rectangularFunctionality = {
     }
     replacements.width = -coords.width;
     replacements.height = -coords.height;
-    this.correctNegativeSizes(coords, replacements);
-    if (keepAspectRatio) {
-      this.fixCoordsToKeepAspectRatio(coords);
-      this.fixCoordsCoordinatesOnResize(coords, replacements);
-    }
-    return coords;
+    return this.correctNegativeSizes(coords, replacements);
   },
   /**
    * Inverts the width and height and changes x and y when the width or height
@@ -18159,103 +18991,6 @@ var rectangularFunctionality = {
       coords.height = replacements.height;
     }
     return coords;
-  },
-  /**
-   * Calculates the new values for the x, y, width and height properties of the rectangle when the width or height are negative.
-   * @param {{x: number, y: number}} cursor 
-   * @param {RectangleCoords} coords
-   * @param {bool} keepAspectRatio
-   * @returns {RectangleCoords}
-   */
-  getReplacementCoordsForNegativeSizesCorrection: function getReplacementCoordsForNegativeSizesCorrection(cursor, coords, keepAspectRatio) {
-    var replacements = {
-      x: cursor.x,
-      y: cursor.y,
-      width: -coords.width,
-      height: -coords.height
-    };
-    if (keepAspectRatio) {
-      if (coords.width < 0 && coords.height < 0) {
-        // Mouse direction is up left from starting point
-        -coords.width >= -coords.height ? replacements.x = coords.x + coords.height : replacements.y = coords.y + coords.width;
-      } else if (coords.width < 0 && -coords.width >= coords.height) {
-        // Mouse direction is down left from starting point
-        replacements.x = coords.x + -coords.height;
-      } else if (coords.height < 0 && -coords.height >= coords.width) {
-        // Mouse direction is up right from starting point
-        replacements.y = coords.y + -coords.width;
-      }
-    }
-    return replacements;
-  },
-  /**
-   * Checks if the aspect ratio should be kept and corrects the given coordinates if needed.
-   * @param {RectangleCoords} coords 
-   */
-  fixCoordsToKeepAspectRatio: function fixCoordsToKeepAspectRatio(coords) {
-    coords.width < coords.height ? coords.height = coords.width : coords.width = coords.height;
-  },
-  /**
-   * Check if the aspect ratio should be kept and corrects the given coordinates if needed.
-   * @param {{x: number, y: number}} cursor
-   * @param {RectangleCoords} coords
-   * @param {bool} keepAspectRatio
-   * @returns {RectangleCoords}
-   */
-  getCorrectCords: function getCorrectCords(cursor, coords, keepAspectRatio) {
-    var replacements = this.getReplacementCoordsForNegativeSizesCorrection(cursor, coords, keepAspectRatio);
-    this.correctNegativeSizes(coords, replacements);
-    keepAspectRatio && this.fixCoordsToKeepAspectRatio(coords);
-    return coords;
-  },
-  /**
-   * Fixes the coordinates of the rectangle when the aspect ratio is kept.
-   * @param {RectangleCoords} coords 
-   * @param {RectangleCoords} replacements 
-   */
-  fixCoordsCoordinatesOnResize: function fixCoordsCoordinatesOnResize(coords, replacements) {
-    switch (this.resize.selectedCorner) {
-      case "side-se":
-        if (replacements.height > 0) {
-          var difference = replacements.height - coords.height;
-          coords.y = coords.y + difference;
-        }
-        if (replacements.width > 0) {
-          var _difference = replacements.width - coords.width;
-          coords.x = coords.x + _difference;
-        }
-        break;
-      case "side-ne":
-        if (replacements.height < 0) {
-          var _difference2 = replacements.height + coords.height;
-          coords.y = coords.y - _difference2;
-        }
-        if (replacements.width > 0) {
-          var _difference3 = replacements.width - coords.width;
-          coords.x = coords.x + _difference3;
-        }
-        break;
-      case "side-sw":
-        if (replacements.height > 0) {
-          var _difference4 = replacements.height - coords.height;
-          coords.y = coords.y + _difference4;
-        }
-        if (replacements.width < 0) {
-          var _difference5 = replacements.width + coords.width;
-          coords.x = coords.x - _difference5;
-        }
-        break;
-      case "side-nw":
-        if (replacements.height < 0) {
-          var _difference6 = replacements.height + coords.height;
-          coords.y = coords.y - _difference6;
-        }
-        if (replacements.width < 0) {
-          var _difference7 = replacements.width + coords.width;
-          coords.x = coords.x - _difference7;
-        }
-        break;
-    }
   }
 };
 Object.assign(Rectangle.prototype, rectangularFunctionality);
@@ -18818,7 +19553,7 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
    */
   function Circle(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Circle);
-    return _super2.call(this, shapeId, "ellipse", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+    return _super2.call(this, shapeId, "circle", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
   }
   _createClass(Circle, [{
     key: "setInputValuesOnEdit",
@@ -18880,7 +19615,7 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
   }, {
     key: "meetsMinRequirements",
     value: function meetsMinRequirements() {
-      return this.mainElement.getAttribute("rx") >= 4 && this.mainElement.getAttribute("ry") >= 4;
+      return this.mainElement.getAttribute("r") >= 4;
     }
   }], [{
     key: "getMainElementAttributes",
@@ -18889,8 +19624,6 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
         "cx": cursorPosition.x,
         "cy": cursorPosition.y,
         "r": 0,
-        "rx": 0,
-        "ry": 0,
         "fill": UI.fillOpacityNumberCircle.value === 0 ? "none" : UI.fillColorCircle.value,
         "fill-opacity": parseFloat(UI.fillOpacityNumberCircle.value / 100),
         "stroke": UI.strokeColorCircle.value,
@@ -20614,7 +21347,7 @@ window.RichTextEditor = {
       },
       image: {
         upload: {
-          types: ["jpeg", "png", "gif", "bmp", "webp"]
+          types: ["jpeg", "png", "gif", "bmp", "webp", "tiff"]
         },
         toolbar: ["imageTextAlternative",
         // 'toggleImageCaption',
@@ -20905,11 +21638,6 @@ window.RichTextEditor = {
               if (typeof resolveCallback === "function") {
                 resolveCallback(editor);
               }
-              editor.editing.view.on('change', function (event, data) {
-                //remove the aria-label from the root element for readspeaker
-                editor.editing.view.document.getRoot()._removeAttribute('aria-label');
-              });
-
               // editor.ui.view.editableElement.tabIndex = -1;
             })["catch"](function (error) {
               console.error(error);
@@ -21195,6 +21923,7 @@ WebspellcheckerTlc = {
    */
   handleSpellCheckerOnOff: function handleSpellCheckerOnOff(editor) {
     var initialStatus = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+    if (!editor.plugins.has('WProofreader')) return;
     spellChecker = editor.plugins.get('WProofreader');
     spellChecker.isEnabled = initialStatus; // set initial status
     this.captureSpellCheckerOnOff(spellChecker);

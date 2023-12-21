@@ -101,7 +101,7 @@ class TestTakeLaravelController extends Controller
             compact(['data', 'current', 'answers', 'nav', 'uuid', 'testParticipant', 'styling', 'allowMrChadd'])
         );
     }
-
+    
     public function getAnswers($testTake, $testQuestions, $testParticipant): array
     {
         $testQuestionCount = $testTake->test->getQuestionCount();

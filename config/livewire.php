@@ -72,7 +72,7 @@ return [
     'temporary_file_upload' => [
         'disk'          => null,        // Example: 'local', 's3'              Default: 'default'
         'rules'         => [
-            'mimes:pdf,mp3,png,jpeg,jpg,gif,doc,docx,wav',
+            'mimes:pdf,mp3,png,jpeg,jpg,gif,doc,docx,wav,xlsx,xls',
             'max:'. \tcCore\Http\Helpers\BaseHelper::getMaxFileUploadSize()
         ],       // Example: ['file', 'mimes:png,jpg']  Default: ['required', 'file', 'max:12288'] (12MB)
         'directory'     => null,   // Example: 'tmp'                      Default  'livewire-tmp'
@@ -80,7 +80,7 @@ return [
         'preview_mimes' => [   // Supported file types for temporary pre-signed file URLs.
             'png', 'gif', 'bmp', 'svg', 'wav', 'mp4',
             'mov', 'avi', 'wmv', 'mp3', 'm4a',
-            'jpeg', 'mpga', 'webp', 'wma', 'pdf', 'jpg'
+            'jpeg', 'mpga', 'webp', 'wma', 'pdf', 'jpg',
         ],
     ],
 

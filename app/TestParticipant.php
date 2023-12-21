@@ -82,16 +82,12 @@ class TestParticipant extends BaseModel
                 return;
             }
 
-            //$testParticipant->load('testTakeStatus');
-
             $testParticipant->makeEmptyAnswerOptionsFor();
 
             $testParticipant->startedTakingTest();
             $testParticipant->reopenedTakingTest();
 
 
-//            if ($testParticipant->testTakeStatus->name !== 'Taking test' && $testParticipant->getOriginal('test_take_status_id') === 3) {// TestTakeStatus::where('name', '=', 'Taking test')->value('id')) {
-            //stoppedTakingTest
             $testParticipant->stoppedTakingTest();
             $testParticipant->updatedRatingOrRetakeRating();
 
@@ -108,8 +104,6 @@ class TestParticipant extends BaseModel
 
     private function makeEmptyAnswerOptionsFor()
     {
-        // validatie op heartbeat_at was toch niet goed...
-//        if (($this->getOriginal('heartbeat_at') === null || $this->getOriginal('heartbeat_at') === '') && $this->test_take_status_id === 3 && $this->answers()->count() === 0) {
         $answersProvisioned = $this->answers_provisioned;
         if ($this->answers()->count() > 0) {
             $answersProvisioned = true;
@@ -193,7 +187,6 @@ class TestParticipant extends BaseModel
                     Bugsnag::notifyException(new \LogicException($body));
                 }
             }
-//            $this->answers()->saveMany($answers);
 
             (new AnswerParentQuestionsHelper())->fixAnswerParentQuestionsPerTestParticipant($this);
             $this->answers_provisioned = true;

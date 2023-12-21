@@ -18,7 +18,7 @@ class RefreshDatabase extends Command
      *
      * @var string
      */
-    protected $signature = 'test:refreshdb {--file=} {--allow-all}  {--force}';
+    protected $signature = 'test:refreshdb {--file=} {--allow-all} {--force}';
 
     /**
      * The console command description.
@@ -145,6 +145,18 @@ class RefreshDatabase extends Command
             $this->snapShotPath
         ));
 
+        if (DB::connection()->getConfig('password') == '') {
+            $process = Process::fromShellCommandline(sprintf(
+                'mysqldump -u%s -h%s %s > %s',
+                config('database.connections.mysql.username'),
+                config('database.connections.mysql.host'),
+                config('database.connections.mysql.database'),
+                $this->snapShotPath
+            ));
+        }
+
+
+
         try {
             $process->mustRun();
 
@@ -166,6 +178,16 @@ class RefreshDatabase extends Command
             config('database.connections.mysql.database'),
             $this->snapShotPath
         ));
+
+        if (DB::connection()->getConfig('password') == '') {
+            $process = Process::fromShellCommandline(sprintf(
+                'mysql -u%s -h%s %s < %s',
+                config('database.connections.mysql.username'),
+                config('database.connections.mysql.host'),
+                config('database.connections.mysql.database'),
+                $this->snapShotPath
+            ));
+        }
 
         try {
             $process->mustRun();

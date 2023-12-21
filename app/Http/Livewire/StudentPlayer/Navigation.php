@@ -6,7 +6,7 @@ use tcCore\Answer;
 use tcCore\Http\Livewire\TCComponent;
 use tcCore\Question;
 
-abstract class Navigation extends TCComponent
+abstract class Navigation extends StudentPlayerQuestion
 {
     public $nav;
     public $q;

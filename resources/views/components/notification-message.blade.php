@@ -3,6 +3,7 @@
     'message' => null,
     'stretched' => true,
     'type' => 'error',
+    'action' => null,
 ])
 
 <div {{ $attributes->except('class') }} @class([
@@ -20,5 +21,8 @@
 
     @isset($message)
         <div class="body">{{ $message }}</div>
+    @endisset
+    @isset($action)
+        {{ $action }}
     @endisset
 </div>

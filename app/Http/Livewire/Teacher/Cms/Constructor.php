@@ -22,6 +22,8 @@ use tcCore\Http\Controllers\TemporaryLoginController;
 use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Controllers\TestsController;
+use tcCore\Http\Enums\Taxonomy\Bloom;
+use tcCore\Http\Enums\Taxonomy\Miller;
 use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
 use tcCore\Http\Enums\WscLanguage;
 use tcCore\Http\Helpers\CakeRedirectHelper;
@@ -33,12 +35,15 @@ use tcCore\Http\Livewire\Teacher\Cms\Providers\InfoScreen;
 use tcCore\Http\Livewire\Teacher\Cms\Providers\MultipleChoice;
 use tcCore\Http\Livewire\Teacher\Cms\Providers\Open;
 use tcCore\Http\Livewire\Teacher\Cms\Providers\Ranking;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\Relation;
 use tcCore\Http\Livewire\Teacher\Cms\Providers\TrueFalse;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\TypeProvider;
 use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
 use tcCore\Http\Requests\Request;
 use tcCore\Http\Traits\WithQueryStringSyncing;
+use tcCore\Http\Traits\WithRelationQuestionAttributes;
 use tcCore\Lib\CkEditorComments\User;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Question;
@@ -52,6 +57,7 @@ class Constructor extends TCComponent implements QuestionCms
 {
     use WithFileUploads;
     use WithQueryStringSyncing;
+    use WithRelationQuestionAttributes;
 
     public $showSelectionOptionsModal = false;
 
@@ -130,11 +136,6 @@ class Constructor extends TCComponent implements QuestionCms
 
     protected $typesNeedIsolate = ['MatchingQuestion'];
 
-    protected $settingsGeneralPropertiesVisibility = [
-        'autoCheckAnswer'                       => false,
-        'autoCheckAnswerCaseSensitive'          => false,
-    ];
-
     public $testName = 'test_name';
 
     public $subjectId;
@@ -167,6 +168,8 @@ class Constructor extends TCComponent implements QuestionCms
     public $uniqueQuestionKey = '';
     public $duplicateQuestion = false;
     public $canDeleteTest = false;
+
+    public array $uploadRules = [];
 
     protected function rules()
     {
@@ -293,19 +296,21 @@ class Constructor extends TCComponent implements QuestionCms
     }
 
     protected $listeners = [
-        'new-tags-for-question' => 'handleExternalUpdatedProperty',
-        'updated-attainment'    => 'handleExternalUpdatedProperty',
-        'updated-learning-goal' => 'handleExternalUpdatedProperty',
-        'new-video-attachment'  => 'handleNewVideoAttachment',
-        'drawing_data_updated'  => 'handleUpdateDrawingData',
-        'refresh'               => 'render',
-        'showQuestion'          => 'showQuestion',
-        'addQuestion'           => 'addQuestion',
-        'showEmpty'             => 'showEmpty',
-        'questionDeleted'       => '$refresh',
-        'addQuestionFromDirty'  => 'addQuestionFromDirty',
-        'testSettingsUpdated'   => 'handleUpdatedTestSettings',
-        'test-updated'          => 'testPublished',
+        'new-tags-for-question'                        => 'handleExternalUpdatedProperty',
+        'updated-attainment'                           => 'handleExternalUpdatedProperty',
+        'updated-learning-goal'                        => 'handleExternalUpdatedProperty',
+        'new-video-attachment'                         => 'handleNewVideoAttachment',
+        'drawing_data_updated'                         => 'handleUpdateDrawingData',
+        'refresh'                                      => 'render',
+        'showQuestion'                                 => 'showQuestion',
+        'addQuestion'                                  => 'addQuestion',
+        'showEmpty'                                    => 'showEmpty',
+        'questionDeleted'                              => '$refresh',
+        'addQuestionFromDirty'                         => 'addQuestionFromDirty',
+        'testSettingsUpdated'                          => 'handleUpdatedTestSettings',
+        'test-updated'                                 => 'testPublished',
+        'relation-question-words-updated'              => 'newRelationQuestionWords',
+        'relation-question-accepted-word-list-changes' => 'newRelationQuestionWords',
     ];
 
 
@@ -370,7 +375,7 @@ class Constructor extends TCComponent implements QuestionCms
 
     private function initialize($activeTest)
     {
-        $this->lang = $this->getDefaultWscLanguage();
+        $this->lang = $this->getDefaultWscLanguage($activeTest);
         $this->resetQuestionProperties($activeTest);
         $this->canDeleteTest = $activeTest->canDelete(Auth::user());
         $this->testIsPublished = $activeTest->isPublished();
@@ -379,6 +384,7 @@ class Constructor extends TCComponent implements QuestionCms
         $this->educationLevelId = $activeTest->education_level_id;
         $this->allowWsc = Auth::user()->schoolLocation->allow_wsc;
         $this->wscLanguages = WscLanguage::casesWithDescription();
+        $this->setUploadRules();
     }
 
     public function __call($method, $arguments = null)
@@ -485,7 +491,7 @@ class Constructor extends TCComponent implements QuestionCms
 
     public function updating($name, $value)
     {
-        $method = 'updating' . ucfirst($name);
+        $method = 'updating' . Str::dotToPascal($name);
         if ($this->obj && method_exists($this->obj, $method)) {
             $this->obj->$method($value);
         }
@@ -684,16 +690,10 @@ class Constructor extends TCComponent implements QuestionCms
         return $response;
     }
 
-    public function isSettingsGeneralPropertyVisible($property)
+    public function isSettingsGeneralPropertyVisible($property): bool
     {
-        if ($this->obj && property_exists($this->obj,
-                'settingsGeneralPropertiesVisibility') && is_array($this->obj->settingsGeneralPropertiesVisibility)) {
-            $this->settingsGeneralPropertiesVisibility = array_merge($this->settingsGeneralPropertiesVisibility,
-                $this->obj->settingsGeneralPropertiesVisibility);
-        }
-
-        if (array_key_exists($property, $this->settingsGeneralPropertiesVisibility)) {
-            return (bool)$this->settingsGeneralPropertiesVisibility[$property];
+        if ($this->obj instanceof TypeProvider) {
+            return $this->obj->isSettingVisible($property);
         }
 
         return true;
@@ -701,21 +701,10 @@ class Constructor extends TCComponent implements QuestionCms
 
     public function isSettingsGeneralPropertyDisabled($property, $asText = false)
     {
-        if ($this->obj && method_exists($this->obj, 'isSettingsGeneralPropertyDisabled')) {
-            return $this->obj->isSettingsGeneralPropertyDisabled($property, $asText);
+        if ($this->obj instanceof TypeProvider) {
+            return $this->obj->isSettingDisabled($property);
         }
 
-        if ($this->obj && property_exists($this->obj,
-                'settingsGeneralDisabledProperties') && is_array($this->obj->settingsGeneralDisabledProperties) && in_array($property,
-                $this->obj->settingsGeneralDisabledProperties)) {
-            if ($asText) {
-                return 'true';
-            }
-            return true;
-        }
-        if ($asText) {
-            return 'false';
-        }
         return false;
     }
 
@@ -958,15 +947,15 @@ class Constructor extends TCComponent implements QuestionCms
             $q = $tq->question;
             $this->attachments = $q->attachments()->with('questionAttachments')->get();
 
-            $q = (new QuestionHelper())->getTotalQuestion($q->question);
+            $q = (new QuestionHelper())->getTotalQuestion($q);
             $this->pValues = $q->getQuestionInstance()->getRelation('pValue');
 
-            $this->questionId = $q->question->getKey();
+            $this->questionId = $q->getKey();
             $this->question['bloom'] = $q->bloom;
             $this->question['rtti'] = $q->rtti;
             $this->question['miller'] = $q->miller;
             $this->question['answer'] = $q->answer;
-            $this->question['question'] = $q->question->getQuestionHTML();
+            $this->question['question'] = $q->getQuestionHTML();
             $this->question['score'] = $q->score;
             $this->question['note_type'] = $q->note_type;
             $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
@@ -1466,21 +1455,9 @@ class Constructor extends TCComponent implements QuestionCms
     {
         $this->rttiOptions = ['R', 'T1', 'T2', 'I'];
 
-        $this->bloomOptions = [
-            "Onthouden"  => __('cms.Onthouden'),
-            "Begrijpen"  => __('cms.Begrijpen'),
-            "Toepassen"  => __('cms.Toepassen'),
-            "Analyseren" => __('cms.Analyseren'),
-            "Evalueren"  => __('cms.Evalueren'),
-            "Creëren"    => __('cms.Creëren')
-        ];
+        $this->bloomOptions = Bloom::translations();
 
-        $this->millerOptions = [
-            "Weten"      => __('cms.Weten'),
-            "Weten hoe"  => __('cms.Weten hoe'),
-            "Laten zien" => __('cms.Laten zien'),
-            "Doen"       => __('cms.Doen'),
-        ];
+        $this->millerOptions = Miller::translations();
     }
 
     private function handleDraftStatusOfTestForUpdate(CmsRequest $request): CmsRequest
@@ -1494,24 +1471,16 @@ class Constructor extends TCComponent implements QuestionCms
         $this->testIsPublished = Test::whereUuid($this->testId)->first()->isPublished();
     }
 
-    private function getTestLanguage(): ?WscLanguage
-    {
-        return BaseSubject::join('subjects', 'subjects.base_subject_id', '=', 'base_subjects.id')
-            ->join('tests', 'tests.subject_id', '=', 'subjects.id')
-            ->whereIn('tests.id', Test::whereUuid($this->testId)->select('id'))
-            ->value('wsc_lang');
-    }
-
     public function toPlannedTest($takeUuid)
     {
         $testTake = TestTake::whereUuid($takeUuid)->first();
         return auth()->user()->redirectToCakeWithTemporaryLogin($testTake->getPlannedTestOptions());
     }
 
-    private function getDefaultWscLanguage()
+    private function getDefaultWscLanguage($test)
     {
         if (UserFeatureSetting::getSetting(Auth::user(), UserFeatureSettingEnum::WSC_COPY_SUBJECT_LANGUAGE, default: true)) {
-            if ($subjectLanguage = $this->getTestLanguage()) {
+            if ($subjectLanguage = $test->getBaseSubjectLanguage()) {
                 return $subjectLanguage;
             }
         }
@@ -1527,10 +1496,51 @@ class Constructor extends TCComponent implements QuestionCms
     {
         $featureSettings = UserFeatureSettingEnum::initialValues()->merge(UserFeatureSetting::getAll(Auth::user()));
         return [
-            'add_to_database'   => $featureSettings[UserFeatureSettingEnum::QUESTION_PUBLICLY_AVAILABLE->value],
-            'score'             => $featureSettings[UserFeatureSettingEnum::QUESTION_DEFAULT_POINTS->value],
-            'decimal_score'     => $featureSettings[UserFeatureSettingEnum::QUESTION_HALF_POINTS_POSSIBLE->value],
-            'auto_check_answer' => $featureSettings[UserFeatureSettingEnum::QUESTION_AUTO_SCORE_COMPLETION->value],
+            'add_to_database'             => $featureSettings[UserFeatureSettingEnum::QUESTION_PUBLICLY_AVAILABLE->value],
+            'score'                       => $featureSettings[UserFeatureSettingEnum::QUESTION_DEFAULT_POINTS->value],
+            'decimal_score'               => $featureSettings[UserFeatureSettingEnum::QUESTION_HALF_POINTS_POSSIBLE->value],
+            'auto_check_incorrect_answer' => $featureSettings[UserFeatureSettingEnum::QUESTION_AUTO_SCORE_INCORRECT_COMPLETION->value],
         ];
     }
+
+    public function hasScoringDisabled(): bool
+    {
+        if ($this->obj instanceof TypeProvider) {
+            return $this->obj->hasScoringDisabled();
+        }
+        return false;
+    }
+
+    public function questionSectionTitle(): string
+    {
+        if ($this->obj instanceof TypeProvider) {
+            return $this->obj->questionSectionTitle();
+        }
+        return __('cms.Vraagstelling');
+    }
+    public function answerSectionTitle(): string
+    {
+        if ($this->obj instanceof TypeProvider) {
+            return $this->obj->answerSectionTitle();
+        }
+        return __('cms.Antwoordmodel');
+    }
+
+    public function newRelationQuestionWords(array $data, bool $save = false): void
+    {
+        if ($this->obj instanceof Relation) {
+            $this->obj->newRelationQuestionWords($data, $save);
+        }
+    }
+
+    private function setUploadRules(): void
+    {
+        $mimeArray = ['pdf','mp3','png','jpeg','jpg'];
+
+        $this->uploadRules = [
+            'extensions' => ['data' => $mimeArray, 'message' => __('upload.upload_rule_extension')],
+            'size'       => ['data' => 64000000, 'message' => __('upload.upload_rule_size')]
+        ];
+    }
+
 }

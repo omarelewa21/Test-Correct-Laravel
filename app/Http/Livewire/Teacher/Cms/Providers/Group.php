@@ -15,19 +15,7 @@ class Group extends TypeProvider
         'uuid'                   => ''
     ];
 
-    public $settingsGeneralPropertiesVisibility = [
-        'autoCheckAnswer'              => false,
-        'autoCheckAnswerCaseSensitive' => false,
-        'closeable'                    => true,
-        'shuffle'                      => true,
-        'addToDatabase'                => true,
-        'maintainPosition'             => true,
-        'discuss'                      => false,
-        'allowNotes'                   => false,
-        'decimalScore'                 => false,
-    ];
-
-    public function mergeRules(&$rules)
+    public function mergeRules(&$rules): void
     {
         $rules = [
             'question.name' => 'required',
@@ -44,48 +32,90 @@ class Group extends TypeProvider
         return 'group-question';
     }
 
-    public function preparePropertyBag()
+    public function preparePropertyBag(): void
     {
         foreach ($this->questionProperties as $key => $value) {
             $this->instance->question[$key] = $value;
         }
+        $this->setErrors();
     }
 
-    public function initializePropertyBag($q)
+    public function initializePropertyBag($question): void
     {
         foreach ($this->questionProperties as $key => $val) {
-            $this->instance->question[$key] = $q[$key];
+            $this->instance->question[$key] = $question[$key];
         }
         $this->instance->question['name'] = html_entity_decode($this->instance->question['name']);
         if ($this->instance->question['number_of_subquestions'] == null) {
             $this->instance->question['number_of_subquestions'] = 0;
         }
+        $this->setErrors();
     }
 
-    public function isCarouselGroup()
+    public function isCarouselGroup(): bool
     {
-        return $this->instance->question['groupquestion_type'] === 'carousel';
+        if (isset($this->instance->question['groupquestion_type'])) {
+            return $this->instance->question['groupquestion_type'] === 'carousel';
+        }
+        return false;
     }
 
-    public function hasEqualScoresForSubQuestions()
+    public function hasEqualScoresForSubQuestions(): bool
     {
-        if (!$this->instance->question['uuid']) return true;
+        if (!$this->instance->question['uuid']) {
+            return true;
+        }
         return GroupQuestion::whereUuid($this->instance->question['uuid'])->first()->hasEqualScoresForSubQuestions();
     }
-    public function hasEnoughSubQuestionsAsCarousel()
+
+    public function hasEnoughSubQuestionsAsCarousel(): bool
     {
-        if (!$this->instance->question['uuid']) return true;
+        if (!$this->instance->question['uuid']) {
+            return true;
+        }
         return GroupQuestion::whereUuid($this->instance->question['uuid'])->first()->hasEnoughSubQuestionsAsCarousel();
     }
 
-    public function showQuestionScore()
+    public function showQuestionScore(): bool
     {
         return false;
     }
 
-    public function updatedQuestionName($value)
+    public function updatedQuestionName($value): void
     {
         $event = filled($value) ? 'group-question-name-filled' : 'group-question-name-empty';
         $this->instance->dispatchBrowserEvent($event);
+    }
+
+    public function questionSectionTitle(): string
+    {
+        return __('cms.bijlagen');
+    }
+
+    public function isSettingVisible(string $property): bool
+    {
+        return !in_array(
+            $property,
+            [
+                'discuss',
+                'allowNotes',
+                'decimalScore',
+                'autoCheckAnswer',
+                'autoCheckAnswerCaseSensitive',
+            ]
+        );
+    }
+
+    private function setErrors(): void
+    {
+        if (!$this->instance->question['uuid']) {
+            return;
+        }
+
+        $this->instance->cmsPropertyBag['group_question_errors'] = GroupQuestion::whereUuid(
+            $this->instance->question['uuid']
+        )
+            ->first()
+            ?->getConstructorErrors(withTitle: true) ?? [];
     }
 }

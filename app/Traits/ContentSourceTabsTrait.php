@@ -99,4 +99,10 @@ trait ContentSourceTabsTrait
         }
         return collect();
     }
+
+    public function canFilterOnAuthors(): bool
+    {
+        return collect($this->canFilterOnAuthorTabs)->contains($this->openTab);
+    }
+
 }

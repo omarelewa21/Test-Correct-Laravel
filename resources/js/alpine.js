@@ -731,7 +731,7 @@ document.addEventListener("alpine:init", () => {
             return scrollToSettings;
         }
     }));
-    Alpine.data("choices", (wireModel, multiple, options, config, filterContainer, initWidth) => ({
+    Alpine.data("choices", (wireModel, multiple, options, config, filterContainer) => ({
         multiple: multiple,
         value: wireModel,
         options: options,
@@ -740,7 +740,6 @@ document.addEventListener("alpine:init", () => {
         activeFiltersContainer: null,
         choices: null,
         activeGroups: [],
-        initWidth: initWidth,
         init() {
             // some new fancy way of setting a value when undefined
             window.registeredEventHandlers ??= [];
@@ -749,10 +748,6 @@ document.addEventListener("alpine:init", () => {
             this.multiple = multiple === 1;
             const label = document.querySelector(`[for="${this.$root.querySelector("select").id}"]`);
             this.$nextTick(() => {
-                let helper = this.$root.querySelector("#text-length-helper");
-                let minWidth = helper.offsetWidth ? helper.offsetWidth : this.initWidth;
-                helper.style.display = "none";
-
                 let choices = new Choices(
                     this.$root.querySelector("select"),
                     this.getChoicesConfig()
@@ -774,7 +769,7 @@ document.addEventListener("alpine:init", () => {
                     choices.setChoices(options);
 
                     this.handleActiveFilters(choices.getValue());
-                    this.handleContainerWidth(minWidth);
+                    this.handleContainerWidth();
                 };
 
                 refreshChoices();
@@ -1001,9 +996,12 @@ document.addEventListener("alpine:init", () => {
         getRemoveEventName: function() {
             return "removeFrom" + this.$root.getAttribute("wire:key");
         },
-        handleContainerWidth(minWidth) {
+        handleContainerWidth() {
             if (this.$root.classList.contains("super")) return;
-            this.$root.querySelector("input.choices__input[type=\"search\"]").style.width = (parseInt(minWidth, 10) + 16) + "px";
+            let helper = this.$root.querySelector("#text-length-helper");
+            if (!helper) return;
+            let minWidth = helper.offsetWidth;
+            this.$root.querySelector("input.choices__input[type=\"search\"]").style.width = minWidth + 16 + "px";
             this.$root.querySelector("input.choices__input[type=\"search\"]").style.minWidth = "auto";
         }
     }));
@@ -1599,9 +1597,21 @@ document.addEventListener("alpine:init", () => {
                 }
                 ;
                 /* dispatch with a static (question score) value, not value/key of button-option, only works with true/false  */
+                let state = 'off';
+                switch(parseFloat(this.value)){
+                    case 1.0:
+                        state = 'on';
+                        break;
+                    case 0.5:
+                        state = 'half';
+                        break;
+                    default:
+                        state = 'off';
+                        break;
+                }
                 this.$dispatch("slider-toggle-value-updated", {
                     value: this.$root.dataset.toggleValue,
-                    state: parseInt(this.value) === 1 ? "on" : "off",
+                    state: state,
                     firstTick: oldValue === null,
                     identifier: this.identifier
                 });
@@ -2026,6 +2036,7 @@ document.addEventListener("alpine:init", () => {
         drawerScoringDisabled: array.drawerScoringDisabled,
         pageUpdated: array.pageUpdated,
         isCoLearningScore: array.isCoLearningScore,
+        toggleValues: array.toggleValues || {},
         init() {
             if (this.pageUpdated) {
                 this.resetStoredData();
@@ -2050,7 +2061,7 @@ document.addEventListener("alpine:init", () => {
         },
         toggleTicked(event) {
             const parsedValue = isFloat(event.value) ? parseFloat(event.value) : parseInt(event.value);
-            this.setNewScore(parsedValue, event.state, event.firstTick);
+            this.setNewScore(parsedValue, event.state, event.firstTick, event?.identifier);
 
             this.updateAssessmentStore();
 
@@ -2059,25 +2070,36 @@ document.addEventListener("alpine:init", () => {
             this.updateLivewireComponent(event);
         },
         getCurrentScore() {
+            const toggleValuesCount = Object.keys(this.toggleValues).length;
+            const toggleValuesSum = Object.values(this.toggleValues).reduce((sum, value) => sum + value, 0);
+
+            this.shadowScore = this.maxScore / toggleValuesCount * toggleValuesSum;
+
+            if (this.shadowScore < 0) this.shadowScore = 0;
+            if (this.shadowScore > this.maxScore) this.shadowScore = this.maxScore;
+
             return this.halfPoints
-                ? Math.round(this.shadowScore * 2) / 2
-                : Math.round(this.shadowScore);
+                ? Math.floor(this.shadowScore * 2) / 2
+                : Math.floor(this.shadowScore);
         },
-        setNewScore(newScore, state, firstTick) {
+        setNewScore(newScore, state, firstTick, identifier = null) {
             if (firstTick && this.isCoLearningScore) {
                 this.isCoLearningScore = false;
                 this.shadowScore = 0;
             }
-            if (firstTick && state === "off") {
-                this.shadowScore ??= 0;
-            } else {
-                this.shadowScore = state === "on"
-                    ? this.shadowScore + newScore
-                    : this.shadowScore - newScore;
+            // new scoring mechanism:
+            switch(state){
+                case 'on':
+                    this.toggleValues[identifier] = 1;
+                    break;
+                case 'half':
+                    this.toggleValues[identifier] = 0.5;
+                    break;
+                default:
+                    this.toggleValues[identifier] = 0;
+                    break;
             }
 
-            if (this.shadowScore < 0) this.shadowScore = 0;
-            if (this.shadowScore > this.maxScore) this.shadowScore = this.maxScore;
             this.score = this.getCurrentScore();
         },
         updateAssessmentStore() {
@@ -4005,13 +4027,15 @@ document.addEventListener("alpine:init", () => {
             this.multiSelectOpen = false;
         }
     }));
-    Alpine.data("singleSelect", (containerId, entangleValue = null) => ({
+    Alpine.data("singleSelect", (containerId, entangleValue = null, disabled, error) => ({
         containerId,
         entangleValue: entangleValue ?? null,
         baseValue: null,
         singleSelectOpen: false,
         selectedText: null,
+        singleSelectDisabled: disabled,
         ...selectFunctions,
+        errorState: error,
         init() {
             this.selectedText = this.$root.querySelector("span.selected").dataset.selectText;
             this.setActiveStartingValue();
@@ -4019,6 +4043,10 @@ document.addEventListener("alpine:init", () => {
             this.$watch("singleSelectOpen", value => {
                 if (value) this.handleDropdownLocation();
             });
+
+            if(this.singleSelectDisabled) {
+                this.$nextTick(() => this.disableDropdown());
+            }
         },
         get value() {
             return this.entangleValue ?? this.baseValue;
@@ -4038,7 +4066,7 @@ document.addEventListener("alpine:init", () => {
                 label = element.dataset.label;
             this.closeDropdown();
             if (this.value === value) return;
-            this.value = value;
+            this.value = this.isPlaceholder(element) ? null : value;
             element.dispatchEvent(new Event("change", { bubbles: true }));
             this.selectedText = label;
         },
@@ -4067,8 +4095,16 @@ document.addEventListener("alpine:init", () => {
         },
         closeDropdown() {
             this.singleSelectOpen = false;
+        },
+        isPlaceholder(element) {
+            return element.hasAttribute("placeholder");
+        },
+        disableDropdown() {
+            this.singleSelectDisabled = true;
+        },
+        enableDropdown() {
+            this.singleSelectDisabled = false;
         }
-
     }));
     Alpine.data("questionBank", (openTab, inGroup, inTestBankContext) => ({
         questionBankOpenTab: openTab,
@@ -4628,6 +4664,32 @@ document.addEventListener("alpine:init", () => {
             }
         }
     }));
+
+    Alpine.data("sidePanel", (openSidePanel) => ({
+        openSidePanel,
+        componentName: null,
+        init() {
+            this.$watch('openSidePanel', value => {
+                if (value) return;
+                if (this.$store.sidePanel.reopenModalWhenDone) {
+                    this.$store.sidePanel.reopenModalWhenDone = false;
+                    const modal = document.querySelector('#LivewireUIModal')
+                    modal.dispatchEvent(new CustomEvent('show-modal'));
+                }
+            });
+        }
+    }));
+
+    Alpine.data("overviewComponent", (openTab, activeContainerKey) => ({
+        openTab,
+        activeContainerKey,
+        async clearFilters() {
+            this.$dispatch('enable-loading-grid');
+            this.$root.querySelector(`#${this.activeContainerKey}`).innerHTML = '';
+            await this.$wire.call('clearFilters', true);
+        }
+    }));
+
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");
         f(window, el._x_dataStack[0]);
@@ -4775,6 +4837,10 @@ document.addEventListener("alpine:init", () => {
             this.getPlayer().call(method, methodParameter);
         }
     });
+    Alpine.store('sidePanel', {
+        reopenModal: false
+    })
+
 });
 
 function getTitleForVideoUrl(videoUrl) {

@@ -2902,4 +2902,14 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             'gender'      => $this->gender,
         ]);
     }
+
+    public function wordLists()
+    {
+        return $this->hasMany(WordList::class);
+    }
+
+    public function words()
+    {
+        return $this->hasMany(Word::class);
+    }
 }

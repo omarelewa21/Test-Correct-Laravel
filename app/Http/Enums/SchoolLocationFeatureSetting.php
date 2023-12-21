@@ -33,7 +33,7 @@ enum SchoolLocationFeatureSetting: string
     #[Type('bool')]
     case ALLOW_TM_GEOGRAPHY = 'allow_tm_geography';
     #[Type('bool')]
-    case ALLOW_TM_DUTCH= 'allow_tm_dutch';
+    case ALLOW_TM_DUTCH = 'allow_tm_dutch';
     #[Type('bool')]
     case ALLOW_TM_ENGLISH = 'allow_tm_english';
     #[Type('bool')]
@@ -58,6 +58,9 @@ enum SchoolLocationFeatureSetting: string
     #[Initial(false)]
     #[Type('bool')]
     case BLOCK_LOCAL_LOGIN = 'block_local_login';
+    #[Type('bool')]
+    #[Initial(false)]
+    case ALLOW_RELATION_QUESTION = 'allow_relation_question';
 
 
     public static function validateTestPackage(TestPackages|string $testPackage): string|false

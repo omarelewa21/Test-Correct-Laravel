@@ -36,7 +36,7 @@ class Classify extends TypeProvider
         return __('cms.classify-question');
     }
 
-    public function initializePropertyBag($q)
+    public function initializePropertyBag($question)
     {
         if (!array_key_exists('answerSubCount', $this->instance->cmsPropertyBag)) {
             $this->instance->cmsPropertyBag['answerSubCount'] = [];

@@ -32,7 +32,7 @@ class Matching extends TypeProvider
         return __('cms.matching-question');
     }
 
-    public function initializePropertyBag($q)
+    public function initializePropertyBag($question)
     {
 
     }

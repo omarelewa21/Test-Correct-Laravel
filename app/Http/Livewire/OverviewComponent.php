@@ -2,15 +2,19 @@
 
 namespace tcCore\Http\Livewire;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\WithPagination;
+use tcCore\BaseSubject;
+use tcCore\Subject;
+use tcCore\TestAuthor;
 use tcCore\UserSystemSetting;
 
 abstract class OverviewComponent extends TCComponent
 {
     use WithPagination;
 
-    const PER_PAGE = 15;
+    protected const PER_PAGE = 15;
 
     public array $filters = [];
     protected array $filterableAttributes = [];
@@ -47,9 +51,13 @@ abstract class OverviewComponent extends TCComponent
         return !empty($this->getCleanFilterForSearch());
     }
 
-    public function clearFilters(): void
+    public function clearFilters(?bool $clearSystemSettings = false): void
     {
         $this->setFilters();
+
+        if ($clearSystemSettings) {
+            UserSystemSetting::setSetting(auth()->user(), $this->getFilterSessionKey(), $this->filters);
+        }
     }
 
     protected function getCleanFilterForSearch(): array
@@ -59,7 +67,9 @@ abstract class OverviewComponent extends TCComponent
 
     protected function getSessionKey(): string
     {
-        if (filled($this->sessionKey)) return $this->sessionKey;
+        if (filled($this->sessionKey)) {
+            return $this->sessionKey;
+        }
 
         return sprintf('%s-session', Str::kebab(class_basename(get_called_class())));
     }
@@ -105,8 +115,8 @@ abstract class OverviewComponent extends TCComponent
     private function initialiseStoredFilters(): void
     {
         $sessionFilters = UserSystemSetting::getSetting(
-            user: auth()->user(),
-            title: $this->getFilterSessionKey(),
+            user        : auth()->user(),
+            title       : $this->getFilterSessionKey(),
             sessionStore: true
         );
 
@@ -127,5 +137,57 @@ abstract class OverviewComponent extends TCComponent
         if ($page = session()->get($this->getSessionKey() . '-page', null)) {
             $this->setPage($page);
         }
+    }
+
+    public function getEducationLevelProperty()
+    {
+        return $this->filterableEducationLevelsBasedOnTab();
+    }
+
+    public function getBasesubjectsProperty()
+    {
+        if ($this->isExternalContentTab($this->openTab)) {
+            return $this->getBaseSubjectsOptions();
+        }
+        return [];
+    }
+
+    private function getBaseSubjectsOptions()
+    {
+        if (Auth::user()->isValidExamCoordinator()) {
+            return BaseSubject::optionList();
+        }
+
+        return BaseSubject::whereIn(
+            'id',
+            Subject::filtered(['user_current' => Auth::id()], [])
+                ->select('base_subject_id')
+        )
+            ->optionList();
+    }
+
+    public function getSubjectsProperty()
+    {
+        return Subject::filtered(['imp' => 0, 'user_id' => Auth::id()], ['name' => 'asc'])->optionList();
+    }
+
+    public function getEducationLevelYearProperty()
+    {
+        return array_map(fn($item) => ['value' => (int)$item, 'label' => (string)$item], range(1, 6));
+    }
+
+    public function getSharedSectionsAuthorsProperty()
+    {
+        return TestAuthor::schoolLocationAndSharedSectionsAuthorUsers(Auth::user())
+            ->get()
+            ->reject(function ($user) {
+                return ($user->school_location_id === Auth::user()->school_location_id && $user->getKey() !== Auth::id(
+                    ));
+            })
+            ->map(function ($user) {
+                return ['value' => $user->id, 'label' => $user->nameFull];
+            })
+            ->values()
+            ->toArray();
     }
 }

@@ -44,6 +44,9 @@ enum UserFeatureSetting: string implements FeatureSettingKey
     #[Initial(true)]
     #[Type('bool')]
     case QUESTION_AUTO_SCORE_COMPLETION = 'question_auto_score_completion';
+    #[Initial(false)]
+    #[Type('bool')]
+    case QUESTION_AUTO_SCORE_INCORRECT_COMPLETION = 'question_auto_score_incorrect_completion';
     #[Initial(1)]
     #[Type('int')]
     case TEST_TAKE_DEFAULT_WEIGHT = 'test_take_default_weight';

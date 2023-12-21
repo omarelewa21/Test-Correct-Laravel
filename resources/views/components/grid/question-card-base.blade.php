@@ -1,4 +1,4 @@
-<div {{ $attributes->merge(['class' => 'grid-card context-menu-container bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer relative isolate', 'selid' => 'existing-question']) }}
+<div {{ $attributes->merge(['class' => 'grid-card context-menu-container relative isolate', 'selid' => 'existing-question']) }}
      wire:key="questioncard-{{ $question->getQuestionInstance()->uuid }}-{{ $context }}"
      @if($question->isType('GroupQuestion'))
         x-on:click.stop="questionCardOpenGroup($el, @js($question->uuid), @js($inTest) )"
