@@ -4,7 +4,7 @@
        max="{{$maxScore}}"
        min="0"
        onclick="this.select()"
-       :step="halfPoints ? 0.5 : 1"
+       :step="halfPoints ? (decimalScore ? 0.1 : 0.5) : 1"
        x-ref="scoreInput"
        x-on:focusout="syncInput($el.value)"
        x-on:input="handleInvalidNumberInput(); setThumbOffset(document.querySelector('.score-slider-input'), score, maxScore)"

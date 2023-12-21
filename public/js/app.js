@@ -7967,7 +7967,7 @@ document.addEventListener("alpine:init", function () {
         this.value = target.firstElementChild.dataset.id;
         this.$root.dataset.hasValue = this.value !== null;
         if ((oldValue === null || oldValue === void 0 ? void 0 : oldValue.toString()) !== ((_this$value = this.value) === null || _this$value === void 0 ? void 0 : _this$value.toString()) || allowClickingCurrentValue) {
-          if ([null, 'null'].includes(this.$root.dataset.toggleValue)) {
+          if ([null, "null"].includes(this.$root.dataset.toggleValue)) {
             this.$dispatch("multi-slider-toggle-value-updated", {
               value: target.firstElementChild.dataset.id,
               firstTick: oldValue === null
@@ -9011,6 +9011,7 @@ document.addEventListener("alpine:init", function () {
   });
 
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("scoreSlider", function (score, model, maxScore, halfPoints, disabled, coLearning, focusInput, continuousSlider, minScore) {
+    var decimalScore = arguments.length > 9 && arguments[9] !== undefined ? arguments[9] : false;
     return {
       score: score,
       model: model,
@@ -9018,6 +9019,7 @@ document.addEventListener("alpine:init", function () {
       minScore: minScore,
       timeOut: null,
       halfPoints: halfPoints,
+      decimalScore: decimalScore,
       disabled: disabled,
       skipSync: false,
       persistantScore: null,
@@ -9106,7 +9108,11 @@ document.addEventListener("alpine:init", function () {
           if (value <= _this55.minScore) {
             _this55.score = value = _this55.minScore;
           }
-          _this55.score = value = _this55.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
+          if (_this55.halfPoints && _this55.decimalScore) {
+            _this55.score = Number(Number(value).toFixed(1));
+          } else {
+            _this55.score = value = _this55.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
+          }
           _this55.updateContinuousSlider();
         });
         if (focusInput) {
@@ -10174,19 +10180,22 @@ document.addEventListener("alpine:init", function () {
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("coLearningStudent", function () {
     return {
       goToPreviousAnswerRating: function goToPreviousAnswerRating() {
-        var _this75 = this;
+        var _arguments4 = arguments,
+          _this75 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee29() {
+          var clearCkeditorProperties;
           return _regeneratorRuntime().wrap(function _callee29$(_context29) {
             while (1) switch (_context29.prev = _context29.next) {
               case 0:
-                if (!_this75.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                  _context29.next = 2;
+                clearCkeditorProperties = _arguments4.length > 0 && _arguments4[0] !== undefined ? _arguments4[0] : false;
+                if (_this75.canNavigate("goToPreviousAnswerRating", clearCkeditorProperties)) {
+                  _context29.next = 3;
                   break;
                 }
-                return _context29.abrupt("return", _this75.$store.answerFeedback.openConfirmationModal(_this75.$root, "goToPreviousAnswerRating"));
-              case 2:
-                _this75.$wire.goToPreviousAnswerRating();
+                return _context29.abrupt("return");
               case 3:
+                _this75.$wire.goToPreviousAnswerRating();
+              case 4:
               case "end":
                 return _context29.stop();
             }
@@ -10194,19 +10203,22 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       goToNextAnswerRating: function goToNextAnswerRating() {
-        var _this76 = this;
+        var _arguments5 = arguments,
+          _this76 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee30() {
+          var clearCkeditorProperties;
           return _regeneratorRuntime().wrap(function _callee30$(_context30) {
             while (1) switch (_context30.prev = _context30.next) {
               case 0:
-                if (!_this76.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                  _context30.next = 2;
+                clearCkeditorProperties = _arguments5.length > 0 && _arguments5[0] !== undefined ? _arguments5[0] : false;
+                if (_this76.canNavigate("goToNextAnswerRating", clearCkeditorProperties)) {
+                  _context30.next = 3;
                   break;
                 }
-                return _context30.abrupt("return", _this76.$store.answerFeedback.openConfirmationModal(_this76.$root, "goToNextAnswerRating"));
-              case 2:
-                _this76.$wire.goToNextAnswerRating();
+                return _context30.abrupt("return");
               case 3:
+                _this76.$wire.goToNextAnswerRating();
+              case 4:
               case "end":
                 return _context30.stop();
             }
@@ -10214,19 +10226,22 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       goToPreviousQuestion: function goToPreviousQuestion() {
-        var _this77 = this;
+        var _arguments6 = arguments,
+          _this77 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee31() {
+          var clearCkeditorProperties;
           return _regeneratorRuntime().wrap(function _callee31$(_context31) {
             while (1) switch (_context31.prev = _context31.next) {
               case 0:
-                if (!_this77.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                  _context31.next = 2;
+                clearCkeditorProperties = _arguments6.length > 0 && _arguments6[0] !== undefined ? _arguments6[0] : false;
+                if (_this77.canNavigate("goToPreviousQuestion", clearCkeditorProperties)) {
+                  _context31.next = 3;
                   break;
                 }
-                return _context31.abrupt("return", _this77.$store.answerFeedback.openConfirmationModal(_this77.$root, "goToPreviousQuestion"));
-              case 2:
-                _this77.$wire.goToPreviousQuestion();
+                return _context31.abrupt("return");
               case 3:
+                _this77.$wire.goToPreviousQuestion();
+              case 4:
               case "end":
                 return _context31.stop();
             }
@@ -10234,19 +10249,22 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       goToNextQuestion: function goToNextQuestion() {
-        var _this78 = this;
+        var _arguments7 = arguments,
+          _this78 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee32() {
+          var clearCkeditorProperties;
           return _regeneratorRuntime().wrap(function _callee32$(_context32) {
             while (1) switch (_context32.prev = _context32.next) {
               case 0:
-                if (!_this78.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                  _context32.next = 2;
+                clearCkeditorProperties = _arguments7.length > 0 && _arguments7[0] !== undefined ? _arguments7[0] : false;
+                if (_this78.canNavigate("goToNextQuestion", clearCkeditorProperties)) {
+                  _context32.next = 3;
                   break;
                 }
-                return _context32.abrupt("return", _this78.$store.answerFeedback.openConfirmationModal(_this78.$root, "goToNextQuestion"));
-              case 2:
-                _this78.$wire.goToNextQuestion();
+                return _context32.abrupt("return");
               case 3:
+                _this78.$wire.goToNextQuestion();
+              case 4:
               case "end":
                 return _context32.stop();
             }
@@ -10280,6 +10298,17 @@ document.addEventListener("alpine:init", function () {
         if (event.hasOwnProperty("identifier")) {
           this.$wire.toggleValueUpdated(event.identifier, event.state, event.value);
         }
+      },
+      canNavigate: function canNavigate(method) {
+        var clearCkeditorProperties = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+        if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+          this.$store.answerFeedback.openConfirmationModal(this.$root, method);
+          return false;
+        }
+        if (clearCkeditorProperties && document.querySelector(".ck-body-wrapper")) {
+          document.querySelector(".ck-body-wrapper").innerHTML = "";
+        }
+        return true;
       }
     };
   });
@@ -11449,7 +11478,7 @@ document.addEventListener("alpine:init", function () {
       maxRating: function maxRating() {
         return {
           rating: Math.max.apply(Math, _toConsumableArray(this.getRatings())),
-          locator: '.max-rating'
+          locator: ".max-rating"
         };
       },
       avgRating: function avgRating() {
@@ -11459,13 +11488,13 @@ document.addEventListener("alpine:init", function () {
         }, 0);
         return {
           rating: sum / ratings.length,
-          locator: '.avg-rating'
+          locator: ".avg-rating"
         };
       },
       minRating: function minRating() {
         return {
           rating: Math.min.apply(Math, _toConsumableArray(this.getRatings())),
-          locator: '.min-rating'
+          locator: ".min-rating"
         };
       }
     };
@@ -11473,9 +11502,9 @@ document.addEventListener("alpine:init", function () {
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("ckEditorInlineImageUpload", function (errorTranslation) {
     return {
       allowedMimeTypes: {
-        jpeg: 'image/jpeg',
-        png: 'image/png',
-        gif: 'image/gif'
+        jpeg: "image/jpeg",
+        png: "image/png",
+        gif: "image/gif"
       },
       /**
        * Check if the dropped file is an allowed image,
@@ -11494,7 +11523,7 @@ document.addEventListener("alpine:init", function () {
                 mimeType = key;
               }
             }
-            Notify.notify(errorTranslation + mimeType, 'error');
+            Notify.notify(errorTranslation + mimeType, "error");
           }
         }
         ;
@@ -11538,7 +11567,7 @@ document.addEventListener("alpine:init", function () {
             window.rsConf.cb.ui.stop();
             window.rsConf.general.userDefinedVoice = links[i].dataset.rsItemval.substring(6);
             window.rsConf.general.userDefinedLang = links[i].dataset.rsItemval.substring(0, 5);
-            document.querySelector('.rsbtn_play').click();
+            document.querySelector(".rsbtn_play").click();
             this.currentLanguage = languageCode;
             break;
           }
@@ -11578,20 +11607,20 @@ document.addEventListener("alpine:init", function () {
           childList: true,
           subtree: true
         };
-        observer.observe(document.getElementById('readspeaker_button1'), config);
+        observer.observe(document.getElementById("readspeaker_button1"), config);
       }
     };
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("markBadge", function (initialRating) {
     return {
       markBadgeRating: initialRating,
-      displayMarkBadgeRating: '?',
+      displayMarkBadgeRating: "?",
       color: null,
       init: function init() {
         this.setDisplayRating();
       },
       hasValue: function hasValue() {
-        return ![null, '', 0, 0.0].includes(this.markBadgeRating);
+        return ![null, "", 0, 0.0].includes(this.markBadgeRating);
       },
       setNewRating: function setNewRating(rating) {
         this.markBadgeRating = rating;
@@ -11599,16 +11628,16 @@ document.addEventListener("alpine:init", function () {
       },
       setDisplayRating: function setDisplayRating() {
         if (!this.hasValue()) {
-          if (this.displayMarkBadgeRating !== '?') {
-            this.displayMarkBadgeRating = '?';
+          if (this.displayMarkBadgeRating !== "?") {
+            this.displayMarkBadgeRating = "?";
           }
           return;
         }
-        if (typeof this.markBadgeRating === 'string') {
+        if (typeof this.markBadgeRating === "string") {
           this.markBadgeRating = parseFloat(this.markBadgeRating);
         }
-        if (this.markBadgeRating.toString().includes('.')) {
-          this.displayMarkBadgeRating = this.markBadgeRating.toFixed(1).replace('.', ',');
+        if (this.markBadgeRating.toString().includes(".")) {
+          this.displayMarkBadgeRating = this.markBadgeRating.toFixed(1).replace(".", ",");
         } else {
           this.displayMarkBadgeRating = this.markBadgeRating.toString();
         }

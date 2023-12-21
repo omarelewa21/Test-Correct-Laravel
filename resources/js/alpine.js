@@ -2385,13 +2385,14 @@ document.addEventListener("alpine:init", () => {
                 });
         }
     }));
-    Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning, focusInput, continuousSlider, minScore) => ({
+    Alpine.data("scoreSlider", (score, model, maxScore, halfPoints, disabled, coLearning, focusInput, continuousSlider, minScore, decimalScore = false) => ({
         score,
         model,
         maxScore,
         minScore,
         timeOut: null,
         halfPoints,
+        decimalScore,
         disabled,
         skipSync: false,
         persistantScore: null,
@@ -2481,7 +2482,11 @@ document.addEventListener("alpine:init", () => {
                     this.score = value = this.minScore;
                 }
 
-                this.score = value = this.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
+                if(this.halfPoints && this.decimalScore) {
+                    this.score = Number(Number(value).toFixed(1));
+                } else {
+                    this.score = value = this.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
+                }
 
                 this.updateContinuousSlider();
             });
