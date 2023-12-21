@@ -1,5 +1,5 @@
 @props(['withUpload' => false])
-@php($disableAudioTimer = $this->obj instanceof \tcCore\Http\Livewire\Teacher\Cms\Providers\Group || $this->obj instanceof \tcCore\Http\Livewire\Teacher\Cms\Providers\InfoScreen)
+@php($disableAudioTimer = ($this->obj instanceof \tcCore\Http\Livewire\Teacher\Cms\Providers\Group || $this->obj instanceof \tcCore\Http\Livewire\Teacher\Cms\Providers\InfoScreen))
 <x-accordion.container active-container-key="question-section"
                        :wire:key="'question-section-'.$this->uniqueQuestionKey"
 >
@@ -33,9 +33,7 @@
                         @endforeach
 
                         @foreach($this->sortOrderAttachments as $key => $item)
-                            @php
-                                list($upload, $video) = $this->getUploadOrVideo($item);
-                            @endphp
+                            @php([$upload, $video] = $this->getUploadOrVideo($item))
 
                             @if($upload)
                                 <x-attachment.badge
