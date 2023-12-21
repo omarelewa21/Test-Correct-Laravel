@@ -6682,10 +6682,8 @@ document.addEventListener("alpine:init", function () {
         }, 750);
       },
       getText: function getText(word, rowIndex) {
-        if (word !== null && word !== void 0 && word.text) {
-          return word === null || word === void 0 ? void 0 : word.text;
-        }
-        return "";
+        var _word$text;
+        return (_word$text = word === null || word === void 0 ? void 0 : word.text) !== null && _word$text !== void 0 ? _word$text : "";
       },
       handleIncomingUpdatedRows: function handleIncomingUpdatedRows(rows) {
         var _this11 = this;
@@ -13860,7 +13858,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "662d128370816e2bbb66",
   cluster: "eu",
   forceTLS: true
 });
