@@ -4593,6 +4593,22 @@ document.addEventListener("alpine:init", () => {
             await this.$wire.call('clearFilters', true);
         }
     }));
+    Alpine.data("cmsQuestionTypeButton", (type, subtype, needsConfirmation) => ({
+        type,
+        subtype,
+        needsConfirmation,
+        clickAction() {
+            if (this.needsConfirmation) {
+                this.$wire.emit("openModal", "teacher.cms.confirm-relation-question-usage-modal");
+                return;
+            }
+
+            this.$wire.call("addQuestion", this.type, this.subtype);
+            this.home(false);
+            this.$store.cms.loading = true;
+            this.$dispatch("new-question-added");
+        }
+    }));
 
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");

@@ -162,7 +162,7 @@ class TypeFactory
             $subject = Subject::find($subject);
         }
         if ($subject) {
-            if (settings()->canUseRelationQuestion(subject: $subject)) {
+            if (settings()->canUseRelationQuestionWithSubject(subject: $subject)) {
                 $questionTypes['open'][] = [
                     'sticker'     => 'question-relation',
                     'name'        => __('question.relationquestion'),

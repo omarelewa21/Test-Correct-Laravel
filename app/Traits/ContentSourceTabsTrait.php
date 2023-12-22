@@ -95,7 +95,7 @@ trait ContentSourceTabsTrait
             if ($serviceClass = ContentSourceFactory::makeWithTabExternalOnly($this->openTab)) {
                 return EducationLevel::whereIn(
                     'id',
-                    $serviceClass->itemBankFiltered(filters:[], sorting:[], forUser: auth()->user())->select('education_level_id')
+                    $serviceClass->itemBankFiltered(forUser: auth()->user())->select('education_level_id')
                 )->optionList();
             }
         }

@@ -54,7 +54,7 @@ class ThiemeMeulenhoffService extends ContentSourceService
 
     protected static function testsAvailableForUser(User $user): bool
     {
-        return (new static)->itemBankFiltered(filters: [], sorting: [], forUser: $user)->exists();
+        return (new static())->itemBankFiltered(forUser: $user)->exists();
     }
 
     protected static function allowedForUser(User $user): bool
@@ -89,9 +89,9 @@ class ThiemeMeulenhoffService extends ContentSourceService
         return Subject::select('id')->whereIn('base_subject_id', $allowedBaseSubjects);
     }
 
-    public function itemBankFiltered($filters = [], $sorting = [], User $forUser): \Illuminate\Database\Eloquent\Builder
+    public function itemBankFiltered(User $forUser, $filters = [], $sorting = []): \Illuminate\Database\Eloquent\Builder
     {
-        return parent::itemBankFiltered($filters, $sorting, $forUser)
+        return parent::itemBankFiltered($forUser, $filters, $sorting)
             ->whereIn(
                 'subject_id',
                 self::getBuilderWithAllowedSubjectIds($forUser)

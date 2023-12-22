@@ -39,7 +39,7 @@ class FormidableService extends ContentSourceService
 
     protected static function testsAvailableForUser(User $user): bool
     {
-        return (new static)->itemBankFiltered(filters: [], sorting: [], forUser: $user)->exists();
+        return (new static())->itemBankFiltered(forUser: $user)->exists();
     }
 
     protected static function allowedForUser(User $user): bool

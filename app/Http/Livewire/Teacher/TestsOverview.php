@@ -94,9 +94,9 @@ class TestsOverview extends OverviewComponent
         } catch (\Exception $e) {
         }
         return ContentSourceFactory::makeWithTab($this->openTab)->itemBankFiltered(
+            auth()->user(),
             $this->getContentSourceFilters(),
             $this->sorting,
-            auth()->user()
         )
             ->with([
                 'educationLevel',

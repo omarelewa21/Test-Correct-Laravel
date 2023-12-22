@@ -52,13 +52,14 @@ class Settings
         );
     }
 
-    public function canUseRelationQuestion(?Subject $subject = null, ?User $user = null): bool
+    public function canUseRelationQuestion(?User $user = null): bool
     {
-        if (!$this->canUseFeature('allow_relation_question', $user)) {
-            return false;
-        }
-        
-        if (!$subject) {
+        return $this->canUseFeature('allow_relation_question', $user);
+    }
+
+    public function canUseRelationQuestionWithSubject(Subject $subject, ?User $user = null): bool
+    {
+        if (!$this->canUseRelationQuestion($user)) {
             return false;
         }
 

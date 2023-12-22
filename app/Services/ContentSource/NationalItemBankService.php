@@ -54,7 +54,7 @@ class NationalItemBankService extends ContentSourceService
 
     protected static function testsAvailableForUser(User $user): bool
     {
-        return (new self)->itemBankFiltered(filters: [], sorting: [], forUser: $user)->exists();
+        return (new self())->itemBankFiltered(forUser: $user)->exists();
     }
 
     protected static function allowedForUser(User $user): bool
