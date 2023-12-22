@@ -12,6 +12,7 @@ use tcCore\Factories\Answers\FactoryAnswerMatchingQuestion;
 use tcCore\Factories\Answers\FactoryAnswerMultipleChoiceQuestion;
 use tcCore\Factories\Answers\FactoryAnswerOpenQuestion;
 use tcCore\Factories\Answers\FactoryAnswerRankingQuestion;
+use tcCore\Factories\Answers\FactoryAnswerRelationQuestion;
 use tcCore\Factories\Traits\DieAndDumpAble;
 use tcCore\Factories\Traits\DoWhileLoggedInTrait;
 use tcCore\Factories\Traits\PropertyGetableByName;
@@ -431,6 +432,7 @@ class FactoryTestTake
             'RankingQuestion'        => FactoryAnswerRankingQuestion::class,
             'MultipleChoiceQuestion' => FactoryAnswerMultipleChoiceQuestion::class,
             'MatchingQuestion'       => FactoryAnswerMatchingQuestion::class,
+            'RelationQuestion'       => FactoryAnswerRelationQuestion::class,
         ];
 
         if (!array_key_exists($answer->question->type, $lookUp) ) {

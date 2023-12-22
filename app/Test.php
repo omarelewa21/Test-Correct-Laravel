@@ -364,7 +364,7 @@ class Test extends BaseModel
         }
 
         if (!settings()->canUseRelationQuestion($forUser)) {
-            $query->whereNotIn('tests.id', self::testIdsWithSpecificQuestions(RelationQuestion::class));
+            $query->whereNotIn('tests.id', self::getIdsOfTestsThatContainSpecificQuestions(RelationQuestion::class));
         }
 
         $query->whereIn('subject_id', $subjectIds);
@@ -1401,7 +1401,7 @@ class Test extends BaseModel
             ->value('base_subjects.' . $column);
     }
 
-    public static function testIdsWithSpecificQuestions($question, ...$questions): \Illuminate\Database\Query\Builder
+    public static function getIdsOfTestsThatContainSpecificQuestions($question, ...$questions): \Illuminate\Database\Query\Builder
     {
         $types = collect([$question])->concat($questions)->map(fn($type) => class_basename($type));
 
