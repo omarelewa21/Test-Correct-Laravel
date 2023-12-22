@@ -181,7 +181,7 @@
                     </div>
                 </div>
             </x-sidebar.slide-container>
-            <x-sidebar.slide-container x-ref="newquestion" @mouseenter="handleVerticalScroll($el);">
+            <x-sidebar.slide-container x-ref="newquestion" x-on:mouseenter="handleVerticalScroll($el);">
                 <div class="py-2 px-5">
                     <div class="flex items-center space-x-2.5">
                         <x-button.back-round @click="prev($refs.newquestion); $store.questionBank.inGroup = false;"
@@ -191,7 +191,7 @@
                     </div>
                 </div>
 
-                <x-sidebar.cms.question-types :subject="$this->subject" :confirm-relation-question="false" />
+                <x-sidebar.cms.question-types :subject="$this->subject" :confirm-relation-question="!$this->confirmedRelationQuestion" />
             </x-sidebar.slide-container>
         </div>
         <span class="invisible"></span>

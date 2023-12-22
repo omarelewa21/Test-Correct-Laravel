@@ -7341,10 +7341,8 @@ document.addEventListener("alpine:init", function () {
                 return _context7.abrupt("return");
               case 6:
                 _this30.wordLists.push(list);
-                _this30.$dispatch("notify", {
-                  message: "Gelukt!"
-                });
-              case 8:
+                // this.$dispatch("notify", { message: "Gelukt!" });
+              case 7:
               case "end":
                 return _context7.stop();
             }
@@ -7451,10 +7449,8 @@ document.addEventListener("alpine:init", function () {
                           return _context9.abrupt("return");
                         case 6:
                           _this32.wordLists.push(list);
-                          _this32.$dispatch("notify", {
-                            message: "Gelukt!"
-                          });
-                        case 8:
+                          // this.$dispatch("notify", { message: "Gelukt!" });
+                        case 7:
                         case "end":
                           return _context9.stop();
                       }
@@ -12823,6 +12819,23 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("cmsQuestionTypeButton", function (type, subtype, needsConfirmation) {
+    return {
+      type: type,
+      subtype: subtype,
+      needsConfirmation: needsConfirmation,
+      clickAction: function clickAction() {
+        if (this.needsConfirmation) {
+          this.$wire.emit("openModal", "teacher.cms.confirm-relation-question-usage-modal");
+          return;
+        }
+        this.$wire.call("addQuestion", this.type, this.subtype);
+        this.home(false);
+        this.$store.cms.loading = true;
+        this.$dispatch("new-question-added");
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive("global", function (el, _ref9) {
     var expression = _ref9.expression;
     var f = new Function("_", "$data", "_." + expression + " = $data;return;");
@@ -13858,7 +13871,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "662d128370816e2bbb66",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });

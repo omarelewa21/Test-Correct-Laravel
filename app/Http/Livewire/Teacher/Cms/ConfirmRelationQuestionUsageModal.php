@@ -2,10 +2,10 @@
 
 namespace tcCore\Http\Livewire\Teacher\Cms;
 
+use tcCore\Http\Livewire\Drawer\Cms;
 use tcCore\UserSystemSetting;
 use tcCore\Http\Enums\UserSystemSetting as UserSystemSettingEnum;
 use tcCore\Http\Livewire\TCModalComponent;
-use tcCore\UserFeatureSetting;
 
 class ConfirmRelationQuestionUsageModal extends TCModalComponent
 {
@@ -22,6 +22,7 @@ class ConfirmRelationQuestionUsageModal extends TCModalComponent
             $this->registerDontShowAgain();
         }
 
+        $this->dispatchBrowserEvent('confirmed-modal');
         $this->closeModal();
     }
 
