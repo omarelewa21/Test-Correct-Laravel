@@ -175,6 +175,9 @@ class Normalize
         }
 
         if ($this->scores) {
+            if (count($this->scores) === 0) { // prevent division by zero error below
+                return collect([]);
+            }
             $ppp = ((array_sum($this->scores) / count($this->scores)) / ($average - 1));
             foreach ($this->testTake->testParticipants as $testParticipant) {
                 if (array_key_exists($testParticipant->getKey(), $this->scores)) {
