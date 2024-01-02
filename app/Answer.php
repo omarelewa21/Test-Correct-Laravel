@@ -227,9 +227,10 @@ class Answer extends BaseModel
 
     public function getJsonAttribute($json)
     {
-        if (!is_null($json) && $this->question->isType('OpenQuestion') && $this->question->isSubType('short')) {
-            return strip_tags($json);
-        }
+        // @NOTE by Erik [2024-01-02] no need any more as we don't have short answers left
+//        if (!is_null($json) && $this->question->isType('OpenQuestion') && $this->question->isSubType('short')) {
+//            return strip_tags($json);
+//        }
         return $json;
     }
 
