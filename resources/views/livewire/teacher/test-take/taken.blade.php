@@ -385,6 +385,7 @@
                                                                       class="justify-end"
                                                                       :use-indicator="true"
                                                                       data-slider-key="{{ $participant->uuid }}"
+                                                                      :decimal-score="true"
                                                 />
                                             </div>
                                             <div class="grid-item flex items-center group-hover/row:bg-offwhite pl-3 pr-5 rounded-r-10 bold justify-end">

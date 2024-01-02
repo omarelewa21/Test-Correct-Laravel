@@ -8,7 +8,8 @@
         @js($coLearning),
         @js($focusInput),
         @js($continuousScoreSlider),
-        @js($minScore)
+        @js($minScore),
+        @js($decimalScore)
      )"
      x-on:updated-score.window="skipSync = true; score = $event.detail.score; updateContinuousSlider(); setThumbOffset();"
      x-on:new-score="score = $event.detail.score; setThumbOffset();syncInput()"
@@ -37,6 +38,7 @@
                          :$minScore
                          :$inputTemplate
                          :$focusInput
+                         :$decimalScore
     />
 
     @if($disabled)
