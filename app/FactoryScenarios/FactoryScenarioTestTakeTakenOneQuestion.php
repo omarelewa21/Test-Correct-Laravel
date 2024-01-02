@@ -17,4 +17,9 @@ class FactoryScenarioTestTakeTakenOneQuestion extends FactoryScenarioTestTake
             ->fillTestParticipantsAnswers()
             ->setStatusTaken();
     }
+
+    protected function createTest()
+    {
+        return FactoryScenarioTestTestWithOpenShortQuestion::createTest($this->testName, $this->user);
+    }
 }

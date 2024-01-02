@@ -1209,7 +1209,7 @@ class TestTake extends BaseModel
                 }]);
     }
 
-    public function maxScore($ignoreQuestions = [])
+    public function maxScore($ignoreQuestions = []): float
     {
         foreach ($ignoreQuestions as $key => $value) {
             if (!strstr($value, '.')) {
