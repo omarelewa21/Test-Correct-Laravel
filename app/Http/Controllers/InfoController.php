@@ -186,8 +186,7 @@ class InfoController extends Controller
         if (Storage::disk('inline_images')->exists($image)) {
             $path = Storage::disk('inline_images')->path($image);
             return Response::file($path);
-        } else {
-            return Response::noContent();
         }
+        return Response::noContent();
     }
 }
