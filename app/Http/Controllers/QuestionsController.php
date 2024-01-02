@@ -20,9 +20,8 @@ class QuestionsController extends Controller
 
     public function inlineimage(Request $request, $image)
     {
-
-        $path = storage_path(sprintf('inlineimages/%s', $image));
-        if (file_exists($path)) {
+        if (Storage::disk('inline_images')->exists($image)) {
+            $path = Storage::disk('inline_images')->path($image);
             echo base64_encode(file_get_contents($path));
             exit;
         } else {

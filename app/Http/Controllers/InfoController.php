@@ -183,11 +183,10 @@ class InfoController extends Controller
      * @return response of image content
      */
     public function getInlineImage($image){
-        $image_path = storage_path('inlineimages/') . $image;
-        if(file_exists($image_path)){
-            return Response::file($image_path);
-        }else{
-            return Response::noContent();
+        if (Storage::disk('inline_images')->exists($image)) {
+            $path = Storage::disk('inline_images')->path($image);
+            return Response::file($path);
         }
+        return Response::noContent();
     }
 }
