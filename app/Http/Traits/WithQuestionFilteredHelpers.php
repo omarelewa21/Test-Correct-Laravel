@@ -389,7 +389,7 @@ trait WithQuestionFilteredHelpers
             'thieme_meulenhoff' => Subject::thiemeMeulenhoffFiltered(),
             'olympiade'         => Subject::olympiadeFiltered(),
             'olympiade_archive' => Subject::olympiadeArchiveFiltered(),
-            'formidable'         => Subject::formidableFiltered(),
+            'formidable'        => Subject::formidableFiltered(),
             default             => null,
         };
 

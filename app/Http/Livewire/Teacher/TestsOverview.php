@@ -131,18 +131,6 @@ class TestsOverview extends OverviewComponent
             ->toArray();
     }
 
-    private function cleanFilterForSearch(array $filters, string $source): array
-    {
-        $notAllowed = $this->getNotAllowedFilterProperties($source);
-
-        return collect($filters)->reject(function ($filter, $key) use ($notAllowed) {
-            if ($filter instanceof Collection) {
-                return $filter->isEmpty() || in_array($key, $notAllowed);
-            }
-            return empty($filter) || in_array($key, $notAllowed);
-        })->toArray();
-    }
-
     public function openTestDetail($testUuid)
     {
         redirect()->to(route('teacher.test-detail', ['uuid' => $testUuid]));
@@ -223,52 +211,6 @@ class TestsOverview extends OverviewComponent
         $this->filters = array_merge($this->filters, auth()->user()->getSearchFilterDefaultsTeacher());
     }
 
-    /**
-     * @param string $source
-     * @return array|string[]
-     */
-    private function getNotAllowedFilterProperties(string $source): array
-    {
-        $notAllowed = [
-            'personal'        => ['base_subject_id', 'author_id', 'shared_sections_author_id'],
-            'school_location' => ['base_subject_id', 'shared_sections_author_id'],
-            'umbrella'        => ['subject_id', 'author_id'],
-            'external'        => ['subject_id', 'author_id', 'shared_sections_author_id'],
-        ];
-
-        return $notAllowed[$source];
-    }
-
-    private function getContentSourceFilters(): array
-    {
-        if ($this->openTab == 'personal') {
-            $filters = $this->filters;
-            $filters['author_id'] = [auth()->id()];
-            return $this->cleanFilterForSearch($filters, 'personal');
-        }
-
-        if ($this->openTab == 'umbrella') {
-            return $this->getUmbrellaDatasourceFilters();
-        }
-
-        $filters = $this->cleanFilterForSearch($this->filters, 'external');
-        if (!isset($filters['base_subject_id']) && !Auth::user()->isValidExamCoordinator()) {
-            $filters['base_subject_id'] = BaseSubject::currentForAuthUser()->pluck('id')->toArray();
-        }
-        return $filters;
-    }
-
-    /**
-     * @return array
-     */
-    private function getUmbrellaDatasourceFilters(): array
-    {
-        $filters = $this->cleanFilterForSearch($this->filters, 'umbrella');
-        if (!empty($filters['shared_sections_author_id'])) {
-            $filters['author_id'] = $filters['shared_sections_author_id'];
-        }
-        return $filters;
-    }
 
     public function getTaxonomiesProperty()
     {

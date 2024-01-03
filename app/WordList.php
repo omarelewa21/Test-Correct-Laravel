@@ -336,4 +336,20 @@ class WordList extends Versionable
         return parent::scopeFiltered($query, $filters, $sorting)
             ->where(fn($query) => $query->whereNull('word_lists.hidden')->orWhere('word_lists.hidden', false));
     }
+
+    public function scopeContentSourceFiltered(
+        $query,
+        User $forUser,
+        array $customerCodes,
+        array $filters = [],
+        array $sorting = []
+    ) {
+        $subjects = Subject::getIdsForContentSource($forUser, $customerCodes);
+        if (is_array($subjects) && count($subjects) === 0) {
+            return $query->where('word_lists.id', -1);
+        }
+
+        return static::filtered(filters: $filters, sorting: $sorting)
+            ->whereIn('subject_id', $subjects);
+    }
 }

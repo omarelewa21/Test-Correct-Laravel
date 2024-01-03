@@ -4,9 +4,8 @@ namespace tcCore\Services\ContentSource;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use tcCore\BaseSubject;
-use tcCore\Http\Controllers\AuthorsController;
+use tcCore\Http\Enums\SchoolLocationFeatureSetting;
 use tcCore\Subject;
 use tcCore\Test;
 use tcCore\TestAuthor;
@@ -41,14 +40,14 @@ class ThiemeMeulenhoffService extends ContentSourceService
         return 'TM';
     }
 
-    public static function getAllFeatureSettings()
+    public static function getAllFeatureSettings(): Collection
     {
         return collect([
-            'allow_tm_biology',
-            'allow_tm_geography',
-            'allow_tm_dutch',
-            'allow_tm_english',
-            'allow_tm_french',
+            SchoolLocationFeatureSetting::ALLOW_TM_BIOLOGY,
+            SchoolLocationFeatureSetting::ALLOW_TM_GEOGRAPHY,
+            SchoolLocationFeatureSetting::ALLOW_TM_DUTCH,
+            SchoolLocationFeatureSetting::ALLOW_TM_ENGLISH,
+            SchoolLocationFeatureSetting::ALLOW_TM_FRENCH,
         ]);
     }
 
@@ -64,7 +63,8 @@ class ThiemeMeulenhoffService extends ContentSourceService
 
     protected static function featureSettingForUser(User $user): Collection
     {
-        return self::getAllFeatureSettings()->filter(function ($setting) use ($user) {
+        return self::getAllFeatureSettings()->filter(function (SchoolLocationFeatureSetting $setting) use ($user) {
+            $setting = $setting->value;
             return $user->schoolLocation->$setting;
         });
     }
@@ -73,12 +73,12 @@ class ThiemeMeulenhoffService extends ContentSourceService
     {
         return self::featureSettingForUser($user)->map(function ($setting) {
             return match ($setting) {
-                'allow_tm_biology'   => BaseSubject::BIOLOGY,
-                'allow_tm_geography' => BaseSubject::GEOGRAPHY,
-                'allow_tm_dutch'     => BaseSubject::DUTCH,
-                'allow_tm_english'   => BaseSubject::ENGLISH,
-                'allow_tm_french'    => BaseSubject::FRENCH,
-                default              => null
+                SchoolLocationFeatureSetting::ALLOW_TM_BIOLOGY   => BaseSubject::BIOLOGY,
+                SchoolLocationFeatureSetting::ALLOW_TM_GEOGRAPHY => BaseSubject::GEOGRAPHY,
+                SchoolLocationFeatureSetting::ALLOW_TM_DUTCH     => BaseSubject::DUTCH,
+                SchoolLocationFeatureSetting::ALLOW_TM_ENGLISH   => BaseSubject::ENGLISH,
+                SchoolLocationFeatureSetting::ALLOW_TM_FRENCH    => BaseSubject::FRENCH,
+                default                                          => null
             };
         })->filter();
     }
@@ -128,5 +128,19 @@ class ThiemeMeulenhoffService extends ContentSourceService
     public static function getSchoolAuthor(): User|null
     {
         return User::where('username', config('custom.thieme_meulenhoff_school_author'))->first();
+    }
+
+    public function wordListFiltered(User $forUser, $filters = [], $sorting = []): Builder
+    {
+        return parent::wordListFiltered($forUser, $filters, $sorting)
+            ->whereIn(
+                'subject_id',
+                self::getBuilderWithAllowedSubjectIds($forUser)
+            );
+    }
+
+    protected static function wordListsAvailableForUser(User $user): bool
+    {
+        return true;
     }
 }

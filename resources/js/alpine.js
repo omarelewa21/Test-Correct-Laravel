@@ -4607,6 +4607,13 @@ document.addEventListener("alpine:init", () => {
             this.home(false);
             this.$store.cms.loading = true;
             this.$dispatch("new-question-added");
+        },
+        confirmed(key) {
+            if(key !== this.type) {
+                return;
+            }
+            this.needsConfirmation = false;
+            this.clickAction()
         }
     }));
 

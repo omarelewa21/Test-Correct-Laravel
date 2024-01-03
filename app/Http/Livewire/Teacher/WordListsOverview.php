@@ -7,9 +7,9 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Arr;
 use tcCore\Http\Livewire\OverviewComponent;
 use tcCore\Http\Traits\WithVersionableCmsHandling;
+use tcCore\Services\ContentSourceFactory;
 use tcCore\TestAuthor;
 use tcCore\Traits\ContentSourceTabsTrait;
-use tcCore\WordList;
 
 class WordListsOverview extends OverviewComponent
 {
@@ -21,11 +21,13 @@ class WordListsOverview extends OverviewComponent
     public string $view = "page";
     protected array $updateListenerKeys = ['used.lists'];
     protected array $filterableAttributes = [
-        'name'                 => '',
-        'education_level_year' => [],
-        'education_level_id'   => [],
-        'subject_id'           => [],
-        'user_id'              => [],
+        'name'                      => '',
+        'education_level_year'      => [],
+        'education_level_id'        => [],
+        'subject_id'                => [],
+        'user_id'                   => [],
+        'shared_sections_author_id' => [],
+        'base_subject_id'           => [],
     ];
 
     public function mount(): void
@@ -55,16 +57,13 @@ class WordListsOverview extends OverviewComponent
 
     private function getOverviewResults()
     {
-        return WordList::filtered(filters: $this->getFilters())
+        return ContentSourceFactory::makeWithTab($this->openTab)
+            ->wordListFiltered(
+                forUser: auth()->user(),
+                filters: $this->getContentSourceFilters(),
+            )
             ->with(['subject:id,name', 'words'])
             ->paginate(self::PER_PAGE);
-    }
-
-    private function getFilters()
-    {
-        return collect($this->filters)
-            ->filter()
-            ->when($this->openTab === 'personal', fn($filters) => $filters->merge(['user_id' => auth()->id()]));
     }
 
     protected function handleUpdatedProperties(array $updates): void

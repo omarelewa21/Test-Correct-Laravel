@@ -1412,7 +1412,7 @@ class Test extends BaseModel
             ->whereIn('q1.type', $types);
 
         $qb2 = DB::query()
-            ->select('test_id')
+            ->select('tq2.test_id')
             ->from('questions as q2')
             ->join('group_question_questions as gqq', 'gqq.question_id', '=', 'q2.id')
             ->join('test_questions as tq2', 'q2.id', '=', 'tq2.question_id')
@@ -1420,6 +1420,6 @@ class Test extends BaseModel
 
         return DB::query()
             ->distinct()
-            ->fromSub($qb->union($qb2), 'a');
+            ->fromSub($qb->union($qb2), 'tests_containing_questions');
     }
 }

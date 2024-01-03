@@ -2,8 +2,11 @@
 
 namespace tcCore\Services\ContentSource;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use tcCore\Test;
 use tcCore\User;
+use tcCore\WordList;
 
 abstract class ContentSourceService
 {
@@ -23,10 +26,9 @@ abstract class ContentSourceService
      *
      * @return string
      */
-    public static final function isAvailableForUser(User $user): bool
+    final public static function isAvailableForUser(User $user, string $context = 'test'): bool
     {
-        return static::allowedForUser($user)
-            && static::testsAvailableForUser($user);
+        return static::allowedForUser($user) && static::contextItemAvailableForUser($user, $context);
     }
 
     /**
@@ -61,6 +63,7 @@ abstract class ContentSourceService
      * @return bool
      */
     abstract protected static function testsAvailableForUser(User $user): bool;
+    abstract protected static function wordListsAvailableForUser(User $user): bool;
 
     /**
      * Get whether the content source is allowed for the user.
@@ -111,5 +114,24 @@ abstract class ContentSourceService
     public static function getSchoolAuthor(): User|null
     {
         return null;
+    }
+
+    public  function wordListFiltered(User $forUser, $filters = [], $sorting = []): Builder
+    {
+        return WordList::contentSourceFiltered(
+            $forUser,
+            Arr::wrap(static::getCustomerCode()),
+            $filters,
+            $sorting,
+        );
+    }
+
+    public static function contextItemAvailableForUser(User $user, string $context): bool
+    {
+        return match ($context) {
+            'test'     => static::testsAvailableForUser($user),
+            'wordList' => static::wordListsAvailableForUser($user),
+            default    => false
+        };
     }
 }

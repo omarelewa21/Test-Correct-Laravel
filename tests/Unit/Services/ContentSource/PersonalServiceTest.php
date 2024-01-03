@@ -4,9 +4,10 @@ namespace Unit\Services\ContentSource;
 
 
 use tcCore\BaseSubject;
+use tcCore\Factories\FactoryWordList;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolPersonal;
 use tcCore\Services\ContentSource\PersonalService;
-use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
+use tcCore\WordList;
 use Tests\ScenarioLoader;
 use Tests\TestCase;
 
@@ -80,5 +81,36 @@ class PersonalServiceTest extends TestCase
     public function it_has_a_tab_order()
     {
           $this->assertEquals(100, PersonalService::$order);
+    }
+
+    /** @test */
+    public function can_show_word_lists_when_all_conditions_are_met()
+    {
+        $listName = class_basename(PersonalService::class).' WordList';
+        $this->createWordListForSource($listName);
+        $teacher = ScenarioLoader::get('dutchTeacher');
+        auth()->login($teacher);
+
+        $this->assertEquals(
+            $teacher->subjects()->first()->base_subject_id,
+            BaseSubject::DUTCH
+        );
+
+        $this->assertInstanceOf(
+            WordList::class,
+            (new PersonalService())->wordListFiltered(forUser: $teacher)
+                ->where('name', $listName)
+                ->first()
+        );
+    }
+
+    private function createWordListForSource(string $name): WordList
+    {
+        $subject = ScenarioLoader::get('dutchTeacher')->subjects()->first();
+
+        return FactoryWordList::createWordList(
+            ScenarioLoader::get('dutchTeacher'),
+            ['subject_id' => $subject->getKey(), 'name' => $name]
+        );
     }
 }

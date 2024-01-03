@@ -2,8 +2,10 @@
 
 namespace tcCore\Services\ContentSource;
 
+use Illuminate\Database\Eloquent\Builder;
 use tcCore\Test;
 use tcCore\User;
+use tcCore\WordList;
 
 class PersonalService extends ContentSourceService
 {
@@ -45,5 +47,16 @@ class PersonalService extends ContentSourceService
             $filters, $sorting
         )
             ->where('tests.author_id', $forUser->getKey());
+    }
+
+    public  function wordListFiltered(User $forUser, $filters = [], $sorting = []): Builder
+    {
+        return WordList::filtered($filters, $sorting)
+            ->where('word_lists.user_id', $forUser->getKey());
+    }
+
+    protected static function wordListsAvailableForUser(User $user): bool
+    {
+        return true;
     }
 }

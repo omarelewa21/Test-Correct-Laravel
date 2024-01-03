@@ -2,8 +2,10 @@
 
 namespace tcCore\Services\ContentSource;
 
+use Illuminate\Database\Eloquent\Builder;
 use tcCore\Test;
 use tcCore\User;
+use tcCore\WordList;
 
 class SchoolLocationService extends ContentSourceService
 {
@@ -38,11 +40,22 @@ class SchoolLocationService extends ContentSourceService
     {
         return true;
     }
-    public  function itemBankFiltered(User $forUser, $filters = [], $sorting = []): \Illuminate\Database\Eloquent\Builder
+    public  function itemBankFiltered(User $forUser, $filters = [], $sorting = []): Builder
     {
         return Test::filtered(
             $filters, $sorting
         )
             ->published();
+    }
+
+    public  function wordListFiltered(User $forUser, $filters = [], $sorting = []): Builder
+    {
+        return WordList::filtered($filters, $sorting)
+            ->where('word_lists.school_location_id', $forUser->school_location_id);
+    }
+
+    protected static function wordListsAvailableForUser(User $user): bool
+    {
+        return true;
     }
 }

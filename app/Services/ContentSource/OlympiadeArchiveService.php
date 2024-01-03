@@ -3,7 +3,6 @@
 namespace tcCore\Services\ContentSource;
 
 use Illuminate\Support\Facades\Auth;
-use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Test;
 use tcCore\TestAuthor;
 use tcCore\User;
@@ -80,4 +79,8 @@ class OlympiadeArchiveService extends ContentSourceService
         return User::where('username', config('custom.olympiade_archive_school_author'))->first();
     }
 
+    protected static function wordListsAvailableForUser(User $user): bool
+    {
+        return true;
+    }
 }

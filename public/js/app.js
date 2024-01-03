@@ -12833,6 +12833,13 @@ document.addEventListener("alpine:init", function () {
         this.home(false);
         this.$store.cms.loading = true;
         this.$dispatch("new-question-added");
+      },
+      confirmed: function confirmed(key) {
+        if (key !== this.type) {
+          return;
+        }
+        this.needsConfirmation = false;
+        this.clickAction();
       }
     };
   });

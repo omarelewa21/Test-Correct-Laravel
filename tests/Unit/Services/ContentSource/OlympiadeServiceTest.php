@@ -4,9 +4,11 @@ namespace Tests\Unit\Services\ContentSource;
 
 
 use tcCore\BaseSubject;
+use tcCore\Factories\FactoryWordList;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolCreathlon;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolOlympiade;
 use tcCore\Services\ContentSource\OlympiadeService;
+use tcCore\WordList;
 use Tests\ScenarioLoader;
 use Tests\TestCase;
 
@@ -106,7 +108,7 @@ class OlympiadeServiceTest extends TestCase
     /** @test */
     public function it_can_get_the_customer_code()
     {
-        $this->assertEquals('SBON', OlympiadeService::getCustomerCode());
+        $this->assertEquals('SBON1', OlympiadeService::getCustomerCode());
     }
 
     /** @test */
@@ -134,5 +136,44 @@ class OlympiadeServiceTest extends TestCase
     public function it_has_a_tab_order()
     {
         $this->assertEquals(600, OlympiadeService::$order);
+    }
+
+    /** @test */
+    public function can_show_word_lists_when_all_conditions_are_met()
+    {
+        $listName = class_basename(OlympiadeService::class).' WordList';
+        $this->createWordListForSource($listName);
+        $teacher = ScenarioLoader::get('teacherOne');
+        auth()->login($teacher);
+
+        $this->assertEquals(
+            $teacher->subjects()->first()->base_subject_id,
+            BaseSubject::DUTCH
+        );
+
+        $this->assertInstanceOf(
+            WordList::class,
+            (new OlympiadeService())->wordListFiltered(forUser: $teacher)
+                ->where('name', $listName)
+                ->first()
+        );
+    }
+
+    private function createWordListForSource(string $name): WordList
+    {
+        $subject = ScenarioLoader::get('school_locations')->where('customer_code', OlympiadeService::getCustomerCode())
+            ->first()
+            ->schoolLocationSections
+            ->where('demo', false)
+            ->first()
+            ->section
+            ->subjects
+            ->where('base_subject_id', BaseSubject::DUTCH)
+            ->first();
+
+        return FactoryWordList::createWordList(
+            OlympiadeService::getSchoolAuthor(),
+            ['subject_id' => $subject->getKey(), 'name' => $name]
+        );
     }
 }

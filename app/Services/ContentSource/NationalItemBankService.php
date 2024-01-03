@@ -3,7 +3,6 @@
 namespace tcCore\Services\ContentSource;
 
 use Illuminate\Support\Facades\Auth;
-use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Test;
 use tcCore\TestAuthor;
 use tcCore\User;
@@ -98,5 +97,9 @@ class NationalItemBankService extends ContentSourceService
         return User::where('username', config('custom.national_item_bank_school_author'))->first();
     }
 
+    protected static function wordListsAvailableForUser(User $user): bool
+    {
+        return true;
+    }
 }
 
