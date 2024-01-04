@@ -10,6 +10,7 @@ use tcCore\BaseSubject;
 use tcCore\EducationLevel;
 use tcCore\Http\Livewire\OverviewComponent;
 use tcCore\Http\Helpers\Choices\Choice;
+use tcCore\Http\Traits\WithRelationQuestionBlocks;
 use tcCore\Lib\Repositories\TaxonomyRepository;
 use tcCore\Services\ContentSource\CreathlonService;
 use tcCore\Services\ContentSource\FormidableService;
@@ -31,15 +32,17 @@ use tcCore\UserSystemSetting;
 class TestsOverview extends OverviewComponent
 {
     use ContentSourceTabsTrait;
+    use WithRelationQuestionBlocks;
 
-    const ACTIVE_TAB_SESSION_KEY = 'tests-overview-active-tab';
+    public const ACTIVE_TAB_SESSION_KEY = 'tests-overview-active-tab';
     protected string $sessionKey = 'tests-overview';
 
     private $sorting = ['id' => 'desc'];
     protected $queryString = [
-        'openTab'        => ['as' => 'to_tab'],
-        'referrerAction' => ['except' => ''],
-        'file'           => ['except' => ''],
+        'openTab'                     => ['as' => 'to_tab'],
+        'referrerAction'              => ['except' => ''],
+        'file'                        => ['except' => ''],
+        'showRelationQuestionWarning' => ['except' => false, 'as' => 'rqw']
     ];
 
     public $referrerAction = '';
@@ -48,6 +51,7 @@ class TestsOverview extends OverviewComponent
     public $mode;
     public $inTestBankContext = true;
     public $showQuestionBank = false;
+
     protected array $filterableAttributes = [
         'name'                      => '',
         'education_level_year'      => [],
@@ -153,6 +157,8 @@ class TestsOverview extends OverviewComponent
 
     public function handleReferrerActions()
     {
+        $this->handleRelationQuestionWarning();
+        
         if (!$this->referrerAction) {
             return true;
         }

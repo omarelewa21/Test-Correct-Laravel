@@ -47,7 +47,8 @@ class Discuss extends TCComponent
 
     public function getTestTakesToDiscuss($orderColumn, $orderDirection)
     {
-        return TestTake::withoutGlobalScope(ArchivedScope::class)->distinct()
+        return TestTake::withoutGlobalScope(ArchivedScope::class)
+            ->distinct()
             ->leftJoin('test_participants', 'test_participants.test_take_id', '=', 'test_takes.id')
             ->leftJoin('tests', 'tests.id', '=', 'test_takes.test_id')
             ->leftJoin('subjects', 'subjects.id', '=', 'tests.subject_id')
@@ -59,6 +60,7 @@ class Discuss extends TCComponent
             ->where('test_participants.user_id', Auth::id())
             ->whereIn('test_participants.test_take_status_id', [ TestTakeStatus::STATUS_TAKEN, TestTakeStatus::STATUS_DISCUSSING])
             ->whereIn('test_takes.test_take_status_id', [TestTakeStatus::STATUS_TAKEN, TestTakeStatus::STATUS_DISCUSSING])
+            ->allowedRelationQuestions(auth()->user())
             ->select('test_takes.*', 'tests.name as test_name', 
                     'subjects.name as subject_name', 'test_take_statuses.name as status_name',
                     DB::raw('CASE WHEN archived_models.user_id = test_takes.user_id THEN 1 ELSE 0 END AS is_archived'))

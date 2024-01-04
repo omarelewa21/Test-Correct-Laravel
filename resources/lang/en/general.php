@@ -92,4 +92,5 @@ return [
     'Formidable'                        => 'Formidable!',
     'Kies'                              => 'Kies',
     'Toon niet opnieuw'                 => 'Don’t show again',
+    'Geen toegang'                      => 'No access',
 ];

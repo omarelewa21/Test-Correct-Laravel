@@ -15,6 +15,7 @@ use tcCore\Events\TestTakeForceTakenAway;
 use tcCore\Events\TestTakeReopened;
 use tcCore\Http\Helpers\AnswerParentQuestionsHelper;
 use tcCore\Http\Middleware\AfterResponse;
+use tcCore\Http\Traits\TestTakeStatusesTrait;
 use tcCore\Jobs\Rating\CalculateRatingForTestParticipant;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -27,6 +28,7 @@ class TestParticipant extends BaseModel
 
     use SoftDeletes;
     use UuidTrait;
+    use TestTakeStatusesTrait;
 
     protected $casts = [
         'uuid'                    => EfficientUuid::class,
@@ -321,7 +323,7 @@ class TestParticipant extends BaseModel
         //$testTakeStatuses = TestTakeStatus::whereIn('name', ['Planned', 'Test not taken'])->pluck('id')->all();
         $testTakeStatuses = [TestTakeStatus::STATUS_PLANNED, TestTakeStatus::STATUS_TEST_NOT_TAKEN];
         // if ($testParticipant->testTakeStatus->name === 'Taking test' && in_array($testParticipant->getOriginal('test_take_status_id'), $testTakeStatuses)) {
-        if ($this->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST) {
+        if ($this->hasStatusTakingTest()) {
             $testTakeTypeStatus = TestTakeEventType::where('name', '=', 'Start')->value('id');
             $participantStartEvent = TestTakeEvent::whereTestParticipantId($this->getKey())
                 ->whereTestTakeId($this->testTake->getKey())
@@ -357,7 +359,7 @@ class TestParticipant extends BaseModel
         $testTakeStatuses = [4, 5, 6];
 //            if ($testParticipant->testTakeStatus->name === 'Taking test' && in_array($testParticipant->getOriginal('test_take_status_id'), $testTakeStatuses)) {
         //reopenedTest
-        if ($this->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST && in_array($this->getOriginal('test_take_status_id'), $testTakeStatuses)) {
+        if ($this->hasStatusTakingTest() && in_array($this->getOriginal('test_take_status_id'), $testTakeStatuses)) {
             // Test participant test event for continueing
             $testTakeEvent = new TestTakeEvent();
             $testTakeEvent->setAttribute('test_take_event_type_id', TestTakeEventType::where('name', '=', 'Continue')->value('id'));
@@ -439,7 +441,7 @@ class TestParticipant extends BaseModel
 
     public function canTakeTestTakeInPlayer()
     {
-        $statusOkay = $this->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST;
+        $statusOkay = $this->hasStatusTakingTest();
 
         if ($this->isInBrowser()) {
             if (!$this->canUseBrowserTesting()) {
@@ -455,7 +457,7 @@ class TestParticipant extends BaseModel
 
     private function isTestTakenAway()
     {
-        if ($this->test_take_status_id == TestTakeStatus::STATUS_TAKEN && $this->getOriginal('test_take_status_id') == TestTakeStatus::STATUS_TAKING_TEST) {
+        if ($this->hasStatusTaken() && $this->getOriginal('test_take_status_id') == TestTakeStatus::STATUS_TAKING_TEST) {
             AfterResponse::$performAction[] = fn() => TestTakeForceTakenAway::dispatch($this->uuid);
         }
     }

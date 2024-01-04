@@ -1,6 +1,7 @@
 <?php namespace tcCore;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -429,6 +430,10 @@ class Test extends BaseModel
                 })
                     ->orWhere('tests.demo', 0);
             });
+        }
+
+        if (!settings()->canUseRelationQuestion($user)) {
+            $query->whereNotIn('tests.id', self::getIdsOfTestsThatContainSpecificQuestions(RelationQuestion::class));
         }
 
         return $query;
@@ -1401,25 +1406,55 @@ class Test extends BaseModel
             ->value('base_subjects.' . $column);
     }
 
-    public static function getIdsOfTestsThatContainSpecificQuestions($question, ...$questions): \Illuminate\Database\Query\Builder
+    private static function questionInTestQuery(Collection $types): Builder
     {
-        $types = collect([$question])->concat($questions)->map(fn($type) => class_basename($type));
-
-        $qb = DB::query()
-            ->select('tq1.test_id')
+        return DB::query()
             ->from('questions as q1')
             ->join('test_questions as tq1', 'q1.id', '=', 'tq1.question_id')
             ->whereIn('q1.type', $types);
+    }
 
-        $qb2 = DB::query()
-            ->select('tq2.test_id')
+    private static function subQuestionInTestQuery(Collection $types): Builder
+    {
+        return DB::query()
             ->from('questions as q2')
             ->join('group_question_questions as gqq', 'gqq.question_id', '=', 'q2.id')
-            ->join('test_questions as tq2', 'q2.id', '=', 'tq2.question_id')
+            ->join('test_questions as tq2', 'gqq.group_question_id', '=', 'tq2.question_id')
             ->whereIn('q2.type', $types);
+    }
+
+    public static function getIdsOfTestsThatContainSpecificQuestions(
+        $question,
+        ...$questions
+    ): Builder {
+        $types = collect([$question])->concat($questions)->map(fn($type) => class_basename($type));
 
         return DB::query()
             ->distinct()
-            ->fromSub($qb->union($qb2), 'tests_containing_questions');
+            ->fromSub(
+                static::questionInTestQuery($types)
+                    ->select('tq1.test_id')
+                    ->union(static::subQuestionInTestQuery($types)->select('tq2.test_id')),
+                'tests_containing_questions'
+            );
+    }
+
+    public function containsSpecificQuestionTypes($question, ...$questions): bool
+    {
+        $types = collect([$question])->concat($questions)->map(fn($type) => class_basename($type));
+
+        return DB::query()
+            ->fromSub(
+                static::questionInTestQuery($types)
+                    ->select('q1.id')
+                    ->where('tq1.test_id', $this->getKey())
+                    ->union(
+                        static::subQuestionInTestQuery($types)
+                            ->select('tq2.test_id')
+                            ->where('tq2.test_id', $this->getKey())
+                    ),
+                'question_type_in_test'
+            )
+            ->exists();
     }
 }

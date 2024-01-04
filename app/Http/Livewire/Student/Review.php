@@ -59,6 +59,7 @@ class Review extends TCComponent
                     ->orWhere('test_takes.test_take_status_id', TestTakeStatus::STATUS_RATED);
             })
             ->where('test_takes.show_results', '>=', Carbon::now())
+            ->allowedRelationQuestions(auth()->user())
             ->orderBy($orderColumn, $orderDirection)
             ->paginate($this->paginateBy);
     }

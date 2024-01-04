@@ -59,14 +59,10 @@ class TestTakesController extends Controller
         $testTakes = TestTake::filtered($request->get('filter', []), $request->get('order', []))
             ->with([
                 'test',
-                'test.subject' => function ($query) {
-                    $query->withTrashed();
-                },
+                'test.subject' => fn($query) => $query->withTrashed(),
                 'test.author',
                 'retakeTestTake',
-                'user'         => function ($query) {
-                    $query->withTrashed();
-                },
+                'user'         => fn($query) => $query->withTrashed(),
                 'testTakeStatus',
                 'invigilatorUsers',
                 'testTakeCode'
@@ -643,14 +639,14 @@ class TestTakesController extends Controller
         ]);
         $testTake->test->append('has_pdf_attachments');
 
-        if ($testTake->test_take_status_id === TestTakeStatus::STATUS_DISCUSSING) {
+        if ($testTake->hasStatusDiscussing()) {
             $this->hydrateTestTakeWithHasNextQuestionAttribute($testTake);
             $hasNextQuestion = isset($testTake['has_next_question']) ? $testTake['has_next_question'] : false;
         }
 
         $testTakeResponse = $this->showGeneric($testTake, $request);
 
-        if ($testTake->test_take_status_id === TestTakeStatus::STATUS_DISCUSSING) {
+        if ($testTake->hasStatusDiscussing()) {
             $testTakeResponse['has_next_question'] = $hasNextQuestion;
         }
 

@@ -30,7 +30,7 @@ class Planned extends TCComponent
     public function render()
     {
         return view('livewire.student.planned', [
-            'testTakes' => $this->getSchedueledTestTakesForStudent(null, 6, $this->sortField, $this->sortDirection)
+            'testTakes' => $this->getScheduledTestTakesForStudent(null, 6, $this->sortField, $this->sortDirection)
         ]);
     }
 }

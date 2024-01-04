@@ -1,4 +1,5 @@
 <?php
+
 return [
     'answer_model'                     => 'Antwoord model',
     'toets'                            => 'toets',
@@ -16,4 +17,5 @@ return [
     'duplicate_questions'              => 'Dubbele vragen',
     'carousel_too_few_questions'       => 'Te weinig sub vragen in carousel',
     'carousel_unequal_scores'          => 'Verschillende punten in carousel',
+    'test_contains_relation_question'  => 'Deze toets bevat een relatievraag. We hebben deze vraag tijdelijk uitgezet, waardoor je geen toegang hebt tot de toets. We zullen de toegang zo snel mogelijk herstellen.',
 ];

@@ -10,6 +10,7 @@ use tcCore\Http\Helpers\AppVersionDetector;
 use tcCore\Http\Livewire\CoLearning\CompletionQuestion;
 use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithStudentTestTakes;
+use tcCore\RelationQuestion;
 use tcCore\TemporaryLogin;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
@@ -74,6 +75,10 @@ class WaitingRoom extends TCComponent
             return $this->escortUserFromWaitingRoom();
         }
 
+        if ($this->cantEnterWaitingRoomBecauseOfRelationQuestion()) {
+            return $this->escortUserFromWaitingRoom();
+        }
+
         if ($this->directly_to_review) {
             $this->startReview();
         }
@@ -95,7 +100,7 @@ class WaitingRoom extends TCComponent
     public function startTestTake()
     {
         // through the AppApi a Virtual Machine has been reported, so we cancel taking the test
-        if ($this->testParticipant->test_take_status_id === TestTakeStatus::STATUS_TAKEN) {
+        if ($this->testParticipant->hasStatusTaken()) {
             $this->testParticipant->test_take_status_id = TestTakeStatus::STATUS_TAKING_TEST;
             $this->testParticipant->save();
             $this->testParticipant->test_take_status_id = TestTakeStatus::STATUS_TAKEN;
@@ -103,7 +108,7 @@ class WaitingRoom extends TCComponent
             return $this->escortUserFromWaitingRoom();
         }
 
-        if ($this->waitingTestTake->test_take_status_id === TestTakeStatus::STATUS_TAKING_TEST) {
+        if ($this->waitingTestTake->hasStatusTakingTest()) {
             if (!$this->testParticipant->isRejoiningTestTake(TestTakeStatus::STATUS_TAKING_TEST)) {
                 $this->testParticipant->test_take_status_id = TestTakeStatus::STATUS_TAKING_TEST;
                 $this->testParticipant->save();
@@ -301,4 +306,12 @@ class WaitingRoom extends TCComponent
         return false;
     }
 
+    private function cantEnterWaitingRoomBecauseOfRelationQuestion(): bool
+    {
+        if (settings()->canUseRelationQuestion(auth()->user())) {
+            return false;
+        }
+
+        return $this->waitingTestTake->test->containsSpecificQuestionTypes(RelationQuestion::class);
+    }
 }

@@ -21,6 +21,7 @@ use tcCore\Http\Helpers\CakeRedirectHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
 use tcCore\Http\Middleware\AfterResponse;
+use tcCore\Http\Traits\TestTakeStatusesTrait;
 use tcCore\Jobs\CountTeacherLastTestTaken;
 use tcCore\Jobs\CountTeacherTestDiscussed;
 use tcCore\Jobs\CountTeacherTestTaken;
@@ -41,6 +42,7 @@ class TestTake extends BaseModel
     use SoftDeletes;
     use UuidTrait;
     use Archivable;
+    use TestTakeStatusesTrait;
 
     /**
      * Stops the appended attributes from being loaded at every TestTake hydratation if false
@@ -119,7 +121,7 @@ class TestTake extends BaseModel
                 $testTake->setAttribute('test_id', $systemTestId);
             }
 
-            if ($testTake->test_take_status_id === TestTakeStatus::STATUS_DISCUSSING && $testTake->getAttribute('discussing_question_id') !== null) {
+            if ($testTake->hasStatusDiscussing() && $testTake->getAttribute('discussing_question_id') !== null) {
                 $testTake->setAttribute('is_discussed', true);
             }
 
@@ -206,7 +208,7 @@ class TestTake extends BaseModel
                 $testTake->testTakeEvents()->save($testTakeEvent);
             }
 
-            if ($testTake->test_take_status_id === TestTakeStatus::STATUS_DISCUSSING) {
+            if ($testTake->hasStatusDiscussing()) {
                 if ($testTake->studentsAreInNewCoLearning()) {
                     AfterResponse::$performAction[] = fn() => TestTakeChangeDiscussingQuestion::dispatch($testTake->uuid);
                 }
@@ -573,6 +575,8 @@ class TestTake extends BaseModel
         }
 
         $query->belongsToSchoolLocation(Auth::user());
+
+        $query->when($this->hasPlannedTestTakesFilter($filters), fn($query) => $query->allowedRelationQuestions(Auth::user()));
 
         $testTable = with(new Test())->getTable();
         $query->select($this->getTable() . '.*')
@@ -1064,7 +1068,7 @@ class TestTake extends BaseModel
 
     private function updateGuestRatingVisibilityWindow()
     {
-        if (!$this->test_take_status_id == TestTakeStatus::STATUS_RATED || !$this->guest_accounts || $this->testTakeCode == null) {
+        if (!$this->hasStatusRated() || !$this->guest_accounts || $this->testTakeCode == null) {
             return;
         }
 
@@ -1266,11 +1270,11 @@ class TestTake extends BaseModel
         $this->loadMissing('testParticipants');
         return [
             'taken' => $this->testParticipants->filter(function ($participant) {
-                return TestTakeStatus::testTakenStatusses()->contains($participant->test_take_status_id);
+                return TestTakeStatus::testTakenStatuses()->contains($participant->test_take_status_id);
             })->count(),
 
             'notTaken' => $this->testParticipants->filter(function ($participant) {
-                return !TestTakeStatus::testTakenStatusses()->contains($participant->test_take_status_id);
+                return !TestTakeStatus::testTakenStatuses()->contains($participant->test_take_status_id);
             })->count(),
         ];
     }
@@ -1425,5 +1429,19 @@ class TestTake extends BaseModel
     public function isNotPartOfOlympiade()
     {
         return strtolower($this->test->scope) !==  strtolower(OlympiadeService::getPublishScope());
+    }
+
+    public function scopeAllowedRelationQuestions($query, User $user): Builder
+    {
+        if (settings()->canUseRelationQuestion($user)) {
+            return $query;
+        }
+
+        $query->whereNotIn(
+            'test_takes.test_id',
+            Test::getIdsOfTestsThatContainSpecificQuestions(RelationQuestion::class)
+        );
+
+        return $query;
     }
 }
