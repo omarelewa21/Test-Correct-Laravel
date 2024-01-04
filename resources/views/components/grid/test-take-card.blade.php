@@ -16,6 +16,7 @@
         <x-button.options id="test-take-card-{{ $testTake->uuid }}"
                           context="test-take-card"
                           :uuid="$testTake->uuid"
+                          :disabled="$disabledContextMenu"
         />
     </div>
     <div class="flex flex-wrap w-full justify-between text-base mb-1">

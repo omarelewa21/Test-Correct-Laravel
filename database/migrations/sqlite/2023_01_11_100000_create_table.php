@@ -5576,6 +5576,7 @@ class CreateTable extends Migration
             $table->integer('education_level_id')->foreign('education_level_id')->references('id')->on('education_levels');
             $table->integer('education_level_year');
             $table->integer('school_location_id')->foreign('school_location_id')->references('id')->on('school_locations');
+            $table->boolean('hidden')->nullable();
         });
     }
 

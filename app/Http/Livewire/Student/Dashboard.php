@@ -40,7 +40,7 @@ class Dashboard extends TCComponent
     public function render()
     {
         return view('livewire.student.dashboard', [
-            'testTakes'      => $this->getSchedueledTestTakesForStudent(5),
+            'testTakes'      => $this->getScheduledTestTakesForStudent(5),
             'ratedTestTakes' => $this->getRatingsForStudent(null, 5, 'test_takes.updated_at', 'desc', false),
             'messages'       => $this->getMessages(),
         ])

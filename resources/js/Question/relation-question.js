@@ -819,7 +819,7 @@ document.addEventListener("alpine:init", () => {
                 return;
             }
             this.wordLists.push(list);
-            this.$dispatch("notify", { message: "Gelukt!" });
+            // this.$dispatch("notify", { message: "Gelukt!" });
         },
         uploadWordList() {
             this.$root.closest(".compile-list-modal")
@@ -897,7 +897,7 @@ document.addEventListener("alpine:init", () => {
                         return;
                     }
                     this.wordLists.push(list);
-                    this.$dispatch("notify", { message: "Gelukt!" });
+                    // this.$dispatch("notify", { message: "Gelukt!" });
                 },
                 () => {
                     this.$dispatch("notify", { message: "Er is iets misgegaan...", type: "error" });

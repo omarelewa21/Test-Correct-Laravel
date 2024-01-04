@@ -467,12 +467,12 @@ class SchoolLocationCreator
         //create section and subject
         $sectionFactory = FactorySection::create($schoolLocation, $factory->sectionName);
 
-        BaseSubject::where('id', 23)->get()->each(function ($baseSubject) use ($sectionFactory) {
+        BaseSubject::where('id', $factory->baseSubjectId)->get()->each(function ($baseSubject) use ($sectionFactory) {
             $sectionFactory->addSubject($baseSubject, 'Creathlon-'.$baseSubject->name);
         });
 
         $section = $sectionFactory->section;
-        $subjectFrench = $section->subjects()->where('base_subject_id', BaseSubject::FRENCH)->first();
+        $subjectFrench = $section->subjects()->where('base_subject_id', $factory->baseSubjectId)->first();
 
 
         //create creathlon official author user and a secondary teacher in the correct school

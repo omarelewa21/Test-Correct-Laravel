@@ -192,6 +192,13 @@ abstract class Versionable extends BaseModel
             return $query->where($filterName, 'LIKE', "%$value%");
         }
 
+        if ($filterName === 'base_subject_id') {
+            return $query->whereIn(
+                'subject_id',
+                Subject::whereIn('base_subject_id', Arr::wrap($value))->select('id')
+            );
+        }
+
         return $query->whereIn($filterName, Arr::wrap($value));
     }
 }

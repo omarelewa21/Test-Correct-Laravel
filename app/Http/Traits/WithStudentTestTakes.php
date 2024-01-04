@@ -15,7 +15,7 @@ use tcCore\TestTake;
 trait WithStudentTestTakes
 {
 
-    private function getSchedueledTestTakesForStudent($amount = null, $paginateBy = 0, $orderColumn = 'test_takes.time_start', $orderDirection = 'ASC')
+    private function getScheduledTestTakesForStudent($amount = null, $paginateBy = 0, $orderColumn = 'test_takes.time_start', $orderDirection = 'ASC')
     {
         $takePlannedQuery = TestTake::leftJoin('test_participants', 'test_participants.test_take_id', '=', 'test_takes.id')
             ->leftJoin('tests', 'tests.id', '=', 'test_takes.test_id')
@@ -46,6 +46,7 @@ trait WithStudentTestTakes
                 });
             })
             ->whereNull('test_participants.deleted_at')
+            ->allowedRelationQuestions(auth()->user())
             ->orderBy($orderColumn, $orderDirection);
 
 
@@ -57,7 +58,8 @@ trait WithStudentTestTakes
         $ratedTakesQuery = TestTake::gradedTakesWithParticipantForUser(Auth::user(), $withNullRatings)
             ->select('test_takes.*', 'tests.name as test_name', 'subjects.name as subject_name')
             ->leftJoin('tests', 'tests.id', '=', 'test_takes.test_id')
-            ->leftJoin('subjects', 'tests.subject_id', '=', 'subjects.id');
+            ->leftJoin('subjects', 'tests.subject_id', '=', 'subjects.id')
+            ->allowedRelationQuestions(auth()->user());
 
         return $paginateBy ? $ratedTakesQuery->orderBy($orderColumn, $orderDirection)->paginate($paginateBy) : $ratedTakesQuery->take($amount)->get();
     }

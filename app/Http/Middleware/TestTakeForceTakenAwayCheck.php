@@ -39,7 +39,7 @@ class TestTakeForceTakenAwayCheck
 
                 $testParticipantStatus = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($testTake->id)->value('test_take_status_id');
 
-                if ($testParticipantStatus == TestTakeStatus::STATUS_TAKEN || $testTake->test_take_status_id == TestTakeStatus::STATUS_TAKEN) {
+                if ($testParticipantStatus == TestTakeStatus::STATUS_TAKEN || $testTake->hasStatusTaken()) {
                     if (Livewire::isLivewireRequest()) {
                         return abort(406,'Test taken away');
                     }

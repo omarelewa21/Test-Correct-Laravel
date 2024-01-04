@@ -4,17 +4,15 @@ namespace tcCore\Http\Controllers;
 
 use tcCore\TestKind;
 use tcCore\TestTake;
-use Ramsey\Uuid\Uuid;
 use tcCore\GroupQuestion;
-use tcCore\TemporaryLogin;
 use tcCore\TestParticipant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use tcCore\Exceptions\StudentTestTakeException;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Traits\WithStudentTestTakes;
+use tcCore\Services\DirectLinkService;
 use tcCore\Http\Traits\TestTakeNavigationForController;
 
 class TestTakeLaravelController extends Controller
@@ -240,106 +238,8 @@ class TestTakeLaravelController extends Controller
         })->unique()->implode(' ');
     }
 
-    /**
-     * Quick access to test take for Student, Teacher and Invigilator
-     * @param tcCore\TestTake $testTake
-     */
     public function directLink($testTakeUuid)
     {
-        $notification = null;
-        $url = null;
-
-        if (!UUid::isValid($testTakeUuid) || TestTake::whereUuid($testTakeUuid)->doesntExist()) {
-            $notification = __('teacher.test_not_found');
-            return $this->redirectToCorrectTakePage($notification);
-        }
-
-        $user = Auth::user();
-        $testTake = TestTake::whereUuid($testTakeUuid)->with('test', 'testTakeStatus')->first();
-        if (!auth()->check()) {
-//            session(['take' => $testTake->uuid]);
-            return redirect()->route('auth.login', ['directlink' => $testTakeUuid]);
-        }
-
-        if ($user->isA('student')) {
-            // Student
-            return redirect()->route('student.waiting-room', ['take' => $testTake->uuid]);
-        }
-
-        if ($user->isA('teacher') && $testTake->user_id === $user->id) {
-            return $this->redirectTakeOwner($testTake);
-        } elseif ($testTake->isInvigilator($user)) {
-            return $this->redirectTakeInvigilator($testTake);
-        } else {
-            $notification = __('teacher.test_not_found');
-            return $this->redirectToCorrectTakePage($notification, $url);
-        }
-    }
-
-    private function redirectTakeOwner(TestTake $testTake)
-    {
-        $notification = null;
-        $url = null;
-
-        if ($testTake->isAssignmentType()) {
-            // is assignment
-            if ($testTake->testTakeStatus->name == 'Taking test' || $testTake->testTakeStatus->name == 'Planned') {
-                $url = sprintf("test_takes/assignment_open_teacher/%s", $testTake->uuid);
-            } else {
-                $url = sprintf("test_takes/view/%s", $testTake->uuid);
-            }
-        } else {
-            if ($testTake->testTakeStatus->name == 'Taking test') {
-                $url = "test_takes/surveillance";
-            } else {
-                $url = sprintf("test_takes/view/%s", $testTake->uuid);
-            }
-        }
-        return $this->redirectToCorrectTakePage($notification, $url);
-    }
-
-    private function redirectTakeInvigilator(TestTake $testTake)
-    {
-        $notification = null;
-        $url = null;
-
-        if ($testTake->isAssignmentType()) {
-            // is assignment
-            if ($testTake->testTakeStatus->name == 'Taking test' || $testTake->testTakeStatus->name == 'Planned') {
-                $url = sprintf("test_takes/assignment_open_teacher/%s", $testTake->uuid);
-            } else {
-                $notification = __(
-                    'teacher.take_not_accessible_toast_for_invigilator',
-                    ['testName' => $testTake->test->name]
-                );
-            }
-        } else {
-            if ($testTake->testTakeStatus->name == 'Planned') {
-                $url = sprintf("test_takes/view/%s", $testTake->uuid);
-            } elseif ($testTake->testTakeStatus->name == 'Taking test') {
-                $url = "test_takes/surveillance";
-            } else {
-                $notification = __(
-                    'teacher.take_not_accessible_toast_for_invigilator',
-                    ['testName' => $testTake->test->name]
-                );
-            }
-        }
-        return $this->redirectToCorrectTakePage($notification, $url);
-    }
-
-    private function redirectToCorrectTakePage($notification = null, $url = null)
-    {
-        if ($notification) {
-            $options = TemporaryLogin::buildValidOptionObject('notification', [$notification => 'info']);
-        } else {
-            $options = TemporaryLogin::buildValidOptionObject('page', $url);
-        }
-
-        if (auth()->check()) {
-            return auth()->user()->redirectToCakeWithTemporaryLogin($options);
-        } else {
-            return redirect()->route('auth.login');
-        }
+        return DirectLinkService::handle($testTakeUuid);
     }
 }

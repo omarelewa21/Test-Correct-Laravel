@@ -734,12 +734,12 @@ class CoLearning extends TCComponent implements CollapsableHeader
     private function testTakeHasNotYetBeenStartedBefore(): bool
     {
         return $this->testTake->discussing_question_id === null
-            || $this->testTake->test_take_status_id === TestTakeStatus::STATUS_TAKEN;
+            || $this->testTake->hasStatusTaken();
     }
 
     private function testTakeStatusNeedsToBeUpdated(): bool
     {
-        return $this->testTake->test_take_status_id !== TestTakeStatus::STATUS_DISCUSSING;
+        return !$this->testTake->hasStatusDiscussing();
     }
 
     private function deleteStudentAnswerRatings()

@@ -28,7 +28,7 @@ class WordListChangesModal extends TCModalComponent
             ->with(['wordLists', 'wordLists.words'])
             ->first();
 
-        $this->columnHeads = CompileWordListService::columnHeads($relationQuestion->subject);
+        $this->columnHeads = RelationQuestion::columnHeads($relationQuestion->subject);
 
         $this->wordLists = $relationQuestion->wordLists
             ->filter(fn($list) => $list->hasNewVersion())

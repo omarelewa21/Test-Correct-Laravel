@@ -56,11 +56,11 @@
     </x-slot>
     <x-slot name="footer">
         <div class="flex justify-end items-center">
-            <div class="flex gap-4">
+            <div class="flex gap-4 items-center">
                 <x-button.text wire:click="close">
                     <span>{{ __('teacher.Annuleer') }}</span>
                 </x-button.text>
-                <x-button.cta wire:click="submit">
+                <x-button.cta wire:click="submit" size="md">
                     <span>{{ __('Bevestigen') }}</span>
                 </x-button.cta>
             </div> {{-- 44vw depends on maxWidth 2xl... --}}

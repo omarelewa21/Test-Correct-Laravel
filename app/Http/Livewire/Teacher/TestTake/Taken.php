@@ -73,7 +73,7 @@ class Taken extends TestTakeComponent
         }
 
         $asExamCoordinator = false;
-        if($testTake->test_take_status_id === TestTakeStatus::STATUS_RATED){
+        if($testTake->hasStatusRated()){
             $asExamCoordinator = true;
         }
         Gate::authorize('isAllowedToViewTestTake',[$testTake, false, $asExamCoordinator ]);
@@ -381,7 +381,7 @@ class Taken extends TestTakeComponent
             $participant->definitiveRating = $participant->rating;
         });
 
-        if ($this->testTake->test_take_status_id !== TestTakeStatus::STATUS_RATED) {
+        if (!$this->testTake->hasStatusRated()) {
             $this->testTake->updateToRated();
         }
 

@@ -10,10 +10,10 @@ use tcCore\User;
 class ContentSourceHelper
 {
 
-    public static function allAllowedForUser(User $user)
+    public static function allAllowedForUser(User $user, string $context = 'test')
     {
         return static::getAvailableSourcesInCorrectOrder()
-            ->filter(fn($source) => $source::isAvailableForUser($user));
+            ->filter(fn($source) => $source::isAvailableForUser($user, $context));
     }
 
     public static function scopeIsAllowedForUser(User $user, string $testScope): bool

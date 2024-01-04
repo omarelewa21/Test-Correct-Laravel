@@ -109,7 +109,7 @@ class TestTakeCodeHelper extends BaseHelper
 
     private function getTestTakeStatusIdForNewParticipant($testTake): int
     {
-        return $testTake->test_take_status_id == TestTakeStatus::STATUS_PLANNED ? TestTakeStatus::STATUS_PLANNED : TestTakeStatus::STATUS_TEST_NOT_TAKEN;
+        return $testTake->hasStatusPlanned() ? TestTakeStatus::STATUS_PLANNED : TestTakeStatus::STATUS_TEST_NOT_TAKEN;
     }
 
     public function handleGuestLogin($guestData, $testTakeCode)

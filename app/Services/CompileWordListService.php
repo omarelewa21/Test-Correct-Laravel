@@ -431,40 +431,6 @@ class CompileWordListService
         return $this;
     }
 
-    public static function columnHeads(Subject|int|null $subject = null): array
-    {
-        $heads = WordType::casesWithDescription();
-        if ($subject === null) {
-            return $heads->toArray();
-        }
-
-        if (!($subject instanceof Subject)) {
-            $subject = Subject::find($subject);
-            if (!$subject) {
-                return $heads->toArray();
-            }
-        }
-
-        $baseSubjectLanguage = $subject->baseSubject->name;
-        $mutations = match ($baseSubjectLanguage) {
-            'Nederlands' => ['subject' => __('cms.Woord') . ' NL'],
-            'Engels'     => ['subject' => __('cms.Woord') . ' EN', 'translation' => __('cms.Woord') . ' NL'],
-            'Frans'      => ['subject' => __('cms.Woord') . ' FR', 'translation' => __('cms.Woord') . ' NL'],
-            'Duits'      => ['subject' => __('cms.Woord') . ' DE', 'translation' => __('cms.Woord') . ' NL'],
-            'Spaans'     => ['subject' => __('cms.Woord') . ' ES', 'translation' => __('cms.Woord') . ' NL'],
-            'Italiaans'  => ['subject' => __('cms.Woord') . ' IT', 'translation' => __('cms.Woord') . ' NL'],
-            'Grieks'     => ['subject' => __('cms.Woord') . ' GR', 'translation' => __('cms.Woord') . ' NL'],
-            'Latijn'     => ['subject' => __('cms.Woord') . ' LA', 'translation' => __('cms.Woord') . ' NL'],
-            default      => [],
-        };
-
-        foreach ($mutations as $key => $value) {
-            $heads->put($key, $value);
-        }
-
-        return $heads->toArray();
-    }
-
     private function handleNewSubjectWordAfterEditingTheExistingSubjectWord(?Word $editedWord, $row_key): void
     {
         if ($editedWord->isSubjectWord()

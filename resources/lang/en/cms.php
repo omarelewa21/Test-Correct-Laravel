@@ -314,4 +314,6 @@ return [
     'completion_min_one_word'                                                                => 'You need to place at least one word between square brackets.',
     'completion_illegal_characters'                                                          => 'You have used characters that are not allowed here',
     'completion_one_selection'                                                               => 'You cannot have just one selection, you must add at least one additional selection in each bracket.',
+    'relation-question-confirm-adding-text'                                                                => 'The relation question is in beta. This means that tests with this question can become temporarily unavailable, everywhere in Test-Correct. For safety, don’t use this question type in important tests yet.',
+
 ];

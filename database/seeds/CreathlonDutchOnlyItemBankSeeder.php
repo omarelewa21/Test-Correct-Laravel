@@ -3,17 +3,10 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Auth;
 use tcCore\BaseSubject;
 use tcCore\Factories\Questions\FactoryQuestionOpenShort;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolCreathlon;
-use tcCore\Lib\User\Factory;
-use tcCore\Period;
-use tcCore\SchoolYear;
 use tcCore\Services\ContentSource\CreathlonService;
-use tcCore\Subject;
-use tcCore\Teacher;
-use tcCore\Test;
 use tcCore\User;
 
 class CreathlonDutchOnlyItemBankSeeder extends Seeder
@@ -31,6 +24,7 @@ class CreathlonDutchOnlyItemBankSeeder extends Seeder
             return;
         }
 
+        /* This fails because the FactoryScenarioSchoolCreathlon has a default base subject of FRENCH hardcoded... */
         $this->generateCreathlonSchoolWithTests();
     }
 

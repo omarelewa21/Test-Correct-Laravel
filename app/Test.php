@@ -1,6 +1,7 @@
 <?php namespace tcCore;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Question\QuestionGatherer;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Ramsey\Uuid\Uuid;
+use tcCore\Lib\Question\QuestionInterface;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\TaxonomyRepository;
 use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
@@ -318,11 +320,10 @@ class Test extends BaseModel
         return $this->contentSourceFiltered(
             'cito',
             'CITO-TOETSENOPMAAT',
-            auth()->user(),
             $query,
+            auth()->user(),
             $filters,
             $sorting,
-
         );
     }
 
@@ -347,20 +348,24 @@ class Test extends BaseModel
         return $this->contentSourceFiltered(
             'exam',
             config('custom.examschool_customercode'),
-            auth()->user(),
             $query,
+            auth()->user(),
             $filters,
             $sorting
         );
     }
 
 
-    public function scopeSharedSectionsFiltered( $query,User $forUser, $filters = [], $sorting = [])
+    public function scopeSharedSectionsFiltered($query, User $forUser, $filters = [], $sorting = [])
     {
         $subjectIds = Subject::getIdsForSharedSections($forUser);
         if (!$subjectIds) {
             $query->where('tests.id', -1);
             return $query;
+        }
+
+        if (!settings()->canUseRelationQuestion($forUser)) {
+            $query->whereNotIn('tests.id', self::getIdsOfTestsThatContainSpecificQuestions(RelationQuestion::class));
         }
 
         $query->whereIn('subject_id', $subjectIds);
@@ -425,6 +430,10 @@ class Test extends BaseModel
                 })
                     ->orWhere('tests.demo', 0);
             });
+        }
+
+        if (!settings()->canUseRelationQuestion($user)) {
+            $query->whereNotIn('tests.id', self::getIdsOfTestsThatContainSpecificQuestions(RelationQuestion::class));
         }
 
         return $query;
@@ -1395,5 +1404,57 @@ class Test extends BaseModel
             ->join('tests', 'tests.subject_id', '=', 'subjects.id')
             ->where('tests.id', $this->getKey())
             ->value('base_subjects.' . $column);
+    }
+
+    private static function questionInTestQuery(Collection $types): Builder
+    {
+        return DB::query()
+            ->from('questions as q1')
+            ->join('test_questions as tq1', 'q1.id', '=', 'tq1.question_id')
+            ->whereIn('q1.type', $types);
+    }
+
+    private static function subQuestionInTestQuery(Collection $types): Builder
+    {
+        return DB::query()
+            ->from('questions as q2')
+            ->join('group_question_questions as gqq', 'gqq.question_id', '=', 'q2.id')
+            ->join('test_questions as tq2', 'gqq.group_question_id', '=', 'tq2.question_id')
+            ->whereIn('q2.type', $types);
+    }
+
+    public static function getIdsOfTestsThatContainSpecificQuestions(
+        $question,
+        ...$questions
+    ): Builder {
+        $types = collect([$question])->concat($questions)->map(fn($type) => class_basename($type));
+
+        return DB::query()
+            ->distinct()
+            ->fromSub(
+                static::questionInTestQuery($types)
+                    ->select('tq1.test_id')
+                    ->union(static::subQuestionInTestQuery($types)->select('tq2.test_id')),
+                'tests_containing_questions'
+            );
+    }
+
+    public function containsSpecificQuestionTypes($question, ...$questions): bool
+    {
+        $types = collect([$question])->concat($questions)->map(fn($type) => class_basename($type));
+
+        return DB::query()
+            ->fromSub(
+                static::questionInTestQuery($types)
+                    ->select('q1.id')
+                    ->where('tq1.test_id', $this->getKey())
+                    ->union(
+                        static::subQuestionInTestQuery($types)
+                            ->select('tq2.test_id')
+                            ->where('tq2.test_id', $this->getKey())
+                    ),
+                'question_type_in_test'
+            )
+            ->exists();
     }
 }

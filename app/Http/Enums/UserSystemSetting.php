@@ -20,6 +20,10 @@ enum UserSystemSetting: string implements FeatureSettingKey
     #[Type('bool')]
     case ALLOW_NEW_TEST_TAKEN_PAGES = 'allow_new_test_taken_pages';
 
+    #[Initial(false)]
+    #[Type('bool')]
+    case CMS_ADD_RELATION_QUESTION_CONFIRMATION = 'cms_add_relation_question_confirmation';
+
     public static function initialValues(): Collection
     {
         return collect(self::cases())->mapWithKeys(fn($enum) => [$enum->value => self::getInitialValue($enum)]);

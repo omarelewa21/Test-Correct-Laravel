@@ -12,11 +12,9 @@ abstract class FactoryAnswer
 
     public static function generate(Answer $answer)
     {
-        $factory = new static;
+        $factory = new static();
         $factory->answer = $answer;
         $factory->question = $answer->question;
-
-        $questionType = $factory->question->type;
 
         $factory->answer->json = $factory->setJsonAnswer();
         $factory->setDone();
