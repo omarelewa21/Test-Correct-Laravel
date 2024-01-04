@@ -57,7 +57,6 @@ class AppVersionDetector
         ],
         "iOS" => [
             "ok" => [
-                "3.0.3",
                 "3.0.4",
                 "3.0.5",
                 "3.1.0",
@@ -92,9 +91,11 @@ class AppVersionDetector
             ],
             "needsUpdate" => [
                 "0.0.1",
+                "3.0.3",
             ],
             "needsUpdateDeadline" => [
                 "0.0.1" => "31 december 2023",
+                "3.0.3" => "3 januari 2024",
             ],
         ],
         "ChromeOS" => [
