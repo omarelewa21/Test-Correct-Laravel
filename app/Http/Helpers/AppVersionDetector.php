@@ -90,12 +90,8 @@ class AppVersionDetector
                 "4.2.5",
             ],
             "needsUpdate" => [
-                "0.0.1",
-                "3.0.3",
             ],
             "needsUpdateDeadline" => [
-                "0.0.1" => "31 december 2023",
-                "3.0.3" => "3 januari 2024",
             ],
         ],
         "ChromeOS" => [
@@ -152,12 +148,8 @@ class AppVersionDetector
                 "4.2.5",
             ],
             "needsUpdate" => [
-                "0.0.1",
-                "0.0.2"
             ],
             "needsUpdateDeadline" => [
-                "0.0.1" => "31 december 2023",
-                "0.0.2" => "20 juli 2023"
             ],
         ],
         "windowsElectron" => [
@@ -181,12 +173,9 @@ class AppVersionDetector
                 "4.2.5",
             ],
             "needsUpdate" => [
-                "0.0.1",
-                "4.0.1"
+
             ],
             "needsUpdateDeadline" => [
-                "0.0.1" => "31 december 2023",
-                "4.0.1" => "1 november 2023"
             ],
         ],
         "macosElectron" => [
@@ -210,12 +199,8 @@ class AppVersionDetector
                 "4.2.5",
             ],
             "needsUpdate" => [
-                "0.0.1",
-                "4.0.1"
             ],
             "needsUpdateDeadline" => [
-                "0.0.1" => "31 december 2023",
-                "4.0.1" => "1 november 2023"
             ],
         ]
     ];
