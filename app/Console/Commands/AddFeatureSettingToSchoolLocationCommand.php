@@ -3,51 +3,28 @@
 namespace tcCore\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
+use tcCore\Http\Enums\SchoolLocationFeatureSetting;
 use tcCore\SchoolLocation;
 
 class AddFeatureSettingToSchoolLocationCommand extends Command
 {
     protected $signature = 'sl:add-feature-settings
-                            {schooLocationId=1 : The school location to add the settings to}
+                            {schoolLocationId=1 : The school location to add the settings to}
                             {setting=all : Specify a setting, or leave blank to add all currently available}';
 
     protected $description = 'Add feature settings the given schoolLocation in the local database';
 
-    private $settingTitles = [
-        'allow_formidable',
-        'allow_creathlon',
-        'allow_olympiade',
-        'allow_olympiade_archive',
-        'allow_thieme_meulenhoff',
-        'allow_tm_biology',
-        'allow_tm_geography',
-        'allow_tm_dutch',
-        'allow_tm_english',
-        'allow_tm_french',
-        'allow_new_taken_tests_page',
-        'allow_analyses',
-        'allow_new_co_learning',
-        'allow_new_co_learning_teacher',
-        'allow_new_assessment',
-        'allow_new_reviewing',
-        'allow_cms_write_down_wsc_toggle',
-        'allow_new_test_take_detail_page',
-        'allow_mr_chadd',
-        'allow_new_test_taken_pages',
-        'block_local_login',
-        'allow_relation_question',
-    ];
-
-    public function handle()
+    public function handle(): bool
     {
         if (!in_array(config('app.env'), ['local', 'testing'])) {
             $this->error('Command unavailable when not on a local machine.');
             return false;
         }
 
-        $schoolLocation = SchoolLocation::find($this->argument('schooLocationId'));
+        $schoolLocation = SchoolLocation::find($this->argument('schoolLocationId'));
         if (!$schoolLocation) {
-            $this->error('No school location found with the specified ID: ' . $this->argument('schooLocationId'));
+            $this->error('No school location found with the specified ID: ' . $this->argument('schoolLocationId'));
             return false;
         }
 
@@ -60,9 +37,10 @@ class AddFeatureSettingToSchoolLocationCommand extends Command
         $this->addSettingsToSchoolLocation($schoolLocation);
 
         $endTally = $schoolLocation->featureSettings()->count();
-        $updatedSettings = (int)$endTally - $startTally;
+        $updatedSettings = $endTally - $startTally;
 
         $this->info("$updatedSettings Feature setting(s) added");
+
         return true;
     }
 
@@ -73,16 +51,24 @@ class AddFeatureSettingToSchoolLocationCommand extends Command
     private function addSettingsToSchoolLocation(SchoolLocation $schoolLocation): void
     {
         if ($this->argument('setting') === 'all') {
-            collect($this->settingTitles)->each(function ($title) use ($schoolLocation) {
+            $this->settings()->each(function (SchoolLocationFeatureSetting $enum) use ($schoolLocation) {
+                $title = $enum->value;
                 $schoolLocation->$title = true;
             });
-        } else {
-            $setting = $this->argument('setting');
-            if (collect($this->settingTitles)->contains($setting)) {
-                $schoolLocation->$setting = true;
-            } else {
-                $this->error("Setting: $setting is not a valid value.");
-            }
+            return;
         }
+
+        $setting = $this->argument('setting');
+        if (SchoolLocationFeatureSetting::tryFrom($setting)) {
+            $schoolLocation->$setting = true;
+            return;
+        }
+
+        $this->error("Setting: $setting is not a valid value.");
+    }
+
+    private function settings(): Collection
+    {
+        return collect(SchoolLocationFeatureSetting::cases())->filter(fn($enum) => $enum !== SchoolLocationFeatureSetting::TEST_PACKAGE);
     }
 }
