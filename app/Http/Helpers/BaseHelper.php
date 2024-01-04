@@ -185,7 +185,7 @@ class BaseHelper
         $answer = str_replace('&gt;','>',$answer);
         $answer = str_replace('&amp;','&',$answer);
         if($doHtmlEntities) {
-            $answer = htmlentities($answer, null, 'utf-8');
+            $answer = htmlentities($answer, encoding:'utf-8');
         }
         $answer = str_replace("&nbsp;", ' ', $answer);
 
