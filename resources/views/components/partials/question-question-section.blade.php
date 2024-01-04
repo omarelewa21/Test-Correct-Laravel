@@ -1,6 +1,7 @@
 @props(['withUpload' => false])
 <x-accordion.container active-container-key="question-section"
                        :wire:key="'question-section-'.$this->uniqueQuestionKey"
+                       class="question-section"
 >
     <x-accordion.block key="question-section"
                        :upload="$withUpload"

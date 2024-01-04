@@ -1346,21 +1346,23 @@ class Constructor extends TCComponent implements QuestionCms
         $this->validateAndReturnErrorsToTabOne(false);
     }
 
-    public function addQuestionFromDirty($data)
+    public function addQuestionFromDirty($data): bool|array
     {
         if (!$this->completedMandatoryFields()) {
             $this->dispatchBrowserEvent('show-dirty-question-modal', ['goingToExisting' => false, 'group' => $data['group'], 'data' => $data]);
-            return;
+            return false;
         }
 
         $this->save(false);
 
-        $continueEvent = $data['group'] ? 'continue-to-add-group' : 'continue-to-new-slide';
-        $this->dispatchBrowserEvent($continueEvent, $data);
+//        $continueEvent = $data['group'] ? 'continue-to-add-group' : 'continue-to-new-slide';
+//        $this->dispatchBrowserEvent($continueEvent, $data);
 
         if ($data['newSubQuestion']) {
-            $this->emit('newGroupId', $this->testQuestionId);
+            $data['newGroupId'] = $this->testQuestionId;
         }
+
+        return $data;
     }
 
     public function getRulesForProvider()

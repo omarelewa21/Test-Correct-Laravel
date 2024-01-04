@@ -49,9 +49,9 @@
         <div class="group-add-new relative hover:bg-primary/5 flex space-x-2.5 py-2 px-6 text-sysbase hover:text-primary cursor-pointer items-center transition-colors"
              selid="add-question-in-new-group-btn"
              :class="{'!text-note hover:!bg-white hover:!text-note !cursor-default': disabledSub}"
-             @click="if (!disabledSub) addSubQuestionToNewGroup()"
-             @group-question-name-filled.window="disabledSub = false"
-             @group-question-name-empty.window="disabledSub = true"
+             x-on:click="if (!disabledSub) addSubQuestionToNewGroup()"
+             x-on:group-question-name-filled.window="disabledSub = false"
+             x-on:group-question-name-empty.window="disabledSub = true"
         >
             <x-icon.plus-in-circle/>
             <span class="flex bold">{{ __('cms.Vraag toevoegen')}}</span>
