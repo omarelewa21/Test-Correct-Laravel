@@ -2,6 +2,7 @@
 @php($disableAudioTimer = ($this->obj instanceof \tcCore\Http\Livewire\Teacher\Cms\Providers\Group || $this->obj instanceof \tcCore\Http\Livewire\Teacher\Cms\Providers\InfoScreen))
 <x-accordion.container active-container-key="question-section"
                        :wire:key="'question-section-'.$this->uniqueQuestionKey"
+                       class="question-section"
 >
     <x-accordion.block key="question-section"
                        :upload="$withUpload"

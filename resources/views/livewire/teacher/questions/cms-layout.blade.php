@@ -4,7 +4,6 @@
      x-on:question-change.window="handleQuestionChange($event.detail)"
      x-on:show-empty.window="empty = !empty"
      x-on:new-question-added.window="removeDrawingLegacy(); $nextTick(() => empty = false)"
-     x-on:store-current-question.window="forceSyncEditors();"
      x-effect="if(!!empty) { $refs.editorcontainer.style.opacity = 0 }"
      questionComponent
 >
@@ -199,10 +198,10 @@
                     </x-accordion.container>
                 @endif
 
-
                 @if($this->requiresAnswer())
                     <x-accordion.container active-container-key="answer-section"
                                            :wire:key="'answer-section-'.$this->uniqueQuestionKey"
+                                           class="answer-section"
                     >
                         <x-accordion.block key="answer-section"
                                            :wire:key="'answer-block-'.$this->uniqueQuestionKey"

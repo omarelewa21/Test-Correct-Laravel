@@ -185,6 +185,8 @@ class Cms extends TCComponent
         if ($type === class_basename(RelationQuestion::class)) {
             $this->relationQuestionModalConfirmed();
         }
+
+        return true;
     }
 
     public function addQuestionResponse($args)
@@ -414,9 +416,9 @@ class Cms extends TCComponent
 
     private function setQuestionNameString($type, $subtype)
     {
-        $this->newQuestionTypeName = $subtype === 'group' ? __(
-            'cms.group-question'
-        ) : TypeFactory::findQuestionNameByTypes($type, $subtype);
+        $this->newQuestionTypeName = $subtype === 'group'
+            ? __('cms.group-question')
+            : TypeFactory::findQuestionNameByTypes($type, $subtype);
     }
 
     public function newGroupId($uuid)

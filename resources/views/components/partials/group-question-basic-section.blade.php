@@ -1,4 +1,4 @@
-<x-content-section>
+<x-content-section class="question-section">
     <x-slot name="title">
             {{ __('cms.Basis') }}
     </x-slot>

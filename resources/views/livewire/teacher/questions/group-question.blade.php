@@ -66,29 +66,15 @@
         </div>
     </x-input.group>
 
-{{--    <div wire:ignore >--}}
-{{--        @php--}}
-{{--            if($allowWsc){--}}
-{{--                $initFunctionCall = "RichTextEditor.initClassicEditorForTeacherplayerWsc('".$questionEditorId."','".$lang."')";--}}
-{{--            }else{--}}
-{{--                $initFunctionCall = "RichTextEditor.initClassicEditorForTeacherplayer('".$questionEditorId."','".$lang."')";--}}
-{{--            }--}}
-{{--        @endphp--}}
-{{--        <x-input.group class="w-full" label="{{ __('cms.Omschrijving') }}" >--}}
-{{--            <textarea class="form-input resize-none" @isset($preview) disabled @endisset x-init="{{ $initFunctionCall }}"  id="{{ $questionEditorId }}" name="{{ $questionEditorId }}" wire:model.debounce.1000ms="question.question" selid="question-input"></textarea>--}}
-{{--        </x-input.group>--}}
-
-        <x-input.group class="text-base" label="{{ __('cms.Omschrijving') }}">
-            <x-input.rich-textarea
-                    wire:model.debounce.1000ms="question.question"
-                    editorId="{{ $questionEditorId }}"
-                    type="cms"
-                    :disabled="isset($preview)"
-                    :allowWsc="$allowWsc"
-            />
-        </x-input.group>
-{{--    </div>--}}
-
+    <x-input.group class="text-base" label="{{ __('cms.Omschrijving') }}">
+        <x-input.rich-textarea
+                wire:model.debounce.1000ms="question.question"
+                editorId="{{ $questionEditorId }}"
+                type="cms"
+                :disabled="isset($preview)"
+                :allowWsc="$allowWsc"
+        />
+    </x-input.group>
 @endsection
 
 @section('upload-section-for-group-question')

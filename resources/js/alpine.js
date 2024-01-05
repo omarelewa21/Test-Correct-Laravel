@@ -637,38 +637,49 @@ document.addEventListener("alpine:init", () => {
             this.$store.questionBank.inGroup = uuid;
             this.showAddQuestionSlide(true, false);
         },
-        addGroup(shouldCheckDirty = true) {
-            if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, true, false)) {
+        async addGroup(shouldCheckDirty = true) {
+            if (await this.questionIsClean(shouldCheckDirty, true, false)) {
                 this.$wire.addGroup();
             }
         },
         async showAddQuestionSlide(shouldCheckDirty = true, clearGroupUuid = true) {
-            if (this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, false)) {
-                if (clearGroupUuid) {
-                    let questionBankLivewireComponent = Livewire.find(this.drawer.querySelector("#question-bank").getAttribute("wire:id"));
-                    await questionBankLivewireComponent.clearInGroupProperty();
-                    this.$store.questionBank.inGroup = false;
-                }
-                this.next(this.$refs.home);
-                if (!this.$store.cms.emptyState) {
-                    this.$dispatch("backdrop");
-                }
+            if (!(await this.questionIsClean(shouldCheckDirty, false, false))) {
+                return;
+            }
+
+            if (clearGroupUuid) {
+                let questionBankLivewireComponent = Livewire.find(this.drawer.querySelector("#question-bank").getAttribute("wire:id"));
+                await questionBankLivewireComponent.clearInGroupProperty();
+                this.$store.questionBank.inGroup = false;
+            }
+
+            this.next(this.$refs.home);
+            if (!this.$store.cms.emptyState) {
+                this.$dispatch("backdrop");
             }
         },
-        addSubQuestionToNewGroup(shouldCheckDirty = true) {
-            this.emitAddToOpenShortIfNecessary(shouldCheckDirty, false, true);
-        },
-        emitAddToOpenShortIfNecessary(shouldCheckDirty = true, group, newSubQuestion) {
-            this.$dispatch("store-current-question");
-            if (shouldCheckDirty && this.$store.cms.dirty) {
-                this.$wire.emitTo("teacher.cms.constructor", "addQuestionFromDirty", {
-                    group,
-                    newSubQuestion,
-                    groupUuid: this.$store.questionBank.inGroup
-                });
-                return false;
+        async addSubQuestionToNewGroup(shouldCheckDirty = true) {
+            const data = await this.questionIsClean(shouldCheckDirty, false, true);
+            if (!data) {
+                return;
             }
-            return true;
+
+            this.$store.questionBank.inGroup = uuid;
+            await this.showAddQuestionSlide(false, false);
+        },
+        async questionIsClean(shouldCheckDirty = true, group, newSubQuestion) {
+            await this.forceSync();
+            // this.$dispatch("store-current-question");
+
+            if (!shouldCheckDirty || !this.hasQuestionDirtyState()) {
+                return true;
+            }
+
+            return await this.addQuestionFromDirty({
+                group,
+                newSubQuestion,
+                groupUuid: this.$store.questionBank.inGroup
+            });
         },
         backToQuestionOverview(container) {
             this.home(false);
@@ -4283,14 +4294,6 @@ document.addEventListener("alpine:init", () => {
                 WebspellcheckerTlc.lang(ClassicEditors[this.answerEditorId], lang);
             }
         },
-        forceSyncEditors() {
-            if (document.getElementById(this.questionEditorId)) {
-                this.$wire.sync("question.question", ClassicEditors[this.questionEditorId].getData());
-            }
-            if (document.getElementById(this.answerEditorId)) {
-                this.$wire.sync("question.answer", ClassicEditors[this.answerEditorId].getData());
-            }
-        },
         isLoading() {
             return (this.$store.cms.loading || this.$store.cms.emptyState);
         },
@@ -4309,17 +4312,55 @@ document.addEventListener("alpine:init", () => {
             return this.getLivewireComponent("cms");
         },
         async openQuestion(questionProperties) {
-            this.$dispatch("store-current-question");
+            await this.forceSync();
+            // this.$dispatch("store-current-question");
+
             this.$store.cms.scrollPos = document.querySelector(".drawer").scrollTop;
             this.$store.cms.loading = true;
             await this.constructor.showQuestion(questionProperties);
             this.$store.cms.loading = false;
-
         },
         getLivewireComponent(attribute) {
             return Livewire.find(
                 document.querySelector(`[${attribute}]`).getAttribute("wire:id")
             );
+        },
+        async addNewQuestion(type, subtype) {
+            this.$store.cms.loading = true;
+            await this.constructor.call(
+                "addQuestion",
+                {
+                    type,
+                    subtype,
+                    groupId: this.$store.questionBank.inGroup || null,
+                    shouldSave: true
+                }
+            );
+            this.$store.cms.loading = false;
+            this.$dispatch("new-question-added");
+        },
+        async forceSync() {
+            const answerEditor = document.querySelector(".answer-section [selid='ckeditor'] textarea");
+            const questionEditor = document.querySelector(".question-section [selid='ckeditor'] textarea");
+
+            if (answerEditor) {
+                this.constructor.set(
+                    "question.answer",
+                    ClassicEditors[answerEditor.id].getData(),
+                    true
+                );
+            }
+
+            if (questionEditor && ClassicEditors[questionEditor.id]) {
+                await this.constructor.call("$set", "question.question", ClassicEditors[questionEditor.id].getData());
+            }
+            /* hacky way to await set call */
+        },
+        hasQuestionDirtyState() {
+            return this.constructor.get("dirty");
+        },
+        async addQuestionFromDirty(params) {
+            return await this.constructor.call("addQuestionFromDirty", params);
         }
     }));
 
@@ -4698,16 +4739,14 @@ document.addEventListener("alpine:init", () => {
         type,
         subtype,
         needsConfirmation,
-        clickAction() {
+        async clickAction() {
             if (this.needsConfirmation) {
                 this.$wire.emit("openModal", "teacher.cms.confirm-relation-question-usage-modal");
                 return;
             }
 
-            this.$wire.call("addQuestion", this.type, this.subtype);
+            await this.addNewQuestion(this.type, this.subtype);
             this.home(false);
-            this.$store.cms.loading = true;
-            this.$dispatch("new-question-added");
         },
         confirmed(key) {
             if(key !== this.type) {
