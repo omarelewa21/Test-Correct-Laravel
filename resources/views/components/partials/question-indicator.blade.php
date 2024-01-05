@@ -40,7 +40,7 @@
                                  "
                          wire:key="nav_circle_for_q_{{$q['id']}}"
                     >
-                        <section selid="testtake-navitem" wire:key="nav_item{{$q['id']}}" NotInUseAnyMoreAsOfTCP2735wire:offline.attr="disabled"
+                        <section selid="testtake-navitem" wire:key="nav_item{{$q['id']}}"
                                  class="question-number rounded-full text-center cursor-pointer flex items-center justify-center
                                     {!! $key === ($this->q - 1) ? 'active' : ''!!}
                                  @if (!$q['answered'] && ($q['group']['closed'] || $q['closed']))
@@ -50,10 +50,12 @@
                                  @endif
                                          "
                                  id="nav_item_{{ 1+$key}}"
-                                 x-on:click="$store.studentPlayer.to({{ $key + 1 }}, activeQuestion)"
+                                 x-on:click="if(!$store.connection.offline){$store.studentPlayer.to({{ $key + 1 }}, activeQuestion)}"
+                                 x-bind:disabled="$store.connection.offline"
                                  @if($this->isOverview)
                                  @click="$dispatch('show-loader')"
                                 @endif
+
                         >
                             <span id="nav_{{$q['id']}}" wire:key="nav_{{$q['id']}}"
                                   class="align-middle px-1.5">{{ ++$key }}</span>
@@ -125,6 +127,7 @@
             @if(!$isOverview)
                 <x-button.text
                         id="previewBtn"
+                        wire:offline.attr="disabled"
                         wire:loading.attr="disabled"
                         x-on:click="$store.studentPlayer.toOverview({{ (int)$this->q }})"
                     >

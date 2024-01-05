@@ -13,6 +13,17 @@ Alpine.plugin(collapse);
 Alpine.plugin(focus);
 
 document.addEventListener("alpine:init", () => {
+    Alpine.store('connection',{
+        offline: false,
+        setOffline() {
+            this.offline = true;
+            window.dispatchEvent(new Event("offline"));
+        },
+        setOnline() {
+            this.offline = false
+            window.dispatchEvent(new Event("online"));
+        }
+    });
     Alpine.data("questionIndicator", () => ({
         showSlider: false,
         scrollStep: 100,

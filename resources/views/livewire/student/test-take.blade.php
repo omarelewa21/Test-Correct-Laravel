@@ -4,7 +4,7 @@
             <x-slot name="title">{{ __("test-take.Toets inleveren") }}</x-slot>
             <x-slot name="body">{{ __("test-take.Weet je zeker dat je de toets wilt inleveren?") }}</x-slot>
             <x-slot name="actionButton">
-                <x-button.cta size="md" onclick="endTest()">
+                <x-button.cta size="md" onclick="endTest()" x-bind:disabled="$store.connection.offline">
                     <span>{{ __("test-take.Inleveren") }}</span>
                     <x-icon.arrow />
                 </x-button.cta>
@@ -33,7 +33,7 @@
                         <x-button.text size="md" @click="show = false" class="rotate-svg-180">
                             <span>{{ __('modal.cancel') }}</span>
                         </x-button.text>
-                        <x-button.cta size="sm" onclick="endTest()">
+                        <x-button.cta size="sm" onclick="endTest()"   x-bind:disabled="$store.connection.offline">
                             <span>{{ __('test-take.Inleveren') }}</span>
                             <x-icon.checkmark-small />
                         </x-button.cta>
@@ -84,34 +84,24 @@
 
                     let container;
                     reinitLivewireComponent(component.el);
-                    let electronNotified = false;
                     if (message.component.hasOwnProperty("fingerprint") && message.component.fingerprint.name.startsWith("student-player.question.")) {
                         container = getContainerFromLivewireMessage(message);
                         if(!container) return;
                         if (container.type == "syncInput") {
                             syncContainer[container.payload.name] = {componentId: component.id, value: container.payload.value};
                             let electronData = {
+                                'time': getNowFormatedTimestamp(),
+                                'aid' : message.component.serverMemo.data.answerId,
                                 'tpId': '{{ $this->testParticipantUuid }}',
                                 'ttId': '{{ $this->testTakeUuid }}',
                             }
                             electronData[container.payload.name] = container.payload.value;
                             notifyElectronOffline(electronData);
-                            electronNotified = true;
                         } else {
                             console.log("we don't do any thing with this type at the moment: " + container.type);
                         }
                     }
 
-                    if(!electronNotified) {
-                        try {
-                            electron.logNetworkFailure({
-                                'tpId': '{{ $this->testParticipantUuid }}',
-                                'ttId': '{{ $this->testTakeUuid }}'
-                            })
-                        } catch (error) {
-                            console.log('Not in mac/windows app or using older version of the app')
-                        }
-                    }
                     handleWhileOffline();
                 });
 
@@ -124,6 +114,7 @@
                 }
                 let handleWhileOfflineTimer;
                 function handleWhileOffline(){
+                    Alpine.store('connection').setOffline();
                     // show offline message and block all navigation
                     clearTimeout(handleWhileOfflineTimer);
                     var backOnline = false;
@@ -154,12 +145,12 @@
                             if(Livewire.find(syncContainer[val].componentId) != undefined) {
                                 Livewire.find(syncContainer[val].componentId).set(val, syncContainer[val].value);
                             }
-                            // @this.set(val,syncContainer[val]);
                             delete syncContainer[val];
                         }
                     });
                     // show back online
                     Notify.notify('{{ __('test-take.your connection is back online') }}', "success");
+                    Alpine.store('connection').setOnline();
                 }
                 Livewire.hook("message.received",(message, component) => {
 

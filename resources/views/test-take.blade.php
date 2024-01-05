@@ -122,7 +122,7 @@
                  @update-footer-navigation.window="display = $event.detail.buttons.data; current = $event.detail.number"
                  class="space-x-3"
             >
-                <x-button.text x-show="display.prev" x-on:click="$store.studentPlayer.previous(current)" href="#" rotateIcon="180">
+                <x-button.text x-show="display.prev" x-on:click="$store.studentPlayer.previous(current)" href="#" rotateIcon="180"  x-bind:disabled="$store.connection.offline">
                     <x-icon.chevron/>
                     <span>{{ __('test_take.previous_question') }}</span>
                 </x-button.text>
@@ -130,10 +130,11 @@
                               id="overviewBtnFooter"
                               size="sm"
                               x-on:click="$store.studentPlayer.toOverview({{ $nav->count() }})"
+                              x-bind:disabled="$store.connection.offline"
                 >
                     <span>{{ __('test_take.overview') }}</span>
                 </x-button.cta>
-                <x-button.primary x-show="display.next" x-on:click="$store.studentPlayer.next(current)" size="sm">
+                <x-button.primary x-show="display.next" x-on:click="$store.studentPlayer.next(current)" size="sm"  x-bind:disabled="$store.connection.offline">
                     <span>{{ __('test_take.next_question') }}</span>
                     <x-icon.chevron/>
                 </x-button.primary>

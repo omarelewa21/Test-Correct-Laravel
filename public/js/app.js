@@ -6788,6 +6788,17 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].plugin(_alpinejs_intersect__WEB
 alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].plugin(_alpinejs_collapse__WEBPACK_IMPORTED_MODULE_5__["default"]);
 alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].plugin(_alpinejs_focus__WEBPACK_IMPORTED_MODULE_3__["default"]);
 document.addEventListener("alpine:init", function () {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].store('connection', {
+    offline: false,
+    setOffline: function setOffline() {
+      this.offline = true;
+      window.dispatchEvent(new Event("offline"));
+    },
+    setOnline: function setOnline() {
+      this.offline = false;
+      window.dispatchEvent(new Event("online"));
+    }
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("questionIndicator", function () {
     return {
       showSlider: false,
@@ -12589,6 +12600,10 @@ fixHistoryApiStateForQueryStringUpdates = function fixHistoryApiStateForQueryStr
   } catch (error) {
     console.warn("Something went wrong with pushing the state to the history API");
   }
+};
+getNowFormatedTimestamp = function getNowFormatedTimestamp() {
+  var currentdate = new Date();
+  return currentdate.getFullYear() + (currentdate.getMonth() + 1 < 10 ? "0" : "") + (currentdate.getMonth() + 1) + (currentdate.getDate() < 10 ? "0" : "") + currentdate.getDate() + (currentdate.getHours() < 10 ? "0" : "") + currentdate.getHours() + (currentdate.getMinutes() < 10 ? "0" : "") + currentdate.getMinutes() + (currentdate.getSeconds() < 10 ? "0" : "") + currentdate.getSeconds();
 };
 
 /***/ }),
