@@ -146,6 +146,9 @@
         <x-slot name="fraudDetection">
             <livewire:student.fraud-detection :testParticipantId="$testParticipant->getKey()" :testParticipantUuid="$testParticipant->uuid" :testTakeUuid="$uuid"/>
         </x-slot>
+        <x-slot name="connectionOffline">
+            <x-connection-offline />
+        </x-slot>
     </div>
     @push('scripts')
     <script>
