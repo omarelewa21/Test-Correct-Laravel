@@ -2,12 +2,11 @@
 
 namespace tcCore\Http\Traits;
 
-use Illuminate\Support\Arr;
-
 trait WithVersionableCmsHandling
 {
     public bool $addable = false;
     public array $used = [];
+
     public function getListeners(): array
     {
         return $this->listeners + ['usedPropertiesUpdated'];

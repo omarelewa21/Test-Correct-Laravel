@@ -26,7 +26,7 @@
             </div>
 
             <div class="flex space-x-2 items-center" x-data
-                 @click="forceSyncEditors();$wire.saveIfDirty()"
+                 x-on:click="await forceSync(); await $wire.saveIfDirty()"
             >   
                 <span class="mr-4">
                     <x-published-tag labelColor="white" :published="$this->testIsPublished"/>

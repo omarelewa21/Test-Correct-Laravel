@@ -244,4 +244,11 @@ class Relation extends TypeProvider
 
         $this->instance->question['score'] = $this->instance->question['selection_count'];
     }
+
+    public function updatedQuestionShuffle($value): void
+    {
+        if ($this->instance->question['selection_count'] === null) {
+            $this->instance->question['selection_count'] = count($this->rowsWithoutEmptyValues());
+        }
+    }
 }

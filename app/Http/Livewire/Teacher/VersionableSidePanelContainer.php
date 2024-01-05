@@ -58,10 +58,19 @@ class VersionableSidePanelContainer extends TCComponent
         ];
 
         foreach ($shouldNotifyChildrenProperties as $class => $props) {
-            $updates = array_filter(Arr::only($event['attributes'], $props));
+            $updates = [];
+            foreach ($props as $prop) {
+                if ($newValue = Arr::get($event['attributes'], $prop)) {
+                    $updates[$prop] = $newValue;
+                }
+            }
 
             if (!empty($updates)) {
-                $this->emitTo($class, 'usedPropertiesUpdated', $updates);
+                $this->emitTo(
+                    $class,
+                    'usedPropertiesUpdated',
+                    $updates
+                );
             }
         }
 
