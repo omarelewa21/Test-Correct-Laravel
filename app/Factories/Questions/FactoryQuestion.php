@@ -302,6 +302,7 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
 
         $this->doWhileLoggedIn(function () {
             $this->subQuestions->each(function ($subQuestionFactory) {
+                $subQuestionFactory->prepareForStore($this->testModel->author);
                 $factoryProperties = $subQuestionFactory->getQuestionProperties();
                 GroupQuestionQuestion::store($this->lastTestQuestion, $factoryProperties);
             });
