@@ -6,7 +6,7 @@
 
         @foreach($questionTypes[$group] as $question)
             <div class="add-question-card cursor-pointer py-4 px-6 flex space-x-4 items-center text-sm"
-                 x-data="cmsQuestionTypeButton(@js($question['type']),@js($question['subtype']),@js($confirmRelationQuestion))"
+                 x-data="cmsQuestionTypeButton(@js($question['type']),@js($question['subtype']),@js($confirmRelationQuestion && $question['type'] === 'RelationQuestion'))"
                  x-on:confirmed-modal.window="confirmed($event.detail?.key)"
                  x-on:click="clickAction"
                  selid="add-{{$question['type']}}-{{$question['subtype']}}-question-btn"
