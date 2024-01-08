@@ -70,7 +70,6 @@ class ContentSourceFactory
             'olympiade'         => new OlympiadeService(),
             'olympiade_archive' => new OlympiadeArchiveService(),
             'thieme_meulenhoff' => new ThiemeMeulenhoffService(),
-            'personal'          => new PersonalService(),
             default             => new PersonalService(),
         };
     }

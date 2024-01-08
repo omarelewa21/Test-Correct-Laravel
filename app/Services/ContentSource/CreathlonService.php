@@ -68,7 +68,7 @@ class CreathlonService extends ContentSourceService
         return TestAuthor::addOrRestoreAuthor($test, self::getSchoolAuthor()->getKey());
     }
 
-    private static function inSchool(User $user)
+    private static function inSchool(User $user): bool
     {
         return $user->schoolLocation?->customer_code === config('custom.creathlon_school_customercode');
     }
@@ -76,11 +76,6 @@ class CreathlonService extends ContentSourceService
     public static function getSchoolAuthor(): User|null
     {
         return User::where('username', config('custom.creathlon_school_author'))->first();
-    }
-
-    protected static function wordListsAvailableForUser(User $user): bool
-    {
-        return true;
     }
 }
 

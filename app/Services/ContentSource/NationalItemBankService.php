@@ -96,10 +96,5 @@ class NationalItemBankService extends ContentSourceService
     {
         return User::where('username', config('custom.national_item_bank_school_author'))->first();
     }
-
-    protected static function wordListsAvailableForUser(User $user): bool
-    {
-        return true;
-    }
 }
 

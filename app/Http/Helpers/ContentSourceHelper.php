@@ -50,13 +50,13 @@ class ContentSourceHelper
             ->values();
     }
 
-    private static function getAvailableSourcesInCorrectOrder()
+    private static function getAvailableSourcesInCorrectOrder(): Collection
     {
         return collect(self::getAllAvailableContentSourceServices())
             ->sortBy(fn($source) => $source::$order);
     }
 
-    private static function getAllAvailableContentSourceServices()
+    private static function getAllAvailableContentSourceServices(): Collection
     {
         return collect(Storage::disk('content_source')->files())
             ->mapWithKeys(function ($file) {

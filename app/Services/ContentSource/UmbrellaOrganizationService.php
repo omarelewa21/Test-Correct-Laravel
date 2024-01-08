@@ -51,9 +51,4 @@ class UmbrellaOrganizationService extends ContentSourceService
         return WordList::filtered($filters, $sorting)
             ->whereIn('word_lists.subject_id', Subject::getIdsForSharedSections($forUser));
     }
-
-    protected static function wordListsAvailableForUser(User $user): bool
-    {
-        return true;
-    }
 }
