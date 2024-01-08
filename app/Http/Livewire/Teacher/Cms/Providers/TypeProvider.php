@@ -90,7 +90,7 @@ abstract class TypeProvider implements CmsProvider
     {
         return !in_array(
             $property,
-            ['autoCheckAnswer', 'autoCheckAnswerCaseSensitive']
+            ['autoCheckIncorrectAnswer', 'autoCheckAnswerCaseSensitive']
         );
     }
 

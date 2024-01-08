@@ -100,7 +100,7 @@ class Group extends TypeProvider
                 'discuss',
                 'allowNotes',
                 'decimalScore',
-                'autoCheckAnswer',
+                'autoCheckIncorrectAnswer',
                 'autoCheckAnswerCaseSensitive',
             ]
         );

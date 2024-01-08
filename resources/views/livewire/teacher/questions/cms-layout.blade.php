@@ -230,7 +230,7 @@
                 <x-content-section>
                     <x-slot name="title">{{ __('cms.Algemeen') }}</x-slot>
                     @if($this->isSettingsGeneralPropertyVisible('autoCheckIncorrectAnswer'))
-                        <x-notification-message class="items-center" type="info">
+                        <x-notification-message class="items-center mb-2" type="info">
                             <x-slot:title>
                                 <x-icon.autocheck />
                                 <span>@lang('cms.Alle correcte antwoorden worden automatisch goed gerekend')</span>
