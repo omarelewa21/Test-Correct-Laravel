@@ -6293,6 +6293,10 @@ video {
   margin-top: 2rem;
   margin-bottom: 2rem;
 }
+.mx-3{
+  margin-left: 0.75rem;
+  margin-right: 0.75rem;
+}
 .-mb-2{
   margin-bottom: -0.5rem;
 }
@@ -7690,6 +7694,9 @@ video {
 }
 .self-center{
   align-self: center;
+}
+.self-stretch{
+  align-self: stretch;
 }
 .justify-self-end{
   justify-self: end;

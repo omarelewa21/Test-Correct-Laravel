@@ -279,7 +279,7 @@
     flex-wrap: wrap;
     flex-grow: 1;
 
-    max-height: 450px;
+    /*max-height: 450px;*/
     width: min-content;
 
     /* take 1rem extra padding in even column into account: */
@@ -343,7 +343,7 @@
 
 .question-relation-answer-grid .relation-question-label,
 .question-relation-question-grid .relation-question-label {
-    @apply py-2 ml-2 mr-4;
+    @apply py-2 ml-2;
     display: inline-block;
 
     /* design: input 235px, label is 300px and with padding: 324px
@@ -374,4 +374,40 @@
         128/687 = 18% width for toggle
      */
     width: 34%;
+}
+
+.question-relation-question-grid:first-of-type div {
+    margin-right: 12px;
+}
+.question-relation-question-grid:last-of-type div {
+    margin-left: 12px;
+}
+
+
+@media screen and (min-width: 1024px) {
+    /*  880 question content (2 * 440px)
+        12 right column margin-left
+        80 content section padding (2 * 80px)
+        64 page X margin (2 * 32px)
+     */
+    .question-relation-question-grid:first-of-type {
+        position: relative;
+    }
+
+    .question-relation-question-grid:first-of-type:after {
+        content: '';
+        position: absolute;
+        background-color: var(--blue-grey);
+        height: calc(100% - 1rem);
+        width: 1px;
+        right: 0;
+    }
+}
+
+@media screen and (max-width: 1023px) {
+    /* Reverse the margin so the element stays the same width, otherwise the breakpoint changes */
+    .question-relation-question-grid:last-of-type div {
+        margin-left: 0;
+        margin-right: 12px
+    }
 }
