@@ -73,6 +73,11 @@ class Relation extends TypeProvider
         return $property === 'decimalScore';
     }
 
+    public function isSettingVisible(string $property): bool
+    {
+        return true;
+    }
+
     public function makeUpdates($updates)
     {
         $this->instance->dirty = true;

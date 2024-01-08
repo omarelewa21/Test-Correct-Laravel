@@ -133,9 +133,9 @@ abstract class ContentSourceService
     public static function contextItemAvailableForUser(User $user, string $context): bool
     {
         return match ($context) {
-            'test'     => static::testsAvailableForUser($user),
-            'wordList' => static::wordListsAvailableForUser($user),
-            default    => false
+            'test'             => static::testsAvailableForUser($user),
+            'wordList', 'word' => static::wordListsAvailableForUser($user),
+            default            => false
         };
     }
 }

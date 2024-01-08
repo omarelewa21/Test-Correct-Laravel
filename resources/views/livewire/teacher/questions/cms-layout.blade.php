@@ -229,6 +229,14 @@
             >
                 <x-content-section>
                     <x-slot name="title">{{ __('cms.Algemeen') }}</x-slot>
+                    @if($this->isSettingsGeneralPropertyVisible('autoCheckIncorrectAnswer'))
+                        <x-notification-message class="items-center" type="info">
+                            <x-slot:title>
+                                <x-icon.autocheck />
+                                <span>@lang('cms.Alle correcte antwoorden worden automatisch goed gerekend')</span>
+                            </x-slot:title>
+                        </x-notification-message>
+                    @endif
 
                     <div class="general-settings-grid">
                         @if($action == 'edit' && !$isCloneRequest)
