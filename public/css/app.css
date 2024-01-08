@@ -11584,6 +11584,9 @@ video {
 .top-px{
   top: 1px;
 }
+.top-24{
+  top: 6rem;
+}
 .isolate{
   isolation: isolate;
 }
