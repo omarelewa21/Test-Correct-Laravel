@@ -310,4 +310,5 @@ return [
     'Wijzigingen overnemen'                                                                                => 'Keep changes',
     'relation-question-confirm-adding-text'                                                                => 'The relation question is in beta. This means that tests with this question can become temporarily unavailable, everywhere in Test-Correct. For safety, don’t use this question type in important tests yet.',
     'Alle correcte antwoorden worden automatisch goed gerekend'                                            => 'All correct answers are automatically scored',
+    'relaties'                                                                                             => 'relations',
 ];

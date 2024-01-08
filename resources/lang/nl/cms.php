@@ -309,4 +309,5 @@ return [
     'Wijzigingen overnemen'                                                                                => 'Wijzigingen overnemen',
     'relation-question-confirm-adding-text'                                                                => 'De relatievraag staat in beta. Dit betekent dat toetsen met deze vraag tijdelijk ontoegankelijk kunnen zijn, overal in Test-Correct. Gebruik dit vraagtype nog niet in belangrijke toetsen.',
     'Alle correcte antwoorden worden automatisch goed gerekend'                                            => 'Alle correcte antwoorden worden automatisch goed gerekend',
+    'relaties'                                                                                             => 'relaties',
 ];

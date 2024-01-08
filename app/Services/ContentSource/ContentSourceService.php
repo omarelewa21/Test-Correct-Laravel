@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use tcCore\Test;
 use tcCore\User;
+use tcCore\Word;
 use tcCore\WordList;
 
 abstract class ContentSourceService
@@ -137,5 +138,17 @@ abstract class ContentSourceService
             'wordList', 'word' => static::wordListsAvailableForUser($user),
             default            => false
         };
+    }
+
+
+    public  function wordFiltered(User $forUser, $filters = [], $sorting = []): Builder
+    {
+        return Word::contentSourceFiltered(
+            $forUser,
+            Arr::wrap(static::getCustomerCode()),
+            $filters,
+            $sorting
+        )
+            ->whereNull('word_id');
     }
 }

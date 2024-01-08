@@ -6729,8 +6729,8 @@ document.addEventListener("alpine:init", function () {
       cols: [],
       rows: [],
       list: list,
-      wordCount: 0,
-      selectedWordCount: 0,
+      relationCount: 0,
+      selectedRelationCount: 0,
       errorState: false,
       mutation: 1,
       errorMessages: {},
@@ -6851,19 +6851,21 @@ document.addEventListener("alpine:init", function () {
       },
       countWords: function countWords() {
         var _this18 = this;
-        var oldWordCount = this.wordCount;
-        var oldSelectedWordCount = this.selectedWordCount;
-        this.wordCount = 0;
-        this.selectedWordCount = 0;
+        var oldRelationCount = this.relationCount;
+        var oldSelectedRelationCount = this.selectedRelationCount;
+        this.relationCount = 0;
+        this.selectedRelationCount = 0;
         this.rows.forEach(function (row, key) {
-          var rowCount = _this18.wordsInRow(row);
-          _this18.wordCount += rowCount;
+          if (!_this18.wordsInRow(row)) {
+            return;
+          }
+          _this18.relationCount++;
           if (_this18.$root.querySelector(".word-row.row-".concat(key, " .row-checkmark input:checked"))) {
-            _this18.selectedWordCount += rowCount;
+            _this18.selectedRelationCount++;
           }
         });
-        this.wordCountChanges(oldWordCount, this.wordCount);
-        this.selectedWordCountChanges(oldSelectedWordCount, this.selectedWordCount);
+        this.relationCountChanges(oldRelationCount, this.relationCount);
+        this.selectedRelationCountChanges(oldSelectedRelationCount, this.selectedRelationCount);
       },
       wordsUpdated: function wordsUpdated(word, rowIndex, columnIndex) {
         if (this.errorState) {
@@ -7266,8 +7268,8 @@ document.addEventListener("alpine:init", function () {
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("compileWordListContainer", function (wordLists) {
     return {
       wordLists: wordLists,
-      globalWordCount: 0,
-      globalSelectedWordCount: 0,
+      globalRelationCount: 0,
+      globalSelectedRelationCount: 0,
       compiling: false,
       showAddListModal: false,
       init: function init() {
@@ -7278,11 +7280,11 @@ document.addEventListener("alpine:init", function () {
           });
         }
       },
-      wordCountChanges: function wordCountChanges(old, newCount) {
-        this.globalWordCount = this.handleGlobalChanges(this.globalWordCount, old, newCount);
+      relationCountChanges: function relationCountChanges(old, newCount) {
+        this.globalRelationCount = this.handleGlobalChanges(this.globalRelationCount, old, newCount);
       },
-      selectedWordCountChanges: function selectedWordCountChanges(old, newCount) {
-        this.globalSelectedWordCount = this.handleGlobalChanges(this.globalSelectedWordCount, old, newCount);
+      selectedRelationCountChanges: function selectedRelationCountChanges(old, newCount) {
+        this.globalSelectedRelationCount = this.handleGlobalChanges(this.globalSelectedRelationCount, old, newCount);
       },
       handleGlobalChanges: function handleGlobalChanges(property, old, newCount) {
         property -= old;
@@ -8465,7 +8467,7 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("choices", function (wireModel, multiple, options, config, filterContainer) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("choices", function (wireModel, multiple, options, config, filterContainer, initWidth) {
     return {
       multiple: multiple,
       value: wireModel,
@@ -8475,6 +8477,7 @@ document.addEventListener("alpine:init", function () {
       activeFiltersContainer: null,
       choices: null,
       activeGroups: [],
+      initWidth: initWidth,
       init: function init() {
         var _window,
           _window$registeredEve,
@@ -8746,10 +8749,13 @@ document.addEventListener("alpine:init", function () {
       handleContainerWidth: function handleContainerWidth() {
         if (this.$root.classList.contains("super")) return;
         var helper = this.$root.querySelector("#text-length-helper");
-        if (!helper) return;
+        if (!helper || helper.offsetWidth === 0) {
+          return;
+        }
         var minWidth = helper.offsetWidth;
-        this.$root.querySelector("input.choices__input[type=\"search\"]").style.width = minWidth + 16 + "px";
-        this.$root.querySelector("input.choices__input[type=\"search\"]").style.minWidth = "auto";
+        var selectBox = this.$root.querySelector("input.choices__input[type=\"search\"]");
+        selectBox.style.width = minWidth + 16 + "px";
+        selectBox.style.minWidth = "auto";
       }
     };
   });

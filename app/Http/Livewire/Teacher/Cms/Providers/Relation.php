@@ -22,7 +22,7 @@ class Relation extends TypeProvider
         parent::preparePropertyBag();
 
         $this->instance->cmsPropertyBag['rows'] = $this->getEmptyGridRows(18);
-        $this->instance->cmsPropertyBag['word_count'] = 0;
+        $this->instance->cmsPropertyBag['relation_count'] = 0;
         $this->instance->question['uuid'] = null;
         $this->instance->cmsPropertyBag['column_heads'] = RelationQuestion::columnHeads($this->instance->subjectId);
         $this->instance->cmsPropertyBag['unhandled_list_changes'] = false;
@@ -179,7 +179,6 @@ class Relation extends TypeProvider
     private function handleRowCountDependentAttributes(int $wordCount): void
     {
         $this->instance->question['score'] = $this->getQuestionScore();
-        $this->instance->cmsPropertyBag['word_count'] = $wordCount;
 
         if (count($this->instance->cmsPropertyBag['rows']) > 0) {
             $this->instance->question['answer'] = 'not empty';
@@ -191,6 +190,8 @@ class Relation extends TypeProvider
                 ->concat($this->getEmptyGridRows($rowsToAdd))
                 ->values();
         }
+
+        $this->instance->cmsPropertyBag['relation_count'] = $this->rowsWithoutEmptyValues()->count();
     }
 
     private function getQuestionScore(): int

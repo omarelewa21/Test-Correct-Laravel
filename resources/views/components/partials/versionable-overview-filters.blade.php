@@ -20,6 +20,7 @@
                     placeholderText="{{ __('general.Categorie') }}"
                     wire:model="filters.base_subject_id"
                     :filterContainer="$activeFilterContainer"
+                    initWidth="62"
             />
         @else
             <x-input.choices-select
@@ -30,6 +31,7 @@
                     placeholderText="{{ __('student.subject') }}"
                     wire:model="filters.subject_id"
                     :filterContainer="$activeFilterContainer"
+                    initWidth="52"
             />
         @endif
         <x-input.choices-select
@@ -40,6 +42,7 @@
                 placeholderText="{{ __('general.Leerjaar') }}"
                 wire:model="filters.education_level_year"
                 :filterContainer="$activeFilterContainer"
+                initWidth="73"
         />
         <x-input.choices-select
                 wire:key="{{ $versionablePrefix }}_educationLevel_{{ $this->openTab }}"
@@ -49,6 +52,7 @@
                 placeholderText="{{ __('general.Niveau') }}"
                 wire:model="filters.education_level_id"
                 :filterContainer="$activeFilterContainer"
+                initWidth="100"
         />
 
         @if($this->canFilterOnAuthors())
@@ -61,6 +65,7 @@
                         placeholderText="{{ __('general.Auteurs') }}"
                         wire:model="filters.shared_sections_author_id"
                         :filterContainer="$activeFilterContainer"
+                        initWidth="43"
                 />
             @else
                 <x-input.choices-select
@@ -71,6 +76,7 @@
                         placeholderText="{{ __('general.Auteurs') }}"
                         wire:model="filters.user_id"
                         :filterContainer="$activeFilterContainer"
+                        initWidth="43"
                 />
             @endif
         @endif

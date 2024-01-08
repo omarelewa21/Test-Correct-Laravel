@@ -742,7 +742,7 @@ document.addEventListener("alpine:init", () => {
             return scrollToSettings;
         }
     }));
-    Alpine.data("choices", (wireModel, multiple, options, config, filterContainer) => ({
+    Alpine.data("choices", (wireModel, multiple, options, config, filterContainer, initWidth) => ({
         multiple: multiple,
         value: wireModel,
         options: options,
@@ -751,6 +751,7 @@ document.addEventListener("alpine:init", () => {
         activeFiltersContainer: null,
         choices: null,
         activeGroups: [],
+        initWidth: initWidth,
         init() {
             // some new fancy way of setting a value when undefined
             window.registeredEventHandlers ??= [];
@@ -1009,12 +1010,15 @@ document.addEventListener("alpine:init", () => {
         },
         handleContainerWidth() {
             if (this.$root.classList.contains("super")) return;
-            let helper = this.$root.querySelector("#text-length-helper");
-            if (!helper) return;
+            const helper = this.$root.querySelector("#text-length-helper");
+            if (!helper || helper.offsetWidth === 0) {
+                return;
+            }
             let minWidth = helper.offsetWidth;
-            this.$root.querySelector("input.choices__input[type=\"search\"]").style.width = minWidth + 16 + "px";
-            this.$root.querySelector("input.choices__input[type=\"search\"]").style.minWidth = "auto";
-        }
+            const selectBox = this.$root.querySelector("input.choices__input[type=\"search\"]")
+            selectBox.style.width = minWidth + 16 + "px";
+            selectBox.style.minWidth = "auto";
+        },
     }));
 
     Alpine.data("analysesSubjectsGraph", (modelId) => ({

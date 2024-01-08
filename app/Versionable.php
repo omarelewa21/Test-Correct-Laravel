@@ -201,4 +201,20 @@ abstract class Versionable extends BaseModel
 
         return $query->whereIn($filterName, Arr::wrap($value));
     }
+
+    public function scopeContentSourceFiltered(
+        $query,
+        User $forUser,
+        array $customerCodes,
+        array $filters = [],
+        array $sorting = []
+    ) {
+        $subjects = Subject::getIdsForContentSource($forUser, $customerCodes);
+        if (is_array($subjects) && count($subjects) === 0) {
+            return $query->where(static::getTableName().'.id', -1);
+        }
+
+        return static::filtered(filters: $filters, sorting: $sorting)
+            ->whereIn('subject_id', $subjects);
+    }
 }
