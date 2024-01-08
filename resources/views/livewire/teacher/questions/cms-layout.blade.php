@@ -513,7 +513,7 @@
                         class="button cta-button button-sm save_button"
                         wire:loading.attr="disabled"
                         {{--                    wire:click="saveAndRefreshDrawer()"--}}
-                        @click="forceSyncEditors();$wire.saveAndRefreshDrawer()"
+                        x-on:click="forceSync();$wire.saveAndRefreshDrawer()"
                         x-data="{disabled: false}"
                         x-init="$watch('$store.questionBank.active', value => disabled = value);"
                         x-on:beforeunload.window="disabled = true"

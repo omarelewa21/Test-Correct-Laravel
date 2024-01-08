@@ -281,7 +281,7 @@ return [
     'Ik begrijp het'                                                                                       => 'Ik begrijp het',
     'Verschillend per student'                                                                             => 'Verschillend per student',
     'Afname instellingen'                                                                                  => 'Afname instellingen',
-    'relation-question-intro'                                                                              => 'Kies wat de student ziet (vraagstelling). Je kan dit per categorie (kolom) aangeven, maar ook specificeren per woord (cel) door daarop te klikken. Kies je bijv. synoniem, definitie, etc. als vraagstelling, dan zal de student het taalvak woord moeten antwoorden.',
+    'relation-question-intro'                                                                              => 'Kies wat de student ziet (vraagstelling). Je kan dit per categorie (kolom) aangeven, maar ook specificeren per woord (cel) door daarop te klikken. De student antwoord standaard in het taalvak. Als je het taalvak kiest, antwoord de student met de Nederlandse vertaling.',
     'Vak'                                                                                                  => 'Vak',
     'Vertaling'                                                                                            => 'Vertaling',
     'Definitie'                                                                                            => 'Definitie',

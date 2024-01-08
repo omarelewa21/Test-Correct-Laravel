@@ -52,7 +52,12 @@ class RelationQuestion extends QuestionComponent
 
         //Caroussel the same for all students
         if($question->shuffleCarouselPerTestTake()) {
-            return collect($this->testTake->testTakeRelationQuestions()->where('question_id', $question->id)->first()->json)->keys();
+            $json = $this->testTake
+                ->testTakeRelationQuestions()
+                ->where('question_id', $question->id)
+                ->first()
+                ->json;
+            return collect($json['answer_struct'])->keys();
         }
 
         //Caroussel per student and created for a student screen

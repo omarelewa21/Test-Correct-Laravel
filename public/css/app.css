@@ -2005,7 +2005,7 @@ button.button {
     flex-wrap: wrap;
     flex-grow: 1;
 
-    max-height: 450px;
+    /*max-height: 450px;*/
     width: -moz-min-content;
     width: min-content;
 
@@ -2073,7 +2073,6 @@ button.button {
 .question-relation-answer-grid .relation-question-label,
 .question-relation-question-grid .relation-question-label {
     margin-left: 0.5rem;
-    margin-right: 1rem;
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
     display: inline-block;
@@ -2107,6 +2106,43 @@ button.button {
      */
     width: 34%;
 }
+
+.question-relation-question-grid:first-of-type div {
+    margin-right: 12px;
+}
+.question-relation-question-grid:last-of-type div {
+    margin-left: 12px;
+}
+
+
+@media screen and (min-width: 1024px) {
+    /*  880 question content (2 * 440px)
+        12 right column margin-left
+        80 content section padding (2 * 80px)
+        64 page X margin (2 * 32px)
+     */
+    .question-relation-question-grid:first-of-type {
+        position: relative;
+    }
+
+    .question-relation-question-grid:first-of-type:after {
+        content: '';
+        position: absolute;
+        background-color: var(--blue-grey);
+        height: calc(100% - 1rem);
+        width: 1px;
+        right: 0;
+    }
+}
+
+@media screen and (max-width: 1023px) {
+    /* Reverse the margin so the element stays the same width, otherwise the breakpoint changes */
+    .question-relation-question-grid:last-of-type div {
+        margin-left: 0;
+        margin-right: 12px
+    }
+}
+
 .question-title {
     padding-bottom: 1rem;
     border-bottom: 3px solid var(--system-base);
@@ -12128,6 +12164,10 @@ video {
   margin-top: 2rem;
   margin-bottom: 2rem;
 }
+.mx-3{
+  margin-left: 0.75rem;
+  margin-right: 0.75rem;
+}
 .-mb-2{
   margin-bottom: -0.5rem;
 }
@@ -13521,6 +13561,9 @@ video {
 }
 .self-center{
   align-self: center;
+}
+.self-stretch{
+  align-self: stretch;
 }
 .justify-self-end{
   justify-self: end;

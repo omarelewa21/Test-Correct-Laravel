@@ -172,12 +172,14 @@ class CreateTable extends Migration
         $this->createUserSystemSettings();
         $this->createMailsSend();
         $this->createRttiExportLogs();
+        $this->createTestTakeQuestions();
         $this->createVersions();
         $this->createWordLists();
         $this->createWords();
         $this->createWordListWord();
         $this->createRelationQuestions();
         $this->createRelationQuestionWord();
+        $this->createTestTakeRelationQuestions();
 
         (new \Database\Seeders\SqLiteSeeder())->run();
         //        Artisan::call('db:seed', ['--class' => 'SqLiteSeeder',]);
@@ -695,6 +697,8 @@ class CreateTable extends Migration
             $table->efficientUuid('uuid')->index()->unique()->nullable();
             $table->tinyInteger('auto_check_answer')->default('0');
             $table->tinyInteger('auto_check_answer_case_sensitive')->default('1');
+            $table->boolean('auto_check_incorrect_answer')->default(false);
+
 //            $table->foreign('id')->references('id')->on('questions');
         });
     }
@@ -4871,6 +4875,7 @@ class CreateTable extends Migration
             $table->boolean('enable_comments_colearning')->default(false);
             $table->boolean('review_active')->default(false);
             $table->dateTime('results_published')->nullable();
+            $table->boolean('allow_inbrowser_colearning')->default(true);
 
 //            $table->foreign('period_id')->references('id')->on('periods');
 //            $table->foreign('discussing_question_id')->references('id')->on('questions');
@@ -5657,6 +5662,9 @@ class CreateTable extends Migration
 
             $table->boolean('shuffle')->default(false);
             $table->integer('selection_count')->nullable();
+            $table->boolean('shuffle_per_participant')->default(false);
+            $table->boolean('auto_check_answer_case_sensitive')->default(false);
+            $table->boolean('auto_check_incorrect_answer')->default(false);
         });
     }
 
@@ -5676,6 +5684,32 @@ class CreateTable extends Migration
             $table->foreign('word_id')->references('id')->on('words');
             $table->foreign('relation_question_id')->references('id')->on('relation_questions');
             $table->foreign('word_list_id')->references('id')->on('word_lists');
+        });
+    }
+
+    private function createTestTakeQuestions(): void
+    {
+        Schema::create('test_take_questions', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+            $table->softDeletes();
+            $table->unsignedInteger('test_take_id');
+            $table->unsignedInteger('question_id');
+            $table->boolean('discussed')->default(false);
+            $table->efficientUuid('uuid')->index()->unique();
+        });
+    }
+
+    private function createTestTakeRelationQuestions(): void
+    {
+        Schema::create('test_take_relation_questions', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+            $table->softDeletes();
+            $table->unsignedInteger('test_take_id');
+            $table->unsignedInteger('question_id');
+            $table->mediumText('json')->nullable();
+            $table->efficientUuid('uuid')->index()->unique();
         });
     }
 }

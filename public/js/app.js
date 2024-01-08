@@ -7580,6 +7580,9 @@ document.addEventListener("alpine:init", function () {
   });
 });
 
+//9efba097-d7df-4da4-9545-a490fe5764b2
+//e2e3ec1e-b5d7-4d7e-9eeb-68677953df5c
+
 /***/ }),
 
 /***/ "./resources/js/alpine.js":
@@ -20629,7 +20632,7 @@ document.addEventListener("alpine:init", function () {
           dateFormat: dateFormat,
           enableTime: enableTime,
           onChange: function onChange(date, dateString) {
-            _this.wireModel = _this.value = _this.mode == "range" ? dateString.split(" t/m ") : dateString; //split t/m or to
+            _this.wireModel = _this.value = _this.mode === "range" ? dateString.split(" t/m ") : dateString; //split t/m or to
           },
 
           onOpen: function onOpen() {

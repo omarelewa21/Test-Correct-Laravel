@@ -3555,8 +3555,7 @@ input[type=number] {
 }
 
 .questionContainer .input-group:has(p),
-.questionContainer .completion-question-question-container,
-.questionContainer .completion-question-answer-container{
+.questionContainer .completion-question-question-container {
     display: block;
 }
 
@@ -6294,6 +6293,10 @@ video {
   margin-top: 2rem;
   margin-bottom: 2rem;
 }
+.mx-3{
+  margin-left: 0.75rem;
+  margin-right: 0.75rem;
+}
 .-mb-2{
   margin-bottom: -0.5rem;
 }
@@ -7692,6 +7695,9 @@ video {
 .self-center{
   align-self: center;
 }
+.self-stretch{
+  align-self: stretch;
+}
 .justify-self-end{
   justify-self: end;
 }
@@ -7784,10 +7790,6 @@ video {
   border-bottom-right-radius: 10px;
   border-bottom-left-radius: 10px;
 }
-.rounded-b-full{
-  border-bottom-right-radius: 9999px;
-  border-bottom-left-radius: 9999px;
-}
 .rounded-b-lg{
   border-bottom-right-radius: 0.5rem;
   border-bottom-left-radius: 0.5rem;
@@ -7823,10 +7825,6 @@ video {
 .rounded-t-\[10px\]{
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
-}
-.rounded-t-full{
-  border-top-left-radius: 9999px;
-  border-top-right-radius: 9999px;
 }
 .rounded-bl-md{
   border-bottom-left-radius: 0.375rem;
@@ -8014,10 +8012,6 @@ video {
 .bg-allred{
   --tw-bg-opacity: 1;
   background-color: rgb(207 27 4 / var(--tw-bg-opacity));
-}
-.bg-blue-50{
-  --tw-bg-opacity: 1;
-  background-color: rgb(239 246 255 / var(--tw-bg-opacity));
 }
 .bg-bluegrey{
   --tw-bg-opacity: 1;
@@ -9319,6 +9313,7 @@ p {
     padding-left: 10px;
     padding-right: 10px;
     border-radius: 10px;
+    height: 30px;
 }
 
 .prevent-pagebreak-table {
@@ -9532,73 +9527,6 @@ h2.student-testtake-answers-separator {
 h2.student-testtake-answers-separator span {
     background: #fff;
     padding: 0 10px;
-}
-
-table.matching-question-answers-pdf {
-    /**/
-}
-
-table.matching-question-answers-pdf tr ,
-table.matching-question-answers-pdf td ,
-table.matching-question-answers-pdf tbody ,
-table.matching-question-answers-pdf {
-    border: 0 !important;
-    border-width: 0 !important;
-    border-collapse: unset;
-}
-
-table.matching-question-answers-pdf tr {
-    /**/
-    margin-bottom: 2px;
-    margin-top: 2px;
-}
-
-table.matching-question-answers-pdf tr td.left-side-td {
-    width: 400px;
-}
-table.matching-question-answers-pdf tr td.left-side-td > div {
-    background: #e6edfa;
-    font-size: 18px;
-    font-weight: bold;
-    border: 2px solid #c3d0ed; /* blue-grey */
-}
-
-table.matching-question-answers-pdf tr td.right-side-td > div {
-    border: 2px dashed #c3d0ed; /* blue-grey */
-    border-radius: 12px;
-}
-
-table.matching-question-answers-pdf tr td.right-side-td > div span {
-    background: #F0F2F5; /* light-grey */
-}
-
-table.matching-question-answers-pdf tr td.right-side-td {
-    width: 600px;
-}
-
-table.matching-question-answers-pdf tr td.left-side-td > div,
-table.matching-question-answers-pdf tr td.right-side-td > div span {
-    border-radius: 10px;
-    padding: 6px 16px;
-}
-
-table.matching-question-answers-pdf tr td.right-side-td > div span:first-child {
-    display: inline-block;
-    width: 100%;
-}
-
-.matching-question-answers-pdf-unused {
-    width: 100%;
-    white-space: break-spaces;
-}
-
-.matching-question-answers-pdf-unused .matching-question-drag-item {
-    background: #F0F2F5; /* light-grey */
-    border-radius: 10px;
-    padding: 6px 16px;
-    display: inline-block;
-    margin-bottom: 4px;
-    margin-right: 4px;
 }
 
 .placeholder\:text-base::-moz-placeholder{
@@ -9893,11 +9821,6 @@ table.matching-question-answers-pdf tr td.right-side-td > div span:first-child {
   color: rgb(31 41 55 / var(--tw-text-opacity));
 }
 
-.active\:text-note:active{
-  --tw-text-opacity: 1;
-  color: rgb(107 119 137 / var(--tw-text-opacity));
-}
-
 .active\:text-primary:active{
   --tw-text-opacity: 1;
   color: rgb(0 77 245 / var(--tw-text-opacity));
@@ -9954,11 +9877,6 @@ table.matching-question-answers-pdf tr td.right-side-td > div span:first-child {
   color: rgb(0 77 245 / var(--tw-text-opacity));
 }
 
-.group:hover .group-hover\:text-sysbase{
-  --tw-text-opacity: 1;
-  color: rgb(4 31 116 / var(--tw-text-opacity));
-}
-
 .group\/button:hover .group-hover\/button\:opacity-100{
   opacity: 1;
 }
@@ -10000,11 +9918,6 @@ table.matching-question-answers-pdf tr td.right-side-td > div span:first-child {
 .group:active .group-active\:text-primary{
   --tw-text-opacity: 1;
   color: rgb(0 77 245 / var(--tw-text-opacity));
-}
-
-.group:active .group-active\:text-sysbase{
-  --tw-text-opacity: 1;
-  color: rgb(4 31 116 / var(--tw-text-opacity));
 }
 
 @media (min-width: 640px){
@@ -10679,4 +10592,3 @@ table.matching-question-answers-pdf tr td.right-side-td > div span:first-child {
     max-width: 72rem;
   }
 }
-
