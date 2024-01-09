@@ -263,7 +263,7 @@ return [
     'Upload bestand'                                                                                       => 'Upload bestand',
     'add_list_modal_new_list_description'                                                                  => 'Maak een nieuwe woordenlijst (bijv. per hoofdstuk)',
     'add_list_modal_existing_list_description'                                                             => 'Kies een bestaande woordenlijst uit de woordenlijstenbank',
-    'add_list_modal_upload_list_description'                                                               => 'Maak een nieuwe woordenlijst van een Ecxel of CSV bestand',
+    'add_list_modal_upload_list_description'                                                               => 'Maak een nieuwe woordenlijst van een Excel of CSV bestand',
     'Woordenlijstenbank'                                                                                   => 'Woordenlijstenbank',
     'Woordenbank'                                                                                          => 'Woordenbank',
     'Toevoegen aan woordenlijst'                                                                           => 'Toevoegen aan woordenlijst',
