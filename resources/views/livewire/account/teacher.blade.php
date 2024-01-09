@@ -366,11 +366,6 @@
                         <x-icon.text-align-left />
                         <span class="bold">@lang('account.Taal van taalvak overnemen')</span>
                     </div>
-                    <div class="border-b border-bluegrey flex w-full items-center h-[50px] gap-2.5 self-end">
-                        <x-input.toggle wire:model="featureSettings.question_auto_score_completion" class="mr-2" />
-                        <x-icon.autocheck />
-                        <span class="bold">@lang('account.Gatentektst vragen automatisch nakijken')</span>
-                    </div>
 
                     <div class="flex justify-between items-center border-b border-bluegrey h-[50px]">
                         <div class="flex gap-2 items-center">
