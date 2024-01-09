@@ -64,7 +64,8 @@ class AnonymizeUsersAfterTooLongNoLoginJob extends Job implements ShouldQueue
         DB::beginTransaction();
         try {
             $day = Carbon::today()->subDays($this->days);
-            User::leftJoinSub(
+            User::withTrashed()
+                ->leftJoinSub(
                 DB::table('login_logs')
                     ->select('user_id', DB::raw('max(login_logs.created_at) as max_created_at'))
                     ->groupBy('user_id'),
