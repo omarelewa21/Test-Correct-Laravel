@@ -88,7 +88,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             ];
     }
 
-    public function mount(TestTake $testTake): void
+    public function mount(TestTake $testTake)
     {
         Gate::authorize('isAllowedToViewTestTake',[$testTake, false, false ]);
 
@@ -105,7 +105,14 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
         $this->setData();
 
-        $this->verifyTestTakeData();
+        if(!$this->verifyTestTakeData()){
+            return CakeRedirectHelper::redirectToCake(
+                routeName   : 'test_takes.view',
+                uuid        : $this->testTakeUuid,
+                returnRoute : '/teacher/test_takes/taken',
+                notification: ['message' => __('assessment.no_answers'), 'type' => 'error']
+            );
+        }
 
         if ($this->headerCollapsed) {
             $this->skipBootedMethod();
@@ -1039,13 +1046,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         if (filled($this->answers)) {
             return true;
         }
-
-        return CakeRedirectHelper::redirectToCake(
-            routeName   : 'test_takes.view',
-            uuid        : $this->testTakeUuid,
-            returnRoute : '/teacher/test_takes/taken',
-            notification: ['message' => __('assessment.no_answers'), 'type' => 'error']
-        );
+        return false;
     }
 
     private function updateMaxAssessedValue($currentAnswerIndexOfAllAnswers)

@@ -3,6 +3,9 @@
 namespace tcCore\Http\Helpers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use tcCore\Exceptions\CleanRedirectException;
+use tcCore\Exceptions\RedirectException;
 use tcCore\Http\Controllers\TemporaryLoginController;
 
 class CakeRedirectHelper

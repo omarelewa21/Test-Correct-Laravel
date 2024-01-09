@@ -109,7 +109,7 @@ class TestPlanModal extends TCModalComponent
             ]
         ]);
 
-        redirect($controller->toCakeUrl($request));
+        return redirect($controller->toCakeUrl($request));
     }
 
     private function planTest()
