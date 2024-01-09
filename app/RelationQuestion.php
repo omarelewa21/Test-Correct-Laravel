@@ -123,7 +123,7 @@ class RelationQuestion extends Question implements QuestionInterface
      */
     public function canCreateSystemRatingForAnswer($answer): bool
     {
-        if((bool)$this->getAttribute('auto_check_incorrect_answer')) {
+        if ((bool)$this->getAttribute('auto_check_incorrect_answer')) {
             return true;
         }
         $this->checkAnswerSub($answer);
@@ -132,7 +132,7 @@ class RelationQuestion extends Question implements QuestionInterface
 
     public function checkAnswer($answer)
     {
-        if(
+        if (
             isset($answer->allAnswerFieldsCorrect)
             && $answer->allAnswerFieldsCorrect
             && isset($answer->allAnswerFieldsCorrectScore)
@@ -161,8 +161,8 @@ class RelationQuestion extends Question implements QuestionInterface
 
         $answerOptionsCount = count($answerModel);
 
-        $correctAnswersCount = $answers->reduce(function ($carry, $answer, $key) use ($answerModel, $answers){
-            if($answer === null || $answer === '') {
+        $correctAnswersCount = $answers->reduce(function ($carry, $answer, $key) use ($answerModel, $answers) {
+            if ($answer === null || $answer === '') {
                 return $carry;
             }
 
@@ -174,7 +174,9 @@ class RelationQuestion extends Question implements QuestionInterface
         }, 0);
 
         $answer->allAnswerFieldsCorrect = count($answers->filter()) == $correctAnswersCount;
-        $answer->allAnswerFieldsCorrectScore = $this->getAttribute('score') * ($correctAnswersCount / $answerOptionsCount);
+        $answer->allAnswerFieldsCorrectScore = $this->getAttribute(
+                'score'
+            ) * ($correctAnswersCount / $answerOptionsCount);
 
         return $this->getAttribute('score') * ($correctAnswersCount / $answerOptionsCount);
     }
@@ -233,7 +235,7 @@ class RelationQuestion extends Question implements QuestionInterface
 
     public function isDirtyAnswerOptions($totalData): bool
     {
-        if(!isset($totalData['answers'])) {
+        if (!isset($totalData['answers'])) {
             return false;
         }
 
@@ -356,13 +358,20 @@ class RelationQuestion extends Question implements QuestionInterface
 
     public function createAnswerStruct(): array
     {
+        return $this->getWordsForAnswerStruct()
+            ->mapWithKeys(fn($word) => [$word->id => null])
+            ->toArray();
+    }
+
+    public function getWordsForAnswerStruct(): Collection
+    {
         $answerStruct = $this->wordsToAsk();
 
         if ($this->shuffle) {
             $answerStruct = $answerStruct->shuffle()->take($this->selection_count);
         }
 
-        return $answerStruct->mapWithKeys(fn($word) => [$word->id => null])->toArray();
+        return $answerStruct;
     }
 
     public function getAnswerStructFromTestTake(string $testTakeUuid): array
@@ -378,7 +387,7 @@ class RelationQuestion extends Question implements QuestionInterface
         $answerStruct = $testTakeRelationQuestion?->json['answer_struct'];
 
         //if TestTakeQuestions has no answer_struct yet:
-        if($answerStruct !== null) {
+        if ($answerStruct !== null) {
             return $answerStruct;
         }
 
@@ -386,7 +395,7 @@ class RelationQuestion extends Question implements QuestionInterface
 
         TestTakeRelationQuestion::updateOrCreate([
             'test_take_id' => $testTakeId,
-            'question_id' => $this->id,
+            'question_id'  => $this->id,
         ], [
             'json' => [
                 'answer_struct' => $answerStruct,
@@ -399,8 +408,8 @@ class RelationQuestion extends Question implements QuestionInterface
     public function isFullyAnswered(Answer $answer): bool
     {
         return collect(json_decode($answer->json, true))
-                ->filter(fn($answer) => $answer === null || $answer === '')
-                ->isEmpty();
+            ->filter(fn($answer) => $answer === null || $answer === '')
+            ->isEmpty();
     }
 
     public function getQuestionWordsForCms(): array
@@ -446,7 +455,7 @@ class RelationQuestion extends Question implements QuestionInterface
         if (!self::hasCorrectBaseSubject($baseSubjectLanguage)) {
             return $heads->toArray();
         }
-        
+
         $mutations = match ($baseSubjectLanguage) {
             'Nederlands' => ['subject' => __('cms.Woord') . ' NL'],
             'Engels'     => ['subject' => __('cms.Woord') . ' EN', 'translation' => __('cms.Woord') . ' NL'],
