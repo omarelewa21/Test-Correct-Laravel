@@ -1663,16 +1663,19 @@ document.addEventListener("alpine:init", () => {
             });
         },
         markInputElementsWithError() {
-            const falseOptions = this.$root.querySelectorAll(".accordion-block .slider-option[data-active=\"false\"]");
-            if (falseOptions.length === 2) {
-                falseOptions.forEach(el => el.classList.add("!border-allred"));
-            }
+            this.markInputElements('add');
         },
         markInputElementsClean() {
-            const falseOptions = this.$root.querySelectorAll(".accordion-block .slider-option[data-active=\"false\"]");
-            if (falseOptions.length === 2) {
-                falseOptions.forEach(el => el.classList.remove("!border-allred"));
-            }
+            this.markInputElements('remove');
+        },
+        markInputElements(action) {
+            const sliderButtons = this.$root.querySelectorAll(".accordion-block .slider-button-options-wrapper");
+            sliderButtons.forEach(button => {
+                let falseOptions = button.querySelectorAll(".slider-option[data-active='false']")
+                if (falseOptions.length === button.childElementCount) {
+                    falseOptions.forEach(el => el.classList[action]("!border-allred"));
+                }
+            })
         },
         preventFractionalPixels() {
             const containerWidth = this.$root.offsetWidth;

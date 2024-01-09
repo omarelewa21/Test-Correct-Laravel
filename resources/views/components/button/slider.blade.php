@@ -38,7 +38,7 @@
         </label>
     @endif
     <span class="relative block">
-        <span :id="$id('slider-button')" @class(['flex', 'pointer-events-none' => $disabled])>
+        <span :id="$id('slider-button')" @class(['flex slider-button-options-wrapper', 'pointer-events-none' => $disabled])>
             @foreach($options as $id => $button)
                 <span style="width: {{$buttonWidth}}; flex-shrink: 0;"
                      @class([

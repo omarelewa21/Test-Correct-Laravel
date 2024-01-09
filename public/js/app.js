@@ -9338,20 +9338,21 @@ document.addEventListener("alpine:init", function () {
         });
       },
       markInputElementsWithError: function markInputElementsWithError() {
-        var falseOptions = this.$root.querySelectorAll(".accordion-block .slider-option[data-active=\"false\"]");
-        if (falseOptions.length === 2) {
-          falseOptions.forEach(function (el) {
-            return el.classList.add("!border-allred");
-          });
-        }
+        this.markInputElements('add');
       },
       markInputElementsClean: function markInputElementsClean() {
-        var falseOptions = this.$root.querySelectorAll(".accordion-block .slider-option[data-active=\"false\"]");
-        if (falseOptions.length === 2) {
-          falseOptions.forEach(function (el) {
-            return el.classList.remove("!border-allred");
-          });
-        }
+        this.markInputElements('remove');
+      },
+      markInputElements: function markInputElements(action) {
+        var sliderButtons = this.$root.querySelectorAll(".accordion-block .slider-button-options-wrapper");
+        sliderButtons.forEach(function (button) {
+          var falseOptions = button.querySelectorAll(".slider-option[data-active='false']");
+          if (falseOptions.length === button.childElementCount) {
+            falseOptions.forEach(function (el) {
+              return el.classList[action]("!border-allred");
+            });
+          }
+        });
       },
       preventFractionalPixels: function preventFractionalPixels() {
         var containerWidth = this.$root.offsetWidth;
