@@ -9,7 +9,8 @@ use tcCore\Http\Traits\WithCloseable;
 
 class RelationQuestion extends TCComponent
 {
-    use WithCloseable, WithGroups;
+    use WithCloseable;
+    use WithGroups;
 
     public $question;
 
@@ -26,26 +27,7 @@ class RelationQuestion extends TCComponent
 
     public function mount()
     {
-//        $this->question->completionQuestionAnswers->each(function ($answer) {
-//            if ($answer->correct) {
-//                $this->answerStruct[$answer->tag] = $answer->answer;
-//                return true;
-//            }
-//            if (!array_key_exists($answer->tag, $this->answerStruct)) {
-//                $this->answerStruct[$answer->tag] = '';
-//            }
-//        });
-
-        // :question="$testQuestion"
-        // :number="$questionFollowUpNumber++"
-        // :test="$test"
-        // :attachment_counters="$attachment_counters"
-
-        //word->text and word->prefix_text are used in the view
-        $this->answerStruct = $this->question->wordsToAsk()->keyBy('id')->map(function ($word) {
-            $word->prefix_text = !in_array($word->type->value, ['subject', 'translation']) ? __('question.word_type_' . $word->type->value) : '';
-            return $word;
-        });
+        $this->setDefaultStruct();
 
         $this->createAnswerPlaceholdersList();
 
@@ -66,35 +48,34 @@ class RelationQuestion extends TCComponent
     public function isQuestionFullyAnswered(): bool
     {
         return count($this->answer) === count(array_filter($this->answer));
-
     }
 
     /**
      * create a list of numbers
      */
-    protected function createAnswerPlaceholdersList()
+    protected function createAnswerPlaceholdersList(): void
     {
-        $answerStruct = collect($this->answerStruct);
-//        $max = $answerStruct->count();
-//
-//        $left = collect([]);
-//        $right = collect([]);
-//
-//        $answerStruct->each(function ($item, $i) use ($max, &$left, &$right) {
-//            return $i <= (int)round($max / 2) ? $left->add($i) : $right->add($i);
-//        });
-//
-//        $this->answerPlaceholdersList = $left->zip($right)->flatten()->filter();
-
         $iterator = 0;
-        [$temp1, $temp2] = $answerStruct->split(2)->map(function ($item) use (&$iterator) {
-            return $item->mapWithKeys(function ($item, $key) use (&$iterator) {
-                $iterator++;
-                return [$iterator => $iterator];
+        [$temp1, $temp2] = $this->answerStruct->split(2)
+            ->map(function ($item) use (&$iterator) {
+                return $item->mapWithKeys(function ($item, $key) use (&$iterator) {
+                    $iterator++;
+                    return [$iterator => $iterator];
+                });
             });
-        });
 
         $this->answerPlaceholdersList = $temp1->zip($temp2)->flatten()->filter();
     }
 
+    protected function setDefaultStruct(): void
+    {
+        $this->answerStruct = $this->question->getWordsForAnswerStruct()
+            ->map(function ($word) {
+                $word->prefix_text = !in_array($word->type->value, ['subject', 'translation'])
+                    ? __('question.word_type_' . $word->type->value)
+                    : '';
+
+                return $word;
+            });
+    }
 }
