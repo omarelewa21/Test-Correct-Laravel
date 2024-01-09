@@ -4297,6 +4297,7 @@ document.addEventListener("alpine:init", () => {
         }
     }));
     Alpine.data("constructionDirector", () => ({
+        buttonActionCaught: false,
         init() {
             this.$store.cms.loading = false;
         },
@@ -4356,6 +4357,13 @@ document.addEventListener("alpine:init", () => {
         },
         async addQuestionFromDirty(params) {
             return await this.constructor.call("addQuestionFromDirty", params);
+        },
+        async headerButtonEventCapture(event) {
+            /* By not awaiting the first call, they get bundled */
+            this.forceSync();
+            await this.constructor.call('saveIfDirty');
+
+            event.target.closest('.test-action')?._x_dataStack[0].handle();
         }
     }));
 
@@ -4659,6 +4667,11 @@ document.addEventListener("alpine:init", () => {
             this.clickAction()
         }
     }));
+    Alpine.data("testAction", (callback) => ({
+        handle() {
+            callback();
+        }
+    }));
 
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");
@@ -4809,7 +4822,7 @@ document.addEventListener("alpine:init", () => {
     });
     Alpine.store('sidePanel', {
         reopenModal: false
-    })
+    });
 
 });
 

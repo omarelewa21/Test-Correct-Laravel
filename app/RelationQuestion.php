@@ -197,6 +197,7 @@ class RelationQuestion extends Question implements QuestionInterface
     {
         return $this->words()
             ->wherePivot('selected', true)
+            ->wherePivot('deleted_at', null)
             ->get();
     }
 

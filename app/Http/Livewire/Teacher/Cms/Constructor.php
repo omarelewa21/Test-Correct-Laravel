@@ -1438,11 +1438,12 @@ class Constructor extends TCComponent implements QuestionCms
         return Auth::user()->redirectToCakeWithTemporaryLogin($options);
     }
 
-    public function saveIfDirty()
+    public function saveIfDirty(): bool
     {
         if ($this->isDirty()) {
             $this->save(false);
         }
+        return true;
     }
 
     public function clearQuestionBag()
