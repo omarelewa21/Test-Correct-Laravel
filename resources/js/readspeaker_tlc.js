@@ -126,10 +126,9 @@ ReadspeakerTlc = function(){
         }
         function handleCkeditorSelectionChangeForReadspeaker(editor)
         {
-
             editor.editing.view.document.on( 'selectionChange', () => {
                 rspkr.rs_tlc_ckeditor_selecting = true;
-                RichTextEditor.timer = setTimeout(RichTextEditor.setReadOnly.bind(null, editor),50);
+                RichTextEditor.timer = setTimeout(RichTextEditor.setReadOnlyIfApplicable.bind(null, editor),50);
             } );
         }
         function ckeditorClickEvent(event)

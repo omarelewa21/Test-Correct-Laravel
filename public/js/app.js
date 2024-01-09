@@ -7967,7 +7967,7 @@ document.addEventListener("alpine:init", function () {
         this.value = target.firstElementChild.dataset.id;
         this.$root.dataset.hasValue = this.value !== null;
         if ((oldValue === null || oldValue === void 0 ? void 0 : oldValue.toString()) !== ((_this$value = this.value) === null || _this$value === void 0 ? void 0 : _this$value.toString()) || allowClickingCurrentValue) {
-          if ([null, 'null'].includes(this.$root.dataset.toggleValue)) {
+          if ([null, "null"].includes(this.$root.dataset.toggleValue)) {
             this.$dispatch("multi-slider-toggle-value-updated", {
               value: target.firstElementChild.dataset.id,
               firstTick: oldValue === null
@@ -10174,19 +10174,22 @@ document.addEventListener("alpine:init", function () {
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("coLearningStudent", function () {
     return {
       goToPreviousAnswerRating: function goToPreviousAnswerRating() {
-        var _this75 = this;
+        var _arguments4 = arguments,
+          _this75 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee29() {
+          var clearCkeditorProperties;
           return _regeneratorRuntime().wrap(function _callee29$(_context29) {
             while (1) switch (_context29.prev = _context29.next) {
               case 0:
-                if (!_this75.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                  _context29.next = 2;
+                clearCkeditorProperties = _arguments4.length > 0 && _arguments4[0] !== undefined ? _arguments4[0] : false;
+                if (_this75.canNavigate("goToPreviousAnswerRating", clearCkeditorProperties)) {
+                  _context29.next = 3;
                   break;
                 }
-                return _context29.abrupt("return", _this75.$store.answerFeedback.openConfirmationModal(_this75.$root, "goToPreviousAnswerRating"));
-              case 2:
-                _this75.$wire.goToPreviousAnswerRating();
+                return _context29.abrupt("return");
               case 3:
+                _this75.$wire.goToPreviousAnswerRating();
+              case 4:
               case "end":
                 return _context29.stop();
             }
@@ -10194,19 +10197,22 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       goToNextAnswerRating: function goToNextAnswerRating() {
-        var _this76 = this;
+        var _arguments5 = arguments,
+          _this76 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee30() {
+          var clearCkeditorProperties;
           return _regeneratorRuntime().wrap(function _callee30$(_context30) {
             while (1) switch (_context30.prev = _context30.next) {
               case 0:
-                if (!_this76.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                  _context30.next = 2;
+                clearCkeditorProperties = _arguments5.length > 0 && _arguments5[0] !== undefined ? _arguments5[0] : false;
+                if (_this76.canNavigate("goToNextAnswerRating", clearCkeditorProperties)) {
+                  _context30.next = 3;
                   break;
                 }
-                return _context30.abrupt("return", _this76.$store.answerFeedback.openConfirmationModal(_this76.$root, "goToNextAnswerRating"));
-              case 2:
-                _this76.$wire.goToNextAnswerRating();
+                return _context30.abrupt("return");
               case 3:
+                _this76.$wire.goToNextAnswerRating();
+              case 4:
               case "end":
                 return _context30.stop();
             }
@@ -10214,19 +10220,22 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       goToPreviousQuestion: function goToPreviousQuestion() {
-        var _this77 = this;
+        var _arguments6 = arguments,
+          _this77 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee31() {
+          var clearCkeditorProperties;
           return _regeneratorRuntime().wrap(function _callee31$(_context31) {
             while (1) switch (_context31.prev = _context31.next) {
               case 0:
-                if (!_this77.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                  _context31.next = 2;
+                clearCkeditorProperties = _arguments6.length > 0 && _arguments6[0] !== undefined ? _arguments6[0] : false;
+                if (_this77.canNavigate("goToPreviousQuestion", clearCkeditorProperties)) {
+                  _context31.next = 3;
                   break;
                 }
-                return _context31.abrupt("return", _this77.$store.answerFeedback.openConfirmationModal(_this77.$root, "goToPreviousQuestion"));
-              case 2:
-                _this77.$wire.goToPreviousQuestion();
+                return _context31.abrupt("return");
               case 3:
+                _this77.$wire.goToPreviousQuestion();
+              case 4:
               case "end":
                 return _context31.stop();
             }
@@ -10234,19 +10243,22 @@ document.addEventListener("alpine:init", function () {
         }))();
       },
       goToNextQuestion: function goToNextQuestion() {
-        var _this78 = this;
+        var _arguments7 = arguments,
+          _this78 = this;
         return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee32() {
+          var clearCkeditorProperties;
           return _regeneratorRuntime().wrap(function _callee32$(_context32) {
             while (1) switch (_context32.prev = _context32.next) {
               case 0:
-                if (!_this78.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
-                  _context32.next = 2;
+                clearCkeditorProperties = _arguments7.length > 0 && _arguments7[0] !== undefined ? _arguments7[0] : false;
+                if (_this78.canNavigate("goToNextQuestion", clearCkeditorProperties)) {
+                  _context32.next = 3;
                   break;
                 }
-                return _context32.abrupt("return", _this78.$store.answerFeedback.openConfirmationModal(_this78.$root, "goToNextQuestion"));
-              case 2:
-                _this78.$wire.goToNextQuestion();
+                return _context32.abrupt("return");
               case 3:
+                _this78.$wire.goToNextQuestion();
+              case 4:
               case "end":
                 return _context32.stop();
             }
@@ -10280,6 +10292,17 @@ document.addEventListener("alpine:init", function () {
         if (event.hasOwnProperty("identifier")) {
           this.$wire.toggleValueUpdated(event.identifier, event.state, event.value);
         }
+      },
+      canNavigate: function canNavigate(method) {
+        var clearCkeditorProperties = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+        if (this.$store.answerFeedback.feedbackBeingEditedOrCreated()) {
+          this.$store.answerFeedback.openConfirmationModal(this.$root, method);
+          return false;
+        }
+        if (clearCkeditorProperties && document.querySelector(".ck-body-wrapper")) {
+          document.querySelector(".ck-body-wrapper").innerHTML = "";
+        }
+        return true;
       }
     };
   });
@@ -11449,7 +11472,7 @@ document.addEventListener("alpine:init", function () {
       maxRating: function maxRating() {
         return {
           rating: Math.max.apply(Math, _toConsumableArray(this.getRatings())),
-          locator: '.max-rating'
+          locator: ".max-rating"
         };
       },
       avgRating: function avgRating() {
@@ -11459,13 +11482,13 @@ document.addEventListener("alpine:init", function () {
         }, 0);
         return {
           rating: sum / ratings.length,
-          locator: '.avg-rating'
+          locator: ".avg-rating"
         };
       },
       minRating: function minRating() {
         return {
           rating: Math.min.apply(Math, _toConsumableArray(this.getRatings())),
-          locator: '.min-rating'
+          locator: ".min-rating"
         };
       }
     };
@@ -11473,9 +11496,9 @@ document.addEventListener("alpine:init", function () {
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("ckEditorInlineImageUpload", function (errorTranslation) {
     return {
       allowedMimeTypes: {
-        jpeg: 'image/jpeg',
-        png: 'image/png',
-        gif: 'image/gif'
+        jpeg: "image/jpeg",
+        png: "image/png",
+        gif: "image/gif"
       },
       /**
        * Check if the dropped file is an allowed image,
@@ -11494,7 +11517,7 @@ document.addEventListener("alpine:init", function () {
                 mimeType = key;
               }
             }
-            Notify.notify(errorTranslation + mimeType, 'error');
+            Notify.notify(errorTranslation + mimeType, "error");
           }
         }
         ;
@@ -11538,7 +11561,7 @@ document.addEventListener("alpine:init", function () {
             window.rsConf.cb.ui.stop();
             window.rsConf.general.userDefinedVoice = links[i].dataset.rsItemval.substring(6);
             window.rsConf.general.userDefinedLang = links[i].dataset.rsItemval.substring(0, 5);
-            document.querySelector('.rsbtn_play').click();
+            document.querySelector(".rsbtn_play").click();
             this.currentLanguage = languageCode;
             break;
           }
@@ -11578,20 +11601,20 @@ document.addEventListener("alpine:init", function () {
           childList: true,
           subtree: true
         };
-        observer.observe(document.getElementById('readspeaker_button1'), config);
+        observer.observe(document.getElementById("readspeaker_button1"), config);
       }
     };
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("markBadge", function (initialRating) {
     return {
       markBadgeRating: initialRating,
-      displayMarkBadgeRating: '?',
+      displayMarkBadgeRating: "?",
       color: null,
       init: function init() {
         this.setDisplayRating();
       },
       hasValue: function hasValue() {
-        return ![null, '', 0, 0.0].includes(this.markBadgeRating);
+        return ![null, "", 0, 0.0].includes(this.markBadgeRating);
       },
       setNewRating: function setNewRating(rating) {
         this.markBadgeRating = rating;
@@ -11599,16 +11622,16 @@ document.addEventListener("alpine:init", function () {
       },
       setDisplayRating: function setDisplayRating() {
         if (!this.hasValue()) {
-          if (this.displayMarkBadgeRating !== '?') {
-            this.displayMarkBadgeRating = '?';
+          if (this.displayMarkBadgeRating !== "?") {
+            this.displayMarkBadgeRating = "?";
           }
           return;
         }
-        if (typeof this.markBadgeRating === 'string') {
+        if (typeof this.markBadgeRating === "string") {
           this.markBadgeRating = parseFloat(this.markBadgeRating);
         }
-        if (this.markBadgeRating.toString().includes('.')) {
-          this.displayMarkBadgeRating = this.markBadgeRating.toFixed(1).replace('.', ',');
+        if (this.markBadgeRating.toString().includes(".")) {
+          this.displayMarkBadgeRating = this.markBadgeRating.toFixed(1).replace(".", ",");
         } else {
           this.displayMarkBadgeRating = this.markBadgeRating.toString();
         }
@@ -12646,7 +12669,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "662d128370816e2bbb66",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });
@@ -20354,11 +20377,11 @@ window.RichTextEditor = {
   },
   initSelectionCMS: function initSelectionCMS(parameterBag) {
     var _this2 = this;
-    parameterBag.pluginsToAdd = ['Selection'];
+    parameterBag.pluginsToAdd = ["Selection"];
     return this.createTeacherEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
       WebspellcheckerTlc.handleSpellCheckerOnOff(editor, parameterBag.isSpellCheckerEnabled);
-      _this2.setReadOnly(editor);
+      _this2.setReadOnlyIfApplicable(editor);
       window.editor = editor;
     });
   },
@@ -20368,7 +20391,7 @@ window.RichTextEditor = {
     return this.createTeacherEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
       WebspellcheckerTlc.handleSpellCheckerOnOff(editor, parameterBag.isSpellCheckerEnabled);
-      _this3.setReadOnly(editor);
+      _this3.setReadOnlyIfApplicable(editor);
       window.editor = editor;
     });
   },
@@ -20376,10 +20399,10 @@ window.RichTextEditor = {
     var _this4 = this;
     return this.createStudentEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
-      editor.ui.view.element.setAttribute('spellcheck', false);
+      editor.ui.view.element.setAttribute("spellcheck", false);
       _this4.setupWordCounter(editor, parameterBag);
       if (typeof ReadspeakerTlc != "undefined") {
-        editor.editing.view.document.on('change:isFocused', function (evt, data, isFocused) {
+        editor.editing.view.document.on("change:isFocused", function (evt, data, isFocused) {
           isFocused ? rsTlcEvents.handleCkeditorFocusForReadspeaker(editor.sourceElement.nextElementSibling, parameterBag.questionId, parameterBag.editorId) : rsTlcEvents.handleCkeditorBlurForReadspeaker(editor.sourceElement.nextElementSibling, parameterBag.questionId, parameterBag.editorId);
         });
         ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, parameterBag.questionId, parameterBag.editorId);
@@ -20404,7 +20427,7 @@ window.RichTextEditor = {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
       WebspellcheckerTlc.handleSpellCheckerOnOff(editor, parameterBag.isSpellCheckerEnabled);
       _this6.setupWordCounter(editor, parameterBag);
-      _this6.setReadOnly(editor);
+      _this6.setReadOnlyIfApplicable(editor);
     });
   },
   initAssessmentFeedback: function initAssessmentFeedback(parameterBag) {
@@ -20424,7 +20447,7 @@ window.RichTextEditor = {
               // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
 
               editor.editing.view.change(function (writer) {
-                writer.setStyle('height', '150px', editor.editing.view.document.getRoot());
+                writer.setStyle("height", "150px", editor.editing.view.document.getRoot());
               });
             });
           case 4:
@@ -20444,20 +20467,20 @@ window.RichTextEditor = {
     this.setAnswerFeedbackItemsToRemove(parameterBag);
     parameterBag.shouldNotGroupWhenFull = true;
     return this.createTeacherEditor(parameterBag, function (editor) {
-      window.addEventListener('answer-feedback-focus-feedback-editor', function () {
+      window.addEventListener("answer-feedback-focus-feedback-editor", function () {
         setTimeout(function () {
           editor.focus();
         }, 100);
       });
       editor.editing.view.change(function (writer) {
-        writer.setStyle('height', '150px', editor.editing.view.document.getRoot());
+        writer.setStyle("height", "150px", editor.editing.view.document.getRoot());
       });
-      editor.model.document.on('change:data', function (event, data, test) {
-        if (editor.getData() === '' || editor.getData() === '<p></p>') {
-          Alpine.store('answerFeedback').creatingNewComment = false;
+      editor.model.document.on("change:data", function (event, data, test) {
+        if (editor.getData() === "" || editor.getData() === "<p></p>") {
+          Alpine.store("answerFeedback").creatingNewComment = false;
           return;
         }
-        Alpine.store('answerFeedback').creatingNewComment = true;
+        Alpine.store("answerFeedback").creatingNewComment = true;
       });
       // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
     });
@@ -20466,7 +20489,7 @@ window.RichTextEditor = {
   initAnswerEditorWithComments: function initAnswerEditorWithComments(parameterBag) {
     var _this7 = this;
     parameterBag.enableCommentsPlugin = true;
-    parameterBag.wproofreaderActionItems = ['toggle'];
+    parameterBag.wproofreaderActionItems = ["toggle"];
     return this.createStudentEditor(parameterBag, function (editor) {
       WebspellcheckerTlc.lang(editor, parameterBag.lang);
       _this7.setupWordCounter(editor, parameterBag);
@@ -20477,9 +20500,9 @@ window.RichTextEditor = {
   },
   setMathChemTypeReadOnly: function setMathChemTypeReadOnly(editor) {
     try {
-      editor.plugins.get('MathType').stopListening();
+      editor.plugins.get("MathType").stopListening();
     } catch (e) {
-      if (String(e.name).includes('CKEditorError')) {
+      if (String(e.name).includes("CKEditorError")) {
         return;
       }
       throw e;
@@ -20488,36 +20511,36 @@ window.RichTextEditor = {
   setAnswerFeedbackEventListeners: function setAnswerFeedbackEventListeners(editor) {
     var focusIsInCommentEditor = function focusIsInCommentEditor() {
       var _window$getSelection$, _window$getSelection$2;
-      return ((_window$getSelection$ = window.getSelection().focusNode) === null || _window$getSelection$ === void 0 ? void 0 : (_window$getSelection$2 = _window$getSelection$.parentElement) === null || _window$getSelection$2 === void 0 ? void 0 : _window$getSelection$2.closest('.comment-editor')) !== null;
+      return ((_window$getSelection$ = window.getSelection().focusNode) === null || _window$getSelection$ === void 0 ? void 0 : (_window$getSelection$2 = _window$getSelection$.parentElement) === null || _window$getSelection$2 === void 0 ? void 0 : _window$getSelection$2.closest(".comment-editor")) !== null;
     };
     var selectionIsNotEmpty = function selectionIsNotEmpty() {
-      return window.getSelection().toString() !== '';
+      return window.getSelection().toString() !== "";
     };
-    document.addEventListener('mouseup', function (e) {
+    document.addEventListener("mouseup", function (e) {
       var _editor$plugins$get$g;
       if (!(focusIsInCommentEditor() && selectionIsNotEmpty())) {
         return;
       }
-      dispatchEvent(new CustomEvent('answer-feedback-drawer-tab-update', {
+      dispatchEvent(new CustomEvent("answer-feedback-drawer-tab-update", {
         detail: {
           tab: 2
         }
       }));
 
       //focus the create a comment editor
-      dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));
+      dispatchEvent(new CustomEvent("answer-feedback-focus-feedback-editor"));
 
       //remove the previous temporary thread if it exists
-      (_editor$plugins$get$g = editor.plugins.get('CommentsRepository').getCommentThread('new-comment-thread')) === null || _editor$plugins$get$g === void 0 ? void 0 : _editor$plugins$get$g.remove();
+      (_editor$plugins$get$g = editor.plugins.get("CommentsRepository").getCommentThread("new-comment-thread")) === null || _editor$plugins$get$g === void 0 ? void 0 : _editor$plugins$get$g.remove();
       setTimeout(function () {
         //add a temporary thread with a specific name that can be found by JS
-        editor.execute('addCommentThread', {
-          threadId: 'new-comment-thread'
+        editor.execute("addCommentThread", {
+          threadId: "new-comment-thread"
         });
       }, 200);
     });
-    editor.plugins.get('CommentsRepository').on('addCommentThread', function (evt, data) {
-      if (data.threadId === 'new-comment-thread') {
+    editor.plugins.get("CommentsRepository").on("addCommentThread", function (evt, data) {
+      if (data.threadId === "new-comment-thread") {
         return;
       }
       setTimeout(function () {
@@ -20693,21 +20716,25 @@ window.RichTextEditor = {
     }, 300);
     textarea.dispatchEvent(new Event("input"));
   },
-  /** @TODO: this method should be refactored to setReadOnlyIfApplicable  but it has a reference in readspeaker_tlc.js which i dont want to test 1 day before deployment.*/
-  setReadOnly: function setReadOnly(editor) {
-    if (editor.sourceElement.hasAttribute("disabled")) {
-      editor.isReadOnly = true;
-      var editables = editor.ui.view.editable.element.querySelectorAll("[contenteditable=true]");
-      editables.forEach(function (element) {
-        element.setAttribute("contenteditable", false);
-      });
+  setReadOnlyIfApplicable: function setReadOnlyIfApplicable(editor) {
+    if (!editor.sourceElement.hasAttribute("disabled")) {
+      return;
     }
+    editor.isReadOnly = true;
+    var editables = editor.ui.view.editable.element.querySelectorAll("[contenteditable=true]");
+    editables.forEach(function (element) {
+      element.setAttribute("contenteditable", false);
+    });
+  },
+  setReadOnly: function setReadOnly(editor) {
+    editor.sourceElement.setAttribute("disabled", "true");
+    this.setReadOnlyIfApplicable();
   },
   setCommentsOnly: function setCommentsOnly(editor) {
     //disable all commands except for comments and webspellchecker
     var input = editor.commands._commands.forEach(function (command, name) {
-      if (!['addCommentThread', 'undo', 'redo', 'WProofreaderToggle', 'WProofreaderSettings'].includes(name)) {
-        command.forceDisabled('commentsOnly');
+      if (!["addCommentThread", "undo", "redo", "WProofreaderToggle", "WProofreaderSettings"].includes(name)) {
+        command.forceDisabled("commentsOnly");
       }
     });
 
@@ -20745,7 +20772,7 @@ window.RichTextEditor = {
       if (_this8.hasNoWordLimit(editor)) return;
       var wc = editor.plugins.get("WordCount");
       if (wc.words > editor.maxWords) {
-        editor.execute('undo');
+        editor.execute("undo");
       }
       _this8.handleInputWithMaxWords(editor, event);
     });
@@ -20810,7 +20837,7 @@ window.RichTextEditor = {
       }, 1);
       editor.disableSpacers = editor.prePasteWc >= maxWords;
       if (editor.prePasteWc < maxWords) {
-        input.clearForceDisabled('maxword-lock');
+        input.clearForceDisabled("maxword-lock");
       }
     }
   },
@@ -20824,7 +20851,7 @@ window.RichTextEditor = {
       var wordCount = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
       if (selectedWordCount !== wordCount) {
         selectedWordCount = wordCount;
-        dispatchEvent(new CustomEvent('selected-word-count', {
+        dispatchEvent(new CustomEvent("selected-word-count", {
           detail: {
             wordCount: selectedWordCount,
             editorId: editor.sourceElement.id
@@ -20832,7 +20859,7 @@ window.RichTextEditor = {
         }));
       }
     };
-    selection.on('change:range', function () {
+    selection.on("change:range", function () {
       if (selection.isCollapsed) return fireEventIfWordCountChanged(); // No selection.
 
       var range = selection.getFirstRange();
@@ -20842,9 +20869,9 @@ window.RichTextEditor = {
       try {
         for (_iterator.s(); !(_step = _iterator.n()).done;) {
           var item = _step.value;
-          if (!item.is('textProxy')) continue;
-          wordCount += item.data.split(' ').filter(function (word) {
-            return word !== '';
+          if (!item.is("textProxy")) continue;
+          wordCount += item.data.split(" ").filter(function (word) {
+            return word !== "";
           }).length;
         }
       } catch (err) {
@@ -20854,7 +20881,7 @@ window.RichTextEditor = {
       }
       fireEventIfWordCountChanged(wordCount);
     });
-    editor.editing.view.document.on('blur', function () {
+    editor.editing.view.document.on("blur", function () {
       fireEventIfWordCountChanged();
     });
   },
@@ -20898,16 +20925,16 @@ window.RichTextEditor = {
           case 8:
             _context2.prev = 8;
             _context2.t0 = _context2["catch"](2);
-            console.warn('An issue occurred while destroying an existing editor.');
+            console.warn("An issue occurred while destroying an existing editor.");
           case 11:
             return _context2.abrupt("return", ClassicEditor.create(document.getElementById(editorId), config).then(function (editor) {
               ClassicEditors[editorId] = editor;
               if (typeof resolveCallback === "function") {
                 resolveCallback(editor);
               }
-              editor.editing.view.on('change', function (event, data) {
+              editor.editing.view.on("change", function (event, data) {
                 //remove the aria-label from the root element for readspeaker
-                editor.editing.view.document.getRoot()._removeAttribute('aria-label');
+                editor.editing.view.document.getRoot()._removeAttribute("aria-label");
               });
 
               // editor.ui.view.editableElement.tabIndex = -1;
@@ -20964,9 +20991,9 @@ window.RichTextEditor = {
   setAnswerFeedbackItemsToRemove: function setAnswerFeedbackItemsToRemove(parameterBag) {
     parameterBag.removeItems = {
       plugins: ["FontFamily", "FontSize", "FontBackgroundColor", "Heading", "Indent", "FontColor", "RemoveFormat", "PasteFromOffice", "WordCount", "Completion", "Selection"],
-      toolbar: ["outdent", "indent", "completion", "selection", "fontFamily", "fontBackgroundColor", "fontSize", "fontColor", "heading", "removeFormat", "specialCharacters", "insertTable", "imageUpload", 'underline', 'strikethrough', 'subscript', 'superscript', 'bulletedList', 'numberedList', 'blockQuote']
+      toolbar: ["outdent", "indent", "completion", "selection", "fontFamily", "fontBackgroundColor", "fontSize", "fontColor", "heading", "removeFormat", "specialCharacters", "insertTable", "imageUpload", "underline", "strikethrough", "subscript", "superscript", "bulletedList", "numberedList", "blockQuote"]
     };
-    parameterBag.toolbar = ["undo", "redo", "|", "bold", "italic", 'MathType', 'ChemType', 'wproofreader'];
+    parameterBag.toolbar = ["undo", "redo", "|", "bold", "italic", "MathType", "ChemType", "wproofreader"];
   },
   getPlainText: function getPlainText(editor) {
     return (0,_ckeditor5_node_modules_ckeditor_ckeditor5_word_count_src_utils_js__WEBPACK_IMPORTED_MODULE_0__.modelElementToPlainText)(editor.model.document.getRoot());
