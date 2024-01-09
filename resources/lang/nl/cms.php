@@ -314,4 +314,6 @@ return [
     'completion_illegal_characters'                                                                        => 'U heeft tekens gebruikt die hier niet mogelijk zijn',
     'completion_one_selection'                                                                             => 'U kunt niet slechts één selectie hebben, u moet in elk haakje ten minste één extra selectie toevoegen.',
     'relation-question-confirm-adding-text'                                                                => 'De relatievraag staat in beta. Dit betekent dat toetsen met deze vraag tijdelijk ontoegankelijk kunnen zijn, overal in Test-Correct. Gebruik dit vraagtype nog niet in belangrijke toetsen.',
+    'Alle correcte antwoorden worden automatisch goed gerekend'                                            => 'Alle correcte antwoorden worden automatisch goed gerekend',
+    'relaties'                                                                                             => 'relaties',
 ];

@@ -80,7 +80,8 @@ class ThiemeMeulenhoffItemBankSeeder extends Seeder
     {
         $school_location = \tcCore\SchoolLocation::find(1);
         ThiemeMeulenhoffService::getAllFeatureSettings()->each(function ($setting) use ($school_location) {
-            $school_location->$setting = true;
+            $value = $setting->value;
+            $school_location->$value = true;
         });
         $school_location->save();
     }

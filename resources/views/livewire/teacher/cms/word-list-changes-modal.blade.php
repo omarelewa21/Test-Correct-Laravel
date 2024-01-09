@@ -46,9 +46,9 @@
             <template x-teleport=".footer-numbers">
                 <div class="flex items-center gap-4 bold">
                     <div class="flex items-center">
-                        <span x-text="globalSelectedWordCount"></span>
+                        <span x-text="globalSelectedRelationCount"></span>
                         <span>/</span>
-                        <span x-text="globalWordCount"></span>
+                        <span x-text="globalRelationCount"></span>
                         <span class="ml-1 font-normal">@lang('cms.woorden')</span>
                     </div>
                     <div class="flex gap-1">

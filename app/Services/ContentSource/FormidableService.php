@@ -77,9 +77,4 @@ class FormidableService extends ContentSourceService
     {
         return User::where('username', config('custom.formidable_school_author'))->first();
     }
-
-    protected static function wordListsAvailableForUser(User $user): bool
-    {
-        return true;
-    }
 }

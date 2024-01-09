@@ -101,7 +101,7 @@
         </div>
 
         <div class="flex flex-col w-full note items-center justify-center text-center">
-            <span class="text-sm mt-2">{{ $this->cmsPropertyBag['word_count'] }} @lang('cms.woorden')</span>
+            <span class="text-sm mt-2">{{ $this->cmsPropertyBag['relation_count'] }} @lang('cms.relaties')</span>
 
             <x-button.primary class="w-full mt-4 mb-2"
                               wire:click="openCompileListsModal"

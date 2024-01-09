@@ -138,9 +138,4 @@ class ThiemeMeulenhoffService extends ContentSourceService
                 self::getBuilderWithAllowedSubjectIds($forUser)
             );
     }
-
-    protected static function wordListsAvailableForUser(User $user): bool
-    {
-        return true;
-    }
 }

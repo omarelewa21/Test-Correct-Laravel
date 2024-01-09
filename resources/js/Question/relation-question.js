@@ -310,8 +310,8 @@ document.addEventListener("alpine:init", () => {
         cols: [],
         rows: [],
         list,
-        wordCount: 0,
-        selectedWordCount: 0,
+        relationCount: 0,
+        selectedRelationCount: 0,
         errorState: false,
         mutation: 1,
         errorMessages: {},
@@ -432,21 +432,23 @@ document.addEventListener("alpine:init", () => {
             });
         },
         countWords() {
-            const oldWordCount = this.wordCount;
-            const oldSelectedWordCount = this.selectedWordCount;
-            this.wordCount = 0;
-            this.selectedWordCount = 0;
+            const oldRelationCount = this.relationCount;
+            const oldSelectedRelationCount = this.selectedRelationCount;
+            this.relationCount = 0;
+            this.selectedRelationCount = 0;
 
             this.rows.forEach((row, key) => {
-                const rowCount = this.wordsInRow(row);
-                this.wordCount += rowCount;
+                if(!this.wordsInRow(row)) {
+                    return
+                }
+                this.relationCount++;
                 if (this.$root.querySelector(`.word-row.row-${key} .row-checkmark input:checked`)) {
-                    this.selectedWordCount += rowCount;
+                    this.selectedRelationCount++;
                 }
             });
 
-            this.wordCountChanges(oldWordCount, this.wordCount);
-            this.selectedWordCountChanges(oldSelectedWordCount, this.selectedWordCount);
+            this.relationCountChanges(oldRelationCount, this.relationCount);
+            this.selectedRelationCountChanges(oldSelectedRelationCount, this.selectedRelationCount);
         },
         wordsUpdated(word, rowIndex, columnIndex) {
             if (this.errorState) {
@@ -774,8 +776,8 @@ document.addEventListener("alpine:init", () => {
 
     Alpine.data("compileWordListContainer", (wordLists) => ({
         wordLists,
-        globalWordCount: 0,
-        globalSelectedWordCount: 0,
+        globalRelationCount: 0,
+        globalSelectedRelationCount: 0,
         compiling: false,
         showAddListModal: false,
         init() {
@@ -783,11 +785,11 @@ document.addEventListener("alpine:init", () => {
                 this.$nextTick(() => this.addWordList());
             }
         },
-        wordCountChanges(old, newCount) {
-            this.globalWordCount = this.handleGlobalChanges(this.globalWordCount, old, newCount);
+        relationCountChanges(old, newCount) {
+            this.globalRelationCount = this.handleGlobalChanges(this.globalRelationCount, old, newCount);
         },
-        selectedWordCountChanges(old, newCount) {
-            this.globalSelectedWordCount = this.handleGlobalChanges(this.globalSelectedWordCount, old, newCount);
+        selectedRelationCountChanges(old, newCount) {
+            this.globalSelectedRelationCount = this.handleGlobalChanges(this.globalSelectedRelationCount, old, newCount);
         },
         handleGlobalChanges(property, old, newCount) {
             property -= old;

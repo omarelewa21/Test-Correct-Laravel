@@ -25,7 +25,7 @@
     <div class="flex w-full justify-between text-base items-center">
         <span>{{ $wordList->user->name_full }}</span>
         <div class="flex gap-4 items-center">
-            <span class="note text-sm">{{ $wordList->words->count() }} @lang('cms.woorden')</span>
+            <span class="note text-sm">{{ $wordList->rows()->count() }} @lang('cms.relaties')</span>
 
             @if($addable)
                 @if($used)

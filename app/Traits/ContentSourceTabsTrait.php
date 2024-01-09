@@ -8,6 +8,7 @@ use tcCore\BaseSubject;
 use tcCore\EducationLevel;
 use tcCore\Http\Helpers\ContentSourceHelper;
 use tcCore\Http\Livewire\Teacher\WordListsOverview;
+use tcCore\Http\Livewire\Teacher\WordsOverview;
 use tcCore\Services\ContentSourceFactory;
 
 trait ContentSourceTabsTrait
@@ -163,6 +164,7 @@ trait ContentSourceTabsTrait
     {
         return match (get_class($this)) {
             WordListsOverview::class => 'wordList',
+            WordsOverview::class     => 'word',
             default                  => 'test',
         };
     }

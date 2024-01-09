@@ -78,9 +78,4 @@ class OlympiadeService extends ContentSourceService
     {
         return User::where('username', config('custom.olympiade_school_author'))->first();
     }
-
-    protected static function wordListsAvailableForUser(User $user): bool
-    {
-        return true;
-    }
 }

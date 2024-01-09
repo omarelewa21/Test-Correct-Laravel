@@ -16,16 +16,14 @@ abstract class RelationQuestion extends StudentPlayerQuestion
 
     public $viewStruct;
 
-    public function mount()
+    public function mount(): void
     {
-
         $this->setAnswerStruct();
         $this->getWords();
-
         $this->createViewKeyStruct();
     }
 
-    public function hydrate()
+    public function hydrate(): void
     {
         //Livewire resets the order every time the page is refreshed, so we need to set it again
         $this->answerStruct = collect($this->answerStructOrder)
@@ -60,7 +58,7 @@ abstract class RelationQuestion extends StudentPlayerQuestion
      * | 2 | 5 |
      * | 3 | - |
      */
-    protected function createViewKeyStruct()
+    protected function createViewKeyStruct(): void
     {
         $this->viewStruct = collect($this->answerStruct)
             ->keys()
@@ -80,7 +78,7 @@ abstract class RelationQuestion extends StudentPlayerQuestion
         })->map->toArray();
     }
 
-    protected function getWords()
+    protected function getWords(): void
     {
         $this->words = Word::whereIn('id', array_keys($this->answerStruct))->get()->keyBy('id')->toArray();
     }

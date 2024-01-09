@@ -15,7 +15,7 @@
     <div class="flex gap-2 items-center"
          x-bind:class="{'rotate-svg-90': expanded}"
     >
-        <span class="note text-sm"><span x-text="wordCount"></span> @lang('cms.woorden')</span>
+        <span class="note text-sm"><span x-text="relationCount"></span> @lang('cms.relaties')</span>
         <div class="group cursor-pointer">
             <x-button.collapse-chevron x-on:click="expanded = !expanded" />
         </div>

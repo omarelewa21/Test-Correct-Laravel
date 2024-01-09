@@ -386,8 +386,7 @@
 
 @media screen and (min-width: 1024px) {
     /*  880 question content (2 * 440px)
-        12 right column margin-left
-        80 content section padding (2 * 80px)
+        80 content section padding (2 * 40px)
         64 page X margin (2 * 32px)
      */
     .question-relation-question-grid:first-of-type {

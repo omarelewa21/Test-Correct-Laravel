@@ -742,7 +742,7 @@ document.addEventListener("alpine:init", () => {
             return scrollToSettings;
         }
     }));
-    Alpine.data("choices", (wireModel, multiple, options, config, filterContainer) => ({
+    Alpine.data("choices", (wireModel, multiple, options, config, filterContainer, initWidth) => ({
         multiple: multiple,
         value: wireModel,
         options: options,
@@ -751,6 +751,7 @@ document.addEventListener("alpine:init", () => {
         activeFiltersContainer: null,
         choices: null,
         activeGroups: [],
+        initWidth: initWidth,
         init() {
             // some new fancy way of setting a value when undefined
             window.registeredEventHandlers ??= [];
@@ -1009,12 +1010,15 @@ document.addEventListener("alpine:init", () => {
         },
         handleContainerWidth() {
             if (this.$root.classList.contains("super")) return;
-            let helper = this.$root.querySelector("#text-length-helper");
-            if (!helper) return;
+            const helper = this.$root.querySelector("#text-length-helper");
+            if (!helper || helper.offsetWidth === 0) {
+                return;
+            }
             let minWidth = helper.offsetWidth;
-            this.$root.querySelector("input.choices__input[type=\"search\"]").style.width = minWidth + 16 + "px";
-            this.$root.querySelector("input.choices__input[type=\"search\"]").style.minWidth = "auto";
-        }
+            const selectBox = this.$root.querySelector("input.choices__input[type=\"search\"]")
+            selectBox.style.width = minWidth + 16 + "px";
+            selectBox.style.minWidth = "auto";
+        },
     }));
 
     Alpine.data("analysesSubjectsGraph", (modelId) => ({
@@ -4302,6 +4306,7 @@ document.addEventListener("alpine:init", () => {
         }
     }));
     Alpine.data("constructionDirector", () => ({
+        buttonActionCaught: false,
         init() {
             this.$store.cms.loading = false;
         },
@@ -4361,6 +4366,13 @@ document.addEventListener("alpine:init", () => {
         },
         async addQuestionFromDirty(params) {
             return await this.constructor.call("addQuestionFromDirty", params);
+        },
+        async headerButtonEventCapture(event) {
+            /* By not awaiting the first call, they get bundled */
+            this.forceSync();
+            await this.constructor.call('saveIfDirty');
+
+            event.target.closest('.test-action')?._x_dataStack[0].handle();
         }
     }));
 
@@ -4756,6 +4768,11 @@ document.addEventListener("alpine:init", () => {
             this.clickAction()
         }
     }));
+    Alpine.data("testAction", (callback) => ({
+        handle() {
+            callback();
+        }
+    }));
 
     Alpine.directive("global", function(el, { expression }) {
         let f = new Function("_", "$data", "_." + expression + " = $data;return;");
@@ -4906,7 +4923,7 @@ document.addEventListener("alpine:init", () => {
     });
     Alpine.store('sidePanel', {
         reopenModal: false
-    })
+    });
 
 });
 

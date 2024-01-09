@@ -17,5 +17,4 @@ class RelationQuestion extends AbstractRelationQuestion
     {
         return view('livewire.student-player.preview.relation-question');
     }
-
 }

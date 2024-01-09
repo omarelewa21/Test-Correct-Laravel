@@ -40,7 +40,7 @@
          data-model-name="{{ $attributes->wire('model')->value }}"
          x-on:mouseenter="$el.querySelector('svg').classList.add('primary');"
          x-on:mouseleave="$el.querySelector('svg').classList.remove('primary');"
-         x-on:reset-width="handleContainerWidth"
+         x-on:reset-width="console.log('hallo'); handleContainerWidth()"
          {{ $attributes->except(['class', 'wire:model', 'wire:key', 'id']) }}
     >
         <select x-ref="select" :multiple="multiple" placeholder="{{ $placeholderText }}"
