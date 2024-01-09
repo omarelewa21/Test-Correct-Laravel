@@ -247,7 +247,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function getShowFastScoringProperty(): bool
     {
-        return $this->currentQuestion->isDiscussionTypeOpen;
+        return $this->currentQuestion->isDiscussionTypeOpen && !$this->currentQuestion->isType('Relation');
     }
 
     public function getShowScoreSliderProperty(): bool
