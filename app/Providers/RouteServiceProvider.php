@@ -320,11 +320,11 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         Route::model('word_list', 'tcCore\WordList', function () {
-            throw new RouteModelBindingNotFoundHttpException('Word list not found');
+            throw new RouteModelBindingNotFoundHttpException('Wordlist not found');
         });
 
         Route::model('word_list_word', 'tcCore\WordListWord', function () {
-            throw new RouteModelBindingNotFoundHttpException('Word list word not found');
+            throw new RouteModelBindingNotFoundHttpException('Wordlist word not found');
         });
 
         /**

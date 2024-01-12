@@ -53,7 +53,7 @@
                                   x-on:click="addList(newList, true); showHowToAddListModal = false"
                 >
                     <x-icon.plus />
-                    <span>Apart toevoegen</span>
+                    <span>@lang('cms.Apart toevoegen')</span>
                 </x-button.primary>
 
                 <x-button.cta size="md"
@@ -61,7 +61,7 @@
                               x-on:click="addList(newList); showHowToAddListModal = false"
                 >
                     <x-icon.plus />
-                    <span>Aan huidige toevoegen</span>
+                    <span>@lang('cms.Aan huidige toevoegen')</span>
                 </x-button.cta>
             </div>
         </div>

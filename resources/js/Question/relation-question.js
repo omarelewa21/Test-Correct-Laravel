@@ -194,7 +194,7 @@ class ListValidator {
 }
 
 document.addEventListener("alpine:init", () => {
-    Alpine.data("relationQuestionGrid", () => ({
+    Alpine.data("cmsRelationQuestionGrid", () => ({
         rows: [],
         selectedColumn: null,
         disabledColumns: [],
@@ -276,6 +276,7 @@ document.addEventListener("alpine:init", () => {
             this.rows = rows;
             this.mutation++;
             this.$nextTick(() => {
+                this.disabledColumns = [];
                 this.setDisabledColumns();
                 this.setActiveColumn();
             });
@@ -837,7 +838,6 @@ document.addEventListener("alpine:init", () => {
             components.forEach(component => {
                 let validator = component.validate();
                 if (!validator.passed) {
-                    console.log(validator);
                     failedValidation = true;
                 }
             });

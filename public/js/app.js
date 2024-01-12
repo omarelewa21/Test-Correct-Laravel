@@ -6581,7 +6581,7 @@ var ListValidator = /*#__PURE__*/function () {
   return ListValidator;
 }();
 document.addEventListener("alpine:init", function () {
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("relationQuestionGrid", function () {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("cmsRelationQuestionGrid", function () {
     return {
       rows: [],
       selectedColumn: null,
@@ -6690,6 +6690,7 @@ document.addEventListener("alpine:init", function () {
         this.rows = rows;
         this.mutation++;
         this.$nextTick(function () {
+          _this11.disabledColumns = [];
           _this11.setDisabledColumns();
           _this11.setActiveColumn();
         });
@@ -7382,7 +7383,6 @@ document.addEventListener("alpine:init", function () {
         components.forEach(function (component) {
           var validator = component.validate();
           if (!validator.passed) {
-            console.log(validator);
             failedValidation = true;
           }
         });
