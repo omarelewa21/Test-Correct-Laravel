@@ -9284,7 +9284,7 @@ document.addEventListener("alpine:init", function () {
             });
             return;
           }
-          ;
+
           /* dispatch with a static (question score) value, not value/key of button-option, only works with true/false  */
           var state = 'off';
           switch (parseFloat(this.value)) {
@@ -10356,7 +10356,7 @@ document.addEventListener("alpine:init", function () {
       halfPoints: halfPoints,
       disabled: disabled,
       skipSync: false,
-      persistantScore: null,
+      persistentScore: null,
       inputBox: null,
       focusInput: focusInput,
       continuousSlider: continuousSlider,
@@ -10442,7 +10442,7 @@ document.addEventListener("alpine:init", function () {
           if (value <= _this58.minScore) {
             _this58.score = value = _this58.minScore;
           }
-          _this58.score = value = _this58.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
+          _this58.score = _this58.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
           _this58.updateContinuousSlider();
         });
         if (focusInput) {
@@ -10453,7 +10453,7 @@ document.addEventListener("alpine:init", function () {
         this.bars = this.maxScore;
         if (this.halfPoints) {
           this.halfTotal = this.hasMaxDecimalScoreWithHalfPoint();
-          this.bars = this.maxScore / 0.5;
+          this.bars = this.maxScore * 2;
         }
         if (this.usedSliders && (_this$$root$dataset = this.$root.dataset) !== null && _this$$root$dataset !== void 0 && _this$$root$dataset.sliderKey) {
           var _this$$root$dataset2;
