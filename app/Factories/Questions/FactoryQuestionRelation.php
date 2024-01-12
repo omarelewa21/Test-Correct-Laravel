@@ -27,7 +27,8 @@ class FactoryQuestionRelation extends FactoryQuestion
             parent::definition(),
             [
                 "shuffle"         => false,
-                "selection_count" => null
+                "selection_count" => null,
+                "decimal_score"   => true
             ]
         );
     }
@@ -79,5 +80,17 @@ class FactoryQuestionRelation extends FactoryQuestion
         $this->setProperties([
             'answers' => $answers
         ]);
+    }
+
+    protected function calculatedQuestionProperties(): array
+    {
+        return [
+            'score' => $this->calculateTotalScore(),
+        ];
+    }
+
+    protected function calculateTotalScore(): int
+    {
+        return count($this->questionProperties['answers']);
     }
 }

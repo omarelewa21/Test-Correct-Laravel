@@ -1610,7 +1610,7 @@ document.addEventListener("alpine:init", () => {
                     });
                     return;
                 }
-                ;
+
                 /* dispatch with a static (question score) value, not value/key of button-option, only works with true/false  */
                 let state = 'off';
                 switch(parseFloat(this.value)){
@@ -2435,7 +2435,7 @@ document.addEventListener("alpine:init", () => {
         decimalScore,
         disabled,
         skipSync: false,
-        persistantScore: null,
+        persistentScore: null,
         inputBox: null,
         focusInput,
         continuousSlider,
@@ -2525,7 +2525,7 @@ document.addEventListener("alpine:init", () => {
                 if(this.halfPoints && this.decimalScore) {
                     this.score = Number(Number(value).toFixed(1));
                 } else {
-                    this.score = value = this.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
+                    this.score = this.halfPoints ? Math.round(value * 2) / 2 : Math.round(value);
                 }
 
                 this.updateContinuousSlider();
@@ -2539,7 +2539,7 @@ document.addEventListener("alpine:init", () => {
             this.bars = this.maxScore;
             if (this.halfPoints) {
                 this.halfTotal = this.hasMaxDecimalScoreWithHalfPoint();
-                this.bars = this.maxScore / 0.5;
+                this.bars = this.maxScore * 2;
             }
 
             if (this.usedSliders && this.$root.dataset?.sliderKey) {

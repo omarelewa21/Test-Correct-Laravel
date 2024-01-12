@@ -1422,9 +1422,11 @@ class Question extends MtiBaseModel
         }
     }
 
-    public function isType($type): bool
+    public function isType(string $type, ...$types): bool
     {
-        return Str::of($this->type)->lower()->contains(Str::lower($type));
+        return collect($type)
+            ->concat($types)
+            ->contains(fn($t) => Str::of($this->type)->lower()->contains(Str::lower($t)));
     }
 
     public function isInTest($testUuid, $strict = false): bool

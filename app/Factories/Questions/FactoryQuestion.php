@@ -128,7 +128,7 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
         $this->handleAfterStoreActions();
     }
 
-    public function setScore(int $score)
+    public function setScore(int $score): static
     {
         $this->questionProperties['score'] = $score;
 
@@ -140,7 +140,7 @@ abstract class FactoryQuestion implements FactoryQuestionInterface
         return [];
     }
 
-    public function setTestModel(Test $testModel)
+    public function setTestModel(Test $testModel): static
     {
         $this->testModel = $testModel;
 

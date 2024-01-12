@@ -322,6 +322,7 @@
                         @if($this->isSettingsGeneralPropertyVisible('autoCheckIncorrectAnswer'))
                             <x-input.toggle-row-with-title wire:model="question.auto_check_incorrect_answer"
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('autoCheckIncorrectAnswer')"
+                                                           :tool-tip="__('cms.auto_check_incorrect_answer_tooltip_text')"
                             >
                                 <x-icon.autocheck/>
                                 <span @class(["bold", "disabled" => $this->isSettingsGeneralPropertyDisabled('autoCheckIncorrectAnswer')])>
