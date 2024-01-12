@@ -31,7 +31,7 @@
                                     @endforeach
                                 </div>
                             </x-dropzone>
-                            @if($counter %3 == 0)
+                            @if($counter %2 == 0)
                                 </div>
                                 <div class="flex-row-pdf space-x-5 classified">
                             @endif
