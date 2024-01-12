@@ -33,6 +33,8 @@
                                             :question-panel="$this->questionPanel"
                                             :answer-model-panel="$this->answerModelPanel"
                                             :show-correction-model="$this->getShowCorrectionModelProperty()"
+                                            :test-take="$this->getTestTake()"
+                                            :answer="$this->currentAnswer"
                                             class="mt-20"
         >
             <x-slot:subHeader>

@@ -50,7 +50,7 @@ class RelationQuestion extends QuestionComponent
     {
         $userIsAStudent = $this->answer && $this->answer->exists;
 
-        //Caroussel the same for all students
+        //Carousel the same for all students
         if($question->shuffleCarouselPerTestTake()) {
             $json = $this->testTake
                 ->testTakeRelationQuestions()

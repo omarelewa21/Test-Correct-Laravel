@@ -224,7 +224,7 @@ class WordListChangesModal extends TCModalComponent
         WordList   $latestList,
         Word       $updatedWord
     ): Collection {
-        $rowKey = $wordDataCollection->where('subject.word_id', $updatedWord->getKey())->keys()->first();
+        $rowKey = $wordDataCollection->where('subject.word_id', $updatedWord->original_id)->keys()->first();
         $newRow = $this->wordData[$rowKey];
         foreach ($newRow as $type => $data) {
             if ($data['word_list_id'] !== null) {

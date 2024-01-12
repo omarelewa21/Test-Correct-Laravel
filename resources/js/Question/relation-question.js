@@ -278,7 +278,7 @@ document.addEventListener("alpine:init", () => {
             this.$nextTick(() => {
                 this.setDisabledColumns();
                 this.setActiveColumn();
-            })
+            });
         },
         setActiveColumn() {
             let activeColumns = [];
@@ -302,7 +302,7 @@ document.addEventListener("alpine:init", () => {
         },
         getTemplateWordKey(word, wordIndex) {
             return `word-${wordIndex}-${this.mutation}`;
-        },
+        }
     }));
 
     Alpine.data("compileList", (list, columns) => ({
@@ -438,8 +438,8 @@ document.addEventListener("alpine:init", () => {
             this.selectedRelationCount = 0;
 
             this.rows.forEach((row, key) => {
-                if(!this.wordsInRow(row)) {
-                    return
+                if (!this.wordsInRow(row)) {
+                    return;
                 }
                 this.relationCount++;
                 if (this.$root.querySelector(`.word-row.row-${key} .row-checkmark input:checked`)) {
@@ -470,31 +470,12 @@ document.addEventListener("alpine:init", () => {
             sel.removeAllRanges();
             sel.addRange(range);
         },
-        move(event, direction, currentElement) {
-            if (event.shiftKey || event.altKey) return;
+        move(event, currentElement) {
+            if (event.altKey || event.code !== "Enter") return;
             let row = parseInt(currentElement.dataset.rowValue);
-            let column = parseInt(currentElement.dataset.columnValue);
+            row = event.shiftKey ? row - 1 : row + 1;
 
-            switch (direction) {
-                case "up":
-                    row = row - 1;
-                    break;
-                case "right":
-                    column = column + 1;
-                    break;
-                case "down":
-                    row = row + 1;
-                    break;
-                case "left":
-                    column = column - 1;
-                    break;
-            }
-
-            this.$root.querySelector(locator(row, column))?.focus();
-
-            function locator(newRow, newColumn) {
-                return `.word-row span[data-row-value="${newRow}"][data-column-value="${newColumn}"]`;
-            }
+            this.$root.querySelector(`.word-row span[data-row-value="${row}"][data-column-value="0"]`)?.focus();
         },
         addMinimumAmountOfRows() {
             if (this.rows.length < 10) {
@@ -781,7 +762,7 @@ document.addEventListener("alpine:init", () => {
         compiling: false,
         showAddListModal: false,
         init() {
-            if(!Object.keys(this.wordLists).length) {
+            if (!Object.keys(this.wordLists).length) {
                 this.$nextTick(() => this.addWordList());
             }
         },
@@ -970,52 +951,62 @@ document.addEventListener("alpine:init", () => {
             }
 
             this.add("list", list.uuid);
-            this.overviewWire('word-lists').call("addToUsed", list.id, true);
-            this.overviewWire('word-lists').emit("newListAdded", list.id);
+            this.overviewWire("word-lists").call("addToUsed", list.id, true);
+            this.overviewWire("word-lists").emit("newListAdded", list.id);
 
             this.addListPromptShown = false;
         },
         addWord(uuid, id) {
             this.add("word", uuid);
-            this.overviewWire('words').call("addToUsed", id);
+            this.overviewWire("words").call("addToUsed", id);
         },
         wire(id) {
             return window.Livewire.find(id);
         },
         containerRoot() {
-            if (this.$root.id === 'versionable-side-panel-container') {
+            if (this.$root.id === "versionable-side-panel-container") {
                 return this.$root;
             }
             return this.$root.closest("#versionable-side-panel-container");
         },
         containerWire() {
-            return this.wire(this.containerRoot().getAttribute('wire:id'));
+            return this.wire(this.containerRoot().getAttribute("wire:id"));
         },
-        overviewRoot(type){
-            if (this.$root.id === (type + '-overview')) {
+        overviewRoot(type) {
+            if (this.$root.id === (type + "-overview")) {
                 return this.$root;
             }
             return this.containerRoot().querySelector(`#${type}-overview`);
         },
         overviewWire(type) {
-            return this.wire(this.overviewRoot(type).getAttribute('wire:id'));
+            return this.wire(this.overviewRoot(type).getAttribute("wire:id"));
         }
     }));
 
 
     Alpine.bind("gridcell", () => ({
         contenteditable: "plaintext-only",
-        ["@input"]() {
+        ["x-on:keydown"]() {
+            this.$el.previousContent = this.$el.textContent;
+        },
+        ["x-on:input"](event) {
+            if (exceedsInputLimit.call(this)) {
+                event.preventDefault();
+                this.$el.textContent = this.$el.previousContent;
+                this.placeCursor(this.$el);
+                return;
+            }
+
             this.$el._x_model.set(this.$el.textContent);
             this.addEmptyRowWhenLastIsFull();
+
+            function exceedsInputLimit() {
+                return this.$el.textContent?.length > this.$el.previousContent?.length
+                    && (this.$el.previousContent?.length >= 80 || this.$el.textContent?.length > 80);
+            }
         },
         ["x-init"]() {
-            this.$nextTick(() => {
-                this.$el.textContent = this.$el._x_model.get();
-            });
+            this.$nextTick(() => this.$el.textContent = this.$el._x_model.get());
         }
     }));
 });
-
-//9efba097-d7df-4da4-9545-a490fe5764b2
-//e2e3ec1e-b5d7-4d7e-9eeb-68677953df5c

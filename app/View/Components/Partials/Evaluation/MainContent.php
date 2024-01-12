@@ -5,6 +5,7 @@ namespace tcCore\View\Components\Partials\Evaluation;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Component;
+use tcCore\Answer;
 use tcCore\Question;
 use tcCore\TestTake;
 use tcCore\View\Components\CompletionQuestionConvertedHtml;
@@ -23,6 +24,7 @@ class MainContent extends Component
         public bool       $showCorrectionModel,
         public TestTake   $testTake,
         public ?Question  $group = null,
+        public ?Answer    $answer = null,
     ) {
         $this->questionText = $this->getQuestionText($question);
     }

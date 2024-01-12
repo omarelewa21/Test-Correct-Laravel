@@ -32,6 +32,7 @@ class Relation extends TypeProvider
     {
         $this->instance->question['shuffle'] = $question->shuffle;
         $this->instance->question['selection_count'] = $question->selection_count;
+        $this->instance->question['shuffle_per_participant'] = $question->shuffle_per_participant;
         $this->instance->question['uuid'] = $question['uuid'];
 
         $this->instance->cmsPropertyBag['rows'] = $question->getQuestionWordsForCms();
