@@ -148,7 +148,7 @@ trait WithPlanningFeatures
                     function ($studentUser) use ($selectedCallback, $class) {
                         $selected = false;
                         if (is_callable($selectedCallback)) {
-                            $selected = $selectedCallback($studentUser);
+                            $selected = $selectedCallback($studentUser, $class);
                         }
 
                         return ChildChoice::build(

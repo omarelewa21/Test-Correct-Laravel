@@ -3761,7 +3761,12 @@ document.addEventListener("alpine:init", () => {
         searchEmpty: false,
         pillContainer: null,
         searchFocussed: false,
-        init() {
+        async init() {
+            if (!Object.keys(this.options).length) {
+                this.searchEmpty = true;
+                return;
+            }
+
             this.pillContainer = document.querySelector(`#${containerId}`);
             this.$watch("query", value => this.search(value));
             this.$watch("multiSelectOpen", value => {
@@ -3792,17 +3797,20 @@ document.addEventListener("alpine:init", () => {
             this.handleActiveFilters();
             this.syncInput();
         },
-        childClick(element, child) {
+        childClick(element, child, initialLoad = false) {
             const checked = !this.checkedChildrenContains(child);
             element.querySelector("input[type=\"checkbox\"]").checked = checked;
             this.childToggle(child);
 
             checked ? this.checkAndDisableBrothersFromOtherMothers(child) : this.uncheckAndEnableBrothersFromOtherMothers(child);
 
+            if (initialLoad) {
+                return
+            }
+
             const parent = this.options.find(parent => parent.value === child.customProperties.parentId);
             this.handleParentStateWhenChildsChange(parent, checked);
             this.registerParentsBasedOnDisabledChildren();
-
             this.handleActiveFilters();
             this.syncInput();
         },
@@ -3982,11 +3990,13 @@ document.addEventListener("alpine:init", () => {
                 checkedChildValues.forEach(item => {
                     this.childClick(
                         this.$root.querySelector(`[data-id="${item.value}"][data-parent-id="${item.customProperties.parentId}"]`),
-                        item
+                        item,
+                        true
                     );
                 });
                 this.registerParentsBasedOnDisabledChildren();
                 this.handleActiveFilters();
+                this.syncInput();
             });
         },
         syncInput() {
@@ -4048,7 +4058,7 @@ document.addEventListener("alpine:init", () => {
         },
         closeDropdown() {
             this.multiSelectOpen = false;
-        }
+        },
     }));
     Alpine.data("singleSelect", (containerId, entangleValue = null, disabled, error) => ({
         containerId,

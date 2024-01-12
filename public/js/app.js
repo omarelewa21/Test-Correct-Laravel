@@ -10504,10 +10504,12 @@ document.addEventListener("alpine:init", function () {
     };
   });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("multiDropdownSelect", function (options, containerId, wireModel, labels) {
+    var retrieveSelectedItems = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : false;
     return _objectSpread(_objectSpread({
       options: options,
       wireModel: wireModel,
       labels: labels,
+      retrieveSelectedItems: retrieveSelectedItems,
       multiSelectOpen: false,
       openSubs: [],
       checkedParents: [],
@@ -10518,15 +10520,32 @@ document.addEventListener("alpine:init", function () {
       searchFocussed: false,
       init: function init() {
         var _this85 = this;
-        this.pillContainer = document.querySelector("#".concat(containerId));
-        this.$watch("query", function (value) {
-          return _this85.search(value);
-        });
-        this.$watch("multiSelectOpen", function (value) {
-          if (value) _this85.handleDropdownLocation();
-          if (!value) _this85.query = "";
-        });
-        this.registerSelectedItemsOnComponent();
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee34() {
+          return _regeneratorRuntime().wrap(function _callee34$(_context34) {
+            while (1) switch (_context34.prev = _context34.next) {
+              case 0:
+                if (Object.keys(_this85.options).length) {
+                  _context34.next = 3;
+                  break;
+                }
+                _this85.searchEmpty = true;
+                return _context34.abrupt("return");
+              case 3:
+                _this85.pillContainer = document.querySelector("#".concat(containerId));
+                _this85.$watch("query", function (value) {
+                  return _this85.search(value);
+                });
+                _this85.$watch("multiSelectOpen", function (value) {
+                  if (value) _this85.handleDropdownLocation();
+                  if (!value) _this85.query = "";
+                });
+                _this85.registerSelectedItemsOnComponent();
+              case 7:
+              case "end":
+                return _context34.stop();
+            }
+          }, _callee34);
+        }))();
       },
       subClick: function subClick(uuid) {
         this.openSubs = this.toggle(this.openSubs, uuid);
@@ -10550,10 +10569,14 @@ document.addEventListener("alpine:init", function () {
         this.syncInput();
       },
       childClick: function childClick(element, child) {
+        var initialLoad = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
         var checked = !this.checkedChildrenContains(child);
         element.querySelector("input[type=\"checkbox\"]").checked = checked;
         this.childToggle(child);
         checked ? this.checkAndDisableBrothersFromOtherMothers(child) : this.uncheckAndEnableBrothersFromOtherMothers(child);
+        if (initialLoad) {
+          return;
+        }
         var parent = this.options.find(function (parent) {
           return parent.value === child.customProperties.parentId;
         });
@@ -10751,10 +10774,11 @@ document.addEventListener("alpine:init", function () {
         });
         this.$nextTick(function () {
           checkedChildValues.forEach(function (item) {
-            _this90.childClick(_this90.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"]")), item);
+            _this90.childClick(_this90.$root.querySelector("[data-id=\"".concat(item.value, "\"][data-parent-id=\"").concat(item.customProperties.parentId, "\"]")), item, true);
           });
           _this90.registerParentsBasedOnDisabledChildren();
           _this90.handleActiveFilters();
+          _this90.syncInput();
         });
       },
       syncInput: function syncInput() {
@@ -10923,18 +10947,18 @@ document.addEventListener("alpine:init", function () {
           }
         });
         this.showGroupDetailsQb = /*#__PURE__*/function () {
-          var _ref7 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee34(groupQuestionUuid) {
+          var _ref7 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee35(groupQuestionUuid) {
             var inTest,
               readyForSlide,
-              _args34 = arguments;
-            return _regeneratorRuntime().wrap(function _callee34$(_context34) {
-              while (1) switch (_context34.prev = _context34.next) {
+              _args35 = arguments;
+            return _regeneratorRuntime().wrap(function _callee35$(_context35) {
+              while (1) switch (_context35.prev = _context35.next) {
                 case 0:
-                  inTest = _args34.length > 1 && _args34[1] !== undefined ? _args34[1] : false;
-                  _context34.next = 3;
+                  inTest = _args35.length > 1 && _args35[1] !== undefined ? _args35[1] : false;
+                  _context35.next = 3;
                   return _this95.$wire.showGroupDetails(groupQuestionUuid, inTest);
                 case 3:
-                  readyForSlide = _context34.sent;
+                  readyForSlide = _context35.sent;
                   if (readyForSlide) {
                     if (_this95.inTestBankContext) {
                       _this95.$refs["tab-container"].style.display = "none";
@@ -10964,9 +10988,9 @@ document.addEventListener("alpine:init", function () {
                   }
                 case 5:
                 case "end":
-                  return _context34.stop();
+                  return _context35.stop();
               }
-            }, _callee34);
+            }, _callee35);
           }));
           return function (_x4) {
             return _ref7.apply(this, arguments);
@@ -10992,36 +11016,36 @@ document.addEventListener("alpine:init", function () {
           }
         };
         this.addQuestionToTest = /*#__PURE__*/function () {
-          var _ref8 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee35(button, questionUuid) {
+          var _ref8 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee36(button, questionUuid) {
             var showQuestionBankAddConfirmation,
               enableButton,
-              _args35 = arguments;
-            return _regeneratorRuntime().wrap(function _callee35$(_context35) {
-              while (1) switch (_context35.prev = _context35.next) {
+              _args36 = arguments;
+            return _regeneratorRuntime().wrap(function _callee36$(_context36) {
+              while (1) switch (_context36.prev = _context36.next) {
                 case 0:
-                  showQuestionBankAddConfirmation = _args35.length > 2 && _args35[2] !== undefined ? _args35[2] : false;
+                  showQuestionBankAddConfirmation = _args36.length > 2 && _args36[2] !== undefined ? _args36[2] : false;
                   if (!showQuestionBankAddConfirmation) {
-                    _context35.next = 3;
+                    _context36.next = 3;
                     break;
                   }
-                  return _context35.abrupt("return", _this95.$wire.emit("openModal", "teacher.add-sub-question-confirmation-modal", {
+                  return _context36.abrupt("return", _this95.$wire.emit("openModal", "teacher.add-sub-question-confirmation-modal", {
                     questionUuid: questionUuid
                   }));
                 case 3:
                   button.disabled = true;
-                  _context35.next = 6;
+                  _context36.next = 6;
                   return _this95.$wire.handleCheckboxClick(questionUuid);
                 case 6:
-                  enableButton = _context35.sent;
+                  enableButton = _context36.sent;
                   if (enableButton) {
                     button.disabled = false;
                   }
-                  return _context35.abrupt("return", true);
+                  return _context36.abrupt("return", true);
                 case 9:
                 case "end":
-                  return _context35.stop();
+                  return _context36.stop();
               }
-            }, _callee35);
+            }, _callee36);
           }));
           return function (_x5, _x6) {
             return _ref8.apply(this, arguments);
@@ -11161,22 +11185,22 @@ document.addEventListener("alpine:init", function () {
       },
       openQuestion: function openQuestion(questionProperties) {
         var _this100 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee36() {
-          return _regeneratorRuntime().wrap(function _callee36$(_context36) {
-            while (1) switch (_context36.prev = _context36.next) {
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee37() {
+          return _regeneratorRuntime().wrap(function _callee37$(_context37) {
+            while (1) switch (_context37.prev = _context37.next) {
               case 0:
                 _this100.$dispatch("store-current-question");
                 _this100.$store.cms.scrollPos = document.querySelector(".drawer").scrollTop;
                 _this100.$store.cms.loading = true;
-                _context36.next = 5;
+                _context37.next = 5;
                 return _this100.constructor.showQuestion(questionProperties);
               case 5:
                 _this100.$store.cms.loading = false;
               case 6:
               case "end":
-                return _context36.stop();
+                return _context37.stop();
             }
-          }, _callee36);
+          }, _callee37);
         }))();
       },
       getLivewireComponent: function getLivewireComponent(attribute) {
@@ -11208,20 +11232,20 @@ document.addEventListener("alpine:init", function () {
       button: null,
       openPopup: function openPopup(event) {
         var _this102 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee37() {
-          return _regeneratorRuntime().wrap(function _callee37$(_context37) {
-            while (1) switch (_context37.prev = _context37.next) {
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee38() {
+          return _regeneratorRuntime().wrap(function _callee38$(_context38) {
+            while (1) switch (_context38.prev = _context38.next) {
               case 0:
                 if (!_this102.participantPopupOpen) {
-                  _context37.next = 3;
+                  _context38.next = 3;
                   break;
                 }
-                _context37.next = 3;
+                _context38.next = 3;
                 return _this102.closePopup(event);
               case 3:
                 _this102.button = event.element;
                 _this102.button.dataset.open = "true";
-                _context37.next = 7;
+                _context38.next = 7;
                 return _this102.$wire.openPopup(event.participant);
               case 7:
                 _this102.participantPopupOpen = true;
@@ -11231,27 +11255,27 @@ document.addEventListener("alpine:init", function () {
                 });
               case 9:
               case "end":
-                return _context37.stop();
+                return _context38.stop();
             }
-          }, _callee37);
+          }, _callee38);
         }))();
       },
       closePopup: function closePopup() {
         var _this103 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee38() {
-          return _regeneratorRuntime().wrap(function _callee38$(_context38) {
-            while (1) switch (_context38.prev = _context38.next) {
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee39() {
+          return _regeneratorRuntime().wrap(function _callee39$(_context39) {
+            while (1) switch (_context39.prev = _context39.next) {
               case 0:
                 _this103.participantPopupOpen = false;
-                _context38.next = 3;
+                _context39.next = 3;
                 return _this103.$wire.closePopup();
               case 3:
                 _this103.button.dataset.open = "false";
               case 4:
               case "end":
-                return _context38.stop();
+                return _context39.stop();
             }
-          }, _callee38);
+          }, _callee39);
         }))();
       },
       handleScroll: function handleScroll() {
@@ -11286,25 +11310,25 @@ document.addEventListener("alpine:init", function () {
       },
       openRow: function openRow(attainment) {
         var _this105 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee39() {
-          return _regeneratorRuntime().wrap(function _callee39$(_context39) {
-            while (1) switch (_context39.prev = _context39.next) {
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee40() {
+          return _regeneratorRuntime().wrap(function _callee40$(_context40) {
+            while (1) switch (_context40.prev = _context40.next) {
               case 0:
                 if (!_this105.loadingData.includes(attainment)) {
-                  _context39.next = 2;
+                  _context40.next = 2;
                   break;
                 }
-                return _context39.abrupt("return");
+                return _context40.abrupt("return");
               case 2:
                 if (_this105.studentData[attainment]) {
-                  _context39.next = 8;
+                  _context40.next = 8;
                   break;
                 }
                 _this105.loadingData.push(attainment);
-                _context39.next = 6;
+                _context40.next = 6;
                 return _this105.$wire.attainmentStudents(attainment);
               case 6:
-                _this105.studentData[attainment] = _context39.sent;
+                _this105.studentData[attainment] = _context40.sent;
                 _this105.loadingData = _this105.loadingData.filter(function (key) {
                   return key !== attainment;
                 });
@@ -11315,9 +11339,9 @@ document.addEventListener("alpine:init", function () {
                 });
               case 10:
               case "end":
-                return _context39.stop();
+                return _context40.stop();
             }
-          }, _callee39);
+          }, _callee40);
         }))();
       },
       closeRow: function closeRow(attainment) {
@@ -11327,24 +11351,24 @@ document.addEventListener("alpine:init", function () {
       },
       toggleRow: function toggleRow(attainment) {
         var _this106 = this;
-        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee40() {
-          return _regeneratorRuntime().wrap(function _callee40$(_context40) {
-            while (1) switch (_context40.prev = _context40.next) {
+        return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee41() {
+          return _regeneratorRuntime().wrap(function _callee41$(_context41) {
+            while (1) switch (_context41.prev = _context41.next) {
               case 0:
                 if (!_this106.attainmentOpen.includes(attainment)) {
-                  _context40.next = 3;
+                  _context41.next = 3;
                   break;
                 }
                 _this106.closeRow(attainment);
-                return _context40.abrupt("return");
+                return _context41.abrupt("return");
               case 3:
-                _context40.next = 5;
+                _context41.next = 5;
                 return _this106.openRow(attainment);
               case 5:
               case "end":
-                return _context40.stop();
+                return _context41.stop();
             }
-          }, _callee40);
+          }, _callee41);
         }))();
       },
       styles: function styles(pValue, multiplier) {
