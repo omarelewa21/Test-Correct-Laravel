@@ -6883,29 +6883,12 @@ document.addEventListener("alpine:init", function () {
         sel.removeAllRanges();
         sel.addRange(range);
       },
-      move: function move(event, direction, currentElement) {
+      move: function move(event, currentElement) {
         var _this$$root$querySele;
-        if (event.shiftKey || event.altKey) return;
+        if (event.altKey || event.code !== "Enter") return;
         var row = parseInt(currentElement.dataset.rowValue);
-        var column = parseInt(currentElement.dataset.columnValue);
-        switch (direction) {
-          case "up":
-            row = row - 1;
-            break;
-          case "right":
-            column = column + 1;
-            break;
-          case "down":
-            row = row + 1;
-            break;
-          case "left":
-            column = column - 1;
-            break;
-        }
-        (_this$$root$querySele = this.$root.querySelector(locator(row, column))) === null || _this$$root$querySele === void 0 ? void 0 : _this$$root$querySele.focus();
-        function locator(newRow, newColumn) {
-          return ".word-row span[data-row-value=\"".concat(newRow, "\"][data-column-value=\"").concat(newColumn, "\"]");
-        }
+        row = event.shiftKey ? row - 1 : row + 1;
+        (_this$$root$querySele = this.$root.querySelector(".word-row span[data-row-value=\"".concat(row, "\"][data-column-value=\"0\"]"))) === null || _this$$root$querySele === void 0 ? void 0 : _this$$root$querySele.focus();
       },
       addMinimumAmountOfRows: function addMinimumAmountOfRows() {
         if (this.rows.length < 10) {
@@ -7535,34 +7518,34 @@ document.addEventListener("alpine:init", function () {
           this.addListSeparate = true;
         }
         this.add("list", list.uuid);
-        this.overviewWire('word-lists').call("addToUsed", list.id, true);
-        this.overviewWire('word-lists').emit("newListAdded", list.id);
+        this.overviewWire("word-lists").call("addToUsed", list.id, true);
+        this.overviewWire("word-lists").emit("newListAdded", list.id);
         this.addListPromptShown = false;
       },
       addWord: function addWord(uuid, id) {
         this.add("word", uuid);
-        this.overviewWire('words').call("addToUsed", id);
+        this.overviewWire("words").call("addToUsed", id);
       },
       wire: function wire(id) {
         return window.Livewire.find(id);
       },
       containerRoot: function containerRoot() {
-        if (this.$root.id === 'versionable-side-panel-container') {
+        if (this.$root.id === "versionable-side-panel-container") {
           return this.$root;
         }
         return this.$root.closest("#versionable-side-panel-container");
       },
       containerWire: function containerWire() {
-        return this.wire(this.containerRoot().getAttribute('wire:id'));
+        return this.wire(this.containerRoot().getAttribute("wire:id"));
       },
       overviewRoot: function overviewRoot(type) {
-        if (this.$root.id === type + '-overview') {
+        if (this.$root.id === type + "-overview") {
           return this.$root;
         }
         return this.containerRoot().querySelector("#".concat(type, "-overview"));
       },
       overviewWire: function overviewWire(type) {
-        return this.wire(this.overviewRoot(type).getAttribute('wire:id'));
+        return this.wire(this.overviewRoot(type).getAttribute("wire:id"));
       }
     };
   });
@@ -7570,20 +7553,29 @@ document.addEventListener("alpine:init", function () {
     var _ref3;
     return _ref3 = {
       contenteditable: "plaintext-only"
-    }, _defineProperty(_ref3, "@input", function input() {
+    }, _defineProperty(_ref3, "x-on:keydown", function xOnKeydown() {
+      this.$el.previousContent = this.$el.textContent;
+    }), _defineProperty(_ref3, "x-on:input", function xOnInput(event) {
+      if (exceedsInputLimit.call(this)) {
+        event.preventDefault();
+        this.$el.textContent = this.$el.previousContent;
+        this.placeCursor(this.$el);
+        return;
+      }
       this.$el._x_model.set(this.$el.textContent);
       this.addEmptyRowWhenLastIsFull();
+      function exceedsInputLimit() {
+        var _this$$el$textContent, _this$$el$previousCon, _this$$el$previousCon2, _this$$el$textContent2;
+        return ((_this$$el$textContent = this.$el.textContent) === null || _this$$el$textContent === void 0 ? void 0 : _this$$el$textContent.length) > ((_this$$el$previousCon = this.$el.previousContent) === null || _this$$el$previousCon === void 0 ? void 0 : _this$$el$previousCon.length) && (((_this$$el$previousCon2 = this.$el.previousContent) === null || _this$$el$previousCon2 === void 0 ? void 0 : _this$$el$previousCon2.length) >= 80 || ((_this$$el$textContent2 = this.$el.textContent) === null || _this$$el$textContent2 === void 0 ? void 0 : _this$$el$textContent2.length) > 80);
+      }
     }), _defineProperty(_ref3, "x-init", function xInit() {
       var _this34 = this;
       this.$nextTick(function () {
-        _this34.$el.textContent = _this34.$el._x_model.get();
+        return _this34.$el.textContent = _this34.$el._x_model.get();
       });
     }), _ref3;
   });
 });
-
-//9efba097-d7df-4da4-9545-a490fe5764b2
-//e2e3ec1e-b5d7-4d7e-9eeb-68677953df5c
 
 /***/ }),
 
