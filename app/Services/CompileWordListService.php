@@ -366,10 +366,14 @@ class CompileWordListService
     {
         return collect($row)
             ->map(function ($word) use ($rowKey) {
+                if (blank($word['text']) && $word['word_id'] === null) {
+                    return null;
+                }
                 $word['type'] = WordType::tryFrom($word['type']);
                 $word['row_key'] = $rowKey;
                 return $word;
             })
+            ->filter()
             ->sortBy(fn($word) => $word['type']->getOrder() ?? 10)
             ->values();
     }

@@ -56,7 +56,7 @@
             <div id="relation-question-grid"
                  class="relation-question-grid | "
                  style="--relation-grid-cols: @js(count(\tcCore\Http\Enums\WordType::cases()))"
-                 x-data="relationQuestionGrid"
+                 x-data="cmsRelationQuestionGrid"
                  x-on:relation-rows-updated.window="handleIncomingUpdatedRows($event.detail)"
                  wire:ignore
                  wire:key="relation-question-grid-{{ $this->uniqueQuestionKey }}"
