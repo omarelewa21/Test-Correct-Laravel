@@ -1,3 +1,71 @@
+document.addEventListener("alpine:init", () => {
+
+    Alpine.data("initReadSpeakerLanguage", () => ({
+        languages: [],
+        currentLanguage: "nl_nl",
+        isOpen: false,
+
+        init() {
+            this.$nextTick(() => {
+                document.querySelector(".rsicn").click()
+                this.languages = window.rsConf.general.customTransLangs;
+                this.setCurrentLanguage();
+
+            });
+        },
+        openPopover() {
+            this.isOpen = true;
+        },
+        closePopover() {
+            this.isOpen = false;
+        },
+
+        setCurrentLanguage() {
+            var domNode = document.querySelector(".rsbtn_tool_voice_settings .rs-contextmenu-item.active");
+            if (domNode) {
+                this.currentLanguage = domNode.getAttribute("data-rs-itemval").split("_")[0];
+            }
+        },
+        isCurrent(language) {
+            return this.currentLanguage.substring(0, 2) === language.substring(0, 2);
+        },
+
+        selectLanguage(languageCode) {
+
+            var links = document.querySelectorAll(".rsbtn_tool_voice_settings .rs-contextmenu-item");
+            for (var i = 0; i < links.length; i++) {
+                if (links[i].getAttribute("data-rs-itemval").startsWith(languageCode)) {
+                    window.rsConf.cb.ui.stop();
+                    window.rsConf.general.userDefinedVoice = links[i].dataset.rsItemval.substring(6);
+                    window.rsConf.general.userDefinedLang = links[i].dataset.rsItemval.substring(0, 5);
+                    document.querySelector('.rsbtn_play').click();
+                    this.currentLanguage = languageCode;
+
+                    break;
+                }
+            }
+        },
+        waitForElement(selector, callback) {
+            var observer = new MutationObserver((mutations) => {
+                for (var mutation of mutations) {
+                    for (var node of mutation.addedNodes) {
+                        if ((node.matches && node.matches(selector)) || (node.querySelector && node.querySelector(selector))) {
+                            callback(node);
+                            observer.disconnect();
+                            return;
+                        }
+                    }
+                }
+            });
+
+            var config = { childList: true, subtree: true };
+            observer.observe(document.getElementById('readspeaker_button1'), config);
+        }
+
+    }));
+});
+
+
 ReadspeakerTlc = function(){
     rsTlcEvents = function(){
         function handleTextBoxFocusForReadspeaker(focusEvent,questionId)
@@ -126,10 +194,9 @@ ReadspeakerTlc = function(){
         }
         function handleCkeditorSelectionChangeForReadspeaker(editor)
         {
-
             editor.editing.view.document.on( 'selectionChange', () => {
                 rspkr.rs_tlc_ckeditor_selecting = true;
-                RichTextEditor.timer = setTimeout(RichTextEditor.setReadOnly.bind(null, editor),50);
+                RichTextEditor.timer = setTimeout(RichTextEditor.setReadOnlyIfApplicable.bind(null, editor),50);
             } );
         }
         function ckeditorClickEvent(event)
@@ -1231,6 +1298,8 @@ window.rsConf = {
         }
     }
 };
+
+
 window.classicEditorDetached = false;
 
 

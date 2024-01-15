@@ -45,10 +45,7 @@
                                                   x-bind:data-column-value="wordIndex"
                                                   x-on:focus="placeCursor($el); $el.parentElement.classList.add('focused')"
                                                   x-on:blur="wordsUpdated(word, rowIndex, wordIndex); $el.parentElement.classList.remove('focused')"
-                                                  x-on:keydown.up="move($event, 'up', $el)"
-                                                  x-on:keydown.right="move($event, 'right', $el)"
-                                                  x-on:keydown.down="move($event, 'down', $el)"
-                                                  x-on:keydown.left="move($event, 'left', $el)"
+                                                  x-on:keydown.enter.prevent="move($event, $el)"
                                                   wire:ignore
                                             ></span>
                                         </x-word-lists.item.grid.cell>

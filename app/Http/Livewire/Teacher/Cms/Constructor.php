@@ -1355,13 +1355,11 @@ class Constructor extends TCComponent implements QuestionCms
 
         $this->save(false);
 
-//        $continueEvent = $data['group'] ? 'continue-to-add-group' : 'continue-to-new-slide';
-//        $this->dispatchBrowserEvent($continueEvent, $data);
-
         if ($data['newSubQuestion']) {
             $data['newGroupId'] = $this->testQuestionId;
         }
 
+        $this->refreshDrawer();
         return $data;
     }
 

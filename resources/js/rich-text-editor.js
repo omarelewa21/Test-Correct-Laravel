@@ -1,4 +1,4 @@
-import {modelElementToPlainText} from "../ckeditor5/node_modules/@ckeditor/ckeditor5-word-count/src/utils.js";
+import { modelElementToPlainText } from "../ckeditor5/node_modules/@ckeditor/ckeditor5-word-count/src/utils.js";
 
 window.RichTextEditor = {
     initStudentCoLearning: function(parameterBag) {
@@ -19,16 +19,16 @@ window.RichTextEditor = {
                     ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
                 }
             }
-        )
+        );
     },
     initSelectionCMS: function(parameterBag) {
-        parameterBag.pluginsToAdd = ['Selection'];
+        parameterBag.pluginsToAdd = ["Selection"];
         return this.createTeacherEditor(
             parameterBag,
             (editor) => {
                 WebspellcheckerTlc.lang(editor, parameterBag.lang);
                 WebspellcheckerTlc.handleSpellCheckerOnOff(editor, parameterBag.isSpellCheckerEnabled);
-                this.setReadOnly(editor);
+                this.setReadOnlyIfApplicable(editor);
                 window.editor = editor;
             }
         );
@@ -40,7 +40,7 @@ window.RichTextEditor = {
             (editor) => {
                 WebspellcheckerTlc.lang(editor, parameterBag.lang);
                 WebspellcheckerTlc.handleSpellCheckerOnOff(editor, parameterBag.isSpellCheckerEnabled);
-                this.setReadOnly(editor);
+                this.setReadOnlyIfApplicable(editor);
                 window.editor = editor;
             }
         );
@@ -51,14 +51,14 @@ window.RichTextEditor = {
             (editor) => {
                 WebspellcheckerTlc.lang(editor, parameterBag.lang);
 
-                editor.ui.view.element.setAttribute('spellcheck', false);
+                editor.ui.view.element.setAttribute("spellcheck", false);
 
                 this.setupWordCounter(editor, parameterBag);
                 if (typeof ReadspeakerTlc != "undefined") {
-                    editor.editing.view.document.on( 'change:isFocused', ( evt, data, isFocused ) => {
+                    editor.editing.view.document.on("change:isFocused", (evt, data, isFocused) => {
                         isFocused
-                            ? rsTlcEvents.handleCkeditorFocusForReadspeaker(editor.sourceElement.nextElementSibling,parameterBag.questionId, parameterBag.editorId)
-                            : rsTlcEvents.handleCkeditorBlurForReadspeaker(editor.sourceElement.nextElementSibling,parameterBag.questionId, parameterBag.editorId);
+                            ? rsTlcEvents.handleCkeditorFocusForReadspeaker(editor.sourceElement.nextElementSibling, parameterBag.questionId, parameterBag.editorId)
+                            : rsTlcEvents.handleCkeditorBlurForReadspeaker(editor.sourceElement.nextElementSibling, parameterBag.questionId, parameterBag.editorId);
                     });
                     ReadspeakerTlc.ckeditor.addListenersForReadspeaker(editor, parameterBag.questionId, parameterBag.editorId);
                     ReadspeakerTlc.ckeditor.disableContextMenuOnCkeditor();
@@ -70,14 +70,14 @@ window.RichTextEditor = {
         return this.createStudentEditor(
             parameterBag,
             (editor) => {
-                WebspellcheckerTlc.lang(editor, parameterBag.lang)
+                WebspellcheckerTlc.lang(editor, parameterBag.lang);
                 this.setupWordCounter(editor, parameterBag);
                 if (typeof ReadspeakerTlc != "undefined") {
                     ReadspeakerTlc.ckeditor.replaceReadableAreaByClone(editor);
                 }
                 editor.isReadOnly = true;
             }
-        )
+        );
     },
     initForTeacher: function(parameterBag) {
         return this.createTeacherEditor(
@@ -86,16 +86,16 @@ window.RichTextEditor = {
                 WebspellcheckerTlc.lang(editor, parameterBag.lang);
                 WebspellcheckerTlc.handleSpellCheckerOnOff(editor, parameterBag.isSpellCheckerEnabled);
                 this.setupWordCounter(editor, parameterBag);
-                this.setReadOnly(editor);
+                this.setReadOnlyIfApplicable(editor);
             }
-        )
+        );
     },
     initAssessmentFeedback: function(parameterBag) {
         this.setAnswerFeedbackItemsToRemove(parameterBag);
         parameterBag.shouldNotGroupWhenFull = true;
 
         return this.createTeacherEditor(
-            parameterBag,
+            parameterBag
         );
     },
     initUpdateAnswerFeedbackEditor: async function(parameterBag) {
@@ -108,11 +108,11 @@ window.RichTextEditor = {
 
                 // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
 
-                editor.editing.view.change(writer=>{
-                    writer.setStyle('height', '150px', editor.editing.view.document.getRoot());
+                editor.editing.view.change(writer => {
+                    writer.setStyle("height", "150px", editor.editing.view.document.getRoot());
                 });
 
-            },
+            }
         );
     },
     initCreateAnswerFeedbackEditor: function(parameterBag) {
@@ -123,20 +123,20 @@ window.RichTextEditor = {
         return this.createTeacherEditor(
             parameterBag,
             (editor) => {
-                window.addEventListener('answer-feedback-focus-feedback-editor', () => {
+                window.addEventListener("answer-feedback-focus-feedback-editor", () => {
                     setTimeout(() => {
                         editor.focus();
-                    }, 100)
+                    }, 100);
                 });
-                editor.editing.view.change(writer=>{
-                    writer.setStyle('height', '150px', editor.editing.view.document.getRoot());
+                editor.editing.view.change(writer => {
+                    writer.setStyle("height", "150px", editor.editing.view.document.getRoot());
                 });
-                editor.model.document.on( 'change:data', (event, data, test) => {
-                    if(editor.getData() === '' || editor.getData() === '<p></p>') {
-                        Alpine.store('answerFeedback').creatingNewComment = false;
+                editor.model.document.on("change:data", (event, data, test) => {
+                    if (editor.getData() === "" || editor.getData() === "<p></p>") {
+                        Alpine.store("answerFeedback").creatingNewComment = false;
                         return;
                     }
-                    Alpine.store('answerFeedback').creatingNewComment = true;
+                    Alpine.store("answerFeedback").creatingNewComment = true;
                 });
                 // this.hideWProofreaderChevron(parameterBag.allowWsc, editor);
             }
@@ -145,7 +145,7 @@ window.RichTextEditor = {
     initAnswerEditorWithComments: function(parameterBag) {
         parameterBag.enableCommentsPlugin = true;
 
-        parameterBag.wproofreaderActionItems = ['toggle'];
+        parameterBag.wproofreaderActionItems = ["toggle"];
 
         return this.createStudentEditor(
             parameterBag,
@@ -156,49 +156,49 @@ window.RichTextEditor = {
                 this.setAnswerFeedbackEventListeners(editor);
                 this.setMathChemTypeReadOnly(editor);
             }
-        )
+        );
     },
     setMathChemTypeReadOnly: function(editor) {
         try {
-            editor.plugins.get('MathType').stopListening();
+            editor.plugins.get("MathType").stopListening();
         } catch (e) {
-            if(String(e.name).includes('CKEditorError')) {
+            if (String(e.name).includes("CKEditorError")) {
                 return;
             }
             throw e;
         }
     },
-    setAnswerFeedbackEventListeners: function (editor) {
-        let focusIsInCommentEditor = () => window.getSelection().focusNode?.parentElement?.closest('.comment-editor') !== null;
-        let selectionIsNotEmpty = () => window.getSelection().toString() !== '';
+    setAnswerFeedbackEventListeners: function(editor) {
+        let focusIsInCommentEditor = () => window.getSelection().focusNode?.parentElement?.closest(".comment-editor") !== null;
+        let selectionIsNotEmpty = () => window.getSelection().toString() !== "";
 
-        document.addEventListener('mouseup', (e) => {
-            if(!(focusIsInCommentEditor() && selectionIsNotEmpty())) {
+        document.addEventListener("mouseup", (e) => {
+            if (!(focusIsInCommentEditor() && selectionIsNotEmpty())) {
                 return;
             }
 
-            dispatchEvent(new CustomEvent('answer-feedback-drawer-tab-update', {detail: {tab: 2}}));
+            dispatchEvent(new CustomEvent("answer-feedback-drawer-tab-update", { detail: { tab: 2 } }));
 
             //focus the create a comment editor
-            dispatchEvent(new CustomEvent('answer-feedback-focus-feedback-editor'));
+            dispatchEvent(new CustomEvent("answer-feedback-focus-feedback-editor"));
 
             //remove the previous temporary thread if it exists
-            editor.plugins.get('CommentsRepository').getCommentThread('new-comment-thread')?.remove();
+            editor.plugins.get("CommentsRepository").getCommentThread("new-comment-thread")?.remove();
 
             setTimeout(() => {
                 //add a temporary thread with a specific name that can be found by JS
-                editor.execute('addCommentThread', {threadId: 'new-comment-thread'});
+                editor.execute("addCommentThread", { threadId: "new-comment-thread" });
             }, 200);
 
-        })
+        });
 
-        editor.plugins.get('CommentsRepository').on('addCommentThread', (evt, data) => {
-            if(data.threadId === 'new-comment-thread') {
+        editor.plugins.get("CommentsRepository").on("addCommentThread", (evt, data) => {
+            if (data.threadId === "new-comment-thread") {
                 return;
             }
             setTimeout(() => {
                 window.clearSelection();
-            },100);
+            }, 100);
         });
     },
     //only needed when webspellchecker has to be re-added to the inline-feedback comment editors
@@ -235,7 +235,7 @@ window.RichTextEditor = {
                 displayCharacters: false
             },
             wproofreader: this.getWproofreaderConfig(parameterBag.enableGrammar, parameterBag.wproofreaderActionItems),
-            ui: {viewportOffset: {top: 70}},
+            ui: { viewportOffset: { top: 70 } }
         };
 
         config.removePlugins = ["Selection", "Completion", "ImageUpload", "Image", "ImageToolbar"];
@@ -298,19 +298,19 @@ window.RichTextEditor = {
             config.toolbar.removeItems.push("MathType", "ChemType", "specialCharacters");
         }
 
-        if(!parameterBag.enableCommentsPlugin) {
+        if (!parameterBag.enableCommentsPlugin) {
             config.removePlugins.push("Comments");
         } else {
             config.licenseKey = process.env.MIX_CKEDITOR_LICENSE_KEY;
         }
 
         if (parameterBag.commentThreads != undefined) {
-            config.extraPlugins = [ CommentsIntegration ];
+            config.extraPlugins = [CommentsIntegration];
 
             config.commentsIntegration = {
                 userId: parameterBag.userId,
                 users: parameterBag.users,
-                commentThreads: parameterBag.commentThreads,
+                commentThreads: parameterBag.commentThreads
             };
         }
 
@@ -380,29 +380,29 @@ window.RichTextEditor = {
                 displayCharacters: false,
                 displayWords: true
             },
-            wproofreader: this.getWproofreaderConfig(),
+            wproofreader: this.getWproofreaderConfig()
         };
         config.removePlugins = parameterBag.removeItems?.plugins ?? [];
         config.toolbar = {
-            removeItems: parameterBag.removeItems?.toolbar ?? [],
+            removeItems: parameterBag.removeItems?.toolbar ?? []
         };
-        if(parameterBag.toolbar) {
+        if (parameterBag.toolbar) {
             config.toolbar.items = parameterBag.toolbar;
         }
 
-        if(!parameterBag.enableCommentsPlugin) {
+        if (!parameterBag.enableCommentsPlugin) {
             config.removePlugins.push("Comments");
         } else {
             config.licenseKey = process.env.MIX_CKEDITOR_LICENSE_KEY;
         }
 
         if (parameterBag.commentThreads != undefined) {
-            config.extraPlugins = [ CommentsIntegration ];
+            config.extraPlugins = [CommentsIntegration];
 
             config.commentsIntegration = {
                 userId: parameterBag.userId,
                 users: parameterBag.users,
-                commentThreads: parameterBag.commentThreads,
+                commentThreads: parameterBag.commentThreads
             };
         }
 
@@ -430,21 +430,25 @@ window.RichTextEditor = {
         }, 300);
         textarea.dispatchEvent(new Event("input"));
     },
-    /** @TODO: this method should be refactored to setReadOnlyIfApplicable  but it has a reference in readspeaker_tlc.js which i dont want to test 1 day before deployment.*/
-    setReadOnly: function(editor) {
-        if (editor.sourceElement.hasAttribute("disabled")) {
-            editor.isReadOnly = true;
-            var editables = editor.ui.view.editable.element.querySelectorAll("[contenteditable=true]");
-            editables.forEach(function(element) {
-                element.setAttribute("contenteditable", false);
-            });
+    setReadOnlyIfApplicable: function(editor) {
+        if (!editor.sourceElement.hasAttribute("disabled")) {
+            return;
         }
+        editor.isReadOnly = true;
+        let editables = editor.ui.view.editable.element.querySelectorAll("[contenteditable=true]");
+        editables.forEach(function(element) {
+            element.setAttribute("contenteditable", false);
+        });
+    },
+    setReadOnly: function(editor) {
+        editor.sourceElement.setAttribute("disabled", "true");
+        this.setReadOnlyIfApplicable();
     },
     setCommentsOnly: function(editor) {
         //disable all commands except for comments and webspellchecker
         const input = editor.commands._commands.forEach((command, name) => {
-            if(!['addCommentThread', 'undo', 'redo', 'WProofreaderToggle', 'WProofreaderSettings'].includes(name)) {
-                command.forceDisabled('commentsOnly');
+            if (!["addCommentThread", "undo", "redo", "WProofreaderToggle", "WProofreaderSettings"].includes(name)) {
+                command.forceDisabled("commentsOnly");
             }
         });
 
@@ -468,7 +472,7 @@ window.RichTextEditor = {
 
         this.addSelectedWordCounter(editor);
 
-        if(!parameterBag.restrictWords || [null, 0].includes(parameterBag.maxWords)) {
+        if (!parameterBag.restrictWords || [null, 0].includes(parameterBag.maxWords)) {
             return;
         }
 
@@ -486,7 +490,7 @@ window.RichTextEditor = {
             let wc = editor.plugins.get("WordCount");
 
             if (wc.words > editor.maxWords) {
-                editor.execute('undo');
+                editor.execute("undo");
             }
 
             this.handleInputWithMaxWords(editor, event);
@@ -535,7 +539,7 @@ window.RichTextEditor = {
             enterKeyCommand.forceDisabled("maxword-lock");
             handlePastedData();
         } else {
-            if (wc.words == maxWords ) {
+            if (wc.words == maxWords) {
                 enterKeyCommand.forceDisabled("maxword-lock");
             } else {
                 enterKeyCommand.clearForceDisabled("maxword-lock");
@@ -558,8 +562,8 @@ window.RichTextEditor = {
             }, 1);
             editor.disableSpacers = editor.prePasteWc >= maxWords;
 
-            if(editor.prePasteWc < maxWords) {
-                input.clearForceDisabled('maxword-lock');
+            if (editor.prePasteWc < maxWords) {
+                input.clearForceDisabled("maxword-lock");
             }
         }
     },
@@ -569,28 +573,33 @@ window.RichTextEditor = {
     addSelectedWordCounter(editor) {
         const selection = editor.model.document.selection;
         let selectedWordCount = 0;
-        let fireEventIfWordCountChanged = (wordCount=0) => {
-            if(selectedWordCount !== wordCount){
+        let fireEventIfWordCountChanged = (wordCount = 0) => {
+            if (selectedWordCount !== wordCount) {
                 selectedWordCount = wordCount;
-                dispatchEvent(new CustomEvent('selected-word-count', {detail: {wordCount: selectedWordCount, editorId: editor.sourceElement.id}}));
+                dispatchEvent(new CustomEvent("selected-word-count", {
+                    detail: {
+                        wordCount: selectedWordCount,
+                        editorId: editor.sourceElement.id
+                    }
+                }));
             }
-        }
+        };
 
-        selection.on('change:range', () => {
+        selection.on("change:range", () => {
             if (selection.isCollapsed) return fireEventIfWordCountChanged();    // No selection.
 
             const range = selection.getFirstRange();
             let wordCount = 0;
             for (const item of range.getItems()) {
-                if (!item.is('textProxy')) continue;
+                if (!item.is("textProxy")) continue;
 
-                wordCount += item.data.split(' ').filter(word => word !== '').length;
+                wordCount += item.data.split(" ").filter(word => word !== "").length;
             }
 
             fireEventIfWordCountChanged(wordCount);
-        } );
+        });
 
-        editor.editing.view.document.on('blur', () => {
+        editor.editing.view.document.on("blur", () => {
             fireEventIfWordCountChanged();
         });
     },
@@ -616,7 +625,7 @@ window.RichTextEditor = {
         try {
             if (editor) await editor.destroy(true);
         } catch (e) {
-            console.warn('An issue occurred while destroying an existing editor.')
+            console.warn("An issue occurred while destroying an existing editor.");
         }
 
         return ClassicEditor
@@ -630,9 +639,9 @@ window.RichTextEditor = {
                     resolveCallback(editor);
                 }
 
-                editor.editing.view.on('change', (event, data) => {
+                editor.editing.view.on("change", (event, data) => {
                     //remove the aria-label from the root element for readspeaker
-                    editor.editing.view.document.getRoot()._removeAttribute('aria-label');
+                    editor.editing.view.document.getRoot()._removeAttribute("aria-label");
                 });
 
                 // editor.ui.view.editableElement.tabIndex = -1;
@@ -656,7 +665,7 @@ window.RichTextEditor = {
             resolveCallback
         );
     },
-    setAnswerFeedbackItemsToRemove: function (parameterBag) {
+    setAnswerFeedbackItemsToRemove: function(parameterBag) {
         parameterBag.removeItems = {
             plugins: [
                 "FontFamily",
@@ -685,13 +694,13 @@ window.RichTextEditor = {
                 "specialCharacters",
                 "insertTable",
                 "imageUpload",
-                'underline',
-                'strikethrough',
-                'subscript',
-                'superscript',
-                'bulletedList',
-                'numberedList',
-                'blockQuote',
+                "underline",
+                "strikethrough",
+                "subscript",
+                "superscript",
+                "bulletedList",
+                "numberedList",
+                "blockQuote"
             ]
         };
         parameterBag.toolbar = [
@@ -700,10 +709,10 @@ window.RichTextEditor = {
             "|",
             "bold",
             "italic",
-            'MathType',
-            'ChemType',
-            'wproofreader',
-        ]
+            "MathType",
+            "ChemType",
+            "wproofreader"
+        ];
     },
     getPlainText(editor) {
         return modelElementToPlainText(editor.model.document.getRoot());

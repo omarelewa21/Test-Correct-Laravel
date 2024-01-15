@@ -883,9 +883,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function roles()
     {
-        return $this->belongsToMany('tcCore\Role', 'user_roles')->withPivot([
-            $this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()
-        ])->wherePivot($this->getDeletedAtColumn(), null);
+        return $this->belongsToMany('tcCore\Role', 'user_roles')
+            ->withPivot([
+                $this->getCreatedAtColumn(),
+                $this->getUpdatedAtColumn(),
+                $this->getDeletedAtColumn()
+            ])
+            ->wherePivot($this->getDeletedAtColumn(), null);
     }
 
 
