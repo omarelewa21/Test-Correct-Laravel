@@ -247,11 +247,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function getDrawerScoringDisabledProperty(): bool
     {
-        if (!$this->headerCollapsed) {
-            return true;
-        }
-
-        return !$this->currentAnswer->isAnswered;
+        return !$this->headerCollapsed;
     }
 
     /* Public accessible methods */
