@@ -61,7 +61,7 @@
                 @endforeach
             </div>
         </section>
-        <button id="exit-btn" title="{{ __('drawing-modal.Sluiten') }}">
+        <button id="exit-btn" class="device-dependent-margin" title="{{ __('drawing-modal.Sluiten') }}">
             <x-icon.close/>
         </button>
     </div>
