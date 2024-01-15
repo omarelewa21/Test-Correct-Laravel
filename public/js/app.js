@@ -9637,14 +9637,14 @@ document.addEventListener("alpine:init", function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("tooltip", function (alwaysLeft) {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data("tooltip", function (alwaysLeft, positionTop) {
     return {
       alwaysLeft: alwaysLeft,
+      positionTop: positionTop,
       tooltip: false,
       maxToolTipWidth: 384,
       height: 0,
       inModal: false,
-      show: false,
       init: function init() {
         var _this57 = this;
         this.setHeightProperty();
@@ -9657,22 +9657,38 @@ document.addEventListener("alpine:init", function () {
               _this57.$refs.tooltipdiv.classList.add("right-0");
               ignoreLeft = true;
             }
-            _this57.$refs.tooltipdiv.style.top = _this57.getTop();
+            _this57.$refs.tooltipdiv.style.top = _this57.getTop(positionTop);
             _this57.$refs.tooltipdiv.style.left = _this57.getLeft(ignoreLeft);
           }
         });
         this.$nextTick(function () {
-          return _this57.show = true;
+          _this57.show = true;
         });
       },
-      getTop: function getTop() {
+      getOffset: function getOffset(el) {
+        var rect = el.getBoundingClientRect(),
+          scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
+          scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        return {
+          top: rect.top + scrollTop,
+          left: rect.left + scrollLeft
+        };
+      },
+      getTop: function getTop(positionTop) {
         var top = this.$root.getBoundingClientRect().y + this.$root.offsetHeight + 8;
         if (this.inModal) {
           top -= this.getModalDimensions().top;
         }
-        var bottom = top + this.height;
-        if (bottom > window.innerHeight) {
-          top = top - (bottom - window.innerHeight);
+        if (positionTop) {
+          this.$refs.tooltipdiv.style.display = '';
+          this.height = this.$refs.tooltipdiv.offsetHeight;
+          var offset = this.getOffset(this.$root);
+          top = offset.top - this.height - 16;
+        } else {
+          var bottom = top + this.height;
+          if (bottom > window.innerHeight) {
+            top = top - (bottom - window.innerHeight);
+          }
         }
         return top + "px";
       },
@@ -9695,10 +9711,13 @@ document.addEventListener("alpine:init", function () {
       setHeightProperty: function setHeightProperty() {
         var _this58 = this;
         this.tooltip = true;
+        this.show = true;
         this.$nextTick(function () {
           _this58.height = _this58.$refs.tooltipdiv.offsetHeight;
+          ;
           _this58.tooltip = false;
           _this58.$refs.tooltipdiv.classList.remove("invisible");
+          _this58.$root.classList.remove("invisible");
         });
       },
       tooltipTooWideForPosition: function tooltipTooWideForPosition() {

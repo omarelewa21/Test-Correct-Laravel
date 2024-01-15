@@ -214,4 +214,6 @@ return [
     'starting_not_possible'                                    => 'Toets starten niet mogelijk',
     'Er is iets misgegaan met het ophalen van de vragen'       => 'Er is iets misgegaan met het ophalen van de vragen',
     'Probeer opnieuw'                                          => 'Probeer opnieuw',
+    'Geen internetverbinding'                                   => 'Geen internetverbinding',
+    'Geen internetverbinding uitleg'                            => 'Wacht tot deze herstelt is om door te gaan naar de volgende vraag. Je kan je huidige vraag beantwoorden, maar deze wordt pas opgeslagen wanneer je internetverbdinging weer terug is.'
 ];

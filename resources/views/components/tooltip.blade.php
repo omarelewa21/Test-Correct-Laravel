@@ -1,12 +1,12 @@
-<div x-data="tooltip(@js($alwaysLeft))"
+@props(['activeTooltipIconClasses' => ''])
+<div x-data="tooltip(@js($alwaysLeft), @js($positionTop))"
      @class([
        $attributes->get('class'),
-       'tooltip-container relative flex items-center justify-center rounded-full transition-colors cursor-pointer',
+       'tooltip-container relative flex items-center justify-center rounded-full transition-colors cursor-pointer invisible',
        'w-[22px]' => !$iconWidth,
        'h-[22px]' => !$iconHeight,
      ])
      x-cloak
-     x-show="show"
      x-bind:class="tooltip ? @js($activeClasses) : @js($idleClasses)"
      x-on:click="tooltip = !tooltip"
      x-on:click.outside="tooltip = false"
@@ -19,7 +19,7 @@
     @else
         <x-icon.questionmark-small x-show="!tooltip" x-cloak />
     @endif
-    <x-icon.close-small x-show="tooltip" x-cloak />
+    <x-icon.close-small x-show="tooltip" x-cloak  class="{{ $activeTooltipIconClasses }}"/>
     <div x-show="tooltip"
          x-ref="tooltipdiv"
          @class([

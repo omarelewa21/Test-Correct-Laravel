@@ -8,6 +8,7 @@ class Tooltip extends Component
 {
     public function __construct(
         public $alwaysLeft = false,
+        public $positionTop = false,
         public $activeClasses = 'bg-primary text-white ',
         public $idleClasses = 'bg-system-secondary text-sysbase',
         public $idleIcon = '',

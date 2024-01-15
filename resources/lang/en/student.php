@@ -176,4 +176,6 @@ return [
     'starting_not_possible'                                    => 'Starting test not possible',
     'Er is iets misgegaan met het ophalen van de vragen'       => 'Something went wrong with retrieving the questions',
     'Probeer opnieuw'                                          => 'Try again',
+    'Geen internetverbinding'                                  => 'No internetconnection',
+    'Geen internetverbinding uitleg'                           => 'Wait till this is restored to continue. In the mean time you can continue answering your current question, but this will only be saved again after the internet connection is restored.'
 ];

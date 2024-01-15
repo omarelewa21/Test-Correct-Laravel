@@ -11584,9 +11584,6 @@ video {
 .top-px{
   top: 1px;
 }
-.top-24{
-  top: 6rem;
-}
 .isolate{
   isolation: isolate;
 }
@@ -12462,6 +12459,9 @@ video {
 }
 .w-px{
   width: 1px;
+}
+.w-\[45px\]{
+  width: 45px;
 }
 .min-w-\[110px\]{
   min-width: 110px;
