@@ -14,7 +14,7 @@
             {{ $this->title ?? $title ?? '' }}
         </span>
 
-        <div class="flex ml-auto items-center space-x-2.5">
+        <div class="flex ml-auto items-center space-x-2.5 device-dependent-margin">
             <x-button.close wire:click="$emit('closeModal')" class="bg-white"/>
         </div>
     </div>
