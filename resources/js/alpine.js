@@ -664,7 +664,8 @@ document.addEventListener("alpine:init", () => {
                 return;
             }
 
-            this.$store.questionBank.inGroup = uuid;
+            this.$store.questionBank.inGroup = data.newGroupId;
+            await Livewire.find(this.drawer.querySelector("#question-bank").getAttribute("wire:id"))?.call('newGroupId', data.newGroupId)
             await this.showAddQuestionSlide(false, false);
         },
         async questionIsClean(shouldCheckDirty = true, group, newSubQuestion) {

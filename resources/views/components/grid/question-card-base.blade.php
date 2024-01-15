@@ -75,7 +75,7 @@
                         <x-icon.checkmark-circle color="var(--cta-primary)"/>
                     </span>
                 @endif
-                <button x-show="Alpine.store('questionBank').active"
+                <button x-show="Alpine.store('questionBank').active && !Alpine.store('questionBank').inGroup"
                         x-cloak
                         selid="existing-question-add-btn"
                         class="new-button button-primary w-10 items-center justify-center flex"

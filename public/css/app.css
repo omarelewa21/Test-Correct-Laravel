@@ -12870,6 +12870,10 @@ video {
   width: -moz-max-content;
   width: max-content;
 }
+.w-min{
+  width: -moz-min-content;
+  width: min-content;
+}
 .w-px{
   width: 1px;
 }
