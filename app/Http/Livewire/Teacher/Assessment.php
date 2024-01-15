@@ -272,7 +272,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             return true;
         }
 
-        return !$this->currentAnswer->isAnswered;
+        return false;
     }
 
     /* Public accessible methods */
