@@ -4,7 +4,7 @@
             <x-slot name="title">{{ __("test-take.Toets inleveren") }}</x-slot>
             <x-slot name="body">{{ __("test-take.Weet je zeker dat je de toets wilt inleveren?") }}</x-slot>
             <x-slot name="actionButton">
-                <x-button.cta size="md" onclick="endTest()">
+                <x-button.cta size="md" onclick="endTest()" x-bind:disabled="$store.connection.offline">
                     <span>{{ __("test-take.Inleveren") }}</span>
                     <x-icon.arrow />
                 </x-button.cta>
@@ -33,7 +33,7 @@
                         <x-button.text size="md" @click="show = false" class="rotate-svg-180">
                             <span>{{ __('modal.cancel') }}</span>
                         </x-button.text>
-                        <x-button.cta size="sm" onclick="endTest()">
+                        <x-button.cta size="sm" onclick="endTest()"   x-bind:disabled="$store.connection.offline">
                             <span>{{ __('test-take.Inleveren') }}</span>
                             <x-icon.checkmark-small />
                         </x-button.cta>
@@ -70,61 +70,126 @@
         <script>
             addCSRFTokenToEcho('{{ csrf_token() }}');
 
-            document.addEventListener("DOMContentLoaded", () => {
+            document.addEventListener('livewire:load', function () {
                 document.renderCounter = 0;
                 renderMathML();
-                // Livewire.hook('component.initialized', (component) => {})
-                // Livewire.hook('element.initialized', (el, component) => {})
-                // Livewire.hook('element.updating', (fromEl, toEl, component) => {})
                 Livewire.hook("element.updated", (el, component) => {
                     renderMathML();
                 });
-                // Livewire.hook('element.removed', (el, component) => {})
-                // Livewire.hook('message.sent', (message, component) => {});
+                let syncContainer = {};
                 Livewire.hook("message.failed", (message, component) => {
-                    let container;
-                    if (!window.navigator.onLine && message.component.hasOwnProperty("fingerprint") && message.component.fingerprint.name.startsWith("question.")) {
-                        const listener = () => {
-                            // if(window.navigator.online) {
-                            if (container.type == "callMethod") {
-                                component.call(container.payload.method, container.payload.params[0]);
-                            } else if (container.type == "syncInput") {
-                                component.set(container.payload.name, container.payload.value);
-                            } else {
-                                console.log("no clue what to do with " + container.type);
-                            }
-                            window.removeEventListener("online", listener);
-                            // }
-                        };
+                    // inform the application on the client side that we are offline
+                    // save the call if it is a sync to do that afterwards when back online
+                    // start polling to see whether we are online again
 
-                        if (message.hasOwnProperty("updateQueue")) {
-                            container = message.updateQueue[0];
-                        } else if (message.hasOwnProperty("updates")) {
-                            container = message.updates[0];
-                        }
-                        if (container) {
-                            window.addEventListener("online", listener);
+                    let container;
+                    reinitLivewireComponent(component.el);
+                    if (message.component.hasOwnProperty("fingerprint") && message.component.fingerprint.name.startsWith("student-player.question.")) {
+                        container = getContainerFromLivewireMessage(message);
+                        if(!container) return;
+                        if (container.type == "syncInput") {
+                            syncContainer[container.payload.name] = {componentId: component.id, value: container.payload.value};
+                            let electronData = {
+                                'time': getNowFormatedTimestamp(),
+                                'aid' : message.component.serverMemo.data.answerId,
+                                'tpId': '{{ $this->testParticipantUuid }}',
+                                'ttId': '{{ $this->testTakeUuid }}',
+                            }
+                            electronData[container.payload.name] = container.payload.value;
+                            notifyElectronOffline(electronData);
+                        } else {
+                            console.log("we don't do any thing with this type at the moment: " + container.type);
                         }
                     }
 
+                    handleWhileOffline();
+                });
+
+                function notifyElectronOffline(data) {
+                    try {
+                        electron.logNetworkFailure(data)
+                    } catch (error) {
+                        console.log('Not in mac/windows app or using older version of the app')
+                    }
+                }
+                let handleWhileOfflineTimer;
+                function handleWhileOffline(){
+                    Alpine.store('connection').setOffline();
+                    // show offline message and block all navigation
+                    clearTimeout(handleWhileOfflineTimer);
+                    var backOnline = false;
+                    fetch("/robots.txt")
+                        .then(response => {
+                            if (response.ok || response.status == 404) {
+                                clearTimeout(handleWhileOfflineTimer);
+                                backOnline = true;
+                                handleWhenBackOnline();
+
+                                return;
+                            }
+                        })
+                        .catch(reason => {
+                            if(backOnline) return;
+                            handleWhileOfflineTimer = setTimeout(function(){
+                                handleWhileOffline();
+                            },1000);
+                        });
+                }
+
+                function handleWhenBackOnline(){
+                    clearTimeout(handleWhileOfflineTimer);
+                    let properties = Object.getOwnPropertyNames(syncContainer);
+                    properties.forEach((val, idx, array) => {
+                        if(val && syncContainer[val] != undefined){
+                            // this one needs to be synced still
+                            if(Livewire.find(syncContainer[val].componentId) != undefined) {
+                                Livewire.find(syncContainer[val].componentId).set(val, syncContainer[val].value);
+                            }
+                            delete syncContainer[val];
+                        }
+                    });
+                    // show back online
+                    Notify.notify('{{ __('test-take.your connection is back online') }}', "success");
+                    Alpine.store('connection').setOnline();
+                }
+                Livewire.hook("message.received",(message, component) => {
+
+                    let container = getContainerFromLivewireMessage(message);
+                    if(!container) return;
+                    if(container.type == "syncInput"){
+                        if(syncContainer.hasOwnProperty(container.payload.name)){
+                            delete syncContainer[container.payload.name];
+                        }
+                    }
                 });
                 // Livewire.hook('message.received', (message, component) => {})
                 // Livewire.hook('message.processed', (message, component) => {})
                 Livewire.hook("beforePushState", (stateObject, url, component) => {
                     fixHistoryApiStateForQueryStringUpdates(stateObject, url)
                 });
-                const OnlineListener = function() {
-                    Notify.notify('{{ __('test-take.your connection is back online') }}', "success");
-                    window.removeEventListener("online", OnlineListener);
-                    window.addEventListener("offline", Offlinelistener);
-                };
-                const Offlinelistener = function() {
-                    window.addEventListener("online", OnlineListener);
-                    window.removeEventListener("offline", Offlinelistener);
-                };
 
-                window.addEventListener("offline", Offlinelistener);
             });
+
+            function getContainerFromLivewireMessage(message){
+                if (message.hasOwnProperty("updateQueue")) {
+                    return message.updateQueue[0];
+                } else if (message.hasOwnProperty("updates")) {
+                    return message.updates[0];
+                }
+                return false;
+            }
+
+            function reinitLivewireComponent(component) {
+                // console.log('reinitLivewireComponent');
+                // if(component.hasOwnProperty("__livewire")) {
+                //     console.log('has __livewire');
+                //     // Remove all livewire events
+                //     component.__livewire.tearDown();
+                //     // Re-add all livewire events
+                //     component.__livewire.initialize();
+                //     console.log('re initialized');
+                // }
+            }
 
             function renderMathML() {
                 if ("com" in window && "wiris" in window.com && "js" in window.com.wiris && "JsPluginViewer" in window.com.wiris.js) {
@@ -140,8 +205,7 @@
 
             function endTest(forceTaken = false) {
                 clearClipboard().then(() => {
-                    @this.
-                    TurnInTestTake(forceTaken);
+                    @this.TurnInTestTake(forceTaken);
                 });
             }
         </script>

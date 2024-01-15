@@ -4,10 +4,11 @@
      x-data="{showLoader: false}"
      x-on:show-loader.window="showLoader = true; if('route' in $event.detail) { $wire.redirectTo($event.detail.route) }"
      @if(!$isOverview)
-     x-on:keydown.arrow-right.window="if(!isInputElement($event.target)) {$wire.call('nextQuestion')}"
-     x-on:keydown.arrow-left.window="if(!isInputElement($event.target)) {$wire.call('previousQuestion')}"
+     x-on:keydown.arrow-right.window="if(!$store.connection.offline) if(!isInputElement($event.target)) {$wire.call('nextQuestion')}"
+     x-on:keydown.arrow-left.window="if(!$store.connection.offline) if(!isInputElement($event.target)) {$wire.call('previousQuestion')}"
      
      x-on:wheel.window="
+     if(!$store.connection.offline) {
         if(handleScrollNavigation($event)) {
             if($event.wheelDelta > 0) {
                 $wire.call('nextQuestion')
@@ -15,6 +16,7 @@
                 $wire.call('previousQuestion')
             }
         }
+     }
      "
         @endif
 >

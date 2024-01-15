@@ -13,6 +13,17 @@ Alpine.plugin(collapse);
 Alpine.plugin(focus);
 
 document.addEventListener("alpine:init", () => {
+    Alpine.store('connection',{
+        offline: false,
+        setOffline() {
+            this.offline = true;
+            window.dispatchEvent(new Event("offline"));
+        },
+        setOnline() {
+            this.offline = false
+            window.dispatchEvent(new Event("online"));
+        }
+    });
     Alpine.data("questionIndicator", () => ({
         showSlider: false,
         scrollStep: 100,
@@ -2662,13 +2673,13 @@ document.addEventListener("alpine:init", () => {
             }
         }
     }));
-    Alpine.data("tooltip", (alwaysLeft) => ({
+    Alpine.data("tooltip", (alwaysLeft, positionTop) => ({
         alwaysLeft,
+        positionTop,
         tooltip: false,
         maxToolTipWidth: 384,
         height: 0,
         inModal: false,
-        show: false,
         init() {
             this.setHeightProperty();
             this.inModal = this.$root.closest("#modal-container") !== null;
@@ -2680,22 +2691,36 @@ document.addEventListener("alpine:init", () => {
                         this.$refs.tooltipdiv.classList.add("right-0");
                         ignoreLeft = true;
                     }
-                    this.$refs.tooltipdiv.style.top = this.getTop();
+                    this.$refs.tooltipdiv.style.top = this.getTop(positionTop);
                     this.$refs.tooltipdiv.style.left = this.getLeft(ignoreLeft);
                 }
             });
-            this.$nextTick(() => this.show = true);
+            this.$nextTick(() => { this.show = true; });
+
         },
-        getTop() {
+        getOffset(el) {
+            var rect = el.getBoundingClientRect(),
+                scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
+                scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            return { top: rect.top + scrollTop, left: rect.left + scrollLeft }
+        },
+        getTop(positionTop) {
             let top = ((this.$root.getBoundingClientRect().y + this.$root.offsetHeight + 8));
 
             if (this.inModal) {
                 top -= this.getModalDimensions().top;
             }
+            if(positionTop){
+                this.$refs.tooltipdiv.style.display='';
+                this.height = this.$refs.tooltipdiv.offsetHeight;
 
-            const bottom = top + this.height;
-            if (bottom > window.innerHeight) {
-                top = top - (bottom - window.innerHeight);
+                let offset = this.getOffset(this.$root);
+                top = offset.top - this.height - 16;
+            } else {
+                const bottom = top + this.height;
+                if (bottom > window.innerHeight) {
+                    top = top - (bottom - window.innerHeight);
+                }
             }
             return top + "px";
         },
@@ -2716,10 +2741,12 @@ document.addEventListener("alpine:init", () => {
         },
         setHeightProperty() {
             this.tooltip = true;
+            this.show = true;
             this.$nextTick(() => {
-                this.height = this.$refs.tooltipdiv.offsetHeight;
+                this.height = this.$refs.tooltipdiv.offsetHeight;;
                 this.tooltip = false;
                 this.$refs.tooltipdiv.classList.remove("invisible");
+                this.$root.classList.remove("invisible");
             });
         },
         tooltipTooWideForPosition() {
