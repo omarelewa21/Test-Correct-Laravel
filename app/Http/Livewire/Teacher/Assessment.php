@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use tcCore\Http\Helpers\BugsnagHelper;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
@@ -254,10 +255,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return !$this->currentAnswer->isAnswered;
     }
 
-    /* Public accessible methods */
-    /**
-     * @throws AssessmentException
-     */
     public function handleHeaderCollapse($args): bool
     {
         [$assessmentType, $reset] = $this->validateStartArguments($args);
@@ -298,15 +295,12 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return redirect()->route($this->referrer, 'norm');
     }
 
-    /**
-     * @throws AssessmentException
-     */
     public function loadAnswer($value, $action = null, $internal = false): array
     {
         $answersForQuestion = $this->getAnswersForCurrentQuestion();
 
         if ($answersForQuestion->isEmpty()) {
-            throw new AssessmentException('Geen antwoorden voor vraag: ' . $this->currentQuestion->getKey());
+           return BugsnagHelper::notifyAndReturnFalse('Geen antwoorden voor vraag: ' . $this->currentQuestion->getKey());
         }
 
         $answerForCurrentStudent = $answersForQuestion->first(
@@ -336,9 +330,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         ];
     }
 
-    /**
-     * @throws AssessmentException
-     */
     public function loadQuestion($position, $action = null): array
     {
         $newIndex = $position - 1;
@@ -358,13 +349,10 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return $this->returnFromLoadQuestion($nextQuestion, $newIndex);
     }
 
-    /**
-     * @throws AssessmentException
-     */
     public function next(): bool
     {
         if ($this->finalAnswerReached()) {
-            throw new AssessmentException('This should not be possible. Are you a magician?');
+            return BugsnagHelper::notifyAndReturnFalse('During Assessment as a teacher you have called the next method when already on the last answer for the last question');
         }
 
         if (!$this->onLastAnswerForQuestion()) {
@@ -378,16 +366,13 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             return $this->loadAnyNextAnswerWithAction('incr');
         }
 
-        throw new AssessmentException('You somehow managed to get this far? Go get a medal you magnificent beast!');
+        return BugsnagHelper::notifyAndReturnFalse('During Assessment as a teacher you called the next method but no condition was met to load the next answer');
     }
 
-    /**
-     * @throws AssessmentException
-     */
     public function previous(): bool
     {
         if ($this->onBeginningOfAssessment()) {
-            throw new AssessmentException('You can\'t go back in time you silly goose.');
+            return BugsnagHelper::notifyAndReturnFalse('During Assessment as a teacher you have called the previous method when already on the first answer for the first question');
         }
 
         if (!$this->onFirstAnswerForQuestion()) {
@@ -401,9 +386,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             return $this->loadAnyNextAnswerWithAction('decr');
         }
 
-        throw new AssessmentException(
-            'Oh my god you are amazing. no one should have been able to do this, but you did!'
-        );
+        return BugsnagHelper::notifyAndReturnFalse('During Assessment as a teacher you have called the previous method but no condition was met to load the previous answer');
     }
 
     public function finalAnswerReached(): bool
@@ -584,7 +567,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
      * @param Question $nextQuestion
      * @param int $newIndex
      * @return array
-     * @throws AssessmentException
      */
     private function returnFromLoadQuestion(Question $nextQuestion, int $newIndex): array
     {
@@ -613,7 +595,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     /**
      * @param string $action
      * @return Question
-     * @throws AssessmentException
      */
     private function retrieveQuestionBasedOnAction(string $action): Question
     {
@@ -653,7 +634,8 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             ]);
 
         if (!$closestAvailableAnswer) {
-            throw new AssessmentException(
+
+            return BugsnagHelper::notifyAndReturnFalse(
                 sprintf(
                     'Cannot find closest question to navigate to based on the "%s" from question position %s',
                     $action,
@@ -678,7 +660,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $closestAvailableAnswer = $this->getClosestAvailableAnswer($action, $answers, $currentIndex);
 
         if (!$closestAvailableAnswer) {
-            throw new AssessmentException(
+            return BugsnagHelper::notifyAndReturnFalse(
                 sprintf(
                     'Cannot find closest answer to navigate to based on "%s" from answer position %s',
                     $action,
@@ -1412,12 +1394,9 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $currentAnswerIndex = $this->answers->search(fn($answer) => $answer->id === $this->currentAnswer->id);
         $newAnswer = $this->getClosestAvailableAnswer($action, $this->answers, $currentAnswerIndex);
         if (!$newAnswer) {
-            \Bugsnag::notifyException(
-                new AssessmentException(
+            return BugsnagHelper::notifyAndReturnTrue(
                     sprintf('Trying to use the \'%s\' button , but there\'s no next answer available.', $action)
-                )
             );
-            return true;
         }
         $this->setComponentAnswerProperties($newAnswer, $this->getAnswerIndex($newAnswer));
 
