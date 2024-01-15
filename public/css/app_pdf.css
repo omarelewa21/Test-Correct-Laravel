@@ -3562,7 +3562,8 @@ input[type=number] {
 }
 
 .questionContainer .input-group:has(p),
-.questionContainer .completion-question-question-container {
+.questionContainer .completion-question-question-container,
+.questionContainer .completion-question-answer-container{
     display: block;
 }
 
@@ -5250,7 +5251,7 @@ ul ul ul {
 
 
 /*
-! tailwindcss v3.3.2 | MIT License | https://tailwindcss.com
+! tailwindcss v3.3.6 | MIT License | https://tailwindcss.com
 */
 
 
@@ -5374,8 +5375,10 @@ strong {
 
 
 /*
-1. Use the user's configured `mono` font family by default.
-2. Correct the odd `em` font sizing in all browsers.
+1. Use the user's configured `mono` font-family by default.
+2. Use the user's configured `mono` font-feature-settings by default.
+3. Use the user's configured `mono` font-variation-settings by default.
+4. Correct the odd `em` font sizing in all browsers.
 */
 
 
@@ -5384,7 +5387,9 @@ kbd,
 samp,
 pre {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; /* 1 */
-  font-size: 1em; /* 2 */
+  font-feature-settings: normal; /* 2 */
+  font-variation-settings: normal; /* 3 */
+  font-size: 1em; /* 4 */
 }
 
 
@@ -5449,6 +5454,8 @@ optgroup,
 select,
 textarea {
   font-family: inherit; /* 1 */
+  font-feature-settings: inherit; /* 1 */
+  font-variation-settings: inherit; /* 1 */
   font-size: 100%; /* 1 */
   font-weight: inherit; /* 1 */
   line-height: inherit; /* 1 */
@@ -5608,6 +5615,16 @@ ul,
 menu {
   list-style: none;
   margin: 0;
+  padding: 0;
+}
+
+
+/*
+Reset default styling for dialogs.
+*/
+
+
+dialog {
   padding: 0;
 }
 
@@ -7790,6 +7807,10 @@ video {
   border-bottom-right-radius: 10px;
   border-bottom-left-radius: 10px;
 }
+.rounded-b-full{
+  border-bottom-right-radius: 9999px;
+  border-bottom-left-radius: 9999px;
+}
 .rounded-b-lg{
   border-bottom-right-radius: 0.5rem;
   border-bottom-left-radius: 0.5rem;
@@ -7825,6 +7846,10 @@ video {
 .rounded-t-\[10px\]{
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
+}
+.rounded-t-full{
+  border-top-left-radius: 9999px;
+  border-top-right-radius: 9999px;
 }
 .rounded-bl-md{
   border-bottom-left-radius: 0.375rem;
@@ -8012,6 +8037,10 @@ video {
 .bg-allred{
   --tw-bg-opacity: 1;
   background-color: rgb(207 27 4 / var(--tw-bg-opacity));
+}
+.bg-blue-50{
+  --tw-bg-opacity: 1;
+  background-color: rgb(239 246 255 / var(--tw-bg-opacity));
 }
 .bg-bluegrey{
   --tw-bg-opacity: 1;
@@ -9313,7 +9342,6 @@ p {
     padding-left: 10px;
     padding-right: 10px;
     border-radius: 10px;
-    height: 30px;
 }
 
 .prevent-pagebreak-table {
@@ -9369,10 +9397,8 @@ div.input-group u, div.input-group strong, div.input-group span, p strong {
 .children-block-pdf p {
     display: block;
     white-space: normal;
-    -webkit-margin-before: 1em;
-            margin-block-start: 1em;
-    -webkit-margin-after: 1em;
-            margin-block-end: 1em;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
     vertical-align: middle;
 }
 
@@ -9527,6 +9553,73 @@ h2.student-testtake-answers-separator {
 h2.student-testtake-answers-separator span {
     background: #fff;
     padding: 0 10px;
+}
+
+table.matching-question-answers-pdf {
+    /**/
+}
+
+table.matching-question-answers-pdf tr ,
+table.matching-question-answers-pdf td ,
+table.matching-question-answers-pdf tbody ,
+table.matching-question-answers-pdf {
+    border: 0 !important;
+    border-width: 0 !important;
+    border-collapse: unset;
+}
+
+table.matching-question-answers-pdf tr {
+    /**/
+    margin-bottom: 2px;
+    margin-top: 2px;
+}
+
+table.matching-question-answers-pdf tr td.left-side-td {
+    width: 400px;
+}
+table.matching-question-answers-pdf tr td.left-side-td > div {
+    background: #e6edfa;
+    font-size: 18px;
+    font-weight: bold;
+    border: 2px solid #c3d0ed; /* blue-grey */
+}
+
+table.matching-question-answers-pdf tr td.right-side-td > div {
+    border: 2px dashed #c3d0ed; /* blue-grey */
+    border-radius: 12px;
+}
+
+table.matching-question-answers-pdf tr td.right-side-td > div span {
+    background: #F0F2F5; /* light-grey */
+}
+
+table.matching-question-answers-pdf tr td.right-side-td {
+    width: 600px;
+}
+
+table.matching-question-answers-pdf tr td.left-side-td > div,
+table.matching-question-answers-pdf tr td.right-side-td > div span {
+    border-radius: 10px;
+    padding: 6px 16px;
+}
+
+table.matching-question-answers-pdf tr td.right-side-td > div span:first-child {
+    display: inline-block;
+    width: 100%;
+}
+
+.matching-question-answers-pdf-unused {
+    width: 100%;
+    white-space: break-spaces;
+}
+
+.matching-question-answers-pdf-unused .matching-question-drag-item {
+    background: #F0F2F5; /* light-grey */
+    border-radius: 10px;
+    padding: 6px 16px;
+    display: inline-block;
+    margin-bottom: 4px;
+    margin-right: 4px;
 }
 
 .placeholder\:text-base::-moz-placeholder{
@@ -9821,6 +9914,11 @@ h2.student-testtake-answers-separator span {
   color: rgb(31 41 55 / var(--tw-text-opacity));
 }
 
+.active\:text-note:active{
+  --tw-text-opacity: 1;
+  color: rgb(107 119 137 / var(--tw-text-opacity));
+}
+
 .active\:text-primary:active{
   --tw-text-opacity: 1;
   color: rgb(0 77 245 / var(--tw-text-opacity));
@@ -9877,6 +9975,11 @@ h2.student-testtake-answers-separator span {
   color: rgb(0 77 245 / var(--tw-text-opacity));
 }
 
+.group:hover .group-hover\:text-sysbase{
+  --tw-text-opacity: 1;
+  color: rgb(4 31 116 / var(--tw-text-opacity));
+}
+
 .group\/button:hover .group-hover\/button\:opacity-100{
   opacity: 1;
 }
@@ -9918,6 +10021,11 @@ h2.student-testtake-answers-separator span {
 .group:active .group-active\:text-primary{
   --tw-text-opacity: 1;
   color: rgb(0 77 245 / var(--tw-text-opacity));
+}
+
+.group:active .group-active\:text-sysbase{
+  --tw-text-opacity: 1;
+  color: rgb(4 31 116 / var(--tw-text-opacity));
 }
 
 @media (min-width: 640px){
@@ -10592,3 +10700,4 @@ h2.student-testtake-answers-separator span {
     max-width: 72rem;
   }
 }
+
