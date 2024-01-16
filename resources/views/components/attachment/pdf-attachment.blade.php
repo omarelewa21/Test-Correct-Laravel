@@ -46,6 +46,57 @@ See https://github.com/adobe-type-tools/cmap-resources
         <script src="//cdn-eu.readspeaker.com/script/12749/webReader/webReader.js?pids=wr&amp;noDefaultSkin=1&mobile=0&amp;language={{Auth::user()->getLanguageReadspeaker()}}"
                 type="text/javascript" id="rs_req_Init"></script>
         <script src="{{ mix('/js/readspeaker_tlc.js') }}"></script>
+        <script>
+            document.addEventListener("alpine:init", () => {
+
+                Alpine.data("initReadSpeakerLanguage", () => ({
+                    languages: [],
+                    currentLanguage: "nl_nl",
+                    isOpen: false,
+
+                    init() {
+                        this.$nextTick(() => {
+                            document.querySelector(".rsicn").click()
+                            this.languages = window.rsConf.general.customTransLangs;
+                            this.setCurrentLanguage();
+
+                        });
+                    },
+                    openPopover() {
+                        this.isOpen = true;
+                    },
+                    closePopover() {
+                        this.isOpen = false;
+                    },
+
+                    setCurrentLanguage() {
+                        var domNode = document.querySelector(".rsbtn_tool_voice_settings .rs-contextmenu-item.active");
+                        if (domNode) {
+                            this.currentLanguage = domNode.getAttribute("data-rs-itemval").split("_")[0];
+                        }
+                    },
+                    isCurrent(language) {
+                        return this.currentLanguage.substring(0, 2) === language.substring(0, 2);
+                    },
+
+                    selectLanguage(languageCode) {
+
+                        var links = document.querySelectorAll(".rsbtn_tool_voice_settings .rs-contextmenu-item");
+                        for (var i = 0; i < links.length; i++) {
+                            if (links[i].getAttribute("data-rs-itemval").startsWith(languageCode)) {
+                                window.rsConf.cb.ui.stop();
+                                window.rsConf.general.userDefinedVoice = links[i].dataset.rsItemval.substring(6);
+                                window.rsConf.general.userDefinedLang = links[i].dataset.rsItemval.substring(0, 5);
+                                document.querySelector('.rsbtn_play').click();
+                                this.currentLanguage = languageCode;
+
+                                break;
+                            }
+                        }
+                    },
+                }));
+            });
+        </script>
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @endif
 </head>
