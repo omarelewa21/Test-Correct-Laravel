@@ -5,7 +5,7 @@
      x-cloak
 >
 
-    <x-tooltip  class="w-[40px] h-[40px]" :position-top="true" idle-classes="bg-all-red" :icon-height="true" :icon-width="true" activeTooltipIconClasses="scale-150">
+    <x-tooltip  tooltip-classes="left-1/4 -translate-x-1/4" class="w-[40px] h-[40px]" :position-top="true" idle-classes="bg-all-red" :icon-height="true" :icon-width="true" activeTooltipIconClasses="scale-150">
         <x-slot:idleIcon>
             <span class="flex items-center bg-all-red text-white" x-show="!tooltip" x-cloak>
                 <x-icon.wifi style="transform: scale(1.5)"/>
