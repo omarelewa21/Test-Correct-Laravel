@@ -442,7 +442,7 @@ window.RichTextEditor = {
     },
     setReadOnly: function(editor) {
         editor.sourceElement.setAttribute("disabled", "true");
-        this.setReadOnlyIfApplicable();
+        this.setReadOnlyIfApplicable(editor);
     },
     setCommentsOnly: function(editor) {
         //disable all commands except for comments and webspellchecker
