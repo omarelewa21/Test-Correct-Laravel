@@ -14,7 +14,7 @@
                     <x-icon.checkmark-circle color="var(--cta-primary)"/>
                 </span>
             @endif
-            <x-button.cta x-data="{}" x-cloak x-show="Alpine.store('questionBank').active" size="sm" wire:click="addQuestion">
+            <x-button.cta x-data="{}" x-cloak x-show="Alpine.store('questionBank').active @if($this->isGroupQuestion())  && !Alpine.store('questionBank').inGroup @endif" size="sm" wire:click="addQuestion">
                 <x-icon.plus/>
                 <span>{{ __('cms.Toevoegen') }}</span>
             </x-button.cta>
