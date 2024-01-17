@@ -118,7 +118,10 @@
                     // show offline message and block all navigation
                     clearTimeout(handleWhileOfflineTimer);
                     var backOnline = false;
-                    fetch("/robots.txt")
+                    var noCacheHeaders = new Headers();
+                    noCacheHeaders.append('pragma', 'no-cache');
+                    noCacheHeaders.append('cache-control', 'no-cache');
+                   fetch("/robots.txt?"+Date.now(), noCacheHeaders)
                         .then(response => {
                             if (response.ok || response.status == 404) {
                                 clearTimeout(handleWhileOfflineTimer);
