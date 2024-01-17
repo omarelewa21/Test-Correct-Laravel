@@ -14,10 +14,17 @@
                     <x-icon.checkmark-circle color="var(--cta-primary)"/>
                 </span>
             @endif
-            <x-button.cta x-data="{}" x-cloak x-show="Alpine.store('questionBank').active @if($this->isGroupQuestion())  && !Alpine.store('questionBank').inGroup @endif" size="sm" wire:click="addQuestion">
-                <x-icon.plus/>
-                <span>{{ __('cms.Toevoegen') }}</span>
-            </x-button.cta>
+            @if($this->isGroupQuestion())
+                <x-button.cta x-data="{}" x-cloak x-show="Alpine.store('questionBank').active && !Alpine.store('questionBank').inGroup" size="sm" wire:click="addQuestion">
+                    <x-icon.plus/>
+                    <span>{{ __('cms.Toevoegen') }}</span>
+                </x-button.cta>
+            @else
+                <x-button.cta x-data="{}" x-cloak x-show="Alpine.store('questionBank').active" size="sm" wire:click="addQuestion">
+                    <x-icon.plus/>
+                    <span>{{ __('cms.Toevoegen') }}</span>
+                </x-button.cta>
+                @endif
 
             <x-button.close wire:click="$emit('closeModal')"/>
         </div>
