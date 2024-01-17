@@ -239,7 +239,7 @@
                     <x-icon.checkmark-circle color="var(--cta-primary)"/>
                 </span>
             @endif
-            <button x-data="{}" x-cloak x-show="Alpine.store('questionBank').active @if(!$question->isType('Group')) && !Alpine.store('questionBank').inGroup @endif" class="new-button button-primary w-10 items-center justify-center flex"
+            <button x-data="{}" x-cloak x-show="Alpine.store('questionBank').active @if($question->isType('Group')) && !Alpine.store('questionBank').inGroup @endif" class="new-button button-primary w-10 items-center justify-center flex"
                     wire:click.stop="addQuestion"
                     @click="$el.disabled = true"
             >
