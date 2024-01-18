@@ -743,6 +743,7 @@ body.rs_highcontrast .rs_addtools .rsbtn_exp .rsbtn_exp_inner .rsbtn_volume_cont
     /*}*/
 
     input[type="range"].vertical {
+        -webkit-appearance: slider-vertical;
         margin-right: 15px;
         margin-left: 7px;
         width: 7px;
