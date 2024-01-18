@@ -2670,7 +2670,7 @@ document.addEventListener("alpine:init", () => {
                 this.height = this.$refs.tooltipdiv.offsetHeight;
 
                 let offset = this.getOffset(this.$root);
-                top = offset.top - this.height - 16;
+                top = this.$root.getBoundingClientRect().y - this.height - 16;
             } else {
                 const bottom = top + this.height;
                 if (bottom > window.innerHeight) {
