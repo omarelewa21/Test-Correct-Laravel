@@ -800,6 +800,12 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             ?? $this->answersWithDiscrepancyFilter()
                 ->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType())
                 ->last();
+
+        if(!$firstAnswer){
+            $this->setNavigationDataToStartPosition();
+            return;
+        }
+
         $this->setNavigationDataWithFirstUnscoredAnswer($firstAnswer);
     }
 
