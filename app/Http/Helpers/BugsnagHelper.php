@@ -1,4 +1,5 @@
 <?php
+
 namespace tcCore\Http\Helpers;
 
 
@@ -6,24 +7,28 @@ use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 
 class BugsnagHelper
 {
-    public static function notifyAndReturnFalse($message, $context = []): bool
+    public static function notifyAndReturn(string $message, array $context = [], mixed $returnValue = false): mixed
     {
         self::notify($message, $context);
 
-        return false;
+        return $returnValue;
     }
 
-    public static function notifyAndReturnTrue($message, $context = []): bool
+    public static function notifyAndReturnFalse(string $message, array $context = []): bool
     {
-        self::notify($message, $context);
-
-        return true;
+        return self::notifyAndReturn($message, $context);
     }
 
-    private static function notify($message, $context = []):void
+    public static function notifyAndReturnTrue(string $message, array $context = []): bool
     {
-        Bugsnag::notifyException(new \Exception($message), function ($report) use ($context) {
-            $report->setMetaData($context);
-        });
+        return self::notifyAndReturn($message, $context, true);
+    }
+
+    private static function notify(string $message, array $context = []): void
+    {
+        Bugsnag::notifyException(
+            new \Exception($message),
+            fn($report) => $report->setMetaData($context)
+        );
     }
 }

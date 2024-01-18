@@ -8,7 +8,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Str;
 use tcCore\Answer;
 use tcCore\AnswerRating;
 use tcCore\Exceptions\AssessmentException;
@@ -300,7 +299,14 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $answersForQuestion = $this->getAnswersForCurrentQuestion();
 
         if ($answersForQuestion->isEmpty()) {
-           return BugsnagHelper::notifyAndReturnFalse('Geen antwoorden voor vraag: ' . $this->currentQuestion->getKey());
+            return BugsnagHelper::notifyAndReturn(
+                'Geen antwoorden voor vraag: ' . $this->currentQuestion->getKey(),
+                returnValue: [
+                    'index' => $this->answerNavigationValue,
+                    'last'  => $this->lastAnswerForQuestion,
+                    'first' => $this->firstAnswerForQuestion,
+                ]
+            );
         }
 
         $answerForCurrentStudent = $answersForQuestion->first(
@@ -603,7 +609,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
         Bugsnag::leaveBreadcrumb(
             'Retrieve question based on action',
-            [
+            metadata: [
                 'action' => $action,
                 'current_index' => $currentIndex,
                 'available_answers' => $availableAnswers->map->getKey()->toArray(),
@@ -625,7 +631,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
         Bugsnag::leaveBreadcrumb(
             'Retrieve question based on action',
-            [
+            metadata: [
                 'action' => $action,
                 'current_index' => $currentIndex,
                 'available_answers' => $availableAnswers->map->getKey()->toArray(),
@@ -634,13 +640,13 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             ]);
 
         if (!$closestAvailableAnswer) {
-
-            return BugsnagHelper::notifyAndReturnFalse(
+            return BugsnagHelper::notifyAndReturn(
                 sprintf(
                     'Cannot find closest question to navigate to based on the "%s" from question position %s',
                     $action,
                     $this->questionNavigationValue
-                )
+                ),
+                returnValue: $this->currentQuestion
             );
         }
 
@@ -660,12 +666,13 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $closestAvailableAnswer = $this->getClosestAvailableAnswer($action, $answers, $currentIndex);
 
         if (!$closestAvailableAnswer) {
-            return BugsnagHelper::notifyAndReturnFalse(
+            return BugsnagHelper::notifyAndReturn(
                 sprintf(
                     'Cannot find closest answer to navigate to based on "%s" from answer position %s',
                     $action,
                     $this->answerNavigationValue
-                )
+                ),
+                returnValue: $this->currentAnswer
             );
         }
 
