@@ -1,5 +1,5 @@
 @props(['activeTooltipIconClasses' => ''])
-<div x-data="tooltip(@js($alwaysLeft), @js($positionTop))"
+<div wire:ignore x-data="tooltip(@js($alwaysLeft), @js($positionTop))"
      @class([
        $attributes->get('class'),
        'tooltip-container relative flex items-center justify-center rounded-full transition-colors cursor-pointer invisible',

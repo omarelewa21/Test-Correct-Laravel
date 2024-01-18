@@ -2746,8 +2746,8 @@ document.addEventListener("alpine:init", () => {
             this.$nextTick(() => {
                 this.height = this.$refs.tooltipdiv.offsetHeight;;
                 this.tooltip = false;
+                this.$refs.tooltipdiv.parentElement.classList.remove("invisible");
                 this.$refs.tooltipdiv.classList.remove("invisible");
-                this.$root.classList.remove("invisible");
             });
         },
         tooltipTooWideForPosition() {
