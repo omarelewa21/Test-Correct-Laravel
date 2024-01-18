@@ -242,7 +242,7 @@ class QuestionHelper extends BaseHelper
     {
         $correctAnswers = Arr::wrap($correctAnswers);
 
-        if ($checkCaseSensitive) {
+        if (!$checkCaseSensitive) {
             $answerToCheck = Str::lower($answerToCheck);
             $correctAnswers = collect($correctAnswers)->map(fn($answer) => Str::lower($answer));
         }
