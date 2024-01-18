@@ -1865,10 +1865,10 @@ document.addEventListener("alpine:init", () => {
 
             this.$root.style.top = (this.detailCoordsTop + this.menuOffsetMarginTop) + "px";
             this.$root.style.left = (this.detailCoordsLeft - this.menuOffsetMarginLeft) + "px";
-            if (!detail?.preventLivewireCall) {
+            // if (!detail?.preventLivewireCall) {
                 let readyForShow = await this.$wire.setContextValues(this.uuid, this.contextData);
                 if (readyForShow) this.contextMenuOpen = true;
-            }
+            // }
             this.contextMenuOpen = true;
         },
         closeMenu() {

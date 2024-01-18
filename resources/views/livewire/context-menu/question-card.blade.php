@@ -2,12 +2,12 @@
     <span></span>
     @if($this->isInCms())
         @if($this->isGroupQuestion)
-            <x-menu.context-menu.button x-on:click="addQuestionToTest($el, uuid, contextData.showQuestionBankAddConfirmation )" x-show="!Alpine.store('questionBank').inGroup">
+            <x-menu.context-menu.button wire:key="Group-{{ $this->isGroupQuestion }}" x-on:click="addQuestionToTest($el, uuid, contextData.showQuestionBankAddConfirmation )" x-show="!Alpine.store('questionBank').inGroup">
                 <x-slot name="icon"><x-icon.plus/></x-slot>
                 <x-slot name="text">{{ __('cms.Toevoegen') }}</x-slot>
             </x-menu.context-menu.button>
         @else
-            <x-menu.context-menu.button x-on:click="addQuestionToTest($el, uuid, contextData.showQuestionBankAddConfirmation )">
+            <x-menu.context-menu.button wire:key="NoGroup-{{ $this->isGroupQuestion }}" x-on:click="addQuestionToTest($el, uuid, contextData.showQuestionBankAddConfirmation )">
                 <x-slot name="icon"><x-icon.plus/></x-slot>
                 <x-slot name="text">{{ __('cms.Toevoegen') }}</x-slot>
             </x-menu.context-menu.button>
