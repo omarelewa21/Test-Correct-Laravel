@@ -24,6 +24,7 @@
                 </style>
             @endpush
             @foreach($data as  $key => $testQuestion)
+                @php($key++)
                 @foreach ($groupedQuestions as $groupedQuestion)
                     @if ($groupedQuestion[0] == $testQuestion->id )
                         @foreach ($groupQuestions as $groupQuestion)
@@ -31,7 +32,7 @@
                                     <livewire:student-player.group-question
                                         :question="$testQuestion"
                                         :answers="$answers"
-                                        :number="++$key"
+                                        :number="$key"
                                         wire:key="'q-'.$testQuestion->uuid'q-'"
                                     />
                             @endif
@@ -41,7 +42,7 @@
                 <div class="flex flex-col space-y-4">
                     <livewire:is :component="$testQuestion->getStudentPlayerComponent('overview')"
                                  :question="$testQuestion"
-                                 :number="++$key"
+                                 :number="$key"
                                  :answers="$answers"
                                  :wire:key="'q-'.$testQuestion->uuid"
                     />

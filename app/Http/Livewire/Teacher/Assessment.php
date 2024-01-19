@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use tcCore\CompletionQuestion;
 use tcCore\Http\Helpers\BugsnagHelper;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Collection;
@@ -148,6 +149,11 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         if ($this->headerCollapsed) {
             $this->hydrateCurrentProperties();
         }
+    }
+
+    public function dehydrate(): void
+    {
+        unset($this->currentGroup->groupQuestionQuestions);
     }
 
     public function render()
@@ -634,7 +640,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
         Bugsnag::leaveBreadcrumb(
             'Retrieve question based on action',
-            metadata: [
+            metaData: [
                 'action' => $action,
                 'current_index' => $currentIndex,
                 'available_answers' => $availableAnswers->map->getKey()->toArray(),
@@ -656,7 +662,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
         Bugsnag::leaveBreadcrumb(
             'Retrieve question based on action',
-            metadata: [
+            metaData: [
                 'action' => $action,
                 'current_index' => $currentIndex,
                 'available_answers' => $availableAnswers->map->getKey()->toArray(),
