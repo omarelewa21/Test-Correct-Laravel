@@ -13,6 +13,8 @@ use tcCore\User;
 
 class MassPublishTests extends Command
 {
+    use BaseCommandTrait;
+
     protected int $currentLineLength = 0;
 
     /**
@@ -127,7 +129,7 @@ class MassPublishTests extends Command
                     $test->abbreviation = $abbrTo;
                     $test->save();
                 }
-                $this->writeDoneInfo();
+                $this->writeDoneInfoNow();
                 $nr++;
            });
         });
@@ -136,15 +138,9 @@ class MassPublishTests extends Command
         $this->newLine();
     }
 
-    protected function writeInfoText($text, $endWithLineBreak = false)
+    protected function writeDoneInfoNow($text = 'done', $endOnPosition = 100, $withMemoryUsage = true)
     {
-        $this->output->write('<info>'.$text.'<info>',$endWithLineBreak);
-        $this->currentLineLength = strlen($text);
-    }
-
-    protected function writeDoneInfo($text = 'done', $endOnPosition = 100, $withMemoryUsage = true)
-    {
-        $lastLength = $this->currentLineLength;
+            $lastLength = $this->currentLineLength;
         if($endOnPosition){
             $extraDots = $endOnPosition - strlen($text) - $lastLength;
             for($i=0;$i < $extraDots; $i++){

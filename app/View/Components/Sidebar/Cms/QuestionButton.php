@@ -3,25 +3,23 @@
 namespace tcCore\View\Components\Sidebar\Cms;
 
 use Illuminate\View\Component;
+use tcCore\Lib\Question\QuestionInterface;
+use tcCore\TestQuestion;
 
 class QuestionButton extends Component
 {
-    public $question;
-    public $loop;
-    public $subQuestion;
-    public $testQuestion;
-    public $active = false;
-    public $double;
+    public bool $active = false;
 
-    public function __construct($question, $loop, $subQuestion, $testQuestion, $activeTestQuestion, $activeGQQ, $double)
-    {
-        $this->question = $question;
-        $this->loop = $loop;
-        $this->subQuestion = $subQuestion;
-        $this->testQuestion = $testQuestion;
-        $this->double = $double;
-
-        $this->active = $this->isActiveCheck($activeTestQuestion, $activeGQQ);
+    public function __construct(
+        public QuestionInterface $question,
+        public int               $loop,
+        public TestQuestion      $testQuestion,
+        public bool              $double,
+        ?string                  $activeTestQuestionUuid,
+        ?string                  $activeGQQUuid,
+        public bool              $subQuestion = false,
+    ) {
+        $this->active = $this->isActiveCheck($activeTestQuestionUuid, $activeGQQUuid);
     }
 
     public function render(): string
@@ -29,12 +27,12 @@ class QuestionButton extends Component
         return 'components.sidebar.cms.question-button';
     }
 
-    private function isActiveCheck($activeTestQuestion, $activeGQQ): bool
+    private function isActiveCheck(string $activeTestQuestionUuid, string $activeGQQUuid): bool
     {
-        if ($activeTestQuestion !== $this->testQuestion->uuid) {
+        if ($activeTestQuestionUuid !== $this->testQuestion->uuid) {
             return false;
         }
 
-        return !$this->subQuestion || $activeGQQ === $this->question->groupQuestionQuestionUuid;
+        return !$this->subQuestion || $activeGQQUuid === $this->question->groupQuestionQuestionUuid;
     }
 }

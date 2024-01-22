@@ -3,7 +3,7 @@
     <div class="w-full overview">
         <div class="flex-pdf flex-wrap-pdf space-x-4 items-center">
             <div class="inline-block-pdf question-no-break-true-false">
-                <div class="flex-pdf flex-wrap-pdf bg-off-white border @if(!$this->answered) border-all-red @else border-blue-grey @endif rounded-lg overview truefalse-container">
+                <div class="my-2 flex-pdf flex-wrap-pdf bg-off-white border @if(!$this->answered) border-all-red @else border-blue-grey @endif rounded-lg overview truefalse-container">
                     @foreach( $question->multipleChoiceQuestionAnswers as $link)
 
                         <label for="link{{ $link->id }}"
@@ -26,9 +26,11 @@
                     @endforeach
                 </div>
             </div>
-            <div class="inline-block-pdf children-block-pdf w-full">
-                {!! $question->converted_question_html  !!}&nbsp;
-            </div>
+            @if($showQuestionText)
+                <div class="inline-block-pdf children-block-pdf w-full">
+                    {!! $question->converted_question_html  !!}&nbsp;
+                </div>
+            @endif
         </div>
     </div>
 </x-partials.answer-model-question-container>

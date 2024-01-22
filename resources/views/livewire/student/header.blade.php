@@ -1,7 +1,7 @@
 <header id="header" class="header sticky top-0 w-full content-center z-10 main-shadow @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->hasActiveMaintenance()) maintenance-header-bg @endif @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->isOnDeploymentTesting()) deployment-testing-marker @endif"
         x-data="{activeIcon: null, showKnowledgebankModal: @entangle('showKnowledgebankModal')}"
 >
-    <div class="py-2.5 px-6 flex h-full items-center">
+    <div class="py-2.5 px-6 flex h-full items-center device-dependent-margin">
         <div class="relative">
             <a href="{{ $logoUrl }}">
                 <img class="h-12" src="{{ asset('/svg/logos/Logo-Test-Correct-2.svg') }}"

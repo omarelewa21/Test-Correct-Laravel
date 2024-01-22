@@ -20,6 +20,9 @@ class Answer extends BaseModel
     use SoftDeletes;
     use UuidTrait;
 
+    public $allAnswerFieldsCorrect;
+    public $allAnswerFieldsCorrectScore;
+
     protected $casts = [
         'uuid'       => EfficientUuid::class,
         'deleted_at' => 'datetime',
@@ -47,7 +50,7 @@ class Answer extends BaseModel
     protected $hidden = [];
 
     protected $parentGroupQuestions;
-
+    protected ?bool $discrepancyInToggleData = null;
     public static function boot()
     {
         parent::boot();
@@ -103,38 +106,46 @@ class Answer extends BaseModel
         return $this->hasMany('tcCore\PValue');
     }
 
-    public function calculateFinalRating()
+    public function getTeacherAnswerRatings()
     {
-        $scores = [];
-        // $this->unsetRelation('answerRatings');
-        // $this->load('answerRatings');
+        return $this->answerRatings->where('type', AnswerRating::TYPE_TEACHER);
+    }
 
-        foreach ($this->answerRatings as $answerRating) {
-            if ($answerRating->getAttribute('rating') === null) {
-                continue;
-            }
+    public function getSystemAnswerRatings()
+    {
+        return $this->answerRatings->where('type', AnswerRating::TYPE_SYSTEM);
+    }
 
-            if ($answerRating->getAttribute('type') == 'STUDENT' && $answerRating->getAttribute('rating') !== null) {
-                $scores[$answerRating->getAttribute('type')][] = $answerRating->getAttribute('rating');
-            } elseif ($answerRating->getAttribute('type') != 'STUDENT') {
-                $scores[$answerRating->getAttribute('type')] = $answerRating->getAttribute('rating');
-            }
+    public function getStudentAnswerRatings()
+    {
+        return $this->answerRatings->where('type', AnswerRating::TYPE_STUDENT);
+    }
+
+    public function calculateAndSaveFinalRating()
+    {
+        $this->setAttribute('final_rating',$this->calculateFinalRating());
+        $this->save();
+
+    }
+    public function calculateFinalRating() : ?float
+    {
+        $studentRatings = $this->getStudentAnswerRatings()->whereNotNull('rating');
+        $teacherRating = $this->getTeacherAnswerRatings()->whereNotNull('rating')->first();
+        $systemRating = $this->getSystemAnswerRatings()->whereNotNull('rating')->first();
+
+        if ($teacherRating) {
+            return $teacherRating->rating;
         }
 
-        if (array_key_exists('TEACHER', $scores)) {
-            return $scores['TEACHER'];
-        } elseif (array_key_exists('SYSTEM', $scores)) {
-            return $scores['SYSTEM'];
-        } elseif (array_key_exists('STUDENT', $scores) && count($scores['STUDENT']) > 1) {
-            $scores = array_unique($scores['STUDENT']);
-            if (count($scores) === 1) {
-                return $scores['0'];
-            } else {
-                return null;
-            }
-        } else {
-            return null;
+        if ($systemRating) {
+            return $systemRating->rating;
         }
+
+        if($this->hasCoLearningDiscrepancy() === false){
+            return $studentRatings->first()?->rating;
+        }
+
+        return null;
     }
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
@@ -219,9 +230,10 @@ class Answer extends BaseModel
 
     public function getJsonAttribute($json)
     {
-        if (!is_null($json) && $this->question->isType('OpenQuestion') && $this->question->isSubType('short')) {
-            return strip_tags($json);
-        }
+        // @NOTE by Erik [2024-01-02] no need any more as we don't have short answers left
+//        if (!is_null($json) && $this->question->isType('OpenQuestion') && $this->question->isSubType('short')) {
+//            return strip_tags($json);
+//        }
         return $json;
     }
 
@@ -286,16 +298,47 @@ class Answer extends BaseModel
         return $this->answerRatings->where('type', AnswerRating::TYPE_TEACHER);
     }
 
-    public function hasCoLearningDiscrepancy(): bool
+    public function hasCoLearningDiscrepancy(): ?bool
     {
-        $ratings = $this->answerRatings->where('type', AnswerRating::TYPE_STUDENT);
-
-        if ($ratings->count() < 2) {
-            return false;
+        if (is_bool($this->discrepancyInToggleData)) {
+            return $this->discrepancyInToggleData;
         }
 
-        return $ratings
-                ->keyBy('rating')
-                ->count() !== 1;
+        $ratings = $this->answerRatings
+            ->where('type', AnswerRating::TYPE_STUDENT)
+            ->whereNotNull('rating');
+
+        if ($ratings->count() < 2) {
+            return null;
+        }
+
+        $answerToggleData = $ratings->map->json->filter();
+        if ($answerToggleData->count() <= 1) {
+            return $ratings
+                    ->keyBy('rating')
+                    ->count() !== 1;
+        }
+
+        $firstAnswerToggleData = $answerToggleData->shift();
+        $discrepancyInToggleData = (bool)$answerToggleData->first(
+            function ($subsequentAnswerToggleData) use (&$firstAnswerToggleData) {
+                //Check if the toggle data json arrays have the same keys
+                if (count(array_diff_key($firstAnswerToggleData, $subsequentAnswerToggleData)) !== 0
+                    || count(array_diff_key($subsequentAnswerToggleData, $firstAnswerToggleData)) !== 0) {
+                    return true;
+                }
+
+                $carry = false;
+                //Check if the toggle data json arrays have the same values
+                foreach ($subsequentAnswerToggleData as $key => $value) {
+                    $carry = ($firstAnswerToggleData[$key] !== $value) ? true : $carry;
+                }
+
+                return $carry;
+            }
+        );
+
+        $this->discrepancyInToggleData = $discrepancyInToggleData;
+        return $discrepancyInToggleData;
     }
 }

@@ -172,6 +172,14 @@ class CreateTable extends Migration
         $this->createUserSystemSettings();
         $this->createMailsSend();
         $this->createRttiExportLogs();
+        $this->createTestTakeQuestions();
+        $this->createVersions();
+        $this->createWordLists();
+        $this->createWords();
+        $this->createWordListWord();
+        $this->createRelationQuestions();
+        $this->createRelationQuestionWord();
+        $this->createTestTakeRelationQuestions();
 
         (new \Database\Seeders\SqLiteSeeder())->run();
         //        Artisan::call('db:seed', ['--class' => 'SqLiteSeeder',]);
@@ -293,7 +301,6 @@ class CreateTable extends Migration
             $table->decimal('rating', 11, 1)->unsigned()->nullable();
             $table->text('advice')->nullable();
             $table->json('json')->nullable();
-
         });
     }
 
@@ -333,7 +340,9 @@ class CreateTable extends Migration
             $table->id();
             $table->timestamps();
             $table->softDeletes();
-            $table->integer('test_participant_id')->unsigned()->index('fk_test_participants_has_questions_test_participants1_idx');
+            $table->integer('test_participant_id')->unsigned()->index(
+                'fk_test_participants_has_questions_test_participants1_idx'
+            );
             $table->integer('question_id')->unsigned()->index('fk_test_participants_has_questions_questions1_idx');
             $table->longText('json')->nullable();
             $table->binary('note')->nullable();
@@ -605,8 +614,6 @@ class CreateTable extends Migration
             $table->integer('number')->nullable();
             $table->boolean('export')->default(false);
         });
-
-
     }
 
     /**
@@ -627,7 +634,6 @@ class CreateTable extends Migration
     private function createCompletionQuestionAnswerLinks()
     {
         Schema::create('completion_question_answer_links', function (Blueprint $table) {
-
             $table->integer('completion_question_id')->unsigned();
             $table->integer('completion_question_answer_id')->unsigned();
             $table->timestamps();
@@ -637,8 +643,6 @@ class CreateTable extends Migration
 //            $table->foreign('completion_question_answer_id')->references('id')->on('completion_question_answers');
 //            $table->foreign('completion_question_id')->references('id')->on('completion_questions');
         });
-
-
     }
 
     /**
@@ -656,7 +660,6 @@ class CreateTable extends Migration
     private function createCompletionQuestionAnswers()
     {
         Schema::create('completion_question_answers', function (Blueprint $table) {
-
             $table->id();
             $table->timestamps();
             $table->softDeletes();;
@@ -694,9 +697,10 @@ class CreateTable extends Migration
             $table->efficientUuid('uuid')->index()->unique()->nullable();
             $table->tinyInteger('auto_check_answer')->default('0');
             $table->tinyInteger('auto_check_answer_case_sensitive')->default('1');
+            $table->boolean('auto_check_incorrect_answer')->default(false);
+
 //            $table->foreign('id')->references('id')->on('questions');
         });
-
     }
 
     /**
@@ -880,7 +884,6 @@ class CreateTable extends Migration
             $table->integer('invitee')->nullable();
             $table->string('level', 15)->default('VO');
         });
-
     }
 //
 //# Dump of table deployments
@@ -911,7 +914,6 @@ class CreateTable extends Migration
             $table->date('deployment_day');
             $table->string('status')->default('PLANNED'); // options: PLANNED, NOTIFY, ACTIVE, DONE,
         });
-
     }
 //
 //
@@ -1137,7 +1139,6 @@ class CreateTable extends Migration
             $table->longText('exception');
             $table->timestamp('failed_at')->useCurrent();
             $table->string('uuid')->after('id')->nullable()->unique();
-
         });
     }
 //
@@ -1616,7 +1617,6 @@ class CreateTable extends Migration
 //
     private function createInfos()
     {
-
         Schema::create('infos', function (Blueprint $table) {
             $table->id();
             $table->efficientUuid('uuid')->index()->unique()->nullable();
@@ -1632,7 +1632,6 @@ class CreateTable extends Migration
             $table->integer('created_by');
             $table->boolean('for_all')->default(true);
             $table->string('type')->default(\tcCore\Info::BASE_TYPE);
-
         });
     }
 //# Dump of table infoscreen_questions
@@ -1943,7 +1942,6 @@ class CreateTable extends Migration
     private function createMentors()
     {
         Schema::create('mentors', function (Blueprint $table) {
-
             $table->integer('school_class_id')->unsigned();
             $table->integer('user_id')->unsigned();
             $table->timestamps();
@@ -2005,7 +2003,6 @@ class CreateTable extends Migration
     private function createMessages()
     {
         Schema::create('messages', function (Blueprint $table) {
-
             $table->id();
             $table->timestamps();
             $table->softDeletes();;
@@ -2035,7 +2032,6 @@ class CreateTable extends Migration
     private function createManagers()
     {
         Schema::create('managers', function (Blueprint $table) {
-
             $table->integer('school_class_id')->unsigned();
             $table->integer('user_id')->unsigned();
             $table->timestamps();
@@ -2045,7 +2041,6 @@ class CreateTable extends Migration
 //            $table->foreign('school_class_id')->references('id')->on('school_classes');
 //            $table->foreign('user_id')->references('id')->on('users');
         });
-
     }
 
     /**
@@ -2067,13 +2062,14 @@ class CreateTable extends Migration
     private function createMatchingQuestionAnswerLinks()
     {
         Schema::create('matching_question_answer_links', function (Blueprint $table) {
-
             $table->integer('matching_question_id')->unsigned();
             $table->integer('matching_question_answer_id')->unsigned();
             $table->timestamps();
             $table->softDeletes();;
             $table->integer('order')->unsigned();
-            $table->primary(['matching_question_id', 'matching_question_answer_id'])->name('ma_qu_id_ma_qu_an_id_pIndex');
+            $table->primary(['matching_question_id', 'matching_question_answer_id'])->name(
+                'ma_qu_id_ma_qu_an_id_pIndex'
+            );
 //            $table->foreign('matching_question_answer_id')->references('id')->on('matching_question_answers');
 //            $table->foreign('matching_question_id')->references('id')->on('matching_questions');
         });
@@ -2096,7 +2092,6 @@ class CreateTable extends Migration
     private function createMatchingQuestionAnswers()
     {
         Schema::create('matching_question_answers', function (Blueprint $table) {
-
             $table->id();
             $table->timestamps();
             $table->softDeletes();;
@@ -2105,7 +2100,6 @@ class CreateTable extends Migration
             $table->enum('type', ['LEFT', 'RIGHT'])->nullable();
 //            $table->foreign('correct_answer_id')->references('id')->on('matching_question_answers');
         });
-
     }
 
     /**
@@ -2125,7 +2119,6 @@ class CreateTable extends Migration
     private function createMatchingQuestions()
     {
         Schema::create('matching_questions', function (Blueprint $table) {
-
             $table->id();
             $table->timestamps();
             $table->softDeletes();;
@@ -2133,7 +2126,6 @@ class CreateTable extends Migration
             $table->efficientUuid('uuid')->index()->unique()->nullable();
 //            $table->foreign('id')->references('id')->on('questions');
         });
-
     }
 
     /**
@@ -2158,7 +2150,9 @@ class CreateTable extends Migration
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
             $table->timestamp('deleted_at')->nullable();
-            $table->primary(['matrix_question_sub_question_id', 'matrix_question_answer_id'])->name('prim_matrix_question');
+            $table->primary(['matrix_question_sub_question_id', 'matrix_question_answer_id'])->name(
+                'prim_matrix_question'
+            );
 //            $table->foreign('matrix_question_answer_id')->references('id')->on('matrix_question_answers');
 //            $table->foreign('matrix_question_sub_question_id')->references('id')->on('matrix_question_sub_questions');
         });
@@ -2190,7 +2184,6 @@ class CreateTable extends Migration
             $table->integer('order');
 //            $table->foreign('matrix_question_id')->references('id')->on('matrix_questions');
         });
-
     }
 
     /**
@@ -2211,7 +2204,6 @@ class CreateTable extends Migration
     private function createMatrixQuestionSubQuestions()
     {
         Schema::create('matrix_question_sub_questions', function (Blueprint $table) {
-
             $table->bigIncrements('id')->unsigned();
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
@@ -2250,7 +2242,6 @@ class CreateTable extends Migration
     private function createMultipleChoiceQuestionAnswerLinks()
     {
         Schema::create('multiple_choice_question_answer_links', function (Blueprint $table) {
-
             $table->integer('multiple_choice_question_id')->unsigned();
             $table->integer('multiple_choice_question_answer_id')->unsigned();
             $table->timestamps();
@@ -2259,8 +2250,6 @@ class CreateTable extends Migration
             $table->primary(['multiple_choice_question_id', 'multiple_choice_question_answer_id'])->name('primMCQAL');
 //            $table->foreign('multiple_choice_question_id')->references('id')->on('multiple_choice_questions');
         });
-
-
     }
 
     /**
@@ -2303,7 +2292,6 @@ class CreateTable extends Migration
     private function createMultipleChoiceQuestions()
     {
         Schema::create('multiple_choice_questions', function (Blueprint $table) {
-
             $table->id();
             $table->timestamps();
             $table->softDeletes();;
@@ -2636,7 +2624,6 @@ class CreateTable extends Migration
     private function createOpenQuestions()
     {
         Schema::create('open_questions', function (Blueprint $table) {
-
             $table->id();
             $table->timestamps();
             $table->softDeletes();;
@@ -2696,7 +2683,6 @@ class CreateTable extends Migration
     private function createPValueUsers()
     {
         Schema::create('p_value_users', function (Blueprint $table) {
-
             $table->integer('p_value_id')->unsigned();
             $table->integer('user_id')->unsigned();
             $table->timestamps();
@@ -2705,7 +2691,6 @@ class CreateTable extends Migration
 //            $table->foreign('p_value_id')->references('id')->on('p_values');
 //            $table->foreign('user_id')->references('id')->on('users');
         });
-
     }
 
     /**
@@ -2744,7 +2729,6 @@ class CreateTable extends Migration
     private function createPValues()
     {
         Schema::create('p_values', function (Blueprint $table) {
-
             $table->id();
             $table->timestamps();
             $table->softDeletes();;
@@ -2814,7 +2798,6 @@ class CreateTable extends Migration
     private function createPeriods()
     {
         Schema::create('periods', function (Blueprint $table) {
-
             $table->id();
             $table->timestamps();
             $table->softDeletes();;
@@ -3013,7 +2996,6 @@ class CreateTable extends Migration
     private function createRankingQuestionAnswerLinks()
     {
         Schema::create('ranking_question_answer_links', function (Blueprint $table) {
-
             $table->integer('ranking_question_id')->unsigned();
             $table->integer('ranking_question_answer_id')->unsigned();
             $table->timestamps();
@@ -3024,8 +3006,6 @@ class CreateTable extends Migration
 //            $table->foreign('ranking_question_answer_id')->references('id')->on('ranking_question_answers');
 //            $table->foreign('ranking_question_id')->references('id')->on('ranking_questions');
         });
-
-
     }
 
     /**
@@ -3065,7 +3045,6 @@ class CreateTable extends Migration
     private function createRankingQuestions()
     {
         Schema::create('ranking_questions', function (Blueprint $table) {
-
             $table->id();
             $table->timestamps();
             $table->softDeletes();;
@@ -3226,7 +3205,6 @@ class CreateTable extends Migration
     private function createSchoolAddresses()
     {
         Schema::create('school_addresses', function (Blueprint $table) {
-
             $table->integer('address_id')->unsigned();
             $table->integer('school_id')->unsigned();
             $table->enum('type', ['MAIN', 'INVOICE', 'OTHER']);
@@ -3236,7 +3214,6 @@ class CreateTable extends Migration
 //            $table->foreign('address_id')->references('id')->on('addresses');
 //            $table->foreign('school_id')->references('id')->on('schools');
         });
-
     }
 
 //
@@ -3339,7 +3316,6 @@ class CreateTable extends Migration
     private function createSchoolContacts()
     {
         Schema::create('school_contacts', function (Blueprint $table) {
-
             $table->integer('school_id')->unsigned();
             $table->integer('contact_id')->unsigned();
             $table->enum('type', ['FINANCE', 'TECHNICAL', 'IMPLEMENTATION', 'OTHER']);
@@ -3349,7 +3325,6 @@ class CreateTable extends Migration
 //            $table->foreign('contact_id')->references('id')->on('contacts');
 //            $table->foreign('school_id')->references('id')->on('schools');
         });
-
     }
 
     /**
@@ -3372,7 +3347,6 @@ class CreateTable extends Migration
     private function createSchoolLocationAddresses()
     {
         Schema::create('school_location_addresses', function (Blueprint $table) {
-
             $table->integer('address_id')->unsigned();
             $table->integer('school_location_id')->unsigned();
             $table->enum('type', ['MAIN', 'INVOICE', 'VISIT', 'OTHER']);
@@ -3383,8 +3357,6 @@ class CreateTable extends Migration
 //            $table->foreign('address_id')->references('id')->on('addresses');
 //            $table->foreign('school_location_id')->references('id')->on('school_locations');
         });
-
-
     }
 
     /**
@@ -3407,7 +3379,6 @@ class CreateTable extends Migration
     private function createSchoolLocationContacts()
     {
         Schema::create('school_location_contacts', function (Blueprint $table) {
-
             $table->integer('school_location_id')->unsigned();
             $table->integer('contact_id')->unsigned();
             $table->enum('type', ['FINANCE', 'TECHNICAL', 'IMPLEMENTATION', 'OTHER']);
@@ -3418,7 +3389,6 @@ class CreateTable extends Migration
 //            $table->foreign('contact_id')->references('id')->on('contacts');
 //            $table->foreign('school_location_id')->references('id')->on('school_locations');
         });
-
     }
 
     /**
@@ -3442,12 +3412,12 @@ class CreateTable extends Migration
             $table->integer('education_level_id')->unsigned();
             $table->timestamps();
             $table->softDeletes();;
-            $table->primary(['school_location_id', 'education_level_id'])->name('prim_school_location_education_levels');
+            $table->primary(['school_location_id', 'education_level_id'])->name(
+                'prim_school_location_education_levels'
+            );
 //            $table->foreign('education_level_id')->references('id')->on('education_levels');
 //            $table->foreign('school_location_id')->references('id')->on('school_locations');
         });
-
-
     }
 
     /**
@@ -3469,7 +3439,6 @@ class CreateTable extends Migration
     private function createSchoolLocationIps()
     {
         Schema::create('school_location_ips', function (Blueprint $table) {
-
             $table->id();
             $table->timestamps();
             $table->softDeletes();;
@@ -3479,8 +3448,6 @@ class CreateTable extends Migration
             $table->efficientUuid('uuid')->index()->unique()->nullable();
 //            $table->foreign('school_location_id')->references('id')->on('school_locations');
         });
-
-
     }
 
 //
@@ -3558,7 +3525,6 @@ class CreateTable extends Migration
 //) ENGINE = InnoDB default CHARSET = utf8 COLLATE = utf8_unicode_ci;
     private function createSchoolLocationReports()
     {
-
         Schema::create('school_location_reports', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('school_location_id')->nullable();
@@ -3626,7 +3592,6 @@ class CreateTable extends Migration
             $table->integer('nr_participants_taken_test_90');
             $table->integer('nr_participants_taken_test_365');
             $table->integer('total_participants_taken_test');
-
         });
     }
 
@@ -3649,7 +3614,6 @@ class CreateTable extends Migration
     private function createSchoolLocationSchoolYears()
     {
         Schema::create('school_location_school_years', function (Blueprint $table) {
-
             $table->integer('school_location_id')->unsigned();
             $table->integer('school_year_id')->unsigned();
             $table->timestamps();
@@ -3814,7 +3778,6 @@ class CreateTable extends Migration
     private function createSchoolLocations()
     {
         Schema::create('school_locations', function (Blueprint $table) {
-
             $table->id();
             $table->timestamps();
             $table->softDeletes();;
@@ -4009,7 +3972,6 @@ class CreateTable extends Migration
     private function createSearchFilters()
     {
         Schema::create('search_filters', function (Blueprint $table) {
-
             $table->bigIncrements('id')->unsigned();
             $table->integer('user_id')->unsigned();
             $table->text('filters');
@@ -4176,7 +4138,6 @@ class CreateTable extends Migration
     private function createStudents()
     {
         Schema::create('students', function (Blueprint $table) {
-
             $table->integer('user_id')->unsigned();
             $table->integer('class_id')->unsigned();
             $table->timestamps();
@@ -4206,7 +4167,6 @@ class CreateTable extends Migration
     private function createBaseSubjects()
     {
         Schema::create('base_subjects', function (Blueprint $table) {
-
             $table->id();
             $table->timestamps();
             $table->softDeletes();;
@@ -4241,7 +4201,6 @@ class CreateTable extends Migration
     private function createSubjects()
     {
         Schema::create('subjects', function (Blueprint $table) {
-
             $table->id();
             $table->timestamps();
             $table->softDeletes();;
@@ -4327,7 +4286,6 @@ class CreateTable extends Migration
     private function createTags()
     {
         Schema::create('tags', function (Blueprint $table) {
-
             $table->id();
             $table->timestamps();
             $table->softDeletes();;
@@ -4383,7 +4341,6 @@ class CreateTable extends Migration
     private function createTeachers()
     {
         Schema::create('teachers', function (Blueprint $table) {
-
             $table->id();
             $table->timestamps();
             $table->softDeletes();;
@@ -4493,7 +4450,6 @@ class CreateTable extends Migration
          * ]);
          * });
          */
-
     }
 
     /**
@@ -4570,7 +4526,6 @@ class CreateTable extends Migration
     private function createTestParticipants()
     {
         Schema::create('test_participants', function (Blueprint $table) {
-
             $table->id();
             $table->timestamps();
             $table->softDeletes();;
@@ -4597,8 +4552,6 @@ class CreateTable extends Migration
 //            $table->foreign('user_id')->references('id')->on('users');
 
         });
-
-
     }
 
     /**
@@ -4653,8 +4606,12 @@ class CreateTable extends Migration
     private function createTestRatingParticipants()
     {
         Schema::create('test_rating_participants', function (Blueprint $table) {
-            $table->integer('test_participant_id')->unsigned()->index('fk_test_participants_has_test_ratings_test_participants1_idx');
-            $table->integer('test_rating_id')->unsigned()->index('fk_test_participants_has_test_ratings_test_ratings1_idx');
+            $table->integer('test_participant_id')->unsigned()->index(
+                'fk_test_participants_has_test_ratings_test_participants1_idx'
+            );
+            $table->integer('test_rating_id')->unsigned()->index(
+                'fk_test_participants_has_test_ratings_test_ratings1_idx'
+            );
             $table->timestamps();
             $table->softDeletes();
             $table->primary(['test_participant_id', 'test_rating_id'], 'primary_key_for_test_rating');
@@ -4716,7 +4673,6 @@ class CreateTable extends Migration
     private function createTestTakeEventTypes()
     {
         Schema::create('test_take_event_types', function (Blueprint $table) {
-
             $table->id();
             $table->timestamps();
             $table->softDeletes();;
@@ -4811,8 +4767,6 @@ class CreateTable extends Migration
             $table->string('name', 45)->nullable();
             $table->tinyInteger('is_individual_status')->nullable();
         });
-
-
     }
 
     /**
@@ -4875,7 +4829,6 @@ class CreateTable extends Migration
     private function createTestTake()
     {
         Schema::create('test_takes', function (Blueprint $table) {
-
             $table->id();
             $table->timestamps();
             $table->softDeletes();;
@@ -4922,6 +4875,7 @@ class CreateTable extends Migration
             $table->boolean('enable_comments_colearning')->default(false);
             $table->boolean('review_active')->default(false);
             $table->dateTime('results_published')->nullable();
+            $table->boolean('allow_inbrowser_colearning')->default(true);
 
 //            $table->foreign('period_id')->references('id')->on('periods');
 //            $table->foreign('discussing_question_id')->references('id')->on('questions');
@@ -4983,7 +4937,6 @@ class CreateTable extends Migration
     private function createTests()
     {
         Schema::create('tests', function (Blueprint $table) {
-
             $table->id();
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
@@ -5038,7 +4991,6 @@ class CreateTable extends Migration
     private function createText2speech()
     {
         Schema::create('text2speech', function (Blueprint $table) {
-
             $table->id();
             $table->timestamp('created_at')->default('0000-00-00 00:00:00');
             $table->timestamp('updated_at')->default('0000-00-00 00:00:00');
@@ -5096,11 +5048,12 @@ class CreateTable extends Migration
             $table->enum('type', ['MAIN', 'INVOICE', 'OTHER']);
             $table->timestamps();
             $table->softDeletes();;
-            $table->primary(['address_id', 'umbrella_organization_id', 'type'])->name('prim_umbrella_organization_addresses');
+            $table->primary(['address_id', 'umbrella_organization_id', 'type'])->name(
+                'prim_umbrella_organization_addresses'
+            );
 //            $table->foreign('address_id')->references('id')->on('addresses');
 //            $table->foreign('umbrella_organization_id')->references('id')->on('umbrella_organizations');
         });
-
     }
     /**
      * CREATE TABLE `umbrella_organization_contacts` (
@@ -5155,7 +5108,6 @@ class CreateTable extends Migration
     private function createUmbrellaOrganizationContacts()
     {
         Schema::create('umbrella_organizations', function (Blueprint $table) {
-
             $table->id();
             $table->timestamps();
             $table->softDeletes();;
@@ -5183,7 +5135,6 @@ class CreateTable extends Migration
             $table->efficientUuid('uuid')->index()->unique()->nullable();
 //            $table->foreign('user_id')->references('id')->on('users');
         });
-
     }
 
 
@@ -5204,7 +5155,6 @@ class CreateTable extends Migration
     private function createUserRoles()
     {
         Schema::create('user_roles', function (Blueprint $table) {
-
             $table->integer('user_id')->unsigned();
             $table->integer('role_id')->unsigned();
             $table->timestamps();
@@ -5276,7 +5226,6 @@ class CreateTable extends Migration
     private function createUsers()
     {
         Schema::create('users', function (Blueprint $table) {
-
             $table->id();
             $table->timestamps();
             $table->softDeletes();;
@@ -5356,7 +5305,6 @@ class CreateTable extends Migration
             $table->dateTime('trial_until');
             $table->efficientUuid('uuid')->index()->unique()->nullable();
             $table->bigInteger('school_location_id')->nullable();
-
         });
 
         TrialPeriod::whereNull('deleted_at')->each(function (TrialPeriod $tp) {
@@ -5604,9 +5552,8 @@ class CreateTable extends Migration
                 $table->text('error')->nullable();
                 $table->boolean('has_errors')->default(false);
                 $table->text('response')->nullable();
-                $table->string('reference',50)->nullable();
+                $table->string('reference', 50)->nullable();
             });
-
         }
     }
 
@@ -5617,6 +5564,152 @@ class CreateTable extends Migration
             $table->timestamps();
             $table->string('title');
             $table->text('value');
+        });
+    }
+
+    public function createWordLists(): void
+    {
+        Schema::create('word_lists', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+            $table->softDeletes();
+            $table->efficientUuid('uuid')->index()->unique();
+            $table->string('name');
+            $table->integer('user_id')->foreign('user_id')->references('id')->on('users');
+
+            $table->integer('subject_id')->foreign('subject_id')->references('id')->on('subjects');
+            $table->integer('education_level_id')->foreign('education_level_id')->references('id')->on('education_levels');
+            $table->integer('education_level_year');
+            $table->integer('school_location_id')->foreign('school_location_id')->references('id')->on('school_locations');
+            $table->boolean('hidden')->nullable();
+        });
+    }
+
+    private function createWords()
+    {
+        Schema::create('words', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+            $table->softDeletes();
+            $table->efficientUuid('uuid')->index()->unique();
+
+            $table->string('text');
+            $table->unsignedBigInteger('word_id')
+                ->nullable()
+                ->foreign('word_id')
+                ->references('id')
+                ->on('words')
+                ->onDelete('cascade');
+
+            $table->string('type');
+            $table->integer('user_id')->foreign('user_id')->references('id')->on('users');
+
+            $table->integer('subject_id')->foreign('subject_id')->references('id')->on('subjects');
+            $table->integer('education_level_id')->foreign('education_level_id')->references('id')->on('education_levels');
+            $table->integer('education_level_year');
+            $table->integer('school_location_id')->foreign('school_location_id')->references('id')->on('school_locations');
+        });
+    }
+
+    public function createVersions(): void
+    {
+        Schema::create('versions', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+            $table->softDeletes();
+            $table->efficientUuid('uuid')->index()->unique();
+
+            $table->string('name');
+            $table->integer('versionable_id')->index();
+            $table->string('versionable_type');
+            $table->unsignedBigInteger('original_id')->nullable();
+            $table->integer('user_id')->foreign('user_id')->references('id')->on('users');
+        });
+    }
+
+    private function createWordListWord(): void
+    {
+        Schema::create('word_list_word', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('word_list_id');
+            $table->unsignedBigInteger('word_id');
+            $table->unsignedInteger('version')->default(1);
+            $table->timestamps();
+
+            // Foreign key constraints
+            $table->foreign('word_list_id')
+                ->references('id')
+                ->on('word_lists')
+                ->onDelete('cascade');
+
+            $table->foreign('word_id')
+                ->references('id')
+                ->on('words')
+                ->onDelete('cascade');
+
+            // Index to speed up look-ups
+            $table->index(['word_list_id', 'word_id']);
+        });
+    }
+
+    private function createRelationQuestions(): void
+    {
+        Schema::create('relation_questions', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+            $table->softDeletes();
+            $table->efficientUuid('uuid')->index()->unique();
+
+            $table->boolean('shuffle')->default(false);
+            $table->integer('selection_count')->nullable();
+            $table->boolean('shuffle_per_participant')->default(false);
+            $table->boolean('auto_check_answer_case_sensitive')->default(false);
+            $table->boolean('auto_check_incorrect_answer')->default(false);
+        });
+    }
+
+    private function createRelationQuestionWord(): void
+    {
+        Schema::create('relation_question_word', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->integer('word_id');
+            $table->integer('relation_question_id');
+            $table->integer('word_list_id');
+            $table->boolean('selected')->default(false);
+
+
+            $table->foreign('word_id')->references('id')->on('words');
+            $table->foreign('relation_question_id')->references('id')->on('relation_questions');
+            $table->foreign('word_list_id')->references('id')->on('word_lists');
+        });
+    }
+
+    private function createTestTakeQuestions(): void
+    {
+        Schema::create('test_take_questions', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+            $table->softDeletes();
+            $table->unsignedInteger('test_take_id');
+            $table->unsignedInteger('question_id');
+            $table->boolean('discussed')->default(false);
+            $table->efficientUuid('uuid')->index()->unique();
+        });
+    }
+
+    private function createTestTakeRelationQuestions(): void
+    {
+        Schema::create('test_take_relation_questions', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+            $table->softDeletes();
+            $table->unsignedInteger('test_take_id');
+            $table->unsignedInteger('question_id');
+            $table->mediumText('json')->nullable();
+            $table->efficientUuid('uuid')->index()->unique();
         });
     }
 }

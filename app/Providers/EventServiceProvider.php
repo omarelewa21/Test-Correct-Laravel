@@ -1,15 +1,17 @@
-<?php namespace tcCore\Providers;
+<?php
+namespace tcCore\Providers;
 
 use Aacotroneo\Saml2\Events\Saml2LoginEvent;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Session;
 use tcCore\Http\Helpers\EntreeHelper;
-use tcCore\SamlMessage;
-use tcCore\User;
+use tcCore\Observers\VersionableObserver;
+use tcCore\Observers\WordListObserver;
+use tcCore\Word;
+use tcCore\WordList;
 
-class EventServiceProvider extends ServiceProvider {
+class EventServiceProvider extends ServiceProvider
+{
 
     /**
      * The event handler mappings for the application.
@@ -17,13 +19,18 @@ class EventServiceProvider extends ServiceProvider {
      * @var array
      */
     protected $listen = [
-        'event.name' => [
+        'event.name'                      => [
             'EventListener',
         ],
         'tcCore\Events\UserLoggedInEvent' => [
             'tcCore\Listeners\AddLoginLog',
             'tcCore\Listeners\SolveFailedLogin',
         ]
+    ];
+
+    protected $observers = [
+        Word::class     => [VersionableObserver::class],
+        WordList::class => [WordListObserver::class],
     ];
 
     public function register()
@@ -50,7 +57,7 @@ class EventServiceProvider extends ServiceProvider {
 
             $entreeHelper->redirectIfBrinUnknown();
 
-            if(config('entree.use_with_2_urls')) {
+            if (config('entree.use_with_2_urls')) {
                 $entreeHelper->redirectIfSmallSetAndSsoAvailable();
             }
 
@@ -81,7 +88,6 @@ class EventServiceProvider extends ServiceProvider {
             //if it does not exist create it and go on  or show an error message
         });
     }
-
 
 
 }

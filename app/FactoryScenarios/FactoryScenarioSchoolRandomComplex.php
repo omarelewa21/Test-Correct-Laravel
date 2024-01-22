@@ -46,7 +46,7 @@ class FactoryScenarioSchoolRandomComplex extends FactoryScenarioSchool
             ->section;
 
         $teacherSchoolLocation1and2 = FactoryUser::createTeacher($schoolLocation1)->addSchoolLocation($schoolLocation2)->user;
-        $teacherSchoolLocation2 = FactoryUser::createTeacher($schoolLocation1)->user;
+        $teacherSchoolLocation2 = FactoryUser::createTeacher($schoolLocation2)->user;
 
         $schoolClassLocation1 = FactorySchoolClass::create($schoolYearLocation1)
             ->addTeacher($teacherSchoolLocation1and2, $section1->subjects()->first())

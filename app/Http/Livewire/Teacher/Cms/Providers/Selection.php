@@ -21,8 +21,8 @@ class Selection extends TypeProvider
         return 'selection-question';
     }
 
-    public function initializePropertyBag($q)
+    public function initializePropertyBag($question)
     {
-        $this->instance->question['question'] = CompletionQuestion::decodeCompletionTags($q);
+        $this->instance->question['question'] = CompletionQuestion::decodeCompletionTags($question);
     }
 }

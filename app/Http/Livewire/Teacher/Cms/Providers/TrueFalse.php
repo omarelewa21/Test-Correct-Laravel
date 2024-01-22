@@ -45,9 +45,9 @@ class TrueFalse extends TypeProvider
         return ($this->instance->cmsPropertyBag['tfTrue'] == ($val == 'true'));
     }
 
-    public function initializePropertyBag($q)
+    public function initializePropertyBag($question)
     {
-        $q->multipleChoiceQuestionAnswers->each(function ($answer) {
+        $question->multipleChoiceQuestionAnswers->each(function ($answer) {
             if (Str::lower($answer->answer) === 'juist' && $answer->score > 0) {
                 $this->instance->cmsPropertyBag['tfTrue'] = 'true';
             }

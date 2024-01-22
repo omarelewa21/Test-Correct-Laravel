@@ -1,4 +1,5 @@
 <?php
+
 return [
     'answer_model'                     => 'Answer model',
     'toets'                            => 'test',
@@ -16,4 +17,5 @@ return [
     'duplicate_questions'              => 'Duplicate questions',
     'carousel_too_few_questions'       => 'Too few sub questions in carousel',
     'carousel_unequal_scores'          => 'Unequal sub question scores in carousel',
+    'test_contains_relation_question'  => 'This test contains a relation question. We have temporarily disabled this question, making the test unaccessible. Access will be granted as soon as possible.',
 ];

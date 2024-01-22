@@ -304,6 +304,7 @@ input:checked + .slider, .slider.checked {
 
 input:focus + .slider {
     box-shadow: 0 0 1px #3dbb56;
+    border: 1px solid var(--cta-primary-mid-dark);
 }
 
 input:disabled + .slider,
@@ -518,6 +519,11 @@ input[type=number] {
     transform: scale(1);
 }
 
+.radio-disabled .radio-custom {
+    pointer-events: none;
+    color: var(--note);
+}
+
 .form-input::placeholder {
     font-size: 1rem;
     color: var(--system-base);
@@ -527,12 +533,29 @@ input[type=number] {
     color: var(--mid-grey);
 }
 
+/* HERE */
+
 .slider-button-container .slider-option span {
     transition: color 150ms ease-in-out;
 }
 
 .slider-button-container .slider-option {
     position: relative;
+}
+
+.slider-button-container .slider-option.active-slider-option {
+    color: var(--teacher-primary);
+}
+.slider-button-container.white-variant .slider-option.active-slider-option {
+    color: white;
+    background-color: rgba(249, 250, 255, 0.2);
+}
+
+.slider-button-container .slider-option:hover {
+    color: var(--teacher-primary);
+}
+.slider-button-container.white-variant .slider-option:hover {
+    color: white;
 }
 
 .slider-button-container .slider-option:after {
@@ -550,6 +573,29 @@ input[type=number] {
 .slider-button-container .slider-option:hover:after {
     border-color: var(--blue-grey);
 }
+
+.slider-button-container .slider-button-handle {
+    border: var(--teacher-primary) solid 2px;
+    border-radius: 0.5rem;
+}
+
+.slider-button-container {
+    color: var(--system-base);
+}
+
+.slider-button-container.white-variant {
+    color: white;
+}
+
+.slider-button-container.white-variant .slider-button-handle {
+    border: white solid 2px;
+}
+
+.slider-button-container.white-variant .slider-option {
+    background: transparent;
+}
+
+/* TILL HERE */
 
 .inline-feedback-modal div[selid="ckeditor"],
 .inline-feedback-modal div[selid="ckeditor"] > div {
@@ -632,6 +678,13 @@ input[type=number] {
 .group\/child:hover:not(.checkbox-disabled) .checkbox-container input ~ .checkmark,
 .checkbox-container:hover input ~ .checkmark {
     border-color: var(--primary);
+}
+
+.checkbox-container.disabled:active input ~ .checkmark,
+.checkbox-container.disabled:hover input ~ .checkmark {
+    border-color: var(--blue-grey);
+    cursor: default;
+    background-color: rgba(var(--system-secondary-rgb), 0.5)
 }
 
 .checkbox-container:active input ~ .checkmark {

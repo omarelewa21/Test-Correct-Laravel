@@ -3,7 +3,6 @@
 namespace tcCore\Services\ContentSource;
 
 use Illuminate\Support\Facades\Auth;
-use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Test;
 use tcCore\TestAuthor;
 use tcCore\User;
@@ -54,7 +53,7 @@ class NationalItemBankService extends ContentSourceService
 
     protected static function testsAvailableForUser(User $user): bool
     {
-        return (new self)->itemBankFiltered(filters: [], sorting: [], forUser: $user)->exists();
+        return (new self())->itemBankFiltered(forUser: $user)->exists();
     }
 
     protected static function allowedForUser(User $user): bool
@@ -97,6 +96,5 @@ class NationalItemBankService extends ContentSourceService
     {
         return User::where('username', config('custom.national_item_bank_school_author'))->first();
     }
-
 }
 

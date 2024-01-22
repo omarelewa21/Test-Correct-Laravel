@@ -1,4 +1,4 @@
-<div {{ $attributes->merge(['class' => 'grid-card context-menu-container bg-white p-6 rounded-10 card-shadow hover:text-primary cursor-pointer']) }}
+<div {{ $attributes->merge(['class' => 'grid-card context-menu-container']) }}
      wire:key="test-take-{{ $testTake->uuid }}"
      wire:click="openTestTakeDetail('{{ $testTake->uuid }}')"
      wire:loading.class="hidden"
@@ -16,6 +16,7 @@
         <x-button.options id="test-take-card-{{ $testTake->uuid }}"
                           context="test-take-card"
                           :uuid="$testTake->uuid"
+                          :disabled="$disabledContextMenu"
         />
     </div>
     <div class="flex flex-wrap w-full justify-between text-base mb-1">

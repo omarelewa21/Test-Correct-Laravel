@@ -24,72 +24,28 @@
                 </style>
             @endpush
             @foreach($data as  $key => $testQuestion)
-                <div class="flex flex-col space-y-4">
-                    @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1 && $testQuestion->subtype != 'ARQ')
-                        <livewire:student-player.overview.multiple-select-question
-                                :question="$testQuestion"
-                                :number="++$key"
-                                :answers="$answers"
-                                wire:key="'q-'.$testQuestion->uuid'"
-                        />
-                    @elseif($testQuestion->type === 'MultipleChoiceQuestion')
-                        <livewire:student-player.overview.multiple-choice-question
-                                :question="$testQuestion"
-                                :number="++$key"
-                                :answers="$answers"
-                                wire:key="'q-'.$testQuestion->uuid'"
-                        />
-                    @elseif($testQuestion->type === 'OpenQuestion')
-                        <livewire:student-player.overview.open-question
-                                :question="$testQuestion"
-                                :number="++$key"
-                                :answers="$answers"
-                                wire:key="'q-'.$testQuestion->uuid'q-'"
-                        />
-                    @elseif($testQuestion->type === 'MatchingQuestion')
-                        @php $componentName = sprintf('student-player.overview.matching-question%s', strtolower($testQuestion->subtype) === 'classify' ? '-classify' : '') @endphp
-                        <livewire:is :component="$componentName"
-                                :question="$testQuestion"
-                                :number="++$key"
-                                :answers="$answers"
-                                wire:key="'q-'.$testQuestion->uuid'"
-                        />
-                    @elseif($testQuestion->type === 'CompletionQuestion')
-                        <livewire:student-player.overview.completion-question
-                                :question="$testQuestion"
-                                :number="++$key"
-                                :answers="$answers"
-                                wire:key="'q-'.$testQuestion->uuid'"
-                        />
-                    @elseif($testQuestion->type === 'RankingQuestion')
-                        <livewire:student-player.overview.ranking-question
-                                :question="$testQuestion"
-                                :number="++$key"
-                                :answers="$answers"
-                                wire:key="'q-'.$testQuestion->uuid'"
-                        />
-                    @elseif($testQuestion->type === 'InfoscreenQuestion')
-                        <livewire:student-player.overview.info-screen-question
-                                :question="$testQuestion"
-                                :number="++$key"
-                                :answers="$answers"
-                                wire:key="'q-'.$testQuestion->uuid"
-                        />
-                    @elseif($testQuestion->type === 'DrawingQuestion')
-                        <livewire:student-player.overview.drawing-question
-                                :question="$testQuestion"
-                                :number="++$key"
-                                :answers="$answers"
-                                wire:key="'q-'.$testQuestion->uuid"
-                        />
-                    @elseif($testQuestion->type === 'MatrixQuestion')
-                        <livewire:student-player.overview.matrix-question
-                                :question="$testQuestion"
-                                :number="++$key"
-                                :answers="$answers"
-                                wire:key="'q-'.$testQuestion->uuid"
-                        />
+                @php($key++)
+                @foreach ($groupedQuestions as $groupedQuestion)
+                    @if ($groupedQuestion[0] == $testQuestion->id )
+                        @foreach ($groupQuestions as $groupQuestion)
+                            @if ($groupQuestion->id == $testQuestion->belongs_to_groupquestion_id)
+                                    <livewire:student-player.group-question
+                                        :question="$testQuestion"
+                                        :answers="$answers"
+                                        :number="$key"
+                                        wire:key="'q-'.$testQuestion->uuid'q-'"
+                                    />
+                            @endif
+                        @endforeach
                     @endif
+                @endforeach
+                <div class="flex flex-col space-y-4">
+                    <livewire:is :component="$testQuestion->getStudentPlayerComponent('overview')"
+                                 :question="$testQuestion"
+                                 :number="$key"
+                                 :answers="$answers"
+                                 :wire:key="'q-'.$testQuestion->uuid"
+                    />
 
                     @if($testQuestion->type != 'InfoscreenQuestion')
                         <div class="flex">
@@ -103,6 +59,16 @@
                         </div>
                     @endif
                 </div>
+                @foreach ($groupedQuestions as $groupedQuestion)
+                    @if (end($groupedQuestion) == $testQuestion->id )
+                        <hr style="background: var(--all-Base);">
+                    @endif
+                @endforeach
+                @foreach ($nonGroupedQuestions as $nonGroupedQuestion)
+                    @if ($nonGroupedQuestion === $testQuestion->id)
+                        <hr style="background: var(--all-Base);">
+                    @endif
+                @endforeach
             @endforeach
         </div>
 
@@ -119,6 +85,7 @@
                         <span class="rsbtn_left rsimg rspart oval"><x-icon.rs-audio-inverse/></span>
                         <span class="rsbtn_right rsimg rsplay rspart"></span>
                     </a>
+                    <x-readspeaker-language-toggle/>
                 </div>
             @endif
         </x-slot>

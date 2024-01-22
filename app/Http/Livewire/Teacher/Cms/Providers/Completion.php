@@ -12,13 +12,8 @@ class Completion extends TypeProvider
     public $requiresAnswer = false;
 
     protected $questionOptions = [
-        'auto_check_answer' => false,
+        'auto_check_incorrect_answer' => false,
         'auto_check_answer_case_sensitive' => false,
-    ];
-
-    public $settingsGeneralPropertiesVisibility = [
-        'autoCheckAnswer' => true,
-        'autoCheckAnswerCaseSensitive' => true,
     ];
 
     public function preparePropertyBag()
@@ -30,21 +25,15 @@ class Completion extends TypeProvider
         }
     }
 
-    public function initializePropertyBag($q)
+    public function initializePropertyBag($question)
     {
-        parent::initializePropertyBag($q);
+        parent::initializePropertyBag($question);
 
-        $this->instance->question['question'] = CompletionQuestion::decodeCompletionTags($q);
+        $this->instance->question['question'] = CompletionQuestion::decodeCompletionTags($question);
     }
 
-    public function isSettingsGeneralPropertyDisabled($property, $asText = false)
+    public function isSettingsGeneralPropertyDisabled($property): bool
     {
-        if ($property === 'autoCheckAnswerCaseSensitive') {
-            if (!$this->instance->question['auto_check_answer']) {
-                return true;
-            }
-        }
-
         return false;
     }
 
@@ -63,5 +52,10 @@ class Completion extends TypeProvider
     public function getTemplate(): string
     {
         return 'completion-question';
+    }
+
+    public function isSettingVisible(string $property): bool
+    {
+        return true;
     }
 }

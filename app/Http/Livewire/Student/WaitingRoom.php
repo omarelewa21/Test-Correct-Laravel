@@ -10,6 +10,7 @@ use tcCore\Http\Helpers\AppVersionDetector;
 use tcCore\Http\Livewire\CoLearning\CompletionQuestion;
 use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\WithStudentTestTakes;
+use tcCore\RelationQuestion;
 use tcCore\TemporaryLogin;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
@@ -54,7 +55,8 @@ class WaitingRoom extends TCComponent
     public $participatingClasses = [];
 
     public $meetsAppRequirement = true;
-    public $needsApp;
+    public $needsAppForTestTake;
+    public $needsAppForCoLearning;
     public $appNeedsUpdate;
     public $appNeedsUpdateDeadline;
     public $appStatus;
@@ -70,6 +72,10 @@ class WaitingRoom extends TCComponent
         $this->waitingTestTake = $this->getWaitingRoomTestTake();
         $this->testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($this->waitingTestTake->getKey())->first();
         if (!$this->waitingTestTake || !$this->testParticipant) {
+            return $this->escortUserFromWaitingRoom();
+        }
+
+        if ($this->cantEnterWaitingRoomBecauseOfRelationQuestion()) {
             return $this->escortUserFromWaitingRoom();
         }
 
@@ -94,7 +100,7 @@ class WaitingRoom extends TCComponent
     public function startTestTake()
     {
         // through the AppApi a Virtual Machine has been reported, so we cancel taking the test
-        if ($this->testParticipant->test_take_status_id === TestTakeStatus::STATUS_TAKEN) {
+        if ($this->testParticipant->hasStatusTaken()) {
             $this->testParticipant->test_take_status_id = TestTakeStatus::STATUS_TAKING_TEST;
             $this->testParticipant->save();
             $this->testParticipant->test_take_status_id = TestTakeStatus::STATUS_TAKEN;
@@ -102,7 +108,7 @@ class WaitingRoom extends TCComponent
             return $this->escortUserFromWaitingRoom();
         }
 
-        if ($this->waitingTestTake->test_take_status_id === TestTakeStatus::STATUS_TAKING_TEST) {
+        if ($this->waitingTestTake->hasStatusTakingTest()) {
             if (!$this->testParticipant->isRejoiningTestTake(TestTakeStatus::STATUS_TAKING_TEST)) {
                 $this->testParticipant->test_take_status_id = TestTakeStatus::STATUS_TAKING_TEST;
                 $this->testParticipant->save();
@@ -178,14 +184,6 @@ class WaitingRoom extends TCComponent
         Auth::user()->redirectToCakeWithTemporaryLogin($options);
     }
 
-    // todo remove after refactoring colearning students
-//    public function destroyExistingCoLearningCompletionQuestionSession()
-//    {
-//        if (session()->has(CompletionQuestion::SESSION_KEY)) {
-//            session()->forget(CompletionQuestion::SESSION_KEY);
-//        }
-//    }
-
     public function startReview()
     {
         if (Auth::user()->schoolLocation->allow_new_reviewing) {
@@ -236,17 +234,18 @@ class WaitingRoom extends TCComponent
 
     public function participantAppCheck()
     {
-        if ($this->testTakeStatusStage != 'planned') {
-            return $this->needsApp = false;
+        if (!in_array($this->testTakeStatusStage, ['planned', 'taken', 'discuss' ]) ) {
+            return $this->needsAppForTestTake = false;
         }
 
         $this->appStatus = AppVersionDetector::isVersionAllowed(session()->get('headers'));
 
-        $this->needsApp = !!(!$this->testParticipant->canUseBrowserTesting());
+        $this->needsAppForTestTake = !!(!$this->testParticipant->canUseBrowserTesting());
+        $this->needsAppForCoLearning = !!(!$this->waitingTestTake->allow_inbrowser_colearning);
         $this->meetsAppRequirement = !!($this->appStatus != AllowedAppType::NOTALLOWED);
         $this->appNeedsUpdate = !!($this->appStatus === AllowedAppType::NEEDSUPDATE);
 
-        if ($this->needsApp && $this->meetsAppRequirement && !AppVersionDetector::verifyKeyHeader()) {
+        if ($this->needsAppForTestTake && $this->meetsAppRequirement && !AppVersionDetector::verifyKeyHeader()) {
             // student is using a modified app since the tlckey header is incorrect
             $this->appStatus = AllowedAppType::NOTALLOWED;
         }
@@ -299,4 +298,21 @@ class WaitingRoom extends TCComponent
         return false;
     }
 
+    public function needsApp(): bool
+    {
+        if (!in_array($this->testTakeStatusStage, ['planned', 'taken', 'discuss'])) {
+            return false;
+        }
+
+        return $this->testTakeStatusStage === 'planned' ? $this->needsAppForTestTake : $this->needsAppForCoLearning;
+    }
+
+    private function cantEnterWaitingRoomBecauseOfRelationQuestion(): bool
+    {
+        if (settings()->canUseRelationQuestion(auth()->user())) {
+            return false;
+        }
+
+        return $this->waitingTestTake->test->containsSpecificQuestionTypes(RelationQuestion::class);
+    }
 }

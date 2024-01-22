@@ -16,7 +16,7 @@ class CreateQuestionRequest extends Request {
 
 	protected function baseRules() {
 		return [
-			'type' => 'required|in:CompletionQuestion,DrawingQuestion,MatchingQuestion,MultipleChoiceQuestion,OpenQuestion,RankingQuestion,GroupQuestion,InfoscreenQuestion,MatrixQuestion',
+			'type' => 'required|in:CompletionQuestion,DrawingQuestion,MatchingQuestion,MultipleChoiceQuestion,OpenQuestion,RankingQuestion,GroupQuestion,InfoscreenQuestion,MatrixQuestion,RelationQuestion',
 			'question' => 'required',
 			'score' => 'required|integer|min:0',
 			'maintain_position' => 'required|in:0,1',

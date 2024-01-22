@@ -34,7 +34,7 @@ class SendInactiveUserMail extends Mailable
 
     public function build()
     {
-        $this->user = User::find($this->userId);
+        $this->user = User::findOrFail($this->userId);
 
         $this->view('emails.inactive_user_mail')
             ->subject('Actie vereist om jouw account te behouden')

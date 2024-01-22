@@ -3,51 +3,18 @@
      id="cms-drawer"
      class="drawer flex z-[20] overflow-auto"
      selid="question-drawer"
-     x-init="
-        collapse = window.innerWidth < 1000;
-        if (emptyStateActive) {
-            $store.cms.emptyState = true
-            backdrop = true;
-        }
-        handleBackdrop = () => {
-            if(backdrop) {
-                $root.dataset.closedWithBackdrop = 'true';
-                backdrop = !backdrop
-            } else {
-                if ($root.dataset.closedWithBackdrop === 'true') {
-                    backdrop = true;
-                }
-            }
-        }
-        $watch('emptyStateActive', (value) => {
-            backdrop = value
-            $store.cms.emptyState = value
-        })
-        handleLoading = () => {
-            loadingOverlay = $store.cms.loading;
-        }
-        handleSliderClick = (event) => {
-            if (!event.target.classList.contains('slider-option')) {
-                return
-            }
-            document.querySelectorAll('.option-menu-active').forEach((el) => $dispatch(el.getAttribute('context')+'-context-menu-close') );
-            $nextTick(() => showBank = event.target.firstElementChild.dataset.id);
-        }
-
-
-     "
-     x-data="{loadingOverlay: false, collapse: false, backdrop: false, emptyStateActive: @entangle('emptyStateActive'), showBank: @js($sliderButtonSelected)}"
+     x-data="constructionDrawer( @entangle('emptyStateActive'), @js($sliderButtonSelected))"
      x-cloak
      x-effect="handleLoading();"
-     :class="{'collapsed': collapse}"
-     @backdrop="backdrop = !backdrop"
-     @processing-end.window="$store.cms.processing = false;"
-     @filepond-start.window="loadingOverlay = true;"
-     @filepond-finished.window="loadingOverlay = false;"
-     @first-question-of-test-added.window="$wire.showFirstQuestionOfTest(); emptyStateActive = false; $nextTick(() => backdrop = true)"
-     @hide-backdrop-if-active.window="if(backdrop) backdrop = false"
-     @scroll="$store.cms.scrollPos = $el.scrollTop;"
-     @closed-with-backdrop.window="$root.dataset.closedWithBackdrop = $event.detail"
+     x-bind:class="{'collapsed': collapse}"
+     x-on:backdrop="backdrop = !backdrop"
+     x-on:processing-end.window="$store.cms.processing = false;$store.cms.loading = false;"
+     x-on:filepond-start.window="loadingOverlay = true;"
+     x-on:filepond-finished.window="loadingOverlay = false;"
+     x-on:first-question-of-test-added.window="$wire.showFirstQuestionOfTest(); emptyStateActive = false; $nextTick(() => backdrop = true)"
+     x-on:hide-backdrop-if-active.window="if(backdrop) backdrop = false"
+     x-on:scroll="$store.cms.scrollPos = $el.scrollTop;"
+     x-on:closed-with-backdrop.window="$root.dataset.closedWithBackdrop = $event.detail"
      wire:ignore.self
      wire:init="handleCmsInit()"
 >
@@ -92,13 +59,13 @@
             <x-sidebar.slide-container class="divide-y divide-bluegrey"
                                        x-ref="home"
                                        @mouseenter="handleVerticalScroll($el);"
-                                       @continue-to-new-slide.window="$wire.removeDummy();showAddQuestionSlide(false)"
+                                       @continue-to-new-slide.window="$wire.removeDummy();showAddQuestionSlide(false, !$event.detail.groupUuid);"
                                        @continue-to-add-group.window="addGroup(false)"
                                        @scroll-dummy-into-view.window="scrollActiveQuestionIntoView()"
             >
                 <div wire:sortable="updateTestItemsOrder"
                      class="sortable-drawer divide-y divide-bluegrey pb-6 pt-4" {{ $emptyStateActive ? 'hidden' : '' }} >
-                    @php $loopIndex = 0; @endphp
+                    @php($loopIndex = 0)
                     @foreach($this->questionsInTest as $testQuestion)
                         @if($testQuestion->question->type === 'GroupQuestion')
                             <x-sidebar.cms.group-question-container
@@ -107,13 +74,13 @@
                                     :double="$this->duplicateQuestions->contains($testQuestion->question->id)"
                             >
                                 @foreach($testQuestion->question->subQuestions as $question)
-                                    @php $loopIndex ++; @endphp
+                                    @php($loopIndex++)
                                     <x-sidebar.cms.question-button :testQuestion="$testQuestion"
                                                                    :question="$question"
                                                                    :loop="$loopIndex"
                                                                    :subQuestion="true"
-                                                                   :activeTestQuestion="$this->testQuestionId"
-                                                                   :activeGQQ="$this->groupQuestionQuestionId"
+                                                                   :activeTestQuestionUuid="$this->testQuestionId"
+                                                                   :activeGQQUuid="$this->groupQuestionQuestionId"
                                                                    :double="$this->duplicateQuestions->contains($question->id) || $this->duplicateQuestions->contains($testQuestion->question->id)"
                                     />
                                 @endforeach
@@ -121,13 +88,12 @@
                                                                            :loop="$loopIndex"/>
                             </x-sidebar.cms.group-question-container>
                         @else
-                            @php $loopIndex ++; @endphp
+                            @php($loopIndex++)
                             <x-sidebar.cms.question-button :testQuestion="$testQuestion"
                                                            :question="$testQuestion->question"
                                                            :loop="$loopIndex"
-                                                           :subQuestion="false"
-                                                           :activeTestQuestion="$this->testQuestionId"
-                                                           :activeGQQ="$this->groupQuestionQuestionId"
+                                                           :activeTestQuestionUuid="$this->testQuestionId"
+                                                           :activeGQQUuid="$this->groupQuestionQuestionId"
                                                            :double="$this->duplicateQuestions->contains($testQuestion->question_id)"
                             />
                         @endif
@@ -207,25 +173,25 @@
 
                 <div class="flex flex-1 w-full" wire:key="selected-tab-{{ $sliderButtonSelected }}">
                     <div class="w-full flex flex-1" x-cloak x-show="showBank === 'tests'">
-                        <livewire:teacher.cms-tests-overview :cmsTestUuid="$this->testId"/>
+                        <livewire:teacher.cms-tests-overview :cmsTestUuid="$this->testId" />
                     </div>
 
                     <div class="w-full flex flex-1" x-cloak x-show="showBank === 'questions'">
-                        <livewire:teacher.question-bank :testId="$this->testId" mode="cms"/>
+                        <livewire:teacher.question-bank :testId="$this->testId" mode="cms" />
                     </div>
                 </div>
             </x-sidebar.slide-container>
-            <x-sidebar.slide-container x-ref="newquestion" @mouseenter="handleVerticalScroll($el);">
+            <x-sidebar.slide-container x-ref="newquestion" x-on:mouseenter="handleVerticalScroll($el);">
                 <div class="py-2 px-5">
                     <div class="flex items-center space-x-2.5">
                         <x-button.back-round @click="prev($refs.newquestion); $store.questionBank.inGroup = false;"
                                              wire:click="$set('groupId', null)"
                         />
-                        <span class="bold text-lg">{{ __('cms.choose-question-type') }}</span>
+                        <span class="bold text-lg" selid="choose-question-type">{{ __('cms.choose-question-type') }}</span>
                     </div>
                 </div>
 
-                <x-sidebar.cms.question-types/>
+                <x-sidebar.cms.question-types :subject="$this->subject" :confirm-relation-question="!$this->confirmedRelationQuestion" />
             </x-sidebar.slide-container>
         </div>
         <span class="invisible"></span>

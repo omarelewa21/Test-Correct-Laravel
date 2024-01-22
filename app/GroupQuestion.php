@@ -1,6 +1,10 @@
-<?php namespace tcCore;
+<?php
 
+namespace tcCore;
+
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
+use tcCore\Http\Traits\Questions\WithQuestionDuplicating;
 use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\Lib\Question\QuestionInterface;
 use Dyrynda\Database\Casts\EfficientUuid;
@@ -11,8 +15,8 @@ use tcCore\Http\Helpers\QuestionHelper;
 
 class GroupQuestion extends Question implements QuestionInterface
 {
-
     use UuidTrait;
+    use WithQuestionDuplicating;
 
     protected $casts = [
         'uuid'                   => EfficientUuid::class,
@@ -45,24 +49,12 @@ class GroupQuestion extends Question implements QuestionInterface
 
     public function duplicate(array $attributes, $ignore = null, $callbacks = true)
     {
-        $question = $this->replicate();
-
-
-        $question->parentInstance = $this->parentInstance->duplicate($attributes, $ignore);
-        if ($question->parentInstance === false) {
-            return false;
-        }
-
-        $question->fill($attributes);
-
-        $question->setAttribute('uuid', Uuid::uuid4());
-
-        if ($question->save() === false) {
-            return false;
-        }
+        $question = $this->specificDuplication($attributes, $ignore);
 
         foreach ($this->groupQuestionQuestions as $groupQuestionQuestions) {
-            if ($ignore instanceof Question && $ignore->getKey() == $groupQuestionQuestions->getAttribute('question_id')) {
+            if ($ignore instanceof Question && $ignore->getKey() == $groupQuestionQuestions->getAttribute(
+                    'question_id'
+                )) {
                 continue;
             }
 
@@ -301,7 +293,8 @@ class GroupQuestion extends Question implements QuestionInterface
                 }
             } else {
                 $questionMaxScore += $groupQuestionQuestions->question->getAttribute('score');
-                $pointsPerQuestion[$groupQuestionQuestions->question->getKey()] = $groupQuestionQuestions->question->getAttribute('score');
+                $pointsPerQuestion[$groupQuestionQuestions->question->getKey(
+                )] = $groupQuestionQuestions->question->getAttribute('score');
             }
         }
         return;
@@ -312,7 +305,8 @@ class GroupQuestion extends Question implements QuestionInterface
         $questionMaxScore += (new QuestionHelper())->getTotalScoreForCarouselQuestion($this);
         $this->load('groupQuestionQuestions', 'groupQuestionQuestions.question');
         foreach ($this->groupQuestionQuestions as $groupQuestionQuestions) {
-            $pointsPerQuestion[$groupQuestionQuestions->question->getKey()] = $groupQuestionQuestions->question->getAttribute('score');
+            $pointsPerQuestion[$groupQuestionQuestions->question->getKey(
+            )] = $groupQuestionQuestions->question->getAttribute('score');
         }
         return;
     }
@@ -331,7 +325,10 @@ class GroupQuestion extends Question implements QuestionInterface
         $ignoreGroupQuestions[] = $this->getKey();
         $groupQuestions = static::whereIn('id', function ($query) use ($groupQuestionId) {
             $testQuestion = new GroupQuestionQuestion();
-            $query->from($testQuestion->getTable())->select('group_question_id')->where('question_id', $groupQuestionId);
+            $query->from($testQuestion->getTable())->select('group_question_id')->where(
+                'question_id',
+                $groupQuestionId
+            );
         })->get();
 
         foreach ($groupQuestions as $groupQuestion) {
@@ -347,7 +344,7 @@ class GroupQuestion extends Question implements QuestionInterface
         return $tests;
     }
 
-    public function canCheckAnswer()
+    public function canCreateSystemRatingForAnswer($answer): bool
     {
         return false;
     }
@@ -406,7 +403,7 @@ class GroupQuestion extends Question implements QuestionInterface
         return $this->groupQuestionQuestions()->count();
     }
 
-    public function hasEnoughSubQuestionsAsCarousel()
+    public function hasEnoughSubQuestionsAsCarousel(): bool
     {
         if (!$this->isCarouselQuestion()) {
             return true;
@@ -415,7 +412,7 @@ class GroupQuestion extends Question implements QuestionInterface
         return $this->groupQuestionQuestions()->count() >= $this->number_of_subquestions;
     }
 
-    public function hasEqualScoresForSubQuestions()
+    public function hasEqualScoresForSubQuestions(): bool
     {
         $scores = $this->groupQuestionQuestions->map(function ($groupQuestionQuestion) {
             return $groupQuestionQuestion->question->score;
@@ -424,11 +421,80 @@ class GroupQuestion extends Question implements QuestionInterface
         return $scores <= 1;
     }
 
-    public function getTotalScoreAttribute()
+    public function getTotalScoreAttribute(): int
     {
         $questionMaxScore = 0;
         $pointsPerQuestion = [];
         $this->getQuestionScores([], $questionMaxScore, $pointsPerQuestion);
         return $questionMaxScore;
+    }
+
+    public function containsQuestionType(string $type): bool
+    {
+        return $this->groupQuestionQuestions()
+            ->join(
+                'questions',
+                'questions.id',
+                '=',
+                'group_question_questions.question_id'
+            )
+            ->where('questions.type', class_basename($type))
+            ->exists();
+    }
+
+    public function getConstructorErrors(bool $isDuplicate = false, bool $withTitle = false): array
+    {
+        if ($isDuplicate) {
+            return [
+                'name'    => 'duplicate_group_question',
+                'message' => __('cms.duplicate_group_in_test'),
+            ];
+        }
+
+        if (!$this->isCarouselQuestion()) {
+            return [];
+        }
+
+        if (!$this->hasEnoughSubQuestionsAsCarousel()) {
+            return [
+                'name'    => 'carousel_sub_questions',
+                'message' => __('cms.carousel_not_enough_questions'),
+            ];
+        }
+
+        if (!$this->hasEqualScoresForSubQuestions()) {
+            return $this->getEqualScoreErrorMessage($withTitle);
+        }
+
+
+        return [];
+    }
+
+    /**
+     * @param bool $withTitle
+     * @return array
+     */
+    private function getEqualScoreErrorMessage(bool $withTitle): array
+    {
+        $name = "sub_questions_scores";
+        $messageKey = 'cms.carousel_subquestions_scores_differ';
+
+        if (!$this->containsQuestionType(RelationQuestion::class)) {
+            return [
+                'name'    => $name,
+                'message' => __($messageKey),
+            ];
+        }
+
+        $error = [
+            'name'    => $name . '_relation',
+            'message' => __($messageKey . ($withTitle ? '_relation' : '_relation_title')),
+        ];
+
+        if (!$withTitle) {
+            return $error;
+        }
+
+        return $error + ['title' => __('cms.carousel_subquestions_scores_differ_relation_title')];
     }
 }

@@ -12,9 +12,11 @@ use tcCore\Factories\Answers\FactoryAnswerMatchingQuestion;
 use tcCore\Factories\Answers\FactoryAnswerMultipleChoiceQuestion;
 use tcCore\Factories\Answers\FactoryAnswerOpenQuestion;
 use tcCore\Factories\Answers\FactoryAnswerRankingQuestion;
+use tcCore\Factories\Answers\FactoryAnswerRelationQuestion;
 use tcCore\Factories\Traits\DieAndDumpAble;
 use tcCore\Factories\Traits\DoWhileLoggedInTrait;
 use tcCore\Factories\Traits\PropertyGetableByName;
+use tcCore\InfoscreenQuestion;
 use tcCore\Lib\TestParticipant\Factory;
 use tcCore\Period;
 use tcCore\Student;
@@ -202,6 +204,10 @@ class FactoryTestTake
     {
         $this->testTake->testParticipants->each(function ($testParticipant) {
             $testParticipant->answers->each(function ($answer) {
+                if($answer->question instanceof InfoscreenQuestion) {
+                    return;
+                }
+
                 $answerRating = new AnswerRating([
                     'type'         => 'TEACHER',
                     'answer_id'    => $answer->getKey(),
@@ -310,6 +316,10 @@ class FactoryTestTake
         $this->testTake->testParticipants->each(function ($testParticipant){
             $score = 0;
             $testParticipant->answers->each(function ($answer) use (&$score) {
+                if($answer->question instanceof InfoscreenQuestion) {
+                    return;
+                }
+
                 $answerScore = $answer->calculateFinalRating();
                 if ($answerScore) {
                     $answer->setAttribute('final_rating', $answerScore);
@@ -422,6 +432,7 @@ class FactoryTestTake
             'RankingQuestion'        => FactoryAnswerRankingQuestion::class,
             'MultipleChoiceQuestion' => FactoryAnswerMultipleChoiceQuestion::class,
             'MatchingQuestion'       => FactoryAnswerMatchingQuestion::class,
+            'RelationQuestion'       => FactoryAnswerRelationQuestion::class,
         ];
 
         if (!array_key_exists($answer->question->type, $lookUp) ) {

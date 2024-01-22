@@ -2,21 +2,15 @@
 
 namespace tcCore\Http\Livewire\StudentPlayer;
 
-use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Traits\Questions\WithMultipleChoiceStructure;
-use tcCore\Http\Traits\WithCloseable;
 
-abstract class MultipleChoiceQuestion extends TCComponent
+abstract class MultipleChoiceQuestion extends StudentPlayerQuestion
 {
-    use withCloseable;
     use WithMultipleChoiceStructure;
 
-    public $question;
     public $answer = '';
-    public $answers;
     public $answerStruct;
     public $shuffledKeys;
-    public $number;
     public $arqStructure = [];
     public $answerText;
 

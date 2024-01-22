@@ -2,7 +2,7 @@
      x-cloak
      @class(['multi-dropdown-select | relative', $attributes->get('class')])
      wire:ignore
-     {{ $attributes->except('class') }}
+     {{ $attributes->except(['class', 'wire:model.defer', 'wire:model']) }}
      x-on:remove-item="removeFilterPill($event.detail)"
 >
     @if($label)

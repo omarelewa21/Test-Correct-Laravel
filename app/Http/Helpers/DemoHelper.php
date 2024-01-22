@@ -479,16 +479,14 @@ class DemoHelper
     }
 
     /** section data */
-    protected function getDemoSection()
+    protected function getDemoSection(): ?Section
     {
-        $this->schoolLocation->refresh();
-        $sls = $this->schoolLocation->schoolLocationSections->first(function ($s) {
-            return $s->section !== null && $s->section->name === self::SECTIONNAME;
-        });
-        if ($sls) {
-            return $sls->section;
-        }
-        return null;
+        return $this->schoolLocation
+            ->schoolLocationSections()
+            ->join('sections', 'sections.id', '=', 'school_location_sections.section_id')
+            ->where('sections.name', self::SECTIONNAME)
+            ->first()
+            ?->section;
     }
 
     protected function createDemoSectionIfNeeded()

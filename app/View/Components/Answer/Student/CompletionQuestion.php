@@ -6,6 +6,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use tcCore\Answer;
 use tcCore\AnswerRating;
+use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Traits\Questions\WithCompletionConversion;
 use tcCore\Question;
 
@@ -59,7 +60,7 @@ class CompletionQuestion extends QuestionComponent
     {
         if( $this->inCoLearning ) {
             if ($studentAnswerRating = $this->answerRating) {
-                if ($this->ratingHasBoolValueForKey($studentAnswerRating, $correctAnswer->tag)) {
+                if ($this->ratingContainsValidToggleValue($studentAnswerRating, $correctAnswer->tag)) {
                     return $studentAnswerRating->json[$correctAnswer->tag];
                 }
             }
@@ -67,7 +68,7 @@ class CompletionQuestion extends QuestionComponent
         }
 
         if ($this->question->isSubType('multi')) {
-            return $givenAnswer === $correctAnswer->answer;
+            return QuestionHelper::compareTextAnswers($givenAnswer, $correctAnswer->answer);
         }
 
         if (!$this->answer->answerRatings) {
@@ -75,22 +76,21 @@ class CompletionQuestion extends QuestionComponent
         }
 
         if ($teacherRating = $this->getTeacherRatingWithToggleData()) {
-            if ($this->ratingHasBoolValueForKey($teacherRating, $correctAnswer->tag)) {
+            if ($this->ratingContainsValidToggleValue($teacherRating, $correctAnswer->tag)) {
                 return $teacherRating->json[$correctAnswer->tag];
             }
         }
 
-        if ($this->question->isSubType('completion') && !$this->question->auto_check_answer) {
-            return null;
+        $correctAnswers = Arr::wrap($correctAnswer->answer);
+
+        if ($this->question->isSubType('completion') && $this->question->auto_check_incorrect_answer) {
+            return QuestionHelper::compareTextAnswers($givenAnswer, $correctAnswers, $this->question->auto_check_answer_case_sensitive);
         }
 
-        if ($this->question->auto_check_answer_case_sensitive) {
-            return in_array($givenAnswer, Arr::wrap($correctAnswer->answer)) ?: null;
-        }
-
-        $lowercaseAnswers = array_map('strtolower', Arr::wrap($correctAnswer->answer));
-
-        return in_array(Str::lower($givenAnswer), $lowercaseAnswers) ?: null;
+        //returns null if answer is not the same, only determines which answers are correct
+        return QuestionHelper::compareTextAnswers($givenAnswer, $correctAnswers, $this->question->auto_check_answer_case_sensitive)
+            ? true
+            : null;
     }
 
     private function createCompletionAnswerStruct(mixed $answers, $correctAnswers, $answer)
@@ -109,9 +109,11 @@ class CompletionQuestion extends QuestionComponent
                 ->unique('tag')
                 ->count();
 
-        return $answerStruct->map(function ($link, $key) use ($answer, $answers, $score) {
+        $mtep = $answerStruct->map(function ($link, $key) use ($answer, $answers, $score) {
             return $this->setAnswerPropertiesOnObject($link, $key, $link, $answers, $score);
         });
+
+        return $mtep;
     }
 
     private function createSelectionAnswerStruct(mixed $answers, $correctAnswers)

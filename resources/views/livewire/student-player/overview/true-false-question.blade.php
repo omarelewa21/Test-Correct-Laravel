@@ -29,4 +29,5 @@
             </div>
         </div>
     </div>
+    <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>
 </x-partials.overview-question-container>

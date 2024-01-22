@@ -21,7 +21,7 @@ class FactoryScenarioSchoolForExamCoordinator extends FactoryScenarioSchool
     protected $schoolLocationName;
     protected $sectionName;
     protected $subjectName;
-    protected $baseSubjectId;
+    public $baseSubjectId;
     protected $schoolClassName;
 
     public function __construct()

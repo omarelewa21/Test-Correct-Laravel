@@ -7,17 +7,22 @@ use tcCore\GroupQuestion;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
+use tcCore\Http\Enums\UserSystemSetting as UserSystemSettingEnum;
 use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Livewire\Teacher\Cms\TypeFactory;
 use tcCore\Http\Traits\WithQueryStringSyncing;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Question;
+use tcCore\RelationQuestion;
+use tcCore\Subject;
 use tcCore\Test;
 use tcCore\TestQuestion;
+use tcCore\UserSystemSetting;
 
 class Cms extends TCComponent
 {
     use WithQueryStringSyncing;
+
     protected $queryString = [
         'testId',
         'testQuestionId',
@@ -50,22 +55,28 @@ class Cms extends TCComponent
     public $sliderButtonSelected = 'questions';
     public $sliderButtonDisabled = false;
 
+    public bool $confirmedRelationQuestion = false;
+
+    private Subject $subject;
+
     protected function getListeners()
     {
         return [
-            'refreshDrawer'              => 'refreshDrawer',
-            'refreshSelf'                => '$refresh',
-            'deleteQuestion'             => 'deleteQuestion',
-            'deleteQuestionByQuestionId' => 'deleteQuestionByQuestionId',
-            'show-empty'                 => 'showEmpty',
-            'addQuestionResponse'        => 'addQuestionResponse',
-            'newGroupId'                 => 'newGroupId',
+            'refreshDrawer'                     => 'refreshDrawer',
+            'refreshSelf'                       => '$refresh',
+            'deleteQuestion'                    => 'deleteQuestion',
+            'deleteQuestionByQuestionId'        => 'deleteQuestionByQuestionId',
+            'show-empty'                        => 'showEmpty',
+            'addQuestionResponse'               => 'addQuestionResponse',
+            'newGroupId'                        => 'newGroupId',
+            'relation-question-modal-confirmed' => 'relationQuestionModalConfirmed'
         ];
     }
 
     public function mount()
     {
         $this->setSliderButtonOptions();
+        $this->setConfirmRelationQuestion();
         if (blank($this->type) && blank($this->subtype)) {
             if ($this->testQuestions->count() === 0) {
                 $this->emptyStateActive = true;
@@ -81,7 +92,9 @@ class Cms extends TCComponent
 
     public function booted()
     {
-        $this->duplicateQuestions = Test::whereUuid($this->testId)->first()->getDuplicateQuestionIds();
+        $test = Test::whereUuid($this->testId)->first();
+        $this->duplicateQuestions = $test->getDuplicateQuestionIds();
+        $this->subject = $test->subject;
     }
 
     public function render()
@@ -102,7 +115,9 @@ class Cms extends TCComponent
                 if (!$question) {
                     throw new \Exception('question could not be found');
                 }
-                TestQuestion::where('test_id', $test->getKey())->where('question_id', $question->getKey())->update(['order' => $item['order']]);
+                TestQuestion::where('test_id', $test->getKey())
+                    ->where('question_id', $question->getKey())
+                    ->update(['order' => $item['order']]);
             });
             DB::commit();
         } catch (\Throwable $e) {
@@ -128,7 +143,9 @@ class Cms extends TCComponent
                 if (!$question) {
                     throw new \Exception('question could not be found');
                 }
-                GroupQuestionQuestion::where('group_question_id', $groupQuestion->getKey())->where('question_id', $question->getKey())->update(['order' => $item['order']]);
+                GroupQuestionQuestion::where('group_question_id', $groupQuestion->getKey())
+                    ->where('question_id', $question->getKey())
+                    ->update(['order' => $item['order']]);
             });
             DB::commit();
         } catch (\Throwable $e) {
@@ -164,6 +181,12 @@ class Cms extends TCComponent
                 'shouldSave' => true
             ]
         );
+
+        if ($type === class_basename(RelationQuestion::class)) {
+            $this->relationQuestionModalConfirmed();
+        }
+
+        return true;
     }
 
     public function addQuestionResponse($args)
@@ -187,12 +210,14 @@ class Cms extends TCComponent
             $testQuestion->question->attachmentCount = $testQuestion->question->attachments()->count();
             if ($testQuestion->question->type === 'GroupQuestion') {
                 $groupQuestion = $testQuestion->question;
-                $groupQuestion->subQuestions = $groupQuestion->groupQuestionQuestions->map(function ($item) use ($groupQuestion) {
-                    $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
-                    $item->question->groupQuestionQuestionUuid = $item->uuid;
-                    $item->question->attachmentCount = $item->question->attachments()->count();
-                    return $item->question;
-                });
+                $groupQuestion->subQuestions = $groupQuestion->groupQuestionQuestions->map(
+                    function ($item) use ($groupQuestion) {
+                        $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
+                        $item->question->groupQuestionQuestionUuid = $item->uuid;
+                        $item->question->attachmentCount = $item->question->attachments()->count();
+                        return $item->question;
+                    }
+                );
             }
             return [$testQuestion];
         });
@@ -214,7 +239,9 @@ class Cms extends TCComponent
     public function deleteQuestion($testQuestionUuid)
     {
         $this->findOutHowToRedirectButFirstExecuteCallback($testQuestionUuid, function () use ($testQuestionUuid) {
-            $response = (new TestQuestionsController)->destroy($this->questionsInTest->firstWhere('uuid', $testQuestionUuid));
+            $response = (new TestQuestionsController)->destroy(
+                $this->questionsInTest->firstWhere('uuid', $testQuestionUuid)
+            );
         });
         $this->emit('questionDeleted', $testQuestionUuid);
     }
@@ -249,7 +276,6 @@ class Cms extends TCComponent
                 }
                 $previousQuestion = $question;
             }
-
         }
 
         if (is_callable($callback)) {
@@ -349,7 +375,12 @@ class Cms extends TCComponent
 
     private function showQuestionByTestQuestion($testQuestion)
     {
-        $this->showQuestion($testQuestion->uuid, $testQuestion->question->uuid, $testQuestion->type === 'GroupQuestion', false);
+        $this->showQuestion(
+            $testQuestion->uuid,
+            $testQuestion->question->uuid,
+            $testQuestion->type === 'GroupQuestion',
+            false
+        );
     }
 
     public function removeDummy()
@@ -362,11 +393,15 @@ class Cms extends TCComponent
                 $testQuestion = $this->questionsInTest->where('uuid', $this->testQuestionId)->first();
 
                 if ($testQuestion->question->subQuestions->count()) {
-                    return $this->showQuestion($testQuestion->uuid, $testQuestion->question->subQuestions->reverse()->first()->uuid, true, false);
+                    return $this->showQuestion(
+                        $testQuestion->uuid,
+                        $testQuestion->question->subQuestions->reverse()->first()->uuid,
+                        true,
+                        false
+                    );
                 }
 
                 return $this->showQuestionByTestQuestion($testQuestion);
-
             } else {
                 return $this->showQuestionByTestQuestion($this->questionsInTest->reverse()->first());
             }
@@ -381,7 +416,9 @@ class Cms extends TCComponent
 
     private function setQuestionNameString($type, $subtype)
     {
-        $this->newQuestionTypeName = $subtype === 'group' ? __('cms.group-question') : TypeFactory::findQuestionNameByTypes($type, $subtype);
+        $this->newQuestionTypeName = $subtype === 'group'
+            ? __('cms.group-question')
+            : TypeFactory::findQuestionNameByTypes($type, $subtype);
     }
 
     public function newGroupId($uuid)
@@ -395,8 +432,8 @@ class Cms extends TCComponent
 
         try {
             $newQuestion = $questionToDuplicate->duplicate($questionToDuplicate->getAttributes());
-            Question::whereId($newQuestion->getKey())->update(['derived_question_id'  => null]);
-            $newQuestion->attachToParentInTest($this->testId , $testQuestionUuidForGroupQuestion);
+            Question::whereId($newQuestion->getKey())->update(['derived_question_id' => null]);
+            $newQuestion->attachToParentInTest($this->testId, $testQuestionUuidForGroupQuestion);
         } catch (\Exception $e) {
             $this->dispatchBrowserEvent('notify', ['message' => __('auth.something_went_wrong'), 'error']);
             return false;
@@ -408,8 +445,22 @@ class Cms extends TCComponent
     private function setSliderButtonOptions()
     {
         $this->sliderButtonOptions = [
-            'tests' => __('cms.Toetsenbank'),
+            'tests'     => __('cms.Toetsenbank'),
             'questions' => __('cms.Vragenbank'),
         ];
+    }
+
+    private function setConfirmRelationQuestion(): void
+    {
+        $this->confirmedRelationQuestion = UserSystemSetting::getSetting(
+            user   : auth()->user(),
+            title  : UserSystemSettingEnum::CMS_ADD_RELATION_QUESTION_CONFIRMATION,
+            default: false
+        );
+    }
+
+    public function relationQuestionModalConfirmed(): void
+    {
+        $this->confirmedRelationQuestion = true;
     }
 }

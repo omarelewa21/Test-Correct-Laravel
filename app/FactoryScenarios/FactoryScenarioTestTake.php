@@ -43,7 +43,7 @@ abstract class FactoryScenarioTestTake
     /**
      * Define the specific scenario
      */
-    protected abstract function createFactoryTestTake();
+    abstract protected function createFactoryTestTake();
 
     protected function createTest()
     {

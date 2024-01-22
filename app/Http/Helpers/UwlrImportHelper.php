@@ -41,20 +41,20 @@ class UwlrImportHelper
         try {
             $start = microtime(true);
             $pastCarbon = Carbon::now()->sub($sub);
-            $uwlrSoapResultQueryBuilder = UwlrSoapResult::where('created_at','<',$pastCarbon)->select('id');
+            $uwlrSoapResultQueryBuilder = UwlrSoapResult::where('created_at', '<', $pastCarbon)->select('id');
             $countResult = $uwlrSoapResultQueryBuilder->count();
-            $entryQueryBuilder = UwlrSoapEntry::whereIn('uwlr_soap_result_id',$uwlrSoapResultQueryBuilder);
+            $entryQueryBuilder = UwlrSoapEntry::whereIn('uwlr_soap_result_id', $uwlrSoapResultQueryBuilder);
             $countEntries = $entryQueryBuilder->count();
             $entryQueryBuilder->delete();
             $uwlrSoapResultQueryBuilder->delete();
             $duration = microtime(true) - $start;
             return [
                 'result records deleted' => $countResult,
-                'entry records deleted' => $countEntries,
-                'duration' => $duration
+                'entry records deleted'  => $countEntries,
+                'duration'               => $duration
             ];
-        } catch(Throwable $e){
-            $message = sprintf('Could not determine carbapp/Http/Traits/WithQuestionFilteredHelpers.php:430on date based on substraction of the term `%s` and therefor not prune the uwl soap records. Error was: %s',$sub, $e->getMessage());
+        } catch (Throwable $e) {
+            $message = sprintf('Could not determine carbapp/Http/Traits/WithQuestionFilteredHelpers.php:430on date based on substraction of the term `%s` and therefor not prune the uwl soap records. Error was: %s', $sub, $e->getMessage());
             Bugsnag::notifyException(new \Exception(
                 $message
             ));
@@ -76,8 +76,8 @@ class UwlrImportHelper
      */
     public static function cleanupCrashedImports()
     {
-        SchoolLocation::where('auto_uwlr_import_status',self::AUTO_UWLR_IMPORT_STATUS_PLANNED)
-            ->orWhere('auto_uwlr_import_status',self::AUTO_UWLR_IMPORT_STATUS_PROCESSING)
+        SchoolLocation::where('auto_uwlr_import_status', self::AUTO_UWLR_IMPORT_STATUS_PLANNED)
+            ->orWhere('auto_uwlr_import_status', self::AUTO_UWLR_IMPORT_STATUS_PROCESSING)
             ->update(['auto_uwlr_import_status' => null]);
     }
 
@@ -101,6 +101,7 @@ class UwlrImportHelper
     {
         $schoolLocation = SchoolLocation::where('lvs_active', true) // only if lvs is active
         ->where('auto_uwlr_import', true) // only if allowed to be imported automagically
+        ->whereNull('import_merge_school_location_id') // only master accounts not the sub records
         ->where(function ($query) {
             $query->where(function ($q) {
                 $q->where('auto_uwlr_import_status', '<>', self::AUTO_UWLR_IMPORT_STATUS_PROCESSING) // don't pick up if currently processing
@@ -108,30 +109,30 @@ class UwlrImportHelper
             })
                 ->orWhereNull('auto_uwlr_import_status');
         })
-            ->where(function ($query) {
-                $query->where(function ($q) {
-                    $q->where('auto_uwlr_import_status', self::AUTO_UWLR_IMPORT_STATUS_FAILED_TWICE) // failed twice
-                    ->where('auto_uwlr_last_import', '<=', Carbon::now()->subDay()); // but last try was more than a day ago
-                })
-                    ->orWhere('auto_uwlr_import_status', '<>', self::AUTO_UWLR_IMPORT_STATUS_FAILED_TWICE) // or status unlike failed twice
-                    ->orWhereNull('auto_uwlr_import_status');
+        ->where(function ($query) {
+            $query->where(function ($q) {
+                $q->where('auto_uwlr_import_status', self::AUTO_UWLR_IMPORT_STATUS_FAILED_TWICE) // failed twice
+                ->where('auto_uwlr_last_import', '<=', Carbon::now()->subDay()); // but last try was more than a day ago
             })
-            ->where(function ($query) {
-                $query->where(function ($q) {
-                    $q->where('auto_uwlr_last_import','<=',Carbon::now()->subHours(10)->toDateTimeString())// don't handle twice a day
-                    ->where(function($t) {
-                        $t->where('auto_uwlr_import_status', '<>', self::AUTO_UWLR_IMPORT_STATUS_FAILED)
+                ->orWhere('auto_uwlr_import_status', '<>', self::AUTO_UWLR_IMPORT_STATUS_FAILED_TWICE) // or status unlike failed twice
+                ->orWhereNull('auto_uwlr_import_status');
+        })
+        ->where(function ($query) {
+            $query->where(function ($q) {
+                $q->where('auto_uwlr_last_import', '<=', Carbon::now()->subHours(10)->toDateTimeString())// don't handle twice a day
+                ->where(function ($t) {
+                    $t->where('auto_uwlr_import_status', '<>', self::AUTO_UWLR_IMPORT_STATUS_FAILED)
                         ->
                         orWhereNull('auto_uwlr_import_status');
-                    });
-                })
-                    ->orwhere('auto_uwlr_import_status',  self::AUTO_UWLR_IMPORT_STATUS_FAILED)
-                    ->orWhereNull('auto_uwlr_last_import');
+                });
             })
-            ->orderBy('auto_uwlr_last_import', 'asc') // last one first
-            ->orderBy('external_main_code', 'asc') // if same then order by brin
-            ->orderBy('external_sub_code', 'asc') // and even dependance
-            ->first();
+                ->orwhere('auto_uwlr_import_status', self::AUTO_UWLR_IMPORT_STATUS_FAILED)
+                ->orWhereNull('auto_uwlr_last_import');
+        })
+        ->orderBy('auto_uwlr_last_import', 'asc') // last one first
+        ->orderBy('external_main_code', 'asc') // if same then order by brin
+        ->orderBy('external_sub_code', 'asc') // and even dependance
+        ->first();
         if (!$schoolLocation) {
             return false;
         }
@@ -142,10 +143,12 @@ class UwlrImportHelper
                 throw new \Exception(sprintf('No schoolyears found for school location %s (%d)', $schoolLocation->name, $schoolLocation->getKey()));
             }
             $schoolYear = $schoolYears[0];
-            $helper = static::getHelperAndStoreInDB($schoolLocation->lvs_type, $schoolYear, $schoolLocation->external_main_code, $schoolLocation->external_sub_code);
-            $schoolLocation->auto_uwlr_import_status = self::AUTO_UWLR_IMPORT_STATUS_PLANNED;
-            $schoolLocation->save();
+
+            $helper = $this->handleSchoolLocation($schoolLocation, $schoolYear);
             $resultSet = $helper->getResultSet();
+
+            $this->handleSchoolLocationsToBeMergedIfAny($schoolLocation,$resultSet->getKey(),$schoolYear);
+
             $resultSet->status = 'READYTOPROCESS';
             $resultSet->save();
 
@@ -161,6 +164,31 @@ class UwlrImportHelper
             throw new UwlrAutoImportException($e);
         }
         return true;
+    }
+
+    protected function handleSchoolLocation($schoolLocation, $schoolYear): MagisterHelper|SomTodayHelper
+    {
+        $helper = static::getHelperAndStoreInDB($schoolLocation->lvs_type, $schoolYear, $schoolLocation->external_main_code, $schoolLocation->external_sub_code);
+        $schoolLocation->auto_uwlr_import_status = self::AUTO_UWLR_IMPORT_STATUS_PLANNED;
+        $schoolLocation->save();
+        return $helper;
+    }
+
+    public function handleSchoolLocationsToBeMergedIfAny($parentSchoolLocation,$masterResultSetId,$schoolYear)
+    {
+        SchoolLocation::where('import_merge_school_location_id', $parentSchoolLocation->getKey())
+            ->where('lvs_active', true)
+            ->where('auto_uwlr_import', true)  // only if allowed to be imported automagically;
+            ->get()
+            ->each(function(SchoolLocation $schoolLocation) use ($masterResultSetId, $schoolYear){
+                // import data in own resultset
+                $helper = $this->handleSchoolLocation($schoolLocation,$schoolYear);
+                $resultSet = $helper->getResultSet();
+                // move records to masterResultset
+                UwlrSoapEntry::where('uwlr_soap_result_id',$resultSet->getKey())->update(['uwlr_soap_result_id' => $masterResultSetId]);
+                $resultSet->status = 'MOVEDTOMASTER'.$masterResultSetId;
+                $resultSet->save();
+            });
     }
 
     public static function getSchoolYearsForUwlrImport($location): array

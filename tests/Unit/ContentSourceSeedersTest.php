@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use Database\Seeders\CitoAccountSeeder;
 use Database\Seeders\CreathlonItemBankSeeder;
 use Database\Seeders\ExamSchoolSeeder;
+use Database\Seeders\OlympiadeArchiveItemBankSeeder;
 use Database\Seeders\OlympiadeItemBankSeeder;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use tcCore\SchoolLocation;
@@ -81,6 +82,77 @@ class ContentSourceSeedersTest extends TestCase
         //assert tests are not drafts
         $this->assertTrue(
             Test::where('scope', '=', 'published_olympiade')
+                ->where('draft', '=', false)
+                ->exists()
+        );
+
+    }
+
+    /**
+     * Assert:
+     *  school_location is created
+     *  publishing author is created
+     *  published (scope) tests and questions have been created
+     *  published (draft) tests and questions have been created
+     * @test
+     */
+    public function can_seed_olympiade_archive_content()
+    {
+        $user = User::find(1486);
+        \Auth::login($user);
+        $this->actingAs($user);
+
+        if (SchoolLocation::where('customer_code', '=', config('custom.olympiade_archive_school_customercode'))
+            ->exists()) {
+            echo __CLASS__.": \033[31m olympiade Archive school has already been seeded previously, so the data the tests rely on could be edited/corrupted \033[0m \n";
+        } else {
+            (new OlympiadeArchiveItemBankSeeder)->run();
+        }
+
+        //assert correct author username used for teacher user
+        $this->assertTrue(
+            User::where('username', '=', config('custom.olympiade_archive_school_author'))
+                ->exists()
+        );
+        //assert correct customerCode used for schoolLocation
+        $this->assertTrue(
+            SchoolLocation::where('customer_code', '=', config('custom.olympiade_archive_school_customercode'))
+                ->exists()
+        );
+
+        /**
+         * Asserting Publishing Content Source/uitgevers toetsen (SCOPE and ABBREVIATION set)
+         */
+        //assert published tests
+        $this->assertTrue(
+            Test::where('scope', '=', 'published_olympiade_archive')
+                ->exists()
+        );
+        $this->assertTrue(
+            Test::where('tests.scope', '=', 'published_olympiade_archive')
+                ->join('test_questions', 'test_questions.test_id', '=', 'tests.id')
+                ->join('questions', 'questions.id', '=', 'test_questions.question_id')
+                ->where('questions.scope', '=', 'published_olympiade_archive')
+                ->exists()
+        );
+        //assert unpublished tests
+        $this->assertTrue(
+            Test::where('scope', '=', 'not_published_olympiade_archive')
+                ->exists()
+        );
+        $this->assertTrue(
+            Test::where('tests.scope', '=', 'not_published_olympiade_archive')
+                ->join('test_questions', 'test_questions.test_id', '=', 'tests.id')
+                ->join('questions', 'questions.id', '=', 'test_questions.question_id')
+                ->where('questions.scope', '=', 'not_published_olympiade_archive')
+                ->exists()
+        );
+        /**
+         * Asserting Publishing (DRAFT true or false)
+         */
+        //assert tests are not drafts
+        $this->assertTrue(
+            Test::where('scope', '=', 'published_olympiade_archive')
                 ->where('draft', '=', false)
                 ->exists()
         );

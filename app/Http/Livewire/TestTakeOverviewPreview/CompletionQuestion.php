@@ -23,6 +23,8 @@ class CompletionQuestion extends TCComponent
     public $number;
     public $searchPattern = "/\[([0-9]+)\]/i";
 
+    public $showQuestionText;
+
     public function mount()
     {
         $this->answer = (array)json_decode($this->answers[$this->question->uuid]['answer']);
@@ -35,81 +37,78 @@ class CompletionQuestion extends TCComponent
         }
     }
 
-    private function completionHelper($question)
+    private function createAnswersHtml($zeroBasedArray = false)
     {
-        $question->getQuestionHtml();
+        $result = '';
+        foreach($this->answer as $tag => $val) {
+            $tagNumber = $zeroBasedArray
+                ? $tag + 1
+                : $tag;
 
-        $question_text = $question->converted_question_html;
-
-        $replacementFunction = function ($matches) use ($question) {
-            $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
-            $answer = array_key_exists($tag_id, $this->answer) ? $this->answer[$tag_id] : '';
-            return sprintf('<span class="form-input resize-none overflow-ellipsis rounded-10 pdf-answer-model-input" >%s </span>', $answer);
-        };
-
-        return preg_replace_callback($this->searchPattern, $replacementFunction, $question_text);
-    }
-
-    private function multiHelper($question)
-    {
-        $question_text = $question->converted_question_html;
-
-
-        $tags = [];
-
-        foreach ($question->completionQuestionAnswers as $option) {
-            $tags[$option->tag][$option->answer] = $option->answer;
+            $result .= sprintf(
+                '<span class="pdf-student-answers-label">%s. </span> <span class="pdf-student-answers-input" >%s </span><br>',
+                $tagNumber,
+                $val
+            );
         }
-
-        $question_text = preg_replace_callback(
-            $this->searchPattern,
-            function ($matches) use ($tags) {
-
-                $answers = $tags[$matches[1]];
-                $keys = array_keys($answers);
-                $random = array(
-                    '' => 'Selecteer'
-                );
-                foreach ($keys as $key) {
-                    $random[$key] = $answers[$key];
-                }
-
-                $answers = $random;
-                if (array_key_exists($matches[1], $this->answer)) {
-                    return $this->getOption($answers, $this->answer[$matches[1]]);
-                }
-                return '<span class="overflow-ellipsis rounded-10 pdf-answer-model-select" ></span>';
-            },
-            $question_text
-        );
-
-        return $question_text;
+        return $result;
     }
 
-    private function getOption($answers, $correct)
-    {
-        return collect($answers)->map(function ($option, $key) use ($correct) {
-            if (trim($option) == trim($correct)) {
-                $check = sprintf('<img class="icon_checkmark_pdf no-margin" src="data:image/svg+xml;charset=utf8,%s" >', $this->getEncodedCheckmarkSvg());
-                return sprintf('<span class="overflow-ellipsis rounded-10 pdf-answer-model-select" >%s %s</span>', $option, $check);
-            }
-            return '';
-        })->join('');
-    }
+//    private function completionHelper($question)
+//    {
+//        $result = '';
+//        foreach($this->answer as $key => $val) {
+//            $result .= sprintf('<span class="pdf-student-answers-label">%s. </span> <span class="pdf-student-answers-input" >%s </span><br>', $key + 1, $val);
+//        }
+//        return $result;
+//    }
+//
+//    private function multiHelper($question)
+//    {
+//        $result = '';
+//
+//        foreach($this->answer as $key => $val) {
+//            $result .= sprintf('<span class="pdf-student-answers-label">%s. </span> <span class="pdf-student-answers-input" >%s </span><br>', $key, $val);
+//        }
+//        return $result;
+//    }
 
-    private function getOptions($answers)
-    {
-        return collect($answers)->map(function ($option, $key) {
-            return sprintf('<option value="%s">%s</option>', $key, $option);
-        })->join('');
-    }
+//    private function getOption($answers, $correct)
+//    {
+//        $iterator = 0;
+//        return collect($answers)->map(function ($option, $key) use ($correct, &$iterator) {
+//            //correct is a strange name, it is the answer that is given by the user
+//            if($correct == '' && $iterator == 0) {
+//                $iterator++;
+//                return '<span class="overflow-ellipsis rounded-10 pdf-answer-model-select" >&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+//            }
+//
+//            if (trim($option) == trim($correct)) {
+//                $check = sprintf('<img class="icon_checkmark_pdf no-margin" src="data:image/svg+xml;charset=utf8,%s" >', $this->getEncodedCheckmarkSvg());
+//                return sprintf('<span class="overflow-ellipsis rounded-10 pdf-answer-model-select" >%s %s</span>', $option, $check);
+//            }
+//            return '';
+//        })->join('');
+//    }
+//
+//    private function getOptions($answers)
+//    {
+//        return collect($answers)->map(function ($option, $key) {
+//            return sprintf('<option value="%s">%s</option>', $key, $option);
+//        })->join('');
+//    }
 
     public function render()
     {
         if ($this->question->subtype == 'completion') {
-            $html = $this->completionHelper($this->question);
+            $html = $this->createAnswersHtml(
+                zeroBasedArray: true
+            );
+
         } elseif ($this->question->subtype == 'multi') {
-            $html = $this->multiHelper($this->question);
+            $html = $this->createAnswersHtml(
+                zeroBasedArray: false
+            );
         } else {
             throw new \Exception ('unknown type');
         }

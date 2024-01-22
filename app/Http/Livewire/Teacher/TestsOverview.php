@@ -10,6 +10,7 @@ use tcCore\BaseSubject;
 use tcCore\EducationLevel;
 use tcCore\Http\Livewire\OverviewComponent;
 use tcCore\Http\Helpers\Choices\Choice;
+use tcCore\Http\Traits\WithRelationQuestionBlocks;
 use tcCore\Lib\Repositories\TaxonomyRepository;
 use tcCore\Services\ContentSource\CreathlonService;
 use tcCore\Services\ContentSource\FormidableService;
@@ -31,15 +32,17 @@ use tcCore\UserSystemSetting;
 class TestsOverview extends OverviewComponent
 {
     use ContentSourceTabsTrait;
+    use WithRelationQuestionBlocks;
 
-    const ACTIVE_TAB_SESSION_KEY = 'tests-overview-active-tab';
+    public const ACTIVE_TAB_SESSION_KEY = 'tests-overview-active-tab';
     protected string $sessionKey = 'tests-overview';
 
     private $sorting = ['id' => 'desc'];
     protected $queryString = [
-        'openTab'        => ['as' => 'to_tab'],
-        'referrerAction' => ['except' => ''],
-        'file'           => ['except' => ''],
+        'openTab'                     => ['as' => 'to_tab'],
+        'referrerAction'              => ['except' => ''],
+        'file'                        => ['except' => ''],
+        'showRelationQuestionWarning' => ['except' => false, 'as' => 'rqw']
     ];
 
     public $referrerAction = '';
@@ -48,6 +51,7 @@ class TestsOverview extends OverviewComponent
     public $mode;
     public $inTestBankContext = true;
     public $showQuestionBank = false;
+
     protected array $filterableAttributes = [
         'name'                      => '',
         'education_level_year'      => [],
@@ -82,6 +86,7 @@ class TestsOverview extends OverviewComponent
             return view('livewire.teacher.question-bank-overview')->layout('layouts.app-teacher');
 
         $results = $this->getDatasource();
+
         return view('livewire.teacher.tests-overview')->layout('layouts.app-teacher')->with(compact(['results']));
     }
 
@@ -92,11 +97,10 @@ class TestsOverview extends OverviewComponent
             DB::statement($expression->getValue(DB::connection()->getQueryGrammar()));
         } catch (\Exception $e) {
         }
-
         return ContentSourceFactory::makeWithTab($this->openTab)->itemBankFiltered(
+            auth()->user(),
             $this->getContentSourceFilters(),
             $this->sorting,
-            auth()->user()
         )
             ->with([
                 'educationLevel',
@@ -120,61 +124,6 @@ class TestsOverview extends OverviewComponent
         }
     }
 
-    public function getEducationLevelProperty()
-    {
-        return $this->filterableEducationLevelsBasedOnTab();
-    }
-
-    public function getBasesubjectsProperty()
-    {
-        if ($this->isExternalContentTab($this->openTab)) {
-            return $this->getBaseSubjectsOptions();
-        }
-        return [];
-    }
-
-    private function getBaseSubjectsOptions()
-    {
-        if (Auth::user()->isValidExamCoordinator()) {
-            return BaseSubject::optionList();
-        }
-
-        return BaseSubject::whereIn('id', Subject::filtered(['user_current' => Auth::id()], [])->select('base_subject_id'))
-            ->optionList();
-    }
-
-    public function getSubjectsProperty()
-    {
-        return $this->filterSubjectsByTabName($this->openTab)
-            ->optionList();
-    }
-
-    private function filterSubjectsByTabName(string $tab)
-    {
-        return Subject::filtered(['imp' => 0, 'user_id' => Auth::id()], ['name' => 'asc']);
-    }
-
-    public function getEducationLevelYearProperty()
-    {
-        return collect(range(1, 6))->map(function ($item) {
-            return ['value' => (int)$item, 'label' => (string)$item];
-        })->toArray();
-    }
-
-    public function getSharedSectionsAuthorsProperty()
-    {
-        return TestAuthor::schoolLocationAndSharedSectionsAuthorUsers(Auth::user())
-            ->get()
-            ->reject(function ($user) {
-                return ($user->school_location_id === Auth::user()->school_location_id && $user->getKey() !== Auth::id());
-            })
-            ->map(function ($author) {
-                return ['value' => $author->id, 'label' => trim($author->name_first . ' ' . $author->name)];
-            })
-            ->values()
-            ->toArray();
-    }
-
     public function getAuthorsProperty()
     {
         return TestAuthor::schoolLocationAuthorUsers(Auth::user())
@@ -186,28 +135,9 @@ class TestsOverview extends OverviewComponent
             ->toArray();
     }
 
-    private function cleanFilterForSearch(array $filters, string $source): array
-    {
-        $notAllowed = $this->getNotAllowedFilterProperties($source);
-
-        return collect($filters)->reject(function ($filter, $key) use ($notAllowed) {
-            if ($filter instanceof Collection) {
-                return $filter->isEmpty() || in_array($key, $notAllowed);
-            }
-            return empty($filter) || in_array($key, $notAllowed);
-        })->toArray();
-    }
-
     public function openTestDetail($testUuid)
     {
         redirect()->to(route('teacher.test-detail', ['uuid' => $testUuid]));
-    }
-
-    public function clearFilters(): void
-    {
-        parent::clearFilters();
-
-        UserSystemSetting::setSetting(auth()->user(), $this->getFilterSessionKey(), $this->filters);
     }
 
     public function hasActiveFilters(): bool
@@ -227,6 +157,8 @@ class TestsOverview extends OverviewComponent
 
     public function handleReferrerActions()
     {
+        $this->handleRelationQuestionWarning();
+
         if (!$this->referrerAction) {
             return true;
         }
@@ -247,11 +179,6 @@ class TestsOverview extends OverviewComponent
             $this->dispatchBrowserEvent('notify', ['message' => __('teacher.Test is verwijderd')]);
             $this->referrerAction = '';
         }
-    }
-
-    public function canFilterOnAuthors(): bool
-    {
-        return collect($this->canFilterOnAuthorTabs)->contains($this->openTab);
     }
 
     protected function tabNeedsDefaultFilters($tab): bool
@@ -290,52 +217,6 @@ class TestsOverview extends OverviewComponent
         $this->filters = array_merge($this->filters, auth()->user()->getSearchFilterDefaultsTeacher());
     }
 
-    /**
-     * @param string $source
-     * @return array|string[]
-     */
-    private function getNotAllowedFilterProperties(string $source): array
-    {
-        $notAllowed = [
-            'personal'        => ['base_subject_id', 'author_id', 'shared_sections_author_id'],
-            'school_location' => ['base_subject_id', 'shared_sections_author_id'],
-            'umbrella'        => ['subject_id', 'author_id'],
-            'external'        => ['subject_id', 'author_id', 'shared_sections_author_id'],
-        ];
-
-        return $notAllowed[$source];
-    }
-
-    private function getContentSourceFilters(): array
-    {
-        if ($this->openTab == 'personal') {
-            $filters = $this->filters;
-            $filters['author_id'] = [auth()->id()];
-            return $this->cleanFilterForSearch($filters, 'personal');
-        }
-
-        if ($this->openTab == 'umbrella') {
-            return $this->getUmbrellaDatasourceFilters();
-        }
-
-        $filters = $this->cleanFilterForSearch($this->filters, 'external');
-        if (!isset($filters['base_subject_id']) && !Auth::user()->isValidExamCoordinator()) {
-            $filters['base_subject_id'] = BaseSubject::currentForAuthUser()->pluck('id')->toArray();
-        }
-        return $filters;
-    }
-
-    /**
-     * @return array
-     */
-    private function getUmbrellaDatasourceFilters(): array
-    {
-        $filters = $this->cleanFilterForSearch($this->filters, 'umbrella');
-        if (!empty($filters['shared_sections_author_id'])) {
-            $filters['author_id'] = $filters['shared_sections_author_id'];
-        }
-        return $filters;
-    }
 
     public function getTaxonomiesProperty()
     {

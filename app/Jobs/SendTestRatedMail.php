@@ -3,6 +3,7 @@
 namespace tcCore\Jobs;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Carbon\Carbon;
 use Illuminate\Mail\Mailer;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -37,7 +38,10 @@ class SendTestRatedMail extends Job implements ShouldQueue
     public function handle(Mailer $mailer)
     {
         $urlLogin = getenv('URL_LOGIN');
-        if ($this->testTake->testTakeStatus->name === 'Rated') {
+        if ($this->testTake->testTakeStatus->name === 'Rated'
+            && $this->testTake->show_results > Carbon::now()
+            && $this->testTake->isNotPartOfOlympiade()
+        ) {
             foreach ($this->testTake->testParticipants as $testParticipant) {
                 if(null == $testParticipant->user || $testParticipant->user->shouldNotSendMail()) {
                     continue;

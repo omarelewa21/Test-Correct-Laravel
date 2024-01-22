@@ -29,7 +29,7 @@
     --cursor-tools-default: crosshair;
     --cursor-move-shape: grab;
     --cursor-moving-shape: grabbing;
-    --cursor-freehand: url(/img/cursor-freehand.svg), crosshair;
+    --cursor-freehand: crosshair;
 
     /* Sidebar parameters */
     --open-sidebar-min-width: 14.5rem;
@@ -545,6 +545,10 @@
 
 #drawing-tool #svg-canvas g.draggable {
     cursor: var(--cursor-type-draggable);
+}
+
+#drawing-tool #svg-canvas g.draggable.selected {
+    cursor: var(--cursor-move-shape);
 }
 
 #drawing-tool #svg-canvas g.locked {

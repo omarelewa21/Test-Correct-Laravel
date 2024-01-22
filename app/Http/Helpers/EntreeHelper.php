@@ -131,6 +131,10 @@ class EntreeHelper
             return $url;
         }
 
+        if($url = $this->handleIfLVSLocation()){
+            return $url;
+        }
+
         if ($data->user = $this->handleIfRegisteringAndUserBasedOnEckId($data)) {
             if (!$data->user instanceof User and is_string($data->user)) {
                 return $data->user;
@@ -257,6 +261,14 @@ class EntreeHelper
         return false;
     }
 
+    protected function handleIfLVSLocation()
+    {
+        if($this->location->lvs_active) {
+            return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je school is gekoppeld aan het leerling volg systeem waarmee we alle data binnen halen. Het los aanmaken van een Test-Correct account is daarmee niet mogelijk.')));
+        }
+        return false;
+    }
+
     protected function redirectIfUnknownBrinForRegistration()
     {
         return $this->redirectToUrlAndExit($this->getOnboardingUrlWithOptionalMessage(__('onboarding-welcome.Je school is helaas nog niet bekend in Test-Correct. Vul dit formulier in om een account aan te maken')));
@@ -375,6 +387,10 @@ class EntreeHelper
                 ->where('external_sub_code', $external_sub_code)
                 ->first();
             $this->location_based_on_brin_six = true;
+            // move location if we have a master school en sub locations from the uwlr import
+            if($this->location->import_merge_school_location_id){
+                $this->location = SchoolLocation::find($this->location->import_merge_school_location_id);
+            }
             return true;
         }
         return false;
@@ -503,7 +519,12 @@ class EntreeHelper
         if($user->isValidExamCoordinator()){
             return false;
         }
-        return (optional($user->schoolLocation)->lvs_active && empty($user->eck_id));
+        return ((optional($user->schoolLocation)->lvs_active && empty($user->eck_id)))
+                || (
+                    !$user->isA('student')
+                    && optional($user->schoolLocation)->block_local_login
+                    && !substr_count($user->username,'@test-correct.nl')
+                );
     }
 
     private function getEckIdFromAttributes()

@@ -26,6 +26,7 @@ class MultipleSelectQuestion extends TCComponent
     public $answerText;
     public $shuffledKeys;
 
+    public $showQuestionText;
 
     public function mount()
     {

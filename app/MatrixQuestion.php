@@ -120,15 +120,6 @@ class MatrixQuestion extends Question implements QuestionInterface {
         return $question;
     }
 
-    public function canCheckAnswer() {
-
-//        if($this->subtype === 'SingleChoice'){
-//            return true;
-//        }
-
-        return true;
-    }
-
     /**
      * we expect the answer to look like
      * [
@@ -171,6 +162,11 @@ class MatrixQuestion extends Question implements QuestionInterface {
         }
 
         return $score;
+    }
+
+    public function isClosedQuestion(): bool
+    {
+        return true;
     }
 
     /**

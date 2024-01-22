@@ -25,6 +25,7 @@ use tcCore\Rules\NistPasswordRules;
 use tcCore\Rules\TrueFalseRule;
 use tcCore\SamlMessage;
 use tcCore\Services\EmailValidatorService;
+use tcCore\TestKind;
 use tcCore\User;
 use tcCore\TestTake;
 use tcCore\TestTakeCode;
@@ -151,7 +152,17 @@ class Login extends TCComponent
     public function login()
     {
         $this->resetErrorBag();
+        $this->resetErrorBag();
         $this->entree_error_message = '';
+
+        $this->username = trim($this->username);
+
+        // validation has been done on updated, so we know we have a valid email address we can check
+        if($this->doWeNeedToRedirectToEntreeDueToLocalLoginBlock($this->username)){
+            auth()->logout();
+            $route = route('saml2_login', ['entree','directlink' => $this->take]);
+            return $this->redirect($route);
+        }
 
         if (!$this->captcha && FailedLogin::doWeNeedExtraSecurityLayer($this->username)) {
             $this->requireCaptcha = true;
@@ -160,8 +171,6 @@ class Login extends TCComponent
         if ($this->captcha && !$this->validateCaptcha()) {
             return;
         }
-
-        $this->username = trim($this->username);
 
         $credentials = $this->getCustomValidator()->validate();
 
@@ -186,9 +195,11 @@ class Login extends TCComponent
         AppVersionDetector::handleHeaderCheck();
         $this->doLoginProcedure();
 
-        if ($this->checkIfShouldRedirectToTestTake()) {
-            return;
-        };
+        $testCodeHelper = new TestTakeCodeHelper();
+
+        if($testCodeHelper->checkAccessViaTestTakeCodeIfExists($this->testTakeCode)) {
+            $this->directToTestTakeBasedOnTestTakeCode($this->testTakeCode);
+        }
 
         $user = auth()->user();
         $route = $user->getTemporaryCakeLoginUrl();
@@ -207,6 +218,15 @@ class Login extends TCComponent
         return $this->redirect($route);
     }
 
+    protected function doWeNeedToRedirectToEntreeDueToLocalLoginBlock($username)
+    {
+        $user = User::whereUsername($username)->first();
+        if($user && EntreeHelper::shouldPromptForEntree($user)){
+            return true;
+        }
+        return false;
+    }
+
     public function guestLogin()
     {
         if (!$this->filledInNecessaryGuestInformation()) {
@@ -220,20 +240,20 @@ class Login extends TCComponent
 
         $testCodeHelper = new TestTakeCodeHelper();
 
-        $testTakeCode = $testCodeHelper->getTestTakeCodeIfExists($this->testTakeCode);
-        if (!$testTakeCode || !$testTakeCode->testTake) {
+        if (!$testCodeHelper->checkAccessViaTestTakeCodeIfExists($this->testTakeCode,true)) {
             $this->errorKeys[] = 'no_test_found_with_code';
             return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
         }
 
-        if (!$testTakeCode->testTake->guest_accounts) {
+        $testTakeCodeModel = TestTakeCodeHelper::getTestTakeCodeModelFromCode($this->testTakeCode);
+        if (!$testTakeCodeModel || !$testTakeCodeModel->testTake->guest_accounts) {
             $this->errorKeys[] = 'guest_account_not_allowed';
             return $this->addError('guest_account_not_allowed', __('auth.guest_account_not_allowed'));
         }
 
         AppVersionDetector::handleHeaderCheck();
 
-        $error = $testCodeHelper->handleGuestLogin($this->gatherGuestData(), $testTakeCode);
+        $error = $testCodeHelper->handleGuestLogin($this->gatherGuestData(), $testTakeCodeModel);
         if (!empty($error)) {
             $this->errorKeys[] = $error[0];
             return $this->addError($error[0], $error[0]);
@@ -600,7 +620,9 @@ class Login extends TCComponent
     public function updating(&$name, &$value)
     {
         if (in_array($name, $this->xssPropsToClean)) {
+            $value = BaseHelper::returnOnlyRegularAlphaNumeric($value,'');
             Request::filter($value);
+
         }
     }
 
@@ -666,21 +688,10 @@ class Login extends TCComponent
         );
     }
 
-    private function checkIfShouldRedirectToTestTake()
+    private function directToTestTakeBasedOnTestTakeCode($testTakeCode)
     {
-        if ($this->take) {
-            return redirect()->route('take.directLink', ['testTakeUuid' => $this->take]);
-        }
-
-        if ($this->isTestTakeCodeCorrectFormat()) {
-            $code = implode('', $this->testTakeCode);
-            $testTakeCode = TestTakeCode::where('code', $code)->with('testTake')->first();
-            if (is_null($testTakeCode)) {
-                return false;
-            }
-            return redirect()->route('take.directLink', ['testTakeUuid' => $testTakeCode->testTake->uuid]);
-        }
-        return false;
+        $testTakeCodeModel = TestTakeCodeHelper::getTestTakeCodeModelFromCode($testTakeCode);
+        return redirect()->route('take.directLink', ['testTakeUuid' => $testTakeCodeModel->testTake->uuid]);
     }
 
     private function handleDirectLinkOnEnter(): void

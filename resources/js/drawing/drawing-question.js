@@ -110,11 +110,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             }
 
             this.warnings = {
-                whenAnyToolButDragSelected: new warningBox(
-                    UI.warningboxTemplate.dataset.text,
-                    5000,
-                    rootElement
-                ),
+                // whenAnyToolButDragSelected: new warningBox(
+                //     UI.warningboxTemplate.dataset.text,
+                //     5000,
+                //     rootElement
+                // ),
             };
             if (!this.explainer) {
                 const layerTemplate = rootElement.querySelector("#layer-group-template");
@@ -173,7 +173,10 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             return this.getElementShapeType(shape) === this.params.currentTool;
         },
         getElementShapeType(shape) {
-            return shape.id.split("-")[0];
+            return this.correctShapeId(shape.id).split("-")[0];
+        },
+        correctShapeId(shapeId) {
+            return shapeId.replace("ellipse", "circle");
         },
         isTeacher() {
             return this.params.isTeacher;
@@ -334,11 +337,11 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 }
             },
             /**
-             * @param {*} g element 
+             * @param {HTML element} shape 
              * @returns object containing element svg (svgShape class) and its sidebar (Entry class)
              */
             getShapeDataObject(shape) {
-                return Canvas.layers[Canvas.layerID2Key(shape.parentElement.id)].shapes[shape.id];
+                return Canvas.layers[Canvas.layerID2Key(shape.parentElement.id)].shapes[drawingApp.correctShapeId(shape.id)];
             }
         }
 
@@ -1181,8 +1184,8 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
                 group: copyAllAttributesFromElementToObject(groupElement),
                 main: copyAllAttributesFromElementToObject(mainElement),
             };
-            const shapeID = groupElement.id,
-                shapeType = shapeID.substring(0, shapeID.indexOf("-"));
+            const shapeID = drawingApp.correctShapeId(groupElement.id);
+            let shapeType = shapeID.substring(0, shapeID.indexOf("-"));
             let newShape = makeNewSvgShapeWithSidebarEntry(
                 shapeType,
                 props,
@@ -1553,13 +1556,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         const layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
         if (!layerObject.props.id.includes(layerObject.Canvas.params.currentLayer)) return;
 
-        const selectedShape = rootElement.querySelector('.selected');
-        const selectedSvgShape = evt.target.closest("g.shape");
-
-        if (selectedShape) removeSelectState(selectedShape);
-        if (selectedShape === selectedSvgShape) return;
-
-        addSelectState(selectedSvgShape);
+        layerObject.shapes[shapeGroup.id].sidebar.toggleShapeSelect();
     }
 
     function removeSelectState(element) {
@@ -1624,7 +1621,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         if (evt.touches?.length === 2) {
             return startPan(evt);
         }
-        if (drawingApp.params.currentTool === "drag") {
+        if (drawingApp.params.currentTool === "drag" || evt.target.closest(".shape")?.classList.contains("selected")) {
             if (evt.target.classList.contains("corner")) return startResize(evt);
             return startDrag(evt);
         }
@@ -1639,7 +1636,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         const layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
         if (!shapeMayBeDragged(shapeGroup, layerObject)) return;
 
-        const selectedSvgShape = layerObject.shapes[shapeGroup.id].svg;
+        const selectedSvgShape = layerObject.shapes[drawingApp.correctShapeId(shapeGroup.id)].svg;
 
         Canvas.params.drag = {
             enabled: true,
@@ -1657,7 +1654,7 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         const layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
         if (!shapeMayBeDragged(shapeGroup, layerObject)) return;
 
-        const selectedSvgShape = layerObject.shapes[shapeGroup.id].svg;
+        const selectedSvgShape = layerObject.shapes[drawingApp.correctShapeId(shapeGroup.id)].svg;
         if (!shapeIsResizable(selectedSvgShape)) return;
 
         Canvas.params.resize = {
@@ -1989,8 +1986,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             Canvas.deleteObject(newShape.sidebar);
             --Canvas.params.draw.shapeCountForEachType[newShape.sidebar.type];
             return;
-        } 
+        }
         Canvas.params.highlightedShape = newShape;
+        newShape.sidebar.toggleShapeSelect();
     }
 
     function stopDrag() {
@@ -2021,9 +2019,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         enableSpecificPropSelectInputs();
         setCursorTypeAccordingToCurrentType();
         unselectShapeIfNecessary();
-        if (!drawingApp.currentToolIs("drag")) {
-            drawingApp.warnings.whenAnyToolButDragSelected.show();
-        }
+        // if (!drawingApp.currentToolIs("drag")) {
+        //     drawingApp.warnings.whenAnyToolButDragSelected.show();
+        // }
     }
 
     function manualToolChange(tool) {
@@ -2037,9 +2035,9 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
         makeSelectedBtnActive(btnElement);
         enableSpecificPropSelectInputs();
         setCursorTypeAccordingToCurrentType();
-        if (!drawingApp.currentToolIs("drag")) {
-            drawingApp.warnings.whenAnyToolButDragSelected.show();
-        }
+        // if (!drawingApp.currentToolIs("drag")) {
+        //     drawingApp.warnings.whenAnyToolButDragSelected.show();
+        // }
     }
 
     function determineNewTool(evt) {
@@ -2207,10 +2205,21 @@ window.initDrawingQuestion = function (rootElement, isTeacher, isPreview, grid, 
             // Error callback.
             UI.submitBtn.disabled = false
         }, () => {
+            drawMissingShapesOnSvg();
             // Progress callback.
         })
     }
 
+    function drawMissingShapesOnSvg() {
+        for (const layerKey in Canvas.layers) {
+            const layer = Canvas.layers[layerKey];
+            for (const shapeKey in layer.shapes) {
+                const shape = layer.shapes[shapeKey];
+                shape.svg.redrawOnSvg();
+            }
+        }
+    }
+    
     function imageTypeIsAllowed(file) {
         if(file.size / (1024 * 1024) > 4) {
             dispatchEvent(new CustomEvent('js-localized-notify-popup', {detail: {translation_key: 'image-size-error', message_type: 'error'}}));

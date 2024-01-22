@@ -4,8 +4,10 @@ namespace Tests\Unit\Services\ContentSource;
 
 
 use tcCore\BaseSubject;
+use tcCore\Factories\FactoryWordList;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolCreathlon;
 use tcCore\Services\ContentSource\CreathlonService;
+use tcCore\WordList;
 use Tests\ScenarioLoader;
 use Tests\TestCase;
 
@@ -126,7 +128,7 @@ class CreathlonServiceTest extends TestCase
 
         $this->assertInstanceOf(
             \tcCore\Test::class,
-            (new CreathlonService)->itemBankFiltered(filters: [], sorting: [], forUser: $teacher)
+            (new CreathlonService)->itemBankFiltered( forUser: $teacher, filters: [], sorting: [])
                 ->where('name', 'test-Creathlon-Frans')
                 ->first()
         );
@@ -136,5 +138,47 @@ class CreathlonServiceTest extends TestCase
     public function it_has_a_tab_order()
     {
           $this->assertEquals(500, CreathlonService::$order);
+    }
+    
+    /** @test */
+    public function can_show_word_lists_when_all_conditions_are_met()
+    {
+        $listName = class_basename(CreathlonService::class).' WordList';
+        $this->createWordListForSource($listName);
+        $teacher = ScenarioLoader::get('teacherOne');
+        auth()->login($teacher);
+
+        $teacher->schoolLocation->allow_tm_french = true;
+        $teacher->schoolLocation->save();
+
+        $this->assertEquals(
+            $teacher->subjects()->first()->base_subject_id,
+            BaseSubject::FRENCH
+        );
+
+        $this->assertInstanceOf(
+            WordList::class,
+            (new CreathlonService())->wordListFiltered(forUser: $teacher)
+                ->where('name', $listName)
+                ->first()
+        );
+    }
+
+    private function createWordListForSource(string $name): WordList
+    {
+        $subject = ScenarioLoader::get('school_locations')->where('customer_code', CreathlonService::getCustomerCode())
+            ->first()
+            ->schoolLocationSections
+            ->where('demo', false)
+            ->first()
+            ->section
+            ->subjects
+            ->where('base_subject_id', BaseSubject::FRENCH)
+            ->first();
+
+        return FactoryWordList::createWordList(
+            CreathlonService::getSchoolAuthor(),
+            ['subject_id' => $subject->getKey(), 'name' => $name]
+        );
     }
 }

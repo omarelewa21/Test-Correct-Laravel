@@ -35,15 +35,19 @@ class TestTakeEditModal extends TCModalComponent
     protected function validationAttributes(): array
     {
         return [
-            'testTake.weight'                  => str(__('teacher.Weging'))->lower(),
+            'testTake.weight' => str(__('teacher.Weging'))->lower(),
             'testTake.allow_inbrowser_testing' => __('teacher.Browsertoetsen toestaan'),
-            'testTake.guest_accounts'          => __('teacher.Test-Direct toestaan'),
-            'testTake.enable_mr_chadd'         => __('teacher.enable_mr_chadd'),
+            'testTake.guest_accounts' => __('teacher.Test-Direct toestaan'),
+            'testTake.enable_mr_chadd' => __('teacher.enable_mr_chadd'),
         ];
     }
 
     public function mount(TestTake $testTake)
     {
+        if (!$testTake->isAllowedToView(auth()->user())) {
+            $this->closeModal();
+        }
+
         $this->testTake = $testTake;
         $this->test = $testTake->test;
         $this->testName = $testTake->test->name;
@@ -79,7 +83,7 @@ class TestTakeEditModal extends TCModalComponent
         }
         $conditionalRules['testTake.invigilator_note'] = 'sometimes';
         $conditionalRules['testTake.period_id'] = 'sometimes';
-        if($this->testTake->test->test_kind_id === TestKind::ASSIGNMENT_TYPE) {
+        if ($this->testTake->test->test_kind_id === TestKind::ASSIGNMENT_TYPE) {
             $conditionalRules['testTake.enable_mr_chadd'] = 'required';
         }
         return $conditionalRules;
@@ -94,35 +98,25 @@ class TestTakeEditModal extends TCModalComponent
 
     public function getSchoolClassesProperty(): array
     {
-        $classes = SchoolClass::filtered(['user_id' => auth()->id(), 'current' => true])->get();
+        $classes = SchoolClass::filtered(['user_id' => auth()->id(), 'current' => true])
+            ->with([
+                'studentUsers:id,name,name_first,name_suffix,uuid',
+                'studentUsers.roles'
+            ])
+            ->get();
         $participantUserUuids = $this->testTake
             ->load([
                 'testParticipants:id,test_take_id,user_id,school_class_id',
                 'testParticipants.user:id,uuid',
+                'testParticipants.user.roles'
             ])
             ->testParticipants
             ->mapWithKeys(fn($participant) => [$participant->user->uuid => $participant->school_class_id]);
 
-        return $classes->map(function ($class) use ($participantUserUuids) {
-            return ParentChoice::build(
-                value           : $class->uuid,
-                label           : html_entity_decode($class->name),
-                customProperties: ['parentId' => $class->uuid],
-                children        : $class->studentUsers->map(
-                    function ($studentUser) use ($participantUserUuids, $class) {
-                        return ChildChoice::build(
-                            value           : $studentUser->uuid,
-                            label           : html_entity_decode($studentUser->name_full),
-                            customProperties: [
-                                'parentId'    => $class->uuid,
-                                'parentLabel' => html_entity_decode($class->name),
-                                'selected'    => $participantUserUuids->get($studentUser->uuid) === $class->id
-                            ]
-                        );
-                    }
-                )
-            );
-        })->toArray();
+        return $this->buildChoicesArrayWithClasses(
+            $classes,
+            fn($studentUser, $class) => $participantUserUuids->get($studentUser->uuid) === $class->id
+        );
     }
 
     public function save(): void
@@ -152,7 +146,7 @@ class TestTakeEditModal extends TCModalComponent
         /* TODO: Need to add 2 hours because of casting issues, u ugly */
         /* No need to add the extra hours, as long as the time start is parsed again with the current timezone */
         $this->testTake->time_start = Carbon::parse($this->timeStart);
-        if($this->timeEnd) {
+        if ($this->timeEnd) {
             $this->testTake->time_end = Carbon::parse($this->timeEnd);
         }
     }

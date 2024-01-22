@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use tcCore\Period;
 use tcCore\Test;
 
@@ -21,6 +22,9 @@ abstract class TestEditModal extends TestModal
             throw new \Exception('No Test provided for the edit modal.');
         }
         $this->setProperties($testUuid);
+        if(!Gate::allows('canViewTestDetails',[$this->test])){
+            $this->forceClose()->closeModal();
+        }
         parent::mount();
     }
 

@@ -388,7 +388,8 @@ trait WithQuestionFilteredHelpers
             'creathlon'         => Subject::creathlonFiltered(),
             'thieme_meulenhoff' => Subject::thiemeMeulenhoffFiltered(),
             'olympiade'         => Subject::olympiadeFiltered(),
-            'formidable'         => Subject::formidableFiltered(),
+            'olympiade_archive' => Subject::olympiadeArchiveFiltered(),
+            'formidable'        => Subject::formidableFiltered(),
             default             => null,
         };
 

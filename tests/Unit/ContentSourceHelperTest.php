@@ -4,13 +4,13 @@ namespace Tests\Unit;
 
 
 use tcCore\FactoryScenarios\FactoryScenarioContentSourceHelper;
-use tcCore\FactoryScenarios\FactoryScenarioSchoolRandomComplexWithCreathlon;
 use tcCore\Http\Helpers\ActingAsHelper;
 use Illuminate\Support\Collection;
 use tcCore\Factories\FactoryTest;
 use tcCore\Http\Helpers\ContentSourceHelper;
 use tcCore\SchoolLocation;
 use tcCore\Services\ContentSource\FormidableService;
+use tcCore\Services\ContentSource\OlympiadeArchiveService;
 use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
 use tcCore\User;
 use Tests\ScenarioLoader;
@@ -26,8 +26,6 @@ class ContentSourceHelperTest extends TestCase
 {
     protected $loadScenario = FactoryScenarioContentSourceHelper::class;
 
-
-
     protected function setUp(): void
     {
 //        static::$skipRefresh = true;
@@ -36,14 +34,15 @@ class ContentSourceHelperTest extends TestCase
         ActingAsHelper::getInstance()->setUser(ScenarioLoader::get('teacher1'));
     }
 
-    const EXPECTED_CONTENT_SOURCE_SERVICES = [
-        'personal'        => PersonalService::class,
-        'school_location' => SchoolLocationService::class,
-        'umbrella'        => UmbrellaOrganizationService::class,
-        'national'        => NationalItemBankService::class,
-        'creathlon'       => CreathlonService::class,
-        'olympiade'       => OlympiadeService::class,
-        'formidable'      => FormidableService::class,
+    public const EXPECTED_CONTENT_SOURCE_SERVICES = [
+        'personal'          => PersonalService::class,
+        'school_location'   => SchoolLocationService::class,
+        'umbrella'          => UmbrellaOrganizationService::class,
+        'national'          => NationalItemBankService::class,
+        'creathlon'         => CreathlonService::class,
+        'olympiade'         => OlympiadeService::class,
+        'olympiade_archive' => OlympiadeArchiveService::class,
+        'formidable'        => FormidableService::class,
     ];
 
     /*TODO
@@ -60,6 +59,7 @@ class ContentSourceHelperTest extends TestCase
             'published_formidable',
             'published_thieme_meulenhoff',
             'published_olympiade',
+            'published_olympiade_archive',
         ];
 
         $scopes = ContentSourceHelper::getPublishableScopes();
@@ -100,8 +100,7 @@ class ContentSourceHelperTest extends TestCase
         $expectedHighlightEnabled,
         $expectedContentSourceAvailable,
         $expectedTabName,
-    )
-    {
+    ) {
         //relies on auth user..
         $user = $this->setupUserPermissions();
 
@@ -145,16 +144,16 @@ class ContentSourceHelperTest extends TestCase
         $this->actingAs($user);
 
         $this->assertEquals([
-            "personal"        => "tcCore\Services\ContentSource\PersonalService",
-            "school_location" => "tcCore\Services\ContentSource\SchoolLocationService",
-            "umbrella"        => "tcCore\Services\ContentSource\UmbrellaOrganizationService",
-            "national"        => "tcCore\Services\ContentSource\NationalItemBankService",
-            "creathlon"       => "tcCore\Services\ContentSource\CreathlonService",
-            "olympiade"       => "tcCore\Services\ContentSource\OlympiadeService",
+            "personal"          => "tcCore\Services\ContentSource\PersonalService",
+            "school_location"   => "tcCore\Services\ContentSource\SchoolLocationService",
+            "umbrella"          => "tcCore\Services\ContentSource\UmbrellaOrganizationService",
+            "national"          => "tcCore\Services\ContentSource\NationalItemBankService",
+            "creathlon"         => "tcCore\Services\ContentSource\CreathlonService",
+            "olympiade"         => "tcCore\Services\ContentSource\OlympiadeService",
+            "olympiade_archive" => "tcCore\Services\ContentSource\OlympiadeArchiveService",
         ],
             ContentSourceHelper::allAllowedForUser($user)->toArray()
         );
-
     }
 
     /** @test */
@@ -169,13 +168,14 @@ class ContentSourceHelperTest extends TestCase
             'ldt',
             'published_creathlon',
             'published_olympiade',
+            'published_olympiade_archive',
         ];
 
         $this->assertTrue(ContentSourceHelper::getPublishableScopes() instanceof Collection);
 
         $this->assertEquals(
             expected: 0,
-            actual: ContentSourceHelper::getPublishableScopes()->diff($expectedScopes)->count()
+            actual  : ContentSourceHelper::getPublishableScopes()->diff($expectedScopes)->count()
         );
     }
 
@@ -199,7 +199,7 @@ class ContentSourceHelperTest extends TestCase
 
         $this->assertEquals(
             expected: 0,
-            actual: ContentSourceHelper::getPublishableAbbreviations()->diff($expectedAbbreviations)->count()
+            actual  : ContentSourceHelper::getPublishableAbbreviations()->diff($expectedAbbreviations)->count()
         );
     }
 
@@ -283,6 +283,7 @@ class ContentSourceHelperTest extends TestCase
             'national'          => ['national'],
             'creathlon'         => ['creathlon'],
             'olympiade'         => ['olympiade'],
+            'olympiade_archive' => ['olympiade_archive'],
             'thieme_meulenhoff' => ['thieme_meulenhoff'],
             'formidable'        => ['formidable'],
         ];
@@ -333,6 +334,13 @@ class ContentSourceHelperTest extends TestCase
                 'available'   => true,
                 'tabName'     => 'olympiade',
             ],
+            'olympiade_archive' => [
+                'class'       => OlympiadeService::class,
+                'translation' => 'Olympiade Archive',
+                'highlight'   => true,
+                'available'   => true,
+                'tabName'     => 'olympiade_archive',
+            ],
             'thieme_meulenhoff' => [
                 'class'       => ThiemeMeulenhoffService::class,
                 'translation' => 'Thieme Meulenhoff',
@@ -371,7 +379,9 @@ class ContentSourceHelperTest extends TestCase
             ActingAsHelper::getInstance()->setUser($user);
 
             try {
-                $user->schoolLocation->sharedSections()->attach($section);
+                if ($user->schoolLocation->sharedSections()->where('section_id', $section->getKey())->doesntExist()) {
+                    $user->schoolLocation->sharedSections()->attach($section);
+                }
             } catch (\Exception $e) {
                 dd($e);
             }
@@ -383,6 +393,7 @@ class ContentSourceHelperTest extends TestCase
 
         $user->schoolLocation->allow_creathlon = $allowEverything;
         $user->schoolLocation->allow_olympiade = $allowEverything;
+        $user->schoolLocation->allow_olympiade_archive = $allowEverything;
         $user->schoolLocation->show_national_item_bank = $allowEverything;
 
         $user->schoolLocation->allow_tm_biology = $allowEverything;
@@ -404,6 +415,8 @@ class ContentSourceHelperTest extends TestCase
         FactoryTest::create($user)->setProperties(['subject_id' => $subjectId, 'scope' => 'ldt']);
         FactoryTest::create($user)->setProperties(['subject_id' => $subjectId, 'scope' => 'published_creathlon']);
         FactoryTest::create($user)->setProperties(['subject_id' => $subjectId, 'scope' => 'published_olympiade']);
+        FactoryTest::create($user)->setProperties(['subject_id' => $subjectId, 'scope' => 'published_olympiade_archive']
+        );
     }
 
 }

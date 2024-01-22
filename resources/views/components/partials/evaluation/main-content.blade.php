@@ -119,8 +119,10 @@
                         <div class="w-full questionContainer" wire:key="answer-model-{{$question->uuid}}">
                             <x-dynamic-component
                                     :component="'answer.teacher.'. str($question->type)->kebab()"
-                                    :question="$question"
                                     :editorId="'editor-'.$question->uuid"
+                                    :$question
+                                    :$testTake
+                                    :$answer
                             />
                         </div>
                     </x-slot:body>

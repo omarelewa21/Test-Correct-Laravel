@@ -18,7 +18,7 @@
         <h6 class="flex ml-4">@lang('review.Inzien'): </h6>
         <h4 class="flex ml-2 mr-4 line-clamp-1" title="{!!  clean($testName) !!}">{!!  clean($testName) !!}</h4>
 
-        <div class="flex flex-col ml-auto items-end text-sm min-w-fit">
+        <div class="flex flex-col ml-auto items-end text-sm min-w-fit device-dependent-margin">
             <span class="inline-flex ">@lang('review.in te zien tot'):</span>
             <span class="inline-flex ">{{ $this->reviewableUntil }}</span>
         </div>
@@ -33,6 +33,8 @@
                                             :question-panel="$this->questionPanel"
                                             :answer-model-panel="$this->answerModelPanel"
                                             :show-correction-model="$this->getShowCorrectionModelProperty()"
+                                            :test-take="$this->getTestTake()"
+                                            :answer="$this->currentAnswer"
                                             class="mt-20"
         >
             <x-slot:subHeader>
@@ -205,13 +207,25 @@
             <x-slot:slideThreeContent>
                 <span class="flex ">@lang('assessment.CO-Learning scores')</span>
                 @if(!$this->currentAnswerCoLearningRatingsHasNoDiscrepancy())
-                    <div class="notification py-3 warning">
-                        <div class="title">
+                    <x-notification-message type="warning">
+                        <x-slot:title >
                             <x-icon.exclamation />
                             <span>@lang('review.Er waren verschillen')</span>
-                        </div>
-                        <span class="body">@lang('review.co_learning_differences')</span>
-                    </div>
+                        </x-slot:title>
+                        @if($this->currentAnswerHasToggleDiscrepanciesInCoLearningRatings())
+                            <x-slot:message>
+                                <span>
+                                     @lang('assessment.toggle_discrepancy')
+                                </span>
+                            </x-slot:message>
+                        @else
+                            <x-slot:message>
+                                <span>
+                                     @lang('review.co_learning_differences')
+                                </span>
+                            </x-slot:message>
+                        @endif
+                    </x-notification-message>
                 @endif
                 <div class="flex w-full flex-col gap-2">
                     @if($this->showCoLearningScoreToggle)

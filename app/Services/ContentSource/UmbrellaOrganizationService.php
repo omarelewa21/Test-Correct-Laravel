@@ -2,9 +2,11 @@
 
 namespace tcCore\Services\ContentSource;
 
+use Illuminate\Database\Eloquent\Builder;
+use tcCore\Subject;
 use tcCore\Test;
 use tcCore\User;
-use Tests\ScenarioLoader;
+use tcCore\WordList;
 
 class UmbrellaOrganizationService extends ContentSourceService
 {
@@ -32,16 +34,21 @@ class UmbrellaOrganizationService extends ContentSourceService
 
     protected static function testsAvailableForUser(User $user): bool
     {
-        return Test::sharedSectionsFiltered(filters:[], sorting:[], forUser:$user)->exists();
+        return Test::sharedSectionsFiltered(forUser:$user)->exists();
     }
 
     protected static function allowedForUser(User $user): bool
     {
         return $user->hasSharedSections() && !$user->isValidExamCoordinator();
     }
-    public  function itemBankFiltered($filters = [], $sorting = [], User $forUser): \Illuminate\Database\Eloquent\Builder
+    public  function itemBankFiltered(User $forUser, $filters = [], $sorting = []): \Illuminate\Database\Eloquent\Builder
     {
-        return Test::sharedSectionsFiltered($filters, $sorting, forUser: $forUser)
-            ->published();
+        return Test::sharedSectionsFiltered($forUser, $filters, $sorting)->published();
+    }
+
+    public function wordListFiltered(User $forUser, $filters = [], $sorting = []): Builder
+    {
+        return WordList::filtered($filters, $sorting)
+            ->whereIn('word_lists.subject_id', Subject::getIdsForSharedSections($forUser));
     }
 }

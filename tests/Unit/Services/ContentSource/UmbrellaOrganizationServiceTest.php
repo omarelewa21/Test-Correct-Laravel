@@ -3,9 +3,11 @@
 namespace Unit\Services\ContentSource;
 
 
-use PhpParser\Lexer\TokenEmulator\FlexibleDocStringEmulator;
+use tcCore\BaseSubject;
+use tcCore\Factories\FactoryWordList;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolUmbrellaOrganization;
 use tcCore\Services\ContentSource\UmbrellaOrganizationService;
+use tcCore\WordList;
 use Tests\ScenarioLoader;
 use Tests\TestCase;
 
@@ -66,7 +68,7 @@ class UmbrellaOrganizationServiceTest extends TestCase
         auth()->login($teacher = ScenarioLoader::get('teacherOne'));
         $this->assertInstanceOf(
             \tcCore\Test::class,
-            $test = (new UmbrellaOrganizationService)->itemBankFiltered(filters:[], sorting:[], forUser:$teacher)->first()
+            $test = (new UmbrellaOrganizationService)->itemBankFiltered(auth()->user(), [], [])->first()
         );
 
         $this->assertTrue(
@@ -85,5 +87,40 @@ class UmbrellaOrganizationServiceTest extends TestCase
     public function it_has_a_tab_order()
     {
           $this->assertEquals(300, UmbrellaOrganizationService::$order);
+    }
+
+
+    /** @test */
+    public function can_show_word_lists_when_all_conditions_are_met()
+    {
+        $listName = class_basename(UmbrellaOrganizationService::class).' WordList';
+        $this->createWordListForSource($listName);
+        $teacher = ScenarioLoader::get('teacherOne');
+        auth()->login($teacher);
+
+        $this->assertEquals(
+            $teacher->subjects()->first()->base_subject_id,
+            BaseSubject::DUTCH
+        );
+
+        $this->assertInstanceOf(
+            WordList::class,
+            (new UmbrellaOrganizationService())->wordListFiltered(forUser: $teacher)
+                ->where('name', $listName)
+                ->first()
+        );
+    }
+
+    private function createWordListForSource(string $name): WordList
+    {
+        $subject = ScenarioLoader::get('teacherUmbrella')
+            ->subjects()
+            ->where('base_subject_id', BaseSubject::DUTCH)
+            ->first();
+
+        return FactoryWordList::createWordList(
+            ScenarioLoader::get('teacherUmbrella'),
+            ['subject_id' => $subject->getKey(), 'name' => $name]
+        );
     }
 }

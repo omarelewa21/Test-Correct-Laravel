@@ -7,6 +7,7 @@
     'withNumber' => true,
     'mode' => 'edit',
     'clickOverride' => false,
+    'disableAudioTimer' => false,
 ])
 
 @php
@@ -99,8 +100,8 @@
                      x-transition:leave-end="opacity-0 transform scale-90"
                 >
                     @if($type == 'audio')
-                        <div class="flex flex-col w-full px-4 divide-y divide-bluegrey">
-                            <div class="flex justify-between w-full items-center py-[11px]">
+                        <div class="flex flex-col w-full px-4 divide-y divide-bluegrey group-hover:text-sysbase group-active:text-sysbase">
+                            <div class="flex justify-between w-full items-center py-[11px] hover:text-primary">
                                 <span class="text-base bold">{{ __('cms.Eenmalig afspelen') }}</span>
                                 <div class="flex items-center">
                                     <x-tooltip class="mr-2">
@@ -119,7 +120,7 @@
                                     @endif
                                 </div>
                             </div>
-                            <div class="flex justify-between w-full items-center py-[11px]">
+                            <div class="flex justify-between w-full items-center py-[11px] hover:text-primary">
                                 <span class="text-base bold">{{ __('cms.Pauzeerbaar') }}</span>
                                 <div class="flex items-center">
                                     <x-tooltip class="mr-2">
@@ -138,7 +139,11 @@
                                     @endif
                                 </div>
                             </div>
-                            <div class="flex justify-between w-full items-center py-[5px]">
+                            <div @class([
+                                "flex justify-between w-full items-center py-[5px]",
+                                "hover:text-primary" => !$disableAudioTimer,
+                                "hover:text-note text-note" => $disableAudioTimer,
+                            ])>
                                 <span class="text-base bold">{{ __('cms.Antwoordtijd') }}</span>
                                 <div class="flex items-center relative">
                                     <x-tooltip class="mr-2">
@@ -146,7 +151,15 @@
                                     {{ __('cms.Antwoordtijd') }}
                                 </span>
                                     </x-tooltip>
-                                    @if($upload)
+                                    @if($disableAudioTimer)
+                                        <x-input.text
+                                                type="number"
+                                                maxlength="4"
+                                                class="w-24 pr-10 text-note hover:text-note active:text-note"
+                                                placeholder=""
+                                                :disabled="true"
+                                        />
+                                    @elseif($upload)
                                         <x-input.text
                                                 type="number"
                                                 maxlength="4"

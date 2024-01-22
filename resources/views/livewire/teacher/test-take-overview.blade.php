@@ -3,6 +3,7 @@
         /* This hook is present to keep the sticky page menu okay after a dom change */
         Livewire.hook('message.processed', (message, component) => $dispatch('tiles-hidden'));
         "
+     wire:init="handleRelationQuestionWarning"
      class="relative top-0"
 >
     <x-menu.tab.container :withTileEvents="true">

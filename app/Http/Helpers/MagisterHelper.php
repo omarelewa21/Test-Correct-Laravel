@@ -129,10 +129,10 @@ class MagisterHelper
             );
         } catch (\Exception $e) {
             Bugsnag::notifyException($e);
+            echo($e->getResponse()->getBody()->getContents());
             if(app()->runningInConsole()){
                 throw $e;
             }
-            echo($e->getResponse()->getBody()->getContents());
             dd($e);
         }
 
@@ -265,8 +265,11 @@ class MagisterHelper
         return $this->resultIdentifier;
     }
 
-    public function getResultSet()
+    public function getResultSet($forceRefresh = true)
     {
+        if($forceRefresh){
+            $this->resultSet->fresh();
+        }
         return $this->resultSet;
     }
 

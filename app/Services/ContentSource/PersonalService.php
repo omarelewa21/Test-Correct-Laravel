@@ -2,8 +2,11 @@
 
 namespace tcCore\Services\ContentSource;
 
+use Illuminate\Database\Eloquent\Builder;
 use tcCore\Test;
 use tcCore\User;
+use tcCore\Word;
+use tcCore\WordList;
 
 class PersonalService extends ContentSourceService
 {
@@ -39,11 +42,29 @@ class PersonalService extends ContentSourceService
         return !$user->isValidExamCoordinator();
     }
 
-    public  function itemBankFiltered($filters = [], $sorting = [], User $forUser): \Illuminate\Database\Eloquent\Builder
+    public  function itemBankFiltered(User $forUser, $filters = [], $sorting = []): \Illuminate\Database\Eloquent\Builder
     {
         return Test::filtered(
             $filters, $sorting
         )
             ->where('tests.author_id', $forUser->getKey());
+    }
+
+    public  function wordListFiltered(User $forUser, $filters = [], $sorting = []): Builder
+    {
+        return WordList::filtered($filters, $sorting)
+            ->where('word_lists.user_id', $forUser->getKey());
+    }
+
+    protected static function wordListsAvailableForUser(User $user): bool
+    {
+        return true;
+    }
+
+    public  function wordFiltered(User $forUser, $filters = [], $sorting = []): Builder
+    {
+        return Word::filtered($filters, $sorting)
+            ->where('words.user_id', $forUser->getKey())
+            ->whereNull('word_id');
     }
 }

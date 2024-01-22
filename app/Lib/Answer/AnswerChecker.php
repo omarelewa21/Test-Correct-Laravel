@@ -5,8 +5,12 @@ use tcCore\AnswerRating;
 use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\TestParticipant;
+use tcCore\Traits\CanClearStaticProperties;
 
 class AnswerChecker {
+
+    use CanClearStaticProperties;
+
     static protected $questions;
 
     public static function checkAnswerOfParticipant(TestParticipant $testParticipant, bool $recalculate = false, bool $dryRun = false, $commandEnv = null) {
@@ -69,7 +73,7 @@ class AnswerChecker {
             return $changed;
         }
 
-        if (!$question->canCheckAnswer()) {
+        if (!$question->canCreateSystemRatingForAnswer($answer)) {
             return false;
         }
 

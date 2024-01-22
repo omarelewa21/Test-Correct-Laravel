@@ -43,9 +43,19 @@
  * Date: 2016-05-20T17:23Z
  */
 
-/*!
-* focus-trap 6.6.1
-* @license MIT, https://github.com/focus-trap/focus-trap/blob/master/LICENSE
+/*! Bundled license information:
+
+tabbable/dist/index.esm.js:
+  (*!
+  * tabbable 5.3.3
+  * @license MIT, https://github.com/focus-trap/tabbable/blob/master/LICENSE
+  *)
+
+focus-trap/dist/focus-trap.esm.js:
+  (*!
+  * focus-trap 6.9.4
+  * @license MIT, https://github.com/focus-trap/focus-trap/blob/master/LICENSE
+  *)
 */
 
 /*! choices.js v10.2.0 | © 2022 Josh Johnson | https://github.com/jshjohnson/Choices#readme */
@@ -67,7 +77,7 @@
  */
 
 /**!
- * Sortable 1.15.0
+ * Sortable 1.15.1
  * @author	RubaXa   <trash@rubaxa.org>
  * @author	owenm    <owen23355@gmail.com>
  * @license MIT

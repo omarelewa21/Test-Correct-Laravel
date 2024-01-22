@@ -1,8 +1,9 @@
 @props([
-    'message',
-    'title' => null,
+    'title',
+    'message' => null,
     'stretched' => true,
     'type' => 'error',
+    'action' => null,
 ])
 
 <div {{ $attributes->except('class') }} @class([
@@ -13,9 +14,15 @@
         'warning'       => $type === 'warning',
         'info'          => $type === 'info',
         'informational' => $type === 'informational',
+        'with-message'  => isset($message),
+        'without-message' => !isset($message),
 ])>
-    @isset($title)
-        <div class="title">{{ $title }}</div>
+    <div class="title">{{ $title }}</div>
+
+    @isset($message)
+        <div class="body">{{ $message }}</div>
     @endisset
-    <div class="body">{{ $message }}</div>
+    @isset($action)
+        {{ $action }}
+    @endisset
 </div>

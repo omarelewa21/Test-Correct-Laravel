@@ -12,8 +12,11 @@ class Select extends Component
         public ?string $placeholder = null,
         public ?string $containerId = null,
         public ?bool   $error = null,
+        public bool   $emptyOption = false,
+        public bool   $disabled = false,
     ) {
         $this->containerId ??= "select-" . Uuid::uuid4();
+        $this->placeholder ??= __('test-take.Selecteer...');
     }
 
     public function render(): View

@@ -2,18 +2,8 @@
 
 namespace tcCore\Http\Livewire\StudentPlayer;
 
-use tcCore\Http\Livewire\TCComponent;
-use tcCore\Http\Traits\WithCloseable;
-
-abstract class MatrixQuestion extends TCComponent
+abstract class MatrixQuestion extends StudentPlayerQuestion
 {
-    use withCloseable;
-
-    public $question;
-    public $number;
-    public $answers;
-
-    public $answer;
     public $subQuestions;
     public $questionAnswers;
     public $answerStruct;

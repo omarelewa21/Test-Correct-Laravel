@@ -57,8 +57,6 @@ class AppVersionDetector
         ],
         "iOS" => [
             "ok" => [
-                "3.0.2",
-                "3.0.3",
                 "3.0.4",
                 "3.0.5",
                 "3.1.0",
@@ -92,12 +90,8 @@ class AppVersionDetector
                 "4.2.5",
             ],
             "needsUpdate" => [
-                "0.0.1",
-                "0.0.2"
             ],
             "needsUpdateDeadline" => [
-                "0.0.1" => "31 december 2023",
-                "0.0.2" => "20 juli 2023"
             ],
         ],
         "ChromeOS" => [
@@ -154,28 +148,12 @@ class AppVersionDetector
                 "4.2.5",
             ],
             "needsUpdate" => [
-                "0.0.1",
-                "0.0.2"
             ],
             "needsUpdateDeadline" => [
-                "0.0.1" => "31 december 2023",
-                "0.0.2" => "20 juli 2023"
             ],
         ],
         "windowsElectron" => [
             "ok" => [
-                "3.3.2",
-                "3.3.3",
-                "3.3.4",
-                "3.3.5",
-                "3.4.0",
-                "3.4.1",
-                "3.4.2",
-                "3.4.3",
-                "3.4.4",
-                "3.5.0",
-                "4.0.0",
-                "4.0.1",
                 "4.0.2",
                 "4.0.3",
                 "4.0.4",
@@ -195,28 +173,13 @@ class AppVersionDetector
                 "4.2.5",
             ],
             "needsUpdate" => [
-                "0.0.1",
-                "0.0.2"
+
             ],
             "needsUpdateDeadline" => [
-                "0.0.1" => "31 december 2023",
-                "0.0.2" => "20 juli 2023"
             ],
         ],
         "macosElectron" => [
             "ok" => [
-                "3.3.2",
-                "3.3.3",
-                "3.3.4",
-                "3.3.5",
-                "3.4.0",
-                "3.4.1",
-                "3.4.2",
-                "3.4.3",
-                "3.4.4",
-                "3.5.0",
-                "4.0.0",
-                "4.0.1",
                 "4.0.2",
                 "4.0.3",
                 "4.0.4",
@@ -236,12 +199,8 @@ class AppVersionDetector
                 "4.2.5",
             ],
             "needsUpdate" => [
-                "0.0.1",
-                "0.0.2"
             ],
             "needsUpdateDeadline" => [
-                "0.0.1" => "31 december 2023",
-                "0.0.2" => "20 juli 2023"
             ],
         ]
     ];
@@ -330,6 +289,11 @@ class AppVersionDetector
 
     public static function osIsMac() {
         return self::detect()['os'] == 'macOs';
+    }
+
+    public static function osIsIOS(): bool
+    {
+        return session('TLCPlatform') ===  'iOS' || self::detect()['os'] == 'iOS';
     }
 
     public static function osIsChromebook() {

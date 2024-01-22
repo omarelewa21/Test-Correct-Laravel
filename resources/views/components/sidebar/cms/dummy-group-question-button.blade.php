@@ -11,7 +11,7 @@
                 setTimeout(() => {
                     this.$dispatch('scroll-dummy-into-view')
                 },300)
-                this.$nextTick(() => this.$el.closest('.group-question-questions').dispatchEvent(new CustomEvent('fix-expand-height')) )
+                this.$nextTick(() => this.$el.closest('.group-question-questions')?.dispatchEvent(new CustomEvent('fix-expand-height')) )
             });
         }
      }"

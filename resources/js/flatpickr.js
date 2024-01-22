@@ -20,7 +20,7 @@ document.addEventListener("alpine:init", () => {
                 dateFormat,
                 enableTime,
                 onChange: (date, dateString) => {
-                    this.wireModel = this.value = this.mode == "range" ? dateString.split(" t/m ") : dateString; //split t/m or to
+                    this.wireModel = this.value = this.mode === "range" ? dateString.split(" t/m ") : dateString; //split t/m or to
                 },
                 onOpen: () => {
                     this.$root.parentElement.querySelector("label")?.classList.add("text-primary", "bold");

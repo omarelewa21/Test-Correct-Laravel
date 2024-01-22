@@ -104,7 +104,7 @@
                 </div>
 
 
-                <div class="name flex mb-4 space-x-4">
+                <div class="name flex space-x-4">
                     <div class="input-group mb-4 sm:mb-0 flex-1">
                                 <textarea
                                         id="name_first"
@@ -142,7 +142,7 @@
                 <span>{{ __("teacher.Annuleer") }}</span>
             </x-button.text>
 
-            <x-button.cta wire:click="submit">
+            <x-button.cta wire:click="submit" size="md">
                 <x-icon.checkmark/>
                 <span>{{ __("general.save") }}</span>
             </x-button.cta>

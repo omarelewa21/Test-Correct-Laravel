@@ -58,7 +58,7 @@ class Planned extends TestTakeComponent
 
     public function canStartTestTake(): bool
     {
-        return $this->testTake->time_start->isToday() && $this->hasStudentStartRequirement();
+        return Gate::allows('isAllowedToViewTestTake',[$this->testTake]) && $this->testTake->time_start->isToday() && $this->hasStudentStartRequirement();
     }
 
     public function startTake(): void

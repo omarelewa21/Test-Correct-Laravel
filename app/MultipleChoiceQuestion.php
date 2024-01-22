@@ -2,19 +2,16 @@
 
 namespace tcCore;
 
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use tcCore\Http\Requests\UpdateTestQuestionRequest;
+use tcCore\Http\Traits\Questions\WithQuestionDuplicating;
 use tcCore\Lib\Question\QuestionInterface;
 use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
-use Ramsey\Uuid\Uuid;
 use tcCore\Traits\UuidTrait;
 
 class MultipleChoiceQuestion extends Question implements QuestionInterface
 {
-
     use UuidTrait;
+    use WithQuestionDuplicating;
 
     protected $casts = [
         'uuid'       => EfficientUuid::class,
@@ -86,19 +83,7 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface
 
     public function duplicate(array $attributes, $ignore = null)
     {
-        $question = $this->replicate();
-        $question->parentInstance = $this->parentInstance->duplicate($attributes, $ignore);
-        if ($question->parentInstance === false) {
-            return false;
-        }
-
-        $question->fill($attributes);
-
-        $question->setAttribute('uuid', Uuid::uuid4());
-
-        if ($question->save() === false) {
-            return false;
-        }
+        $question = $this->specificDuplication($attributes, $ignore);
 
         foreach ($this->multipleChoiceQuestionAnswerLinks as $multipleChoiceQuestionAnswerLink) {
             if ($ignore instanceof MultipleChoiceQuestionAnswer && $ignore->getKey() == $multipleChoiceQuestionAnswerLink->getAttribute('multiple_choice_question_answer_id')) {
@@ -117,11 +102,6 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface
         }
 
         return $question;
-    }
-
-    public function canCheckAnswer()
-    {
-        return true;
     }
 
     public function checkAnswer($answer)
@@ -177,6 +157,11 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface
 
 
         return $score;
+    }
+
+    public function isClosedQuestion(): bool
+    {
+        return true;
     }
 
     public function deleteAnswers()
@@ -297,5 +282,14 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface
     {
         $givenAnswersCount = collect(json_decode($answer->json, true))->filter()->count();
         return $givenAnswersCount === $this->selectable_answers;
+    }
+
+    public function getStudentPlayerComponent($context = 'question'): string
+    {
+        return str(parent::getStudentPlayerComponent($context))
+            ->when(
+                $this->selectable_answers > 1 && $this->subtype != 'ARQ',
+                fn($value) => $value->replace('multiple-choice', 'multiple-select')
+            );
     }
 }

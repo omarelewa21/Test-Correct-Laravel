@@ -250,9 +250,13 @@ class SchoolClass extends BaseModel implements AccessCheckable
 
     public function studentUsers()
     {
-        return $this->belongsToMany('tcCore\User', 'students', 'class_id', 'user_id')->withPivot([
-            $this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()
-        ])->wherePivot($this->getDeletedAtColumn(), null);
+        return $this->belongsToMany('tcCore\User', 'students', 'class_id', 'user_id')
+            ->withPivot([
+                $this->getCreatedAtColumn(),
+                $this->getUpdatedAtColumn(),
+                $this->getDeletedAtColumn()
+            ])
+            ->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     protected function saveStudents()

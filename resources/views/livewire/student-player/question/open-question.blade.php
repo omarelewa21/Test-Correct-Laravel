@@ -77,6 +77,8 @@
                     const textarea = document.querySelector('#{{ $editorId }}')
                     const editor = ClassicEditors['{{ $editorId }}'];
                     ReadspeakerTlc.rsTlcEvents.fixAriaLabelsForCkeditor(textarea, editor);
+
+                    RichTextEditor.setReadOnly(editor);
                 })
                 @endif
             </script>

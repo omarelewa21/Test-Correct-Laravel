@@ -22,6 +22,7 @@ use tcCore\Http\Controllers\Testing\TestingController;
 
 Route::post('/do_we_need_captcha',[AuthController::class,'doWeNeedCaptcha'])->name('user.doWeNeedCaptcha');
 Route::get('/auth/laravel_login_page', [AuthController::class, 'getLaravelLoginPage'])->name('auth.laravelLoginPage');
+Route::get('/auth/laravel_entree_url', [AuthController::class, 'getLaravelEntreeUrl'])->name('auth.laravelEntreeUrl');
 
 Route::get('/edu-k', 'EduK\HomeController@index');
 Route::post('demo_account', 'DemoAccountController@store')->name('demo_account.store');
@@ -168,7 +169,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('test_take/bust_surveillance_cache', 'SurveillanceController@destroy')->name('test_take.bust_surveillance_cache');
 
 	// Test take + children
-	Route::get('test_take/{test_take}/export', ['as' => 'test_take.export', 'uses' => 'TestTakesController@export']);
+	Route::get('test_take/{test_take}/export', ['as' => 'test_take.export', 'uses' => 'TestTakesController@exportRttiCsvFile']);
+	Route::get('test_take/{test_take}/export-grades-csv', ['as' => 'test_take.export-csv', 'uses' => 'TestTakesController@exportGradesCsvFile']);
 	Route::post('test_take/{test_take}/normalize', ['as' => 'test_take.normalize', 'uses' => 'TestTakesController@normalize']);
 	Route::post('test_take/{test_take}/next_question', ['as' => 'test_take.next_question', 'uses' => 'TestTakesController@nextQuestion']);
 	Route::resource('test_take', 'TestTakesController', ['except' => ['create', 'edit']]);
@@ -418,6 +420,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('support/show/{user}','SupportTakeOverLogController@show')->name('support_take_over_log.show');
     Route::get('support/index','SupportTakeOverLogController@index')->name('support_take_over_log.index');
     Route::post('/user/{user}/update_trial_date','UsersController@updateTrialDate')->name('user.update_trial_date');
+    Route::post('/user/{user}/create_trial_record','UsersController@createTrialRecord')->name('user.create_trial_record');
     // UPDAETE USER FEATURE IN USER SYSTEM SETTING TABLE
     Route::put('/user/{user}/update_user_feature', 'UsersController@updateUserFeature');
     Route::get('/user/{user}/get_user_system_settings', 'UsersController@getUserSystemSettings')->name('get_user_system_settings.getUserSystemSettings');

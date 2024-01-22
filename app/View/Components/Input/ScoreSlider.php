@@ -24,6 +24,7 @@ class ScoreSlider extends Component
         public bool           $hideThumb = false,
         public int            $minScore = 0,
         public bool           $useIndicator = false,
+        public bool           $decimalScore = false,
     ) {
         $this->setContinuousSliderValue();
 

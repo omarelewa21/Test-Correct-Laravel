@@ -39,6 +39,7 @@ WebspellcheckerTlc = {
      * @param {object} editor
      */
     handleSpellCheckerOnOff: function(editor, initialStatus=true){
+        if(!editor.plugins.has('WProofreader')) return;
         spellChecker = editor.plugins.get('WProofreader');
         spellChecker.isEnabled = initialStatus;         // set initial status
         this.captureSpellCheckerOnOff(spellChecker);

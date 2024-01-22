@@ -93,7 +93,9 @@ class TemporaryLoginController extends Controller
         if(Str::startsWith($relativeUrl,'/')) {
             $relativeUrl = Str::replaceFirst('/', '', $relativeUrl);
         }
-
+        if(Auth::user()) {
+            Auth::logout();
+        }
         return sprintf('%s%s',BaseHelper::getLoginUrl(), $relativeUrl);
     }
 

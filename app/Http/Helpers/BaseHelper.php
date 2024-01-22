@@ -185,11 +185,21 @@ class BaseHelper
         $answer = str_replace('&gt;','>',$answer);
         $answer = str_replace('&amp;','&',$answer);
         if($doHtmlEntities) {
-            $answer = htmlentities($answer, null, 'utf-8');
+            $answer = htmlentities($answer, encoding:'utf-8');
         }
         $answer = str_replace("&nbsp;", ' ', $answer);
 
         return $answer;
+    }
+
+    public static function returnOnlyRegularAlphaNumeric($string, $allowedExtraCharsExpression = null)
+    {
+        if(is_string($string)) {
+            $string = strip_tags($string);
+            $charsExpression = '\w \-À-ž' . $allowedExtraCharsExpression ?? '';
+            return preg_replace("/[^" . $charsExpression . "]+/", "", $string);
+        }
+        return $string;
     }
 
     public static function getLoginUrlWithOptionalMessage($message = null, $isError = false)

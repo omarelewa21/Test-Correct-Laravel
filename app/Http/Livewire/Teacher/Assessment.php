@@ -2,24 +2,30 @@
 
 namespace tcCore\Http\Livewire\Teacher;
 
+use tcCore\CompletionQuestion;
+use tcCore\Http\Helpers\BugsnagHelper;
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Str;
 use tcCore\Answer;
 use tcCore\AnswerRating;
 use tcCore\Exceptions\AssessmentException;
 use tcCore\Http\Enums\UserFeatureSetting as UserFeatureSettingEnum;
 use tcCore\Http\Helpers\CakeRedirectHelper;
+use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Interfaces\CollapsableHeader;
 use tcCore\Http\Livewire\EvaluationComponent;
 use tcCore\Question;
+use tcCore\RelationQuestion;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 use tcCore\User;
 use tcCore\UserFeatureSetting;
 use tcCore\View\Components\CompletionQuestionConvertedHtml;
+use tcCore\Word;
 
 class Assessment extends EvaluationComponent implements CollapsableHeader
 {
@@ -83,8 +89,10 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             ];
     }
 
-    public function mount(TestTake $testTake): void
+    public function mount(TestTake $testTake)
     {
+        Gate::authorize('isAllowedToViewTestTake',[$testTake, false, false ]);
+
         $this->testTakeUuid = $testTake->uuid;
         $this->headerCollapsed = Session::has("assessment-started-$this->testTakeUuid");
 
@@ -98,7 +106,14 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
         $this->setData();
 
-        $this->verifyTestTakeData();
+        if(!$this->verifyTestTakeData()){
+            return CakeRedirectHelper::redirectToCake(
+                routeName   : 'test_takes.view',
+                uuid        : $this->testTakeUuid,
+                returnRoute : '/teacher/test_takes/taken',
+                notification: ['message' => __('assessment.no_answers'), 'type' => 'error']
+            );
+        }
 
         if ($this->headerCollapsed) {
             $this->skipBootedMethod();
@@ -136,6 +151,11 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         }
     }
 
+    public function dehydrate(): void
+    {
+        unset($this->currentGroup->groupQuestionQuestions);
+    }
+
     public function render()
     {
         $this->setNecklaceNavigationDataOnQuestion();
@@ -144,6 +164,13 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function updatedScore($value): void
     {
+        if(!$this->currentAnswer){
+            $this->dispatchBrowserEvent(
+                'notify',
+                ['message' => __('assessment.no_current_answer_please_refresh_notification'), 'type' => 'error']
+            );
+            return;
+        }
         $this->updateOrCreateAnswerRating(['rating' => $value]);
         $this->dispatchScoreNotificationForQuestion();
     }
@@ -215,9 +242,12 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return $this->currentAnswerRatings()->where('type', AnswerRating::TYPE_SYSTEM)->first()->rating;
     }
 
-    public function getCoLearningScoredValueProperty(): float
+    public function getCoLearningScoredValueProperty(): false|float
     {
-        return $this->getCoLearningScoreForCurrentAnswer();
+        if($this->currentAnswer->hasCoLearningDiscrepancy() === false) {
+            return $this->currentAnswer->getStudentAnswerRatings()->first()->rating;
+        }
+        return false;
     }
 
     public function getShowCoLearningScoreToggleProperty(): bool
@@ -230,7 +260,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function getShowFastScoringProperty(): bool
     {
-        return $this->currentQuestion->isDiscussionTypeOpen;
+        return $this->currentQuestion->isType('OpenQuestion', 'DrawingQuestion');
     }
 
     public function getShowScoreSliderProperty(): bool
@@ -244,13 +274,13 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             return true;
         }
 
-        return !$this->currentAnswer->isAnswered;
+        if($this->currentQuestion instanceof RelationQuestion) {
+            return true;
+        }
+
+        return false;
     }
 
-    /* Public accessible methods */
-    /**
-     * @throws AssessmentException
-     */
     public function handleHeaderCollapse($args): bool
     {
         [$assessmentType, $reset] = $this->validateStartArguments($args);
@@ -291,15 +321,19 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return redirect()->route($this->referrer, 'norm');
     }
 
-    /**
-     * @throws AssessmentException
-     */
     public function loadAnswer($value, $action = null, $internal = false): array
     {
         $answersForQuestion = $this->getAnswersForCurrentQuestion();
 
         if ($answersForQuestion->isEmpty()) {
-            throw new AssessmentException('Geen antwoorden voor vraag: ' . $this->currentQuestion->getKey());
+            return BugsnagHelper::notifyAndReturn(
+                'Geen antwoorden voor vraag: ' . $this->currentQuestion->getKey(),
+                returnValue: [
+                    'index' => $this->answerNavigationValue,
+                    'last'  => $this->lastAnswerForQuestion,
+                    'first' => $this->firstAnswerForQuestion,
+                ]
+            );
         }
 
         $answerForCurrentStudent = $answersForQuestion->first(
@@ -329,9 +363,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         ];
     }
 
-    /**
-     * @throws AssessmentException
-     */
     public function loadQuestion($position, $action = null): array
     {
         $newIndex = $position - 1;
@@ -351,13 +382,10 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return $this->returnFromLoadQuestion($nextQuestion, $newIndex);
     }
 
-    /**
-     * @throws AssessmentException
-     */
     public function next(): bool
     {
         if ($this->finalAnswerReached()) {
-            throw new AssessmentException('This should not be possible. Are you a magician?');
+            return BugsnagHelper::notifyAndReturnFalse('During Assessment as a teacher you have called the next method when already on the last answer for the last question');
         }
 
         if (!$this->onLastAnswerForQuestion()) {
@@ -371,16 +399,13 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             return $this->loadAnyNextAnswerWithAction('incr');
         }
 
-        throw new AssessmentException('You somehow managed to get this far? Go get a medal you magnificent beast!');
+        return BugsnagHelper::notifyAndReturnFalse('During Assessment as a teacher you called the next method but no condition was met to load the next answer');
     }
 
-    /**
-     * @throws AssessmentException
-     */
     public function previous(): bool
     {
         if ($this->onBeginningOfAssessment()) {
-            throw new AssessmentException('You can\'t go back in time you silly goose.');
+            return BugsnagHelper::notifyAndReturnFalse('During Assessment as a teacher you have called the previous method when already on the first answer for the first question');
         }
 
         if (!$this->onFirstAnswerForQuestion()) {
@@ -394,9 +419,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             return $this->loadAnyNextAnswerWithAction('decr');
         }
 
-        throw new AssessmentException(
-            'Oh my god you are amazing. no one should have been able to do this, but you did!'
-        );
+        return BugsnagHelper::notifyAndReturnFalse('During Assessment as a teacher you have called the previous method but no condition was met to load the previous answer');
     }
 
     public function finalAnswerReached(): bool
@@ -411,9 +434,17 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function toggleValueUpdated($id, $state): void
     {
+        if (in_array(needle: $id, haystack: [null, ""])) {
+            return;
+        }
+
         $json = $this->teacherRating()?->json ?? [];
 
-        $json[$id] = $state === 'on';
+        $json[$id] = match ($state) {
+            'on' => 1,
+            'half' => 0.5,
+            default => 0,
+        };
 
         $this->updateOrCreateAnswerRating(['json' => $json]);
     }
@@ -439,6 +470,15 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $this->showNewAssessmentNotification = false;
     }
 
+    public function finish()
+    {
+        if ($this->testTakeData->test_take_status_id < TestTakeStatus::STATUS_DISCUSSED) {
+            TestTake::whereUuid($this->testTakeUuid)
+                ->update(['test_take_status_id' => TestTakeStatus::STATUS_DISCUSSED]);
+        }
+
+        return $this->redirectBack();
+    }
 
     /* Private methods */
     protected function setTemplateVariables(): void
@@ -564,7 +604,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
      * @param Question $nextQuestion
      * @param int $newIndex
      * @return array
-     * @throws AssessmentException
      */
     private function returnFromLoadQuestion(Question $nextQuestion, int $newIndex): array
     {
@@ -593,24 +632,56 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     /**
      * @param string $action
      * @return Question
-     * @throws AssessmentException
      */
     private function retrieveQuestionBasedOnAction(string $action): Question
     {
         $availableAnswers = $this->getAvailableAnswersForCurrentStudent();
         $currentIndex = $availableAnswers->search(fn($item) => $item->question_id === $this->currentQuestion->id);
 
+        Bugsnag::leaveBreadcrumb(
+            'Retrieve question based on action',
+            metaData: [
+                'action' => $action,
+                'current_index' => $currentIndex,
+                'available_answers' => $availableAnswers->map->getKey()->toArray(),
+                'answers_count' => $availableAnswers->count(),
+            ]
+        );
+
+        $maxIndex = $availableAnswers->keys()->last();
+
+        if($currentIndex < 0 || !$currentIndex) {
+            $currentIndex = 0;
+        }
+        if($currentIndex > $maxIndex) {
+            $currentIndex = $maxIndex;
+        }
+
+
         $closestAvailableAnswer = $this->getClosestAvailableAnswer($action, $availableAnswers, $currentIndex);
 
+        Bugsnag::leaveBreadcrumb(
+            'Retrieve question based on action',
+            metaData: [
+                'action' => $action,
+                'current_index' => $currentIndex,
+                'available_answers' => $availableAnswers->map->getKey()->toArray(),
+                'answers_count' => $availableAnswers->count(),
+                'closest_available_answer' => $closestAvailableAnswer?->getKey(),
+            ]);
+
         if (!$closestAvailableAnswer) {
-            throw new AssessmentException(
+            return BugsnagHelper::notifyAndReturn(
                 sprintf(
                     'Cannot find closest question to navigate to based on the "%s" from question position %s',
                     $action,
                     $this->questionNavigationValue
-                )
+                ),
+                returnValue: $this->currentQuestion
             );
         }
+
+        Bugsnag::clearBreadcrumbs();
 
         return $this->questions->where(
             'id',
@@ -626,12 +697,13 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $closestAvailableAnswer = $this->getClosestAvailableAnswer($action, $answers, $currentIndex);
 
         if (!$closestAvailableAnswer) {
-            throw new AssessmentException(
+            return BugsnagHelper::notifyAndReturn(
                 sprintf(
                     'Cannot find closest answer to navigate to based on "%s" from answer position %s',
                     $action,
                     $this->answerNavigationValue
-                )
+                ),
+                returnValue: $this->currentAnswer
             );
         }
 
@@ -648,11 +720,12 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         $answers = $this->answersWithDiscrepancyFilter($answers)
             ->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType());
+
         return match ($action) {
             'last' => $answers->last(),
             'first' => $answers->first(),
-            'decr' => $answers->filter(fn($answer, $key) => $key < $currentIndex)->last(),
-            'incr' => $answers->filter(fn($answer, $key) => $key > $currentIndex)->first(),
+            'decr' => $answers->filter(fn($answer, $key) => $key < $currentIndex)->last() ?? $answers->first(),
+            'incr' => $answers->filter(fn($answer, $key) => $key > $currentIndex)->first() ?? $answers->last(),
             default => null,
         };
     }
@@ -740,6 +813,12 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             ?? $this->answersWithDiscrepancyFilter()
                 ->whereIn('question_id', $this->getQuestionIdsForCurrentAssessmentType())
                 ->last();
+
+        if(!$firstAnswer){
+            $this->setNavigationDataToStartPosition();
+            return;
+        }
+
         $this->setNavigationDataWithFirstUnscoredAnswer($firstAnswer);
     }
 
@@ -752,7 +831,25 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $question = $this->questions->discussionTypeFiltered($this->openOnly)->get(
             (int)$this->questionNavigationValue - 1
         );
+
+        if(!$question){ // fallback in case the question could not be found
+            if($this->questions->discussionTypeFiltered($this->openOnly)->count() === 0){
+                return false;
+            }
+
+            $question = $this->questions->discussionTypeFiltered($this->openOnly)->first();
+            $this->questionNavigationValue = 1;
+        }
         $participantId = $this->students->get((int)$this->answerNavigationValue - 1);
+
+        if(!$participantId){ // fallback in case the participant could not be found
+            if($this->students->count() === 0){
+                return false;
+            }
+            $participantId = $this->students->first();
+            $this->answerNavigationValue = 1;
+        }
+
         $answer = $this->answersWithDiscrepancyFilter()
             ->where('question_id', $question->id)
             ->where('test_participant_id', $participantId)
@@ -771,24 +868,9 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             }
             return 0;
         }
+        $this->isCoLearningScore = $this->getCurrentAnswer()->answerRatings->whereIn('type', [AnswerRating::TYPE_TEACHER, AnswerRating::TYPE_SYSTEM])->isEmpty();
 
-        if ($rating = $ratings->first(fn($rating) => $rating->type === AnswerRating::TYPE_TEACHER)) {
-            return $rating->rating;
-        }
-
-        if ($rating = $ratings->first(fn($rating) => $rating->type === AnswerRating::TYPE_SYSTEM)) {
-            return $rating->rating;
-        }
-
-        if ($ratings->where('type', AnswerRating::TYPE_STUDENT)->isNotEmpty()) {
-            $this->isCoLearningScore = true;
-            if ($this->currentAnswer->hasDiscrepancy === true || $this->currentAnswer->hasDiscrepancy === null) {
-                return null;
-            }
-            return $this->getCoLearningScoreForCurrentAnswer();
-        }
-
-        return null;
+        return $this->getCurrentAnswer()->calculateFinalRating();
     }
 
     private function currentAnswerHasRatingsOfType(string $type): bool
@@ -883,6 +965,12 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return !$answer->hasCoLearningDiscrepancy();
     }
 
+    protected function currentAnswerHasToggleDiscrepanciesInCoLearningRatings(?Answer $answer = null): bool
+    {
+        $answer ??= $this->currentAnswer;
+        return !!$answer->discrepancyInToggleData;
+    }
+
     public function coLearningRatings(): Collection
     {
         return parent::coLearningRatings()->sortBy('user.name_first');
@@ -930,16 +1018,6 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return $filteredAnswers->count() === $assessedAnswerCount;
     }
 
-    private function getCoLearningScoreForCurrentAnswer(): float|int
-    {
-        $rating = $this->currentAnswer
-            ->answerRatings
-            ->filter(fn($rating) => $rating->type === AnswerRating::TYPE_STUDENT)
-            ->avg('rating');
-
-        return $this->currentQuestion->decimal_score ? floor(($rating * 2) / 2) : (int)round($rating);
-    }
-
     private function getNavigationValueForQuestion(Question $question): int
     {
         return $this->questions->search(fn($q) => $q->id === $question->id) + 1;
@@ -969,13 +1047,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         if (filled($this->answers)) {
             return true;
         }
-
-        return CakeRedirectHelper::redirectToCake(
-            routeName   : 'test_takes.view',
-            uuid        : $this->testTakeUuid,
-            returnRoute : '/teacher/test_takes/taken',
-            notification: ['message' => __('assessment.no_answers'), 'type' => 'error']
-        );
+        return false;
     }
 
     private function updateMaxAssessedValue($currentAnswerIndexOfAllAnswers)
@@ -1081,18 +1153,12 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         return $this->testTakeData->testParticipants
             ->load([
                 'answers:id,uuid,test_participant_id,question_id,json,order,final_rating,done,commented_answer',
-                'answers.answerRatings:id,answer_id,type,rating,advise,user_id',
+                'answers.answerRatings:id,answer_id,type,rating,advise,user_id,json',
                 'answers.answerRatings.user:id,name,name_first,name_suffix',
             ])
             ->flatMap(function ($participant) {
                 return $participant->answers->map(function ($answer) {
-                    $coLearningRatings = $answer->answerRatings->whereNotNull('rating')->where(
-                        'type',
-                        AnswerRating::TYPE_STUDENT
-                    );
-                    $answer->hasDiscrepancy = $coLearningRatings->count() > 1
-                        ? !$this->currentAnswerCoLearningRatingsHasNoDiscrepancy($answer)
-                        : null;
+                    $answer->hasDiscrepancy = $answer->hasCoLearningDiscrepancy();
 
                     $answer->sortOrder = $this->questions->search(fn($q) => $q->id === $answer->question_id) + 1;
                     return $answer;
@@ -1117,7 +1183,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             ->test
             ->getFlatQuestionList(
                 function ($relationModel) {
-                    $relationModel->question->isDiscussionTypeOpen = !$relationModel->question->canCheckAnswer();
+                    $relationModel->question->isDiscussionTypeOpen = !$relationModel->question->isClosedQuestion();
                 }
             );
     }
@@ -1137,14 +1203,12 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
     {
         return $this->questions
             ->where('isDiscussionTypeOpen')
-            ->where(function ($question) {
-                return $this->answers
-                    ->where('question_id', $question->id)
-                    ->filter(function ($answer) {
-                        return $answer->hasDiscrepancy === false;
-                    })
-                    ->isEmpty();
-            })
+            ->whereIn(
+                'id',
+                $this->answers
+                    ->where('hasDiscrepancy', true)
+                    ->pluck('question_id')
+            )
             ->isNotEmpty();
     }
 
@@ -1157,7 +1221,66 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
             'drawerScoringDisabled' => $this->drawerScoringDisabled,
             'pageUpdated'           => $this->updatePage,
             'isCoLearningScore'     => $this->isCoLearningScore,
+            'toggleValues'          => $this->getToggleValues(),
         ];
+    }
+
+    private function getToggleValues()
+    {
+        if(!$this->headerCollapsed) {
+            return [];
+        }
+
+        $studentAnswerJson = collect(json_decode($this->getCurrentAnswer()->json, true));
+        $answerRatingToggleValuesJson = $this->getCurrentAnswer()->answerRatings->where('type', AnswerRating::TYPE_TEACHER)->first()->json ?? [];
+
+        $correctAnswers = [];
+        if ($this->getCurrentQuestion()->isType("RelationQuestion")) {
+            collect($studentAnswerJson)->each(function ($value, $key) use (&$correctAnswers) {
+                $correctAnswers[$key][] = Word::find($key)->correctAnswerWord()->text;
+            });
+        }
+        if($this->getCurrentQuestion()->isType("CompletionQuestion") && $this->getCurrentQuestion()->subtype === "completion") {
+            $this->getCurrentQuestion()->completionQuestionAnswers->each(function ($answer) use (&$correctAnswers) {
+                $correctAnswers[$answer->tag][] = $answer->answer;
+            });
+        }
+
+        $studentAnswerJson->each(function ($value, $key) use (&$answerRatingToggleValuesJson, $correctAnswers) {
+            if($this->getCurrentQuestion()->isType("CompletionQuestion") && $this->getCurrentQuestion()->subtype === "completion") {
+                //completion question json is a 1 based array
+                $tagKey = $key = $key + 1;
+            }
+
+            if (array_key_exists($key, $answerRatingToggleValuesJson)) {
+                return;
+            }
+
+            if ($value === null) { //not answered === not correct
+                $answerRatingToggleValuesJson[$key] = null; //todo: add new functionality to automatically rate answers FALSE if the option is enabled in CMS
+                return;
+            }
+
+            if ($this->getCurrentQuestion()->isType("RelationQuestion")) {
+                $answerRatingToggleValuesJson[$key] = QuestionHelper::compareTextAnswers(
+                    answerToCheck : $value,
+                    correctAnswers: $correctAnswers[$key]
+                ) ? 1 : null; //todo: add new functionality to automatically rate answers FALSE if the option is enabled in CMS
+                return;
+            }
+            if($this->getCurrentQuestion()->isType("CompletionQuestion") && $this->getCurrentQuestion()->subtype === "completion") {
+                //completion question json is a 1 based array
+                $answerRatingToggleValuesJson[$tagKey] = QuestionHelper::compareTextAnswers(
+                    answerToCheck : $value,
+                    correctAnswers: $correctAnswers[$tagKey]
+                ) ? 1 : null; //todo: add new functionality to automatically rate answers FALSE if the option is enabled in CMS
+                return;
+            }
+
+            $answerRatingToggleValuesJson[$key] = null;
+        });
+
+        return $answerRatingToggleValuesJson;
     }
 
     private function getSessionSettingValue($setting): bool
@@ -1288,14 +1411,15 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     public function getDiscrepancyTranslationKey(): string
     {
+        if($this->studentRatings()->whereNotNull('rating')->count() === 1) {
+            return 'assessment.scored_by_one_student';
+        }
+
         if ($this->currentAnswerCoLearningRatingsHasNoDiscrepancy()) {
             return 'assessment.no_discrepancy';
         }
-        if ($this->studentRatings()->whereNotNull('rating')->count() >= 2) {
-            return 'assessment.discrepancy';
-        }
 
-        return 'assessment.scored_by_one_student';
+        return 'assessment.discrepancy';
     }
 
     private function answersWithDiscrepancyFilter(Collection $answers = null): Collection
@@ -1367,12 +1491,9 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
         $currentAnswerIndex = $this->answers->search(fn($answer) => $answer->id === $this->currentAnswer->id);
         $newAnswer = $this->getClosestAvailableAnswer($action, $this->answers, $currentAnswerIndex);
         if (!$newAnswer) {
-            \Bugsnag::notifyException(
-                new AssessmentException(
+            return BugsnagHelper::notifyAndReturnTrue(
                     sprintf('Trying to use the \'%s\' button , but there\'s no next answer available.', $action)
-                )
             );
-            return true;
         }
         $this->setComponentAnswerProperties($newAnswer, $this->getAnswerIndex($newAnswer));
 
@@ -1410,7 +1531,7 @@ class Assessment extends EvaluationComponent implements CollapsableHeader
 
     private function dispatchScoreNotificationForQuestion(): void
     {
-        if ($this->currentQuestion->isDiscussionTypeOpen) {
+        if ($this->currentQuestion->isDiscussionTypeOpen || $this->currentQuestion->isType('Completion')) {
             return;
         }
         if ($this->scoreWarningDispatchedForQuestion) {

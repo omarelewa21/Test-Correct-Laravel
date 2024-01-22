@@ -4,9 +4,11 @@ namespace Unit\Services\ContentSource;
 
 
 use tcCore\BaseSubject;
+use tcCore\Factories\FactoryWordList;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolFormidable;
 use tcCore\Services\ContentSource\FormidableService;
 use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
+use tcCore\WordList;
 use Tests\ScenarioLoader;
 use Tests\TestCase;
 
@@ -47,6 +49,10 @@ class FormidableServiceTest extends TestCase
     /** @test */
     public function it_can_tell_if_it_is_available_for_a_user()
     {
+        $teacher = ScenarioLoader::get('teacherOne');
+        $teacher->schoolLocation->allow_formidable = false;
+        $teacher->schoolLocation->save();
+
         $this->assertFalse(FormidableService::isAvailableForUser(ScenarioLoader::get('teacherOne')));
     }
 
@@ -126,7 +132,7 @@ class FormidableServiceTest extends TestCase
 
         $this->assertInstanceOf(
             \tcCore\Test::class,
-            (new FormidableService)->itemBankFiltered(filters: [], sorting: [], forUser: $teacher)->where('name', 'test-Formidable-Frans')->first()
+            (new FormidableService)->itemBankFiltered( forUser: $teacher, filters: [], sorting: [])->where('name', 'test-Formidable-Frans')->first()
         );
     }
 
@@ -134,5 +140,44 @@ class FormidableServiceTest extends TestCase
     public function it_has_a_tab_order()
     {
         $this->assertEquals(600, FormidableService::$order);
+    }
+
+    /** @test */
+    public function can_show_word_lists_when_all_conditions_are_met()
+    {
+        $listName = class_basename(FormidableService::class).' WordList';
+        $this->createWordListForSource($listName);
+        $teacher = ScenarioLoader::get('teacherOne');
+        auth()->login($teacher);
+
+        $this->assertEquals(
+            $teacher->subjects()->first()->base_subject_id,
+            BaseSubject::FRENCH
+        );
+
+        $this->assertInstanceOf(
+            WordList::class,
+            (new FormidableService())->wordListFiltered(forUser: $teacher)
+                ->where('name', $listName)
+                ->first()
+        );
+    }
+
+    private function createWordListForSource(string $name): WordList
+    {
+        $subject = ScenarioLoader::get('school_locations')->where('customer_code', FormidableService::getCustomerCode())
+            ->first()
+            ->schoolLocationSections
+            ->where('demo', false)
+            ->first()
+            ->section
+            ->subjects
+            ->where('base_subject_id', BaseSubject::FRENCH)
+            ->first();
+
+        return FactoryWordList::createWordList(
+            FormidableService::getSchoolAuthor(),
+            ['subject_id' => $subject->getKey(), 'name' => $name]
+        );
     }
 }

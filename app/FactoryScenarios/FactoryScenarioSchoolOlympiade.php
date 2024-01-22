@@ -40,7 +40,7 @@ class FactoryScenarioSchoolOlympiade extends FactoryScenarioSchool
     {
         parent::__construct();
 
-        $this->schoolName = 'Olympiade content';
+        $this->schoolName = 'Olympiade Contest content';
 
         $this->schoolLocationName = 'Olympiade';
 

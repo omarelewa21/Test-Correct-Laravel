@@ -4,12 +4,14 @@ namespace tcCore\Http\Livewire\StudentPlayer\Overview;
 
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Livewire\StudentPlayer\OpenQuestion as AbstractOpenQuestion;
+use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithStudentPlayerOverview;
 
 class OpenQuestion extends AbstractOpenQuestion
 {
     use WithGroups;
     use WithStudentPlayerOverview;
+    use WithAttachments;
 
     public $answered;
 

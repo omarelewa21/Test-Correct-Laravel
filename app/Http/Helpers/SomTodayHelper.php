@@ -136,6 +136,7 @@ class SomTodayHelper
         return $this->result;
     }
 
+
     public function hasException()
     {
         return (bool) $this->soapException;
@@ -151,8 +152,11 @@ class SomTodayHelper
         return $this->resultIdentifier;
     }
 
-    public function getResultSet()
+    public function getResultSet($forceRefresh = true)
     {
+        if($forceRefresh){
+            $this->resultSet->fresh();
+        }
         return $this->resultSet;
     }
 

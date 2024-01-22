@@ -1,8 +1,9 @@
 <div class="question-editor-header disabled z-50">
     <div class="flex items-center space-x-4 flex-1 relative mr-4">
         <button class="flex items-center justify-center rounded-full bg-white/20 w-10 h-10 rotate-svg-180 hover:scale-105 transition-transform"
-                wire:click="saveAndRedirect"
-                @click="$dispatch('store-current-question');"
+                x-on:click="await forceSync(); $wire.call('saveAndRedirect');"
+{{--                wire:click="saveAndRedirect"--}}
+                {{-- @click="$dispatch('store-current-question');"--}}
                 selid="back-btn"
         >
             <x-icon.arrow/>
@@ -25,7 +26,7 @@
             </div>
 
             <div class="flex space-x-2 items-center" x-data
-                 @click="forceSyncEditors();$wire.saveIfDirty()"
+                 x-on:click.capture.stop="await headerButtonEventCapture($event)"
             >   
                 <span class="mr-4">
                     <x-published-tag labelColor="white" :published="$this->testIsPublished"/>

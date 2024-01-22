@@ -19,14 +19,33 @@
      questionComponent
      :class="{ 'rs_readable': showMe }"
 >
+    @if($this->group)
+        <x-accordion.container :active-container-key="'answer'">
+            <x-accordion.block key="answer"
+                :coloredBorderClass="'student'"
+                :emitWhenSet="false"
+                :disabledBackGround="true"
+            >
+            <x-slot:title>
+                    <h4 wire:ignore class="inline-flex font-bold"> {{__('cms.group-question')}} : {{ $this->group->name }}</h4>
+            </x-slot:title>
+            <x-slot:body>
+                    <div class="flex flex-1 flex-col">
+                        <div class="flex flex-wrap">
+                            <x-attachment.student-buttons-container :question="$question" :group="$this->group" :blockAttachments="$this->blockAttachments"/>
+                        </div>
+                        <div class="mb-5 questionContainer" questionHtml wire:ignore>{!! $this->group->question->converted_question_html !!}</div>
+                    </div>
+            </x-slot:body>
+            </x-accordion.block>
+        </x-accordion.container>
+    @endif
     <div class="flex justify-end space-x-4 mt-6">
         @if(!$this->closed )
             <x-question.notepad-button :question="$question" ></x-question.notepad-button>
         @endif
     </div>
-
     <x-timeout-progress-bar/>
-
     <div class="flex flex-col p-8 sm:p-10 content-section relative">
         <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
             <div class="inline-flex question-number rounded-full text-center justify-center items-center complete">
@@ -39,23 +58,18 @@
                 <x-icon.locked class="ml-2"/>
             @endif
 
-            <h1 wire:ignore class="inline-block ml-2 mr-6" selid="questiontitle">{!! __($question->caption) !!}</h1>
+            <h2 wire:ignore class="inline-block ml-2 mr-6" selid="questiontitle">{!! __($question->caption) !!}</h2>
 
             @if ($question->score > 0)
                 <h4 wire:ignore class="inline-block">{{ $question->score }} pt</h4>
             @endif
-            @if($this->group)
-                <h6 wire:ignore class="inline-flex ml-auto">{{ $this->group->name }}</h6>
-            @endif
+         
         </div>
         <div class="flex flex-1 flex-col">
             @if(!$this->closed)
                 <div class="flex flex-wrap">
-                    <x-attachment.student-buttons-container :question="$question" :group="$this->group" :blockAttachments="$this->blockAttachments"/>
+                    <x-attachment.student-buttons-container :questionAttachmentsExist="true" :question="$question" :group="$this->group" :blockAttachments="$this->blockAttachments"/>
                 </div>
-                @if($this->group)
-                    <div class="mb-5 questionContainer" questionHtml wire:ignore>{!! $this->group->question->converted_question_html !!}</div>
-                @endif
                 <div class="questionContainer">
                     {{ $slot }}
                 </div>

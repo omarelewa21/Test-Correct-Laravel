@@ -14,10 +14,17 @@
                     <x-icon.checkmark-circle color="var(--cta-primary)"/>
                 </span>
             @endif
-            <x-button.cta x-data="{}" x-cloak x-show="Alpine.store('questionBank').active" size="sm" wire:click="addQuestion">
-                <x-icon.plus/>
-                <span>{{ __('cms.Toevoegen') }}</span>
-            </x-button.cta>
+            @if($this->isGroupQuestion())
+                <x-button.cta x-data="{}" x-cloak x-show="Alpine.store('questionBank').active && !Alpine.store('questionBank').inGroup" size="sm" wire:click="addQuestion">
+                    <x-icon.plus/>
+                    <span>{{ __('cms.Toevoegen') }}</span>
+                </x-button.cta>
+            @else
+                <x-button.cta x-data="{}" x-cloak x-show="Alpine.store('questionBank').active" size="sm" wire:click="addQuestion">
+                    <x-icon.plus/>
+                    <span>{{ __('cms.Toevoegen') }}</span>
+                </x-button.cta>
+                @endif
 
             <x-button.close wire:click="$emit('closeModal')"/>
         </div>
@@ -180,7 +187,7 @@
                         @endif
                         @if($this->questionModel->isType('Completion'))
                             <x-input.toggle-row-with-title :disabled="true"
-                                                           :checked="$this->questionModel->auto_check_answer"
+                                                           :checked="$this->questionModel->auto_check_incorrect_answer"
                             >
                                 <x-icon.autocheck/>
                                 <span>{{ __('cms.Automatisch nakijken') }}</span>
@@ -189,7 +196,7 @@
                                                            :checked="$this->questionModel->auto_check_answer_case_sensitive"
                             >
                                 <x-icon.case-sensitive/>
-                                <span>{{ __('cms.Hoofdletter gevoelig nakijken') }}</span>
+                                <span>{{ __('cms.Hoofdlettergevoelig nakijken') }}</span>
                             </x-input.toggle-row-with-title>
                         @endif
                         @if($this->questionModel->isType('Group'))
@@ -218,17 +225,14 @@
                                     <span class="bold">RTTI {{ __('cms.methode') }}</span>
                                 </x-input.toggle-row-with-title>
                                 <div x-show="rtti" class="flex flex-col pt-2 gap-2.5">
-                                    @foreach(['R'  , 'T1' , 'T2' , 'I'] as $value)
-                                        <label class="radio-custom">
-                                            <input wire:key="rtti-{{ $value }}"
-                                                   name="rtti"
-                                                   type="radio"
-                                                   value="{{ $value }}"
-                                                   disabled
-                                                   @if($value === $this->questionModel->rtti) checked @endif
-                                            />
-                                            <span class="ml-2">{{ $value }}</span>
-                                        </label>
+                                    @foreach(\tcCore\Http\Enums\Taxonomy\Rtti::values() as $value)
+                                        <x-input.radio :text-right="$value"
+                                                       :value="$value"
+                                                       name="rtti"
+                                                       wire:key="rtti-{{ $value }}"
+                                                       :disabled="true"
+                                                       :checked="$value === $this->questionModel->rtti"
+                                        />
                                     @endforeach
                                 </div>
                             </div>
@@ -240,16 +244,14 @@
                                     <span class="bold">BLOOM {{ __('cms.methode') }}</span>
                                 </x-input.toggle-row-with-title>
                                 <div x-show="bloom" class="flex flex-col pt-2 gap-2.5">
-                                    @foreach([ __('cms.Onthouden'), __('cms.Begrijpen'), __('cms.Toepassen'), __('cms.Analyseren'), __('cms.Evalueren'), __('cms.Creëren')] as $value)
-                                        <label class="radio-custom">
-                                            <input wire:key="bloom-{{ $value }}"
-                                                   name="bloom"
-                                                   type="radio"
-                                                   value="{{ $value }}"
-                                                   @if($value === $this->questionModel->bloom) checked @endif
-                                            />
-                                            <span class="ml-2">{{ $value }}</span>
-                                        </label>
+                                    @foreach(\tcCore\Http\Enums\Taxonomy\Bloom::translations() as $value => $translation)
+                                        <x-input.radio :text-right="$translation"
+                                                       :value="$value"
+                                                       name="bloom"
+                                                       wire:key="bloom-{{ $value }}"
+                                                       :disabled="true"
+                                                       :checked="$value === $this->questionModel->bloom"
+                                        />
                                     @endforeach
                                 </div>
                             </div>
@@ -261,17 +263,14 @@
                                     <span class="bold">Miller {{ __('cms.methode') }}</span>
                                 </x-input.toggle-row-with-title>
                                 <div x-show="miller" class="flex flex-col pt-2 gap-2.5">
-                                    @foreach([ __('cms.Weten'), __('cms.Weten hoe'), __('cms.Laten zien'), __('cms.Doen'),] as $value)
-                                        <label class="radio-custom">
-                                            <input wire:key="miller-{{ $value }}"
-                                                   name="miller"
-                                                   type="radio"
-                                                   value="{{ $value }}"
-                                                   disabled
-                                                   @if($value === $this->questionModel->miller) checked @endif
-                                            />
-                                            <span class="ml-2">{{ __($value) }}</span>
-                                        </label>
+                                    @foreach(\tcCore\Http\Enums\Taxonomy\Miller::translations() as $value => $translation)
+                                        <x-input.radio :text-right="$translation"
+                                                       :value="$value"
+                                                       name="miller"
+                                                       wire:key="miller-{{ $value }}"
+                                                       :disabled="true"
+                                                       :checked="$value === $this->questionModel->miller"
+                                        />
                                     @endforeach
                                 </div>
                             </div>

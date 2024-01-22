@@ -46,7 +46,7 @@ ReadspeakerTlc = function(){
             if(rspkr.rs_tlc_prevent_ckeditor_focus){
                 return;
             }
-            ClassicEditors[editorId].ui.getEditableElement().setAttribute('aria-label', 'kaas is lekker');
+
             handleFocusForReadspeaker();
             ckeditorNode.editorId = editorId;
             var correction = {x:-15,y:2};
@@ -126,10 +126,9 @@ ReadspeakerTlc = function(){
         }
         function handleCkeditorSelectionChangeForReadspeaker(editor)
         {
-
             editor.editing.view.document.on( 'selectionChange', () => {
                 rspkr.rs_tlc_ckeditor_selecting = true;
-                RichTextEditor.timer = setTimeout(RichTextEditor.setReadOnly.bind(null, editor),50);
+                RichTextEditor.timer = setTimeout(RichTextEditor.setReadOnlyIfApplicable.bind(null, editor),50);
             } );
         }
         function ckeditorClickEvent(event)
@@ -528,6 +527,7 @@ ReadspeakerTlc = function(){
             }
             var inputsArray = Object.entries(inputs);
             for (var i=0; i < inputsArray.length; i++) {
+
                 removeHiddenDivForElement(inputsArray[i][1]);
             }
         }
@@ -1160,7 +1160,8 @@ ReadSpeaker.q(function() {
 window.rsConf = {
     general: {
         usePost: true,
-        skipHiddenContent:true
+        skipHiddenContent:true,
+        customTransLangs: ['de_de', 'en_uk', 'nl_nl', 'es_es', 'fr_be']
     },
     ui: {
         scrollcontrols: {
@@ -1171,7 +1172,8 @@ window.rsConf = {
             inverted : false
         },
         tools: {
-            textmode : false
+            textmode : false,
+            voicesettings: true
         },
         mobileVertPos: 'bottom=100'
     },
@@ -1228,6 +1230,8 @@ window.rsConf = {
         }
     }
 };
+
+
 window.classicEditorDetached = false;
 
 

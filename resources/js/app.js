@@ -13,7 +13,7 @@ require('./navigation-bar');
 require('../../vendor/wire-elements/modal/resources/js/modal');
 require('./webspellchecker_tlc');
 require('./pdf-download');
-
+require('./Question/relation-question')
 
 window.ClassicEditors = [];
 
@@ -418,3 +418,9 @@ fixHistoryApiStateForQueryStringUpdates = function (stateObject, url) {
         console.warn("Something went wrong with pushing the state to the history API");
     }
 };
+
+getNowFormatedTimestamp = function(){
+    let currentdate = new Date();
+    return currentdate.getFullYear() + (((currentdate.getMonth() + 1) < 10) ? "0" : "") + (currentdate.getMonth() + 1) + ((currentdate.getDate() < 10) ? "0" : "") + currentdate.getDate() +
+        ((currentdate.getHours() < 10) ? "0" : "") + currentdate.getHours() + ((currentdate.getMinutes() < 10) ? "0" : "") + currentdate.getMinutes() + ((currentdate.getSeconds() < 10) ? "0" : "") + currentdate.getSeconds();
+}

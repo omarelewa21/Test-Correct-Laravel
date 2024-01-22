@@ -135,7 +135,7 @@ class UsersController extends Controller
                         'username'           => $user->username,
                         'abbreviation'       => $user->abbreviation,
                         'invited_by'         => $user->invited_by,
-                        'account_verified'  => $user->account_verified,
+                        'account_verified'  => $user->account_verified
                     ]
                 )
             );
@@ -649,6 +649,17 @@ class UsersController extends Controller
         }
 
         return Response::make($user, 200);
+    }
+
+    public function createTrialRecord(Request $request, User $user)
+    {
+        $createdTrialRecordUuid = $user->createTrialPeriodRecordIfRequired(false, $request->get('school_location_uuid'));
+
+        if($createdTrialRecordUuid) {
+            return Response::make(["uuid" => $createdTrialRecordUuid], 200);
+        }
+
+        return Response::make(false, 422);
     }
 
     public function toetsenbakkers(Request $request)

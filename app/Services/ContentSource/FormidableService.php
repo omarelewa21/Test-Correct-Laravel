@@ -3,7 +3,6 @@
 namespace tcCore\Services\ContentSource;
 
 use Illuminate\Support\Facades\Auth;
-use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Test;
 use tcCore\TestAuthor;
 use tcCore\User;
@@ -39,7 +38,7 @@ class FormidableService extends ContentSourceService
 
     protected static function testsAvailableForUser(User $user): bool
     {
-        return (new static)->itemBankFiltered(filters: [], sorting: [], forUser: $user)->exists();
+        return (new static())->itemBankFiltered(forUser: $user)->exists();
     }
 
     protected static function allowedForUser(User $user): bool

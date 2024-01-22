@@ -3,6 +3,7 @@ return [
 
     'url_login' => env('URL_LOGIN'),
     'url_logout' => sprintf('%susers/logout_from_laravel', env('URL_LOGIN')),
+    'url_roundtrip_entree' => sprintf('%susers/roundtrip_entree', env('URL_LOGIN')),
 
     'base_url' => env('BASE_URL', ''),
 

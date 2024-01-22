@@ -9,7 +9,7 @@
         <div class="flex w-full menu">
             <div wire:click="changeActiveTab('{{ $this->plannedTab }}')">
                 <x-button.default @class([
-                                    "px-2 border-0 hover:text-primary hover:bg-primary/5 active:bg-primary/10 border-b-2 border-transparent",
+                                    "px-2 border-0 hover:text-primary hover:bg-primary/5 active:bg-primary/10 focus:bg-primary/10 border-b-2 border-transparent",
                                     "text-primary border-primary" =>  $this->plannedTab === $tab
                                   ])
                                   size="md"
@@ -18,21 +18,21 @@
                 </x-button.default>
             </div>
             <div wire:click="changeActiveTab('{{ $this->discussTab }}')">
-                <x-button.default @class(["px-2 border-0 hover:text-primary hover:bg-primary/5 active:bg-primary/10 border-b-2 border-transparent", "text-primary border-primary" =>  $this->discussTab === $tab ])
+                <x-button.default @class(["px-2 border-0 hover:text-primary hover:bg-primary/5 active:bg-primary/10 focus:bg-primary/10 border-b-2 border-transparent", "text-primary border-primary" =>  $this->discussTab === $tab ])
                                   size="md"
                 >
                     <span>{{ __('student.discuss') }}</span>
                 </x-button.default>
             </div>
             <div wire:click="changeActiveTab('{{ $this->reviewTab }}')">
-                <x-button.default @class(["px-2 border-0 hover:text-primary hover:bg-primary/5 active:bg-primary/10 border-b-2 border-transparent", "text-primary border-primary" =>  $this->reviewTab === $tab ])
+                <x-button.default @class(["px-2 border-0 hover:text-primary hover:bg-primary/5 active:bg-primary/10 focus:bg-primary/10 border-b-2 border-transparent", "text-primary border-primary" =>  $this->reviewTab === $tab ])
                                   size="md"
                 >
                     <span>{{ __('student.review') }}</span>
                 </x-button.default>
             </div>
             <div wire:click="changeActiveTab('{{ $this->gradedTab }}')">
-                <x-button.default @class(["px-2 border-0 hover:text-primary hover:bg-primary/5 active:bg-primary/10 border-b-2 border-transparent", "text-primary border-primary" =>  $this->gradedTab === $tab ])
+                <x-button.default @class(["px-2 border-0 hover:text-primary hover:bg-primary/5 active:bg-primary/10 focus:bg-primary/10 border-b-2 border-transparent", "text-primary border-primary" =>  $this->gradedTab === $tab ])
                                   size="md"
                 >
                     <span>{{ __('student.results') }}</span>

@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher;
 
 use Livewire\WithPagination;
 use tcCore\Http\Livewire\TCComponent;
+use tcCore\Http\Traits\WithRelationQuestionBlocks;
 use tcCore\Http\Traits\WithTestTakeInteractions;
 use tcCore\Subject;
 use tcCore\TestTake;
@@ -11,30 +12,32 @@ use tcCore\TestTakeStatus;
 
 class TestTakeOverview extends TCComponent
 {
-    use WithPagination, WithTestTakeInteractions;
+    use WithPagination;
+    use WithTestTakeInteractions;
+    use WithRelationQuestionBlocks;
 
-    const STAGES = [
+    public const STAGES = [
         'planned' => [TestTakeStatus::STATUS_PLANNED],
         'taken'   => [TestTakeStatus::STATUS_TAKEN, TestTakeStatus::STATUS_DISCUSSING],
         'norm'    => [TestTakeStatus::STATUS_DISCUSSED],
         'review'  => [TestTakeStatus::STATUS_RATED],
     ];
-    
-    const TABS = ['taken', 'norm'];
-    const PER_PAGE = 12;
-    const ACTIVE_TAB_SESSION_KEY = 'test-take-overview-open-tab';
-    const PAGE_NUMBER_SESSION_KEY = 'test-take-overview-open-page';
-    const FILTERS_SESSION_KEY = 'test-take-overview-filters';
-    const DEFAULT_OPEN_TAB = 'taken';
+
+    public const TABS = ['taken', 'norm'];
+    public const PER_PAGE = 12;
+    public const ACTIVE_TAB_SESSION_KEY = 'test-take-overview-open-tab';
+    public const PAGE_NUMBER_SESSION_KEY = 'test-take-overview-open-page';
+    public const FILTERS_SESSION_KEY = 'test-take-overview-filters';
+    public const DEFAULT_OPEN_TAB = 'taken';
 
     public string $stage;
     public $openTab = self::DEFAULT_OPEN_TAB;
     public $filters = [];
-    protected $queryString = ['openTab'];
+    protected $queryString = ['openTab', 'showRelationQuestionWarning' => ['except' => false, 'as' => 'rqw']];
     protected $listeners = ['update-test-take-overview' => '$refresh'];
 
     /* Component lifecycle hooks */
-    public function mount($stage)
+    public function mount($stage): void
     {
         $this->abortIfUnauthorized($stage);
         $this->setOpenTab();

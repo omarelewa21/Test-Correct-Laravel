@@ -28,3 +28,4 @@
         @endif
     </div>
 </div>
+<x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>

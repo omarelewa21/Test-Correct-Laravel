@@ -46,7 +46,7 @@ trait WithPlanningFeatures
         if ($this->rttiExportAllowed) {
             $conditionalRules['testTake.is_rtti_test_take'] = 'required';
         }
-        if($this->testTake->test->test_kind_id === TestKind::ASSIGNMENT_TYPE) {
+        if ($this->testTake->test->test_kind_id === TestKind::ASSIGNMENT_TYPE) {
             $conditionalRules['testTake.enable_mr_chadd'] = 'required';
         }
         return $conditionalRules;
@@ -94,12 +94,20 @@ trait WithPlanningFeatures
     {
         $featureSettings = UserFeatureSettingEnum::initialValues()->merge(UserFeatureSetting::getAll(Auth::user()));
 
-        $plannable['weight'] = $featureSettings[UserFeatureSettingEnum::TEST_TAKE_DEFAULT_WEIGHT->value];
-        $plannable['allow_inbrowser_testing'] = $featureSettings[UserFeatureSettingEnum::TEST_TAKE_BROWSER_TESTING->value];
-        $plannable['guest_accounts'] = $featureSettings[UserFeatureSettingEnum::TEST_TAKE_TEST_DIRECT->value];
-        $plannable['notify_students'] = $featureSettings[UserFeatureSettingEnum::TEST_TAKE_NOTIFY_STUDENTS->value];
-        $plannable['show_grades'] = $featureSettings[UserFeatureSettingEnum::REVIEW_SHOW_GRADES->value];
-        $plannable['show_correction_model'] = $featureSettings[UserFeatureSettingEnum::REVIEW_SHOW_CORRECTION_MODEL->value];
+        $plannableSettings = [
+            'weight'                  => $featureSettings[UserFeatureSettingEnum::TEST_TAKE_DEFAULT_WEIGHT->value],
+            'guest_accounts'          => $featureSettings[UserFeatureSettingEnum::TEST_TAKE_TEST_DIRECT->value],
+            'notify_students'         => $featureSettings[UserFeatureSettingEnum::TEST_TAKE_NOTIFY_STUDENTS->value],
+            'show_grades'             => $featureSettings[UserFeatureSettingEnum::REVIEW_SHOW_GRADES->value],
+            'show_correction_model'   => $featureSettings[UserFeatureSettingEnum::REVIEW_SHOW_CORRECTION_MODEL->value],
+            'allow_inbrowser_testing' => $this->isAssignmentType()
+                ? true
+                : $featureSettings[UserFeatureSettingEnum::TEST_TAKE_BROWSER_TESTING->value],
+        ];
+
+        foreach ($plannableSettings as $property => $setting) {
+            $plannable[$property] = $setting;
+        }
     }
 
     protected function getAllowedTeachers()
@@ -140,7 +148,7 @@ trait WithPlanningFeatures
                     function ($studentUser) use ($selectedCallback, $class) {
                         $selected = false;
                         if (is_callable($selectedCallback)) {
-                            $selected = $selectedCallback($studentUser);
+                            $selected = $selectedCallback($studentUser, $class);
                         }
 
                         return ChildChoice::build(

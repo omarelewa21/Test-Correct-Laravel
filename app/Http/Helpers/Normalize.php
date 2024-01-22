@@ -78,7 +78,7 @@ class Normalize
             || is_null($this->testTake->getAttribute($value));
     }
 
-    private function getTotalScore()
+    private function getTotalScore(): ?float
     {
         if (
             ($this->isNotInRequest('ppp') && $this->isInRequest('epp'))
@@ -91,13 +91,17 @@ class Normalize
         return null;
     }
 
-    public function normBasedOnGoodPerPoint()
+    public function normBasedOnGoodPerPoint(): Collection
     {
         $ppp = $this->isInRequest('ppp') ? $this->request->get('ppp') : $this->testTake->getAttribute('ppp');
 
         $this->testTake->setAttribute('ppp', $ppp);
         if (!$this->isPreview) {
             $this->saveTestTake();
+        }
+
+        if (!$ppp) {
+            return collect([]);
         }
 
         foreach ($this->testTake->testParticipants as $testParticipant) {
@@ -121,7 +125,7 @@ class Normalize
         return $this->testTake->testParticipants->mapWithKeys(fn($participant) => [$participant->getKey() => $participant->rating]);
     }
 
-    public function normBasedOnErrorsPerPoint()
+    public function normBasedOnErrorsPerPoint(): Collection
     {
         $epp = $this->isInRequest('epp') ? $this->request->get('epp') : $this->testTake->getAttribute('epp');
         $totalScore = $this->getTotalScore();
@@ -129,6 +133,10 @@ class Normalize
         $this->testTake->setAttribute('epp', $epp);
         if (!$this->isPreview) {
             $this->saveTestTake();
+        }
+
+        if (!$epp) {
+            return collect([]);
         }
 
         foreach ($this->testTake->testParticipants as $testParticipant) {
@@ -152,7 +160,7 @@ class Normalize
         return $this->testTake->testParticipants->mapWithKeys(fn($participant) => [$participant->getKey() => $participant->rating]);
     }
 
-    public function normBasedOnAverageMark()
+    public function normBasedOnAverageMark(): Collection
     {
         $average = $this->isInRequest('wanted_average') ? $this->request->get(
             'wanted_average'
@@ -161,7 +169,15 @@ class Normalize
         if (!$this->isPreview) {
             $this->saveTestTake();
         }
+
+        if ($average === 1 || $average === 1.0 || is_null($average)) { // prevent division by zero error below
+            return collect([]);
+        }
+
         if ($this->scores) {
+            if (count($this->scores) === 0) { // prevent division by zero error below
+                return collect([]);
+            }
             $ppp = ((array_sum($this->scores) / count($this->scores)) / ($average - 1));
             foreach ($this->testTake->testParticipants as $testParticipant) {
                 if (array_key_exists($testParticipant->getKey(), $this->scores)) {
@@ -185,7 +201,7 @@ class Normalize
         return $this->testTake->testParticipants->mapWithKeys(fn($participant) => [$participant->getKey() => $participant->rating]);
     }
 
-    public function normBasedOnNTermAndPassMark()
+    public function normBasedOnNTermAndPassMark(): Collection
     {
         $nTerm = $this->isInRequest('n_term') ? $this->request->get('n_term') : $this->testTake->getAttribute('n_term');
         $passMark = $this->isInRequest('pass_mark') ? $this->request->get('pass_mark') : $this->testTake->getAttribute(
@@ -198,6 +214,10 @@ class Normalize
 
         if (!$this->isPreview) {
             $this->saveTestTake();
+        }
+
+        if (!$totalScore) {
+            return collect([]);
         }
 
         foreach ($this->testTake->testParticipants as $testParticipant) {
@@ -231,10 +251,11 @@ class Normalize
                 $testParticipant->setAttribute('score', $score);
             }
         }
-        return $this->testTake->testParticipants->mapWithKeys(fn($participant) => [$participant->getKey() => $participant->rating]);
+        return $this->testTake->
+            testParticipants->mapWithKeys(fn($participant) => [$participant->getKey() => $participant->rating]);
     }
 
-    public function normBasedOnNTerm()
+    public function normBasedOnNTerm(): Collection
     {
         $nTerm = $this->isInRequest('n_term') ? $this->request->get('n_term') : $this->testTake->getAttribute('n_term');
         $totalScore = $this->getTotalScore();
@@ -245,7 +266,7 @@ class Normalize
             $this->saveTestTake();
         }
         if (!$totalScore) {
-            throw new NormalizeException('Total score of the test 0. Did you exclude all questions?');
+            return collect([]);
         }
 
         foreach ($this->testTake->testParticipants as $testParticipant) {

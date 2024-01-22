@@ -16,11 +16,8 @@
             <x-icon.locked class="ml-2"/>
         @endif
 
-        <h1 class="inline-block ml-2 mr-6" selid="questiontitle"> {!! __($question->caption) !!} </h1>
+        <h2 class="inline-block ml-2 mr-6" selid="questiontitle"> {!! __($question->caption) !!} </h2>
         <h4 class="inline-block">{{ $question->score }} pt</h4>
-        @if($this->group)
-            <h1  class="inline-flex ml-2">{{ $this->group->name }}</h1>
-        @endif
         @if ($this->answered)
             @if($this->isQuestionFullyAnswered())
                 <x-answered/>
@@ -31,11 +28,13 @@
             <x-not-answered/>
         @endif
     </div>
-    @if($this->group)
-        <div class="mb-5 questionhtml questionContainer" >{!! $this->group->question->converted_question_html !!}&nbsp;</div>
-    @endif
+    <div class="flex flex-wrap z-20">
+        @if(!$this->isQuestionLocked)
+            <x-attachment.student-buttons-container :questionAttachmentsExist="true" :question="$question"  :blockAttachments="false"/>
+        @endif
+    </div>
     <div class="flex flex-1 overview">
-        @if($question->closeable || ( !is_null($question->groupQuestion) && $question->groupQuestion->closeable) )
+        @if($this->isQuestionLocked)
             @if($this->closed)
                 <span>{{__('test_take.question_closed_text')}}</span>
             @else

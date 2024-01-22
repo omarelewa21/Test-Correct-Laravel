@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('redirect-to-dashboard', [\tcCore\Http\Controllers\DashboardController::class, 'index'])->name('redirect-to-dashboard');
+Route::get('redirect-to-entree', [\tcCore\Http\Controllers\Saml2Controller::class, 'redirectToEntree'])->name('redirect-to-entree');
 
 Route::get('appapi/feature_flags',[tcCore\Http\Controllers\AppApiController::class,'featureFlags'])->name('appapi.feature_flags');
 
@@ -103,8 +104,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/tests', tcCore\Http\Livewire\Teacher\TestsOverview::class)->name('tests');
         Route::get('/test-detail/{uuid}', tcCore\Http\Livewire\Teacher\TestDetail::class)->name('test-detail');
         Route::get('/preview/answer_model/{test}', [tcCore\Http\Controllers\PreviewAnswerModelController::class, 'show'])->name('test-answer-model');
-        // @TODO PreviewTestTakeController printsTestTakeWithStudentAnswers this should be renamed;
-        Route::get('/preview/test_take/{test_take}', [tcCore\Http\Controllers\PreviewTestTakeController::class, 'show'])->name('preview.test_take');
+        Route::get('/preview/pdf/test_take_answers/{test_take}', [tcCore\Http\Controllers\PreviewTestTakeController::class, 'show'])->name('preview.test_take_answers_pdf');
         Route::get('/preview/pdf/test/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'showTest'])->name('preview.test_pdf');
         Route::get('/preview/pdf/test_opgaven/{test}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestOpgaven'])->name('preview.test_opgaven_pdf');
         Route::get('/preview/pdf/test_take/{test_take}', [tcCore\Http\Controllers\PrintTestController::class, 'showTestTake'])->name('preview.test_take_pdf');
@@ -123,7 +123,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/test-take/planned/{testTake}', \tcCore\Http\Livewire\Teacher\TestTake\Planned::class)->name('test-take.planned')->middleware('testTakeStatus:1');
         Route::get('/test-take/taking/{testTake}', \tcCore\Http\Livewire\Teacher\TestTake\Taking::class)->name('test-take.taking')->middleware('testTakeStatus:3');
         Route::get('/test-take/taken/{testTake}', \tcCore\Http\Livewire\Teacher\TestTake\Taken::class)->name('test-take.taken')->middleware('testTakeStatus:6,7,8,9');
-        Route::get('/test-take/{test_take}/rtti-export-file', [\tcCore\Http\Controllers\TestTakesController::class, 'export'])->name('test-take.rtti-export-file');
+        Route::get('/test-take/{test_take}/rtti-export-file', [\tcCore\Http\Controllers\TestTakesController::class, 'exportRttiCsvFile'])->name('test-take.rtti-export-file');
+        Route::get('/test-take/{test_take}/export-grades-csv', [\tcCore\Http\Controllers\TestTakesController::class, 'exportGradesCsvFile'])->name('test-take.export-grades-csv');
+
+        Route::get('/wordlists', \tcCore\Http\Livewire\Teacher\WordListsOverview::class)->name('wordlists');
     });
 
     Route::middleware(['dll', 'student'])->prefix('appapi')->name('appapi')->group(function () {

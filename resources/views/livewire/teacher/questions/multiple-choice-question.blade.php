@@ -103,7 +103,7 @@
                                   x-on:focusin="$el.value = ((Math.round($el.value*2)/2) === 0 ? '' : $el.value)"
                                   x-on:focusout="$el.value = ($el.value === '' ? 0 : (Math.round($el.value*2)/2) )"
                                   x-on:change="if(!$store.cms.dirty) $store.cms.dirty = true"
-                                  x-on:store-current-question.window="syncInputValue('cmsPropertyBag.answerStruct.{{ $loop->index }}.score', $el.value)"
+{{--                                  x-on:store-current-question.window="syncInputValue('cmsPropertyBag.answerStruct.{{ $loop->index }}.score', $el.value)"--}}
                     />
                 </div>
                 <x-slot name="after" >

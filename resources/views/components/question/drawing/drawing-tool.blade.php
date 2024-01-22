@@ -61,7 +61,7 @@
                 @endforeach
             </div>
         </section>
-        <button id="exit-btn" title="{{ __('drawing-modal.Sluiten') }}">
+        <button id="exit-btn" class="device-dependent-margin" title="{{ __('drawing-modal.Sluiten') }}">
             <x-icon.close/>
         </button>
     </div>
@@ -188,9 +188,6 @@
                 <button class="shape-btn remove-btn" selid="shape-remove-btn" title="{{ __('drawing-modal.Verwijderen') }}">
                     <x-icon.trash/>
                 </button>
-                <button class="shape-btn edit-btn" selid="shape-edit-btn" title="{{ __('drawing-modal.edit') }}">
-                    <x-icon.edit/>
-                </button>
                 <button class="shape-btn lock-btn" selid="shape-lock-btn" data-title-locked="{{ __('drawing-modal.Ontgrendelen') }}" data-title-unlocked="{{ __('drawing-modal.Vergrendelen') }}"
                         title="{{ __('drawing-modal.Vergrendelen') }}">
                     <x-icon.unlocked/>
@@ -268,6 +265,7 @@
           data-question="{{ __('drawing-modal.Vraag') }}"
           data-image="{{ __("drawing-modal.Afbeelding") }}"
           data-path="{{ __("drawing-modal.Penlijn") }}"
+          data-ellipse="{{ __("drawing-modal.Cirkel") }}"
           @foreach($shapes as $shape)
             data-{{$shape->id}}="{{$shape->title}}"
           @endforeach

@@ -11,10 +11,12 @@ use tcCore\FactoryScenarios\FactoryScenarioSchoolCreathlon;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolFormidable;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolNationalItemBank;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolOlympiade;
+use tcCore\FactoryScenarios\FactoryScenarioSchoolOlympiadeArchive;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolThiemeMeulenhoff;
 use tcCore\SchoolLocation;
 use tcCore\Services\ContentSource\CreathlonService;
 use tcCore\Services\ContentSource\FormidableService;
+use tcCore\Services\ContentSource\OlympiadeArchiveService;
 use tcCore\Services\ContentSource\OlympiadeService;
 use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
 use tcCore\Subject;
@@ -47,7 +49,11 @@ class SchoolLocationCreator
         $sectionFactory = FactorySection::create($schoolLocation, $factory->sectionName);
 
         BaseSubject::where('id', 23)->get()->each(function ($baseSubject) use ($sectionFactory) {
-            $sectionFactory->addSubject($baseSubject, 'Formidable-'.$baseSubject->name);
+            $sectionFactory->addSubject(
+                $baseSubject,
+                'Formidable-'.$baseSubject->name,
+                strtoupper(substr($baseSubject->name, 0,2))
+            );
         });
 
         $section = $sectionFactory->section;
@@ -96,8 +102,6 @@ class SchoolLocationCreator
                     "question" => '<p>voorbeeld vraag FORMIDABLE! gepubliceerd:</p> <p>wat is de waarde van pi</p> ',
                 ]),
             ]);
-
-
     }
 
     public static function createSimpleSchoolWithOneTeacher(FactoryScenarioSchool $factory)
@@ -121,7 +125,8 @@ class SchoolLocationCreator
 
         $sectionFactory->addSubject(
             $baseSubject = BaseSubject::find($factory->baseSubjectId),
-            $schoolLocation->name.'-'.$baseSubject->name
+            $baseSubject->name,
+            strtoupper(substr($baseSubject->name, 0,2)),
         );
 
 
@@ -208,6 +213,82 @@ class SchoolLocationCreator
             ->addQuestions([
                 FactoryQuestionOpenShort::create()->setProperties([
                     "question" => '<p>voorbeeld vraag Nederlands gepubliceerd Olympiade:</p> <p>wat is de waarde van pi</p> ',
+                ]),
+            ]);
+
+        return $factory;
+    }
+
+    public static function createOlympiadeArchiveSchool($factory): FactoryScenarioSchoolOlympiadeArchive
+    {
+        if (SchoolLocation::where('name', $factory->schoolName)->exists()) {
+            throw new Exception('Olympiade Archive school allready exists');
+        }
+
+        //create school
+        $school = FactorySchool::create($factory->schoolName, User::find(520),
+            ['customer_code' => $factory->customer_code])
+            ->school;
+
+        //create school location, add educationLevels VWO, Gymnasium, Havo
+        $schoolLocation = FactorySchoolLocation::create($school, $factory->schoolLocationName,
+            ['customer_code' => $factory->customer_code, 'user_id' => '520'])
+            ->addEducationlevels([1, 2, 3])
+            ->schoolLocation;
+
+        //create school year and full year period for the current year
+        $schoolYearLocation = FactorySchoolYear::create($schoolLocation, (int) Carbon::today()->format('Y'), true)
+            ->addPeriodFullYear()
+            ->schoolYear;
+
+        //create section and subject
+        $sectionFactory = FactorySection::create($schoolLocation, $factory->sectionName);
+
+        BaseSubject::where('name', 'NOT LIKE', '%CITO%')->each(function ($baseSubject) use ($sectionFactory) {
+            $sectionFactory->addSubject($baseSubject, 'Olympiade-archive-'.$baseSubject->name);
+        });
+
+        $section = $sectionFactory->section;
+
+        $subjectDutch = $section->subjects()->where('base_subject_id', $factory->baseSubjectId)->first();
+
+        //create Olympiade official author user and a secondary teacher in the correct school
+        $olympiadeAuthor = FactoryUser::createTeacher($schoolLocation, false, [
+            'username'     => config('custom.olympiade_archive_school_author'),
+            'name_first'   => 'Teacher',
+            'name_suffix'  => '',
+            'name'         => 'Teacher Olympiade Archive',
+            'abbreviation' => 'TOAA',
+        ])->user;
+        $olympiadeAuthorB = FactoryUser::createTeacher($schoolLocation, false, [
+            'username'     => $factory->createUsernameForSecondUser(config('custom.olympiade_archive_school_author')),
+            'name_first'   => 'Teacher',
+            'name_suffix'  => '',
+            'name'         => 'Teacher Olympiade ArchiveB',
+            'abbreviation' => 'TOAB',
+        ])->user;
+
+        //create school class with teacher and students records, add the teacher-user, create student-users
+        self::buildSchoolClass($factory->schoolClassName, $section->subjects()->first(), $olympiadeAuthor);
+        self::buildSchoolClass($factory->schoolClassName, $section->subjects()->first(), $olympiadeAuthorB);
+
+
+
+        $factory->school = $school->refresh();
+        $factory->schools->add($school);
+
+        FactoryTest::create($olympiadeAuthor)
+            ->setProperties([
+                'name'               => 'test-'.$subjectDutch->name,
+                'subject_id'         => $subjectDutch->id,
+                'abbreviation'       => OlympiadeArchiveService::getPublishAbbreviation(),
+                'scope'              => OlympiadeArchiveService::getPublishScope(),
+                'education_level_id' => '1',
+                'draft'              => false,
+            ])
+            ->addQuestions([
+                FactoryQuestionOpenShort::create()->setProperties([
+                    "question" => '<p>voorbeeld vraag Nederlands gepubliceerd Olympiade Archief:</p> <p>wat is de waarde van pi</p> ',
                 ]),
             ]);
 
@@ -386,12 +467,12 @@ class SchoolLocationCreator
         //create section and subject
         $sectionFactory = FactorySection::create($schoolLocation, $factory->sectionName);
 
-        BaseSubject::where('id', 23)->get()->each(function ($baseSubject) use ($sectionFactory) {
+        BaseSubject::where('id', $factory->baseSubjectId)->get()->each(function ($baseSubject) use ($sectionFactory) {
             $sectionFactory->addSubject($baseSubject, 'Creathlon-'.$baseSubject->name);
         });
 
         $section = $sectionFactory->section;
-        $subjectFrench = $section->subjects()->where('base_subject_id', BaseSubject::FRENCH)->first();
+        $subjectFrench = $section->subjects()->where('base_subject_id', $factory->baseSubjectId)->first();
 
 
         //create creathlon official author user and a secondary teacher in the correct school

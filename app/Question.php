@@ -2,6 +2,7 @@
 
 use Dyrynda\Database\Casts\EfficientUuid;
 use Exception;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -112,113 +113,124 @@ class Question extends MtiBaseModel
 
     protected $groupQuestionPivot = false;
 
-    public static function usesDeleteAndAddAnswersMethods($questionType)
+    public static function usesDeleteAndAddAnswersMethods($questionType): bool
     {
-        return collect(['completionquestion', 'matchingquestion', 'rankingquestion', 'matrixquestion', 'multiplechoicequestion'])->contains(strtolower($questionType));
+        return collect([
+            'completionquestion',
+            'matchingquestion',
+            'rankingquestion',
+            'matrixquestion',
+            'multiplechoicequestion',
+            'relationquestion',
+        ])->contains(strtolower($questionType));
     }
 
     public function fill(array $attributes)
     {
         parent::fill($attributes);
 
-        if (get_class($this) === 'tcCore\Question') {
-            if (array_key_exists('authors', $attributes)) {
-                $this->authors = $attributes['authors'];
-            } elseif (array_key_exists('add_author', $attributes) || array_key_exists('delete_author', $attributes)) {
-                $this->authors = $this->questionAuthors()->pluck('user_id')->all();
-                if (array_key_exists('add_author', $attributes)) {
-                    array_push($this->authors, $attributes['add_author']);
-                }
-
-                if (array_key_exists('delete_author', $attributes)) {
-                    if (($key = array_search($attributes['delete_author'], $this->authors)) !== false) {
-                        unset($this->authors[$key]);
-                    }
-                }
-            }
-
-            if (array_key_exists('attainments', $attributes)) {
-                if ($attributes['attainments'] == '') {
-                    $attributes['attainments'] = [];
-                }
-
-                //TC-106
-                //convert attainments to an array if it is not an array
-                //because it is expected to be an array
-                if (!is_array($attributes['attainments'])) {
-                    $attributes['attainments'] = [$attributes['attainments']];
-                }
-
-                foreach ($attributes['attainments'] as $key => $value) {
-                    if (Uuid::isValid($value)) {
-                        $attributes['attainments'][$key] = Attainment::whereUuid($value)->first()->getKey();
-                    }
-                }
-
-                $this->attainments = $attributes['attainments'];
-            } elseif (array_key_exists('add_attainment', $attributes) || array_key_exists('delete_attainment', $attributes)) {
-                $this->attainment = $this->questionAttainments()->pluck('attainment_id')->all();
-                if (array_key_exists('add_attainment', $attributes)) {
-                    array_push($this->attainments, $attributes['add_attainment']);
-                }
-
-                if (array_key_exists('delete_attainment', $attributes)) {
-                    if (($key = array_search($attributes['delete_attainment'], $this->attainments)) !== false) {
-                        unset($this->attainments[$key]);
-                    }
-                }
-            }
-
-            if (array_key_exists('learning_goals', $attributes)) {
-                if ($attributes['learning_goals'] == '') {
-                    $attributes['learning_goals'] = [];
-                }
-
-                //TC-106
-                //convert learning_goals to an array if it is not an array
-                //because it is expected to be an array
-                if (!is_array($attributes['learning_goals'])) {
-                    $attributes['learning_goals'] = [$attributes['learning_goals']];
-                }
-
-                foreach ($attributes['learning_goals'] as $key => $value) {
-                    if (Uuid::isValid($value)) {
-                        $attributes['learning_goals'][$key] = LearningGoal::whereUuid($value)->first()->getKey();
-                    }
-                }
-
-                $this->learning_goals = $attributes['learning_goals'];
-            }
-
-            if (array_key_exists('tags', $attributes)) {
-                if ($attributes['tags'] == '') {
-                    $attributes['tags'] = [];
-                }
-
-                $this->tags = Tag::findOrCreateByName($attributes['tags']);
-            } elseif (array_key_exists('add_tag', $attributes) || array_key_exists('delete_tag', $attributes)) {
-                $this->tags = $this->tagRelations()->pluck('tag_id')->all();
-                if (array_key_exists('add_tag', $attributes)) {
-                    $tagId = Tag::where('name', $attributes['add_tag'])->value('id');
-                    if ($tagId) {
-                        array_push($this->tags, $attributes['add_tag']);
-                    }
-                }
-
-                if (array_key_exists('delete_tag', $attributes)) {
-                    $tagId = Tag::where('name', $attributes['delete_tag'])->value('id');
-                    if ($tagId) {
-                        if (($key = array_search($attributes['delete_tag'], $this->tags)) !== false) {
-                            unset($this->tags[$key]);
-                        }
-                    }
-                }
-            }
-        } else {
+        if (get_class($this) !== 'tcCore\Question') {
             $question = $this->getQuestionInstance();
             $this->authors = $question->authors;
             $this->attainments = $question->attainments;
             $this->tags = $question->tags;
+            return;
+        }
+
+        if (array_key_exists('authors', $attributes)) {
+            $this->authors = $attributes['authors'];
+        } elseif (array_key_exists('add_author', $attributes) || array_key_exists('delete_author', $attributes)) {
+            $this->authors = $this->questionAuthors()->pluck('user_id')->all();
+            if (array_key_exists('add_author', $attributes)) {
+                array_push($this->authors, $attributes['add_author']);
+            }
+
+            if (array_key_exists('delete_author', $attributes)) {
+                if (($key = array_search($attributes['delete_author'], $this->authors)) !== false) {
+                    unset($this->authors[$key]);
+                }
+            }
+        }
+
+        if (array_key_exists('attainments', $attributes)) {
+            if ($attributes['attainments'] == '') {
+                $attributes['attainments'] = [];
+            }
+
+            //TC-106
+            //convert attainments to an array if it is not an array
+            //because it is expected to be an array
+            if (!is_array($attributes['attainments'])) {
+                $attributes['attainments'] = [$attributes['attainments']];
+            }
+
+            foreach ($attributes['attainments'] as $key => $value) {
+                if (Uuid::isValid($value)) {
+                    $attributes['attainments'][$key] = Attainment::whereUuid($value)->first()->getKey();
+                }
+            }
+
+            $this->attainments = $attributes['attainments'];
+        } elseif (array_key_exists('add_attainment', $attributes) || array_key_exists(
+                'delete_attainment',
+                $attributes
+            )) {
+            $this->attainment = $this->questionAttainments()->pluck('attainment_id')->all();
+            if (array_key_exists('add_attainment', $attributes)) {
+                array_push($this->attainments, $attributes['add_attainment']);
+            }
+
+            if (array_key_exists('delete_attainment', $attributes)) {
+                if (($key = array_search($attributes['delete_attainment'], $this->attainments)) !== false) {
+                    unset($this->attainments[$key]);
+                }
+            }
+        }
+
+        if (array_key_exists('learning_goals', $attributes)) {
+            if ($attributes['learning_goals'] == '') {
+                $attributes['learning_goals'] = [];
+            }
+
+            //TC-106
+            //convert learning_goals to an array if it is not an array
+            //because it is expected to be an array
+            if (!is_array($attributes['learning_goals'])) {
+                $attributes['learning_goals'] = [$attributes['learning_goals']];
+            }
+
+            foreach ($attributes['learning_goals'] as $key => $value) {
+                if (Uuid::isValid($value)) {
+                    $attributes['learning_goals'][$key] = LearningGoal::whereUuid($value)->first()->getKey();
+                }
+            }
+
+            $this->learning_goals = $attributes['learning_goals'];
+        }
+
+        if (array_key_exists('tags', $attributes)) {
+            if ($attributes['tags'] == '') {
+                $attributes['tags'] = [];
+            }
+
+            $this->tags = Tag::findOrCreateByName($attributes['tags']);
+        } elseif (array_key_exists('add_tag', $attributes) || array_key_exists('delete_tag', $attributes)) {
+            $this->tags = $this->tagRelations()->pluck('tag_id')->all();
+            if (array_key_exists('add_tag', $attributes)) {
+                $tagId = Tag::where('name', $attributes['add_tag'])->value('id');
+                if ($tagId) {
+                    array_push($this->tags, $attributes['add_tag']);
+                }
+            }
+
+            if (array_key_exists('delete_tag', $attributes)) {
+                $tagId = Tag::where('name', $attributes['delete_tag'])->value('id');
+                if ($tagId) {
+                    if (($key = array_search($attributes['delete_tag'], $this->tags)) !== false) {
+                        unset($this->tags[$key]);
+                    }
+                }
+            }
         }
     }
 
@@ -238,22 +250,23 @@ class Question extends MtiBaseModel
         });
 
         static::saved(function (Question $question) {
-            if (get_class($question) === 'tcCore\Question') {
-                if ($question->authors !== null) {
-                    $question->saveAuthors();
-                }
+            if (get_class($question) !== 'tcCore\Question') {
+                return;
+            }
+            if ($question->authors !== null) {
+                $question->saveAuthors();
+            }
 
-                if ($question->attainments !== null) {
-                    $question->saveAttainments();
-                }
+            if ($question->attainments !== null) {
+                $question->saveAttainments();
+            }
 
-                if ($question->learning_goals !== null) {
-                    $question->saveLearningGoals();
-                }
+            if ($question->learning_goals !== null) {
+                $question->saveLearningGoals();
+            }
 
-                if ($question->tags !== null) {
-                    $question->saveTags();
-                }
+            if ($question->tags !== null) {
+                $question->saveTags();
             }
         });
     }
@@ -369,9 +382,29 @@ class Question extends MtiBaseModel
         return $this->belongsTo('tcCore\SchoolLocation', 'owner_id');
     }
 
+    /**
+     * This relation is NOT ment to be used to get the test_questions,
+     * but to get the questions of the test_take that are being discussed.
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function testTakeQuestions()
+    {
+        return $this->hasMany('tcCore\TestTakeQuestion', 'question_id');
+    }
+
+    public function testTakeRelationQuestions()
+    {
+        return $this->hasMany('tcCore\TestTakeRelationQuestion', 'question_id');
+    }
+
     public function getChangedIds()
     {
         return ['oldId' => $this->changedId, 'newId' => $this->getKey(), 'children' => $this->changedChildrenIds];
+    }
+
+    public function canCreateSystemRatingForAnswer($answer): bool
+    {
+        return true;
     }
 
     public function duplicate(array $attributes, $ignore = null)
@@ -453,7 +486,7 @@ class Question extends MtiBaseModel
         $this->authors = null;
     }
 
-    protected function isClosedQuestion()
+    public function isClosedQuestion(): bool
     {
         return $this->isCitoQuestion();
     }
@@ -658,6 +691,10 @@ class Question extends MtiBaseModel
                     })->orWhere('questions.subject_id', '<>', $subject->getKey());
                 });
             }
+        }
+
+        if (!settings()->canUseRelationQuestion()) {
+            $query->whereNot('questions.type', class_basename(RelationQuestion::class));
         }
 
         return $query;
@@ -951,7 +988,7 @@ class Question extends MtiBaseModel
                 ->question
                 ->getKey();
         }
-        return $groupQuestions->first()->groupQuestion->getKey();
+        return $groupQuestions->first()?->groupQuestion->getKey();
     }
 
     public function getTotalDataForTestQuestionUpdate($request)
@@ -1385,9 +1422,11 @@ class Question extends MtiBaseModel
         }
     }
 
-    public function isType($type): bool
+    public function isType(string $type, ...$types): bool
     {
-        return Str::of($this->type)->lower()->contains(Str::lower($type));
+        return collect($type)
+            ->concat($types)
+            ->contains(fn($t) => Str::of($this->type)->lower()->contains(Str::lower($t)));
     }
 
     public function isInTest($testUuid, $strict = false): bool
@@ -1579,4 +1618,12 @@ class Question extends MtiBaseModel
                              ->where('group_question_questions.question_id', $this->getKey())
                              ->first() ?? false;
     }
+
+    public function getStudentPlayerComponent($context = 'question'): string
+    {
+        return str($this->type)
+            ->kebab()
+            ->prepend("student-player.$context.");
+    }
+
 }

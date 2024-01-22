@@ -4,19 +4,12 @@ namespace tcCore\Traits;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use tcCore\BaseSubject;
 use tcCore\EducationLevel;
 use tcCore\Http\Helpers\ContentSourceHelper;
-use tcCore\Services\ContentSource\CreathlonService;
-use tcCore\Services\ContentSource\FormidableService;
-use tcCore\Services\ContentSource\NationalItemBankService;
-use tcCore\Services\ContentSource\OlympiadeService;
-use tcCore\Services\ContentSource\PersonalService;
-use tcCore\Services\ContentSource\SchoolLocationService;
-use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
-use tcCore\Services\ContentSource\UmbrellaOrganizationService;
+use tcCore\Http\Livewire\Teacher\WordListsOverview;
+use tcCore\Http\Livewire\Teacher\WordsOverview;
 use tcCore\Services\ContentSourceFactory;
-use tcCore\Test;
 
 trait ContentSourceTabsTrait
 {
@@ -44,15 +37,18 @@ trait ContentSourceTabsTrait
     {
         $this->openTab = $this->getDefaultOpenTab();
 
-        $this->allowedTabs = ContentSourceHelper::allAllowedForUser(Auth::user());
+        $this->allowedTabs = ContentSourceHelper::allAllowedForUser(Auth::user(), $this->getContext());
 
-        $this->schoolLocationInternalContentTabs = $this->allowedTabs->filter(fn($contentSourceClass, $sourceName) => in_array($sourceName, ['personal', 'school_location']));
-        $this->schoolLocationExternalContentTabs = $this->allowedTabs->reject(fn($contentSourceClass, $sourceName) => in_array($sourceName, ['personal', 'school_location']));
+        $this->schoolLocationInternalContentTabs = $this->allowedTabs->filter(
+            fn($contentSourceClass, $sourceName) => in_array($sourceName, ['personal', 'school_location'])
+        );
+        $this->schoolLocationExternalContentTabs = $this->allowedTabs->reject(
+            fn($contentSourceClass, $sourceName) => in_array($sourceName, ['personal', 'school_location'])
+        );
 
         $this->rejectExcludedTabs();
 
         $this->abortIfTabNotAllowed();
-
     }
 
     private function abortIfTabNotAllowed($openTab = null): void
@@ -80,9 +76,13 @@ trait ContentSourceTabsTrait
 
     private function rejectExcludedTabs()
     {
-        if (!isset($this->excludeTabs)) return;
+        if (!isset($this->excludeTabs)) {
+            return;
+        }
 
-        $this->schoolLocationExternalContentTabs = $this->schoolLocationExternalContentTabs->reject(fn($class, $tab) => collect($this->excludeTabs)->contains($tab));
+        $this->schoolLocationExternalContentTabs = $this->schoolLocationExternalContentTabs->reject(
+            fn($class, $tab) => collect($this->excludeTabs)->contains($tab)
+        );
     }
 
     protected function filterableEducationLevelsBasedOnTab(): Collection
@@ -90,15 +90,82 @@ trait ContentSourceTabsTrait
         if (collect($this->schoolLocationInternalContentTabs)->has($this->openTab)) {
             return EducationLevel::filtered(['school_location_id' => Auth::user()->school_location_id])->optionList();
         }
-
         if ($this->isExternalContentTab()) {
             if ($serviceClass = ContentSourceFactory::makeWithTabExternalOnly($this->openTab)) {
                 return EducationLevel::whereIn(
                     'id',
-                    $serviceClass->itemBankFiltered(filters:[], sorting:[], forUser: auth()->user())->select('education_level_id')
+                    $serviceClass->itemBankFiltered(forUser: auth()->user())->select('education_level_id')
                 )->optionList();
             }
         }
         return collect();
+    }
+
+    public function canFilterOnAuthors(): bool
+    {
+        return collect($this->canFilterOnAuthorTabs)->contains($this->openTab);
+    }
+
+    /**
+     * @param string $source
+     * @return array|string[]
+     */
+    protected function getNotAllowedFilterProperties(string $source): array
+    {
+        $notAllowed = [
+            'personal'        => ['base_subject_id', 'author_id', 'shared_sections_author_id'],
+            'school_location' => ['base_subject_id', 'shared_sections_author_id'],
+            'umbrella'        => ['subject_id', 'author_id'],
+            'external'        => ['subject_id', 'author_id', 'shared_sections_author_id'],
+        ];
+
+        return $notAllowed[$source];
+    }
+
+    protected function getContentSourceFilters(): array
+    {
+        if ($this->openTab == 'personal') {
+            return $this->cleanFilterForSearch($this->filters, 'personal');
+        }
+
+        if ($this->openTab == 'umbrella') {
+            return $this->getUmbrellaDatasourceFilters();
+        }
+
+        $filters = $this->cleanFilterForSearch($this->filters, 'external');
+        if (!isset($filters['base_subject_id']) && !Auth::user()->isValidExamCoordinator()) {
+            $filters['base_subject_id'] = BaseSubject::currentForAuthUser()->pluck('id')->toArray();
+        }
+        return $filters;
+    }
+
+    protected function getUmbrellaDatasourceFilters(): array
+    {
+        $filters = $this->cleanFilterForSearch($this->filters, 'umbrella');
+        if (!empty($filters['shared_sections_author_id'])) {
+            $filters['author_id'] = $filters['shared_sections_author_id'];
+        }
+        return $filters;
+    }
+
+    protected function cleanFilterForSearch(array $filters, string $source): array
+    {
+        $notAllowed = $this->getNotAllowedFilterProperties($source);
+
+        return collect($filters)->reject(function ($filter, $key) use ($notAllowed) {
+            if ($filter instanceof Collection) {
+                return $filter->isEmpty() || in_array($key, $notAllowed);
+            }
+            return empty($filter) || in_array($key, $notAllowed);
+        })->toArray();
+    }
+
+    private function getContext(): string
+    {
+        return match (get_class($this)) {
+            WordListsOverview::class => 'wordList',
+            WordsOverview::class     => 'word',
+            default                  => 'test',
+        };
     }
 }

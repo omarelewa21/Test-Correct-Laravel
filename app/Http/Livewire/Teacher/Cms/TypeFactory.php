@@ -14,9 +14,11 @@ use tcCore\Http\Livewire\Teacher\Cms\Providers\Matching;
 use tcCore\Http\Livewire\Teacher\Cms\Providers\MultipleChoice;
 use tcCore\Http\Livewire\Teacher\Cms\Providers\Open;
 use tcCore\Http\Livewire\Teacher\Cms\Providers\Ranking;
+use tcCore\Http\Livewire\Teacher\Cms\Providers\Relation;
 use tcCore\Http\Livewire\Teacher\Cms\Providers\Selection;
 use tcCore\Http\Livewire\Teacher\Cms\Providers\TrueFalse;
 use tcCore\Http\Livewire\Teacher\Cms\Providers\WritingAssignment;
+use tcCore\Subject;
 
 class TypeFactory
 {
@@ -27,7 +29,7 @@ class TypeFactory
         $type = $instance->question['type'];
         $subType = Str::lower($instance->question['subtype']);
 
-        $lookup = self::getLookup();
+        $lookup = self::getLookup($instance);
 
         if (array_key_exists($type, $lookup)) {
             if (is_array($lookup[$type]) && array_key_exists($subType, $lookup[$type])) {
@@ -64,11 +66,12 @@ class TypeFactory
             'MatchingQuestion'       => [
                 'matching' => Matching::class,
                 'classify' => Classify::class,
-            ]
+            ],
+            'RelationQuestion'       => Relation::class
         ];
     }
 
-    public static function questionTypes()
+    public static function questionTypes(null|Subject|int $subject = null)
     {
         $questionTypes = [
             'open'   => [
@@ -155,6 +158,20 @@ class TypeFactory
                 ]
             ]
         ];
+        if (!($subject instanceof Subject) && is_int($subject)) {
+            $subject = Subject::find($subject);
+        }
+        if ($subject) {
+            if (settings()->canUseRelationQuestionWithSubject(subject: $subject)) {
+                $questionTypes['open'][] = [
+                    'sticker'     => 'question-relation',
+                    'name'        => __('question.relationquestion'),
+                    'description' => __('question.relation_description'),
+                    'type'        => 'RelationQuestion',
+                    'subtype'     => 'relation',
+                ];
+            }
+        }
 
         return $questionTypes;
     }

@@ -20,11 +20,11 @@ class StudentButtonsContainer extends Component
         public Question       $question,
         public bool           $blockAttachments,
         public ?GroupQuestion $group = null,
+        public bool           $questionAttachmentsExist = false,
     ) {
         /* Mon Aug 07 2023 00:00:00 GMT+0200 (Central European Summer Time) */
         $this->transitionDate = Carbon::parse(1691359200);
-
-        $this->attachments = collect($this->getGroupAttachments())->merge($question->attachments);
+        $this->attachments = collect($this->getAttachments());
         $this->attachments->map(fn($attachment) => $this->setAttachmentTitle($attachment));
     }
 
@@ -48,11 +48,18 @@ class StudentButtonsContainer extends Component
             ->whenNotEmpty(fn(Stringable $string) => $string->prepend('.'));
     }
 
+    private function getAttachments(): Collection
+    {
+        if($this->group && !$this->questionAttachmentsExist) {
+            return $this->getGroupAttachments();
+        } elseif ($this->questionAttachmentsExist) {
+            return $this->getQuestionAttachments();
+        }
+        return collect();
+    }
+
     private function getGroupAttachments(): Collection
     {
-        if (!$this->group) {
-            return collect();
-        }
         $this->group->attachments->each(function ($attachment) {
             if ($attachment === $this->group->attachments->last()) {
                 $attachment->groupDivider = true;
@@ -62,4 +69,9 @@ class StudentButtonsContainer extends Component
         return $this->group->attachments ?? collect();
     }
 
+    private function getQuestionAttachments(): Collection
+    {
+        return collect($this->question->attachments)
+            ->map(fn($questionAttachments) => $this->setAttachmentTitle($questionAttachments));
+    }
 }

@@ -1,10 +1,12 @@
 <?php namespace tcCore;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
@@ -21,6 +23,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Question\QuestionGatherer;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Ramsey\Uuid\Uuid;
+use tcCore\Lib\Question\QuestionInterface;
+use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\TaxonomyRepository;
 use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
 use tcCore\Traits\ModelAttributePurifyTrait;
@@ -257,7 +261,7 @@ class Test extends BaseModel
         }
     }
 
-    public function contentSourceFiltered($scopes, $customer_codes, $query, $filters = [], $sorting = [], User $forUser)
+    public function contentSourceFiltered($scopes, $customer_codes, $query, User $forUser, $filters = [], $sorting = [])
     {
         $query->select();
         $subjectIds = Subject::getIdsForContentSource($forUser, Arr::wrap($customer_codes));
@@ -317,9 +321,9 @@ class Test extends BaseModel
             'cito',
             'CITO-TOETSENOPMAAT',
             $query,
+            auth()->user(),
             $filters,
             $sorting,
-            auth()->user()
         );
     }
 
@@ -345,21 +349,23 @@ class Test extends BaseModel
             'exam',
             config('custom.examschool_customercode'),
             $query,
+            auth()->user(),
             $filters,
-            $sorting,
-            auth()->user()
+            $sorting
         );
     }
 
 
-    public function scopeSharedSectionsFiltered($query, $filters = [], $sorting = [], User $forUser)
+    public function scopeSharedSectionsFiltered($query, User $forUser, $filters = [], $sorting = [])
     {
-
-
         $subjectIds = Subject::getIdsForSharedSections($forUser);
         if (!$subjectIds) {
             $query->where('tests.id', -1);
             return $query;
+        }
+
+        if (!settings()->canUseRelationQuestion($forUser)) {
+            $query->whereNotIn('tests.id', self::getIdsOfTestsThatContainSpecificQuestions(RelationQuestion::class));
         }
 
         $query->whereIn('subject_id', $subjectIds);
@@ -424,6 +430,10 @@ class Test extends BaseModel
                 })
                     ->orWhere('tests.demo', 0);
             });
+        }
+
+        if (!settings()->canUseRelationQuestion($user)) {
+            $query->whereNotIn('tests.id', self::getIdsOfTestsThatContainSpecificQuestions(RelationQuestion::class));
         }
 
         return $query;
@@ -757,7 +767,7 @@ class Test extends BaseModel
     public function hasOpenQuestion()
     {
         return !!collect(QuestionGatherer::getQuestionsOfTest($this->getKey(), true))->search(function (Question $question) {
-            return !$question->canCheckAnswer();
+            return !$question->isClosedQuestion();
         });
     }
 
@@ -925,28 +935,88 @@ class Test extends BaseModel
     {
         $orderAllQuestion = 0;
         $orderInTest = 0;
-        $orderOpenOnly = 0;
 
         return $this->testQuestions->sortBy('order')->flatMap(function ($testQuestion) {
             if ($testQuestion->question->type === 'GroupQuestion') {
                 return $testQuestion->question->groupQuestionQuestions()->get()->map(function ($item) use ($testQuestion) {
                     return [
                         'id' => $item->question->getKey(),
-                        'question_type' => $item->question->canCheckAnswer() ? Question::TYPE_CLOSED : Question::TYPE_OPEN,
-                        'discuss'       => (!$testQuestion->question->isCarouselQuestion()) && $item->discuss,
+                        'question_type' => $item->question->isClosedQuestion() ? Question::TYPE_CLOSED : Question::TYPE_OPEN,
+                        'discuss'       => (!$testQuestion->question->isCarouselQuestion()) && $item->discuss ? 1 : 0,
                     ];
                 });
             }
-            $questionType = $testQuestion->question->canCheckAnswer() ? Question::TYPE_CLOSED : Question::TYPE_OPEN;
+            $questionType = $testQuestion->question->isClosedQuestion() ? Question::TYPE_CLOSED : Question::TYPE_OPEN;
             return [['id' => $testQuestion->question->getKey(), 'question_type' => $questionType, 'discuss' => $testQuestion->discuss,]];
         })->mapWithKeys(function ($item, $key) use (&$orderOpenOnly, &$orderAllQuestion, &$orderInTest) {
             return [$item['id'] => [
                 'order' => (bool)$item['discuss'] ? ++$orderAllQuestion : null,
                 'order_in_test' => ++$orderInTest,
-                'order_open_only' => $item['question_type'] === Question::TYPE_OPEN && (bool)$item['discuss'] ? ++$orderOpenOnly : null,
                 ...$item,
             ]];
         })->toArray();
+    }
+
+    public function getQuestionOrderListExpanded($forgetCache = false)
+    {
+        $cacheKey = sprintf('test_questions_list_expanded-%s', $this->uuid);
+
+        //Cache forget to forget the cache, when still in the set-up phase?
+        if($forgetCache) {
+            Cache::forget($cacheKey);
+        }
+        //Cache Remember for store/retrieve, when past the set-up phase?
+        return Cache::remember($cacheKey, now()->addDays(3), function () {
+
+            $coLearningIndex = 0; // filters out 'discuss === false' questions
+            $testIndex = 0;
+
+            $this->testQuestions->loadMissing('question');
+
+            $orderList = $this->testQuestions->sortBy('order')->flatMap(function ($testQuestion) {
+                if ($testQuestion->question->type === 'GroupQuestion') {
+                    return $testQuestion->question->groupQuestionQuestions()->with('question')->get()->map(function ($item) use ($testQuestion) {
+                        return [
+                            'question_id' => $item->question->getKey(),
+                            'question_uuid' => $item->question->uuid,
+                            'question_type' => $item->question->type,
+                            'question_type_name' => $item->question->type_name,
+                            'question_title' => $item->question->title,
+                            'group_question_id' => $testQuestion->question->getKey(),
+                            'carousel_question' => $testQuestion->question->isCarouselQuestion(),
+                            'open_question' => !$item->question->isClosedQuestion(),
+                            //                        'discuss'       => (!$testQuestion->question->isCarouselQuestion()) && $item->discuss ? 1 : 0,
+                        ];
+                    });
+                }
+                return [[
+                            'question_id' => $testQuestion->question->getKey(),
+                            'question_uuid' => $testQuestion->question->uuid,
+                            'question_type' => $testQuestion->question->type,
+                            'question_type_name' => $testQuestion->question->type_name,
+                            'question_title' => $testQuestion->question->title,
+                            'group_question_id' => null,
+                            'carousel_question' => false,
+                            'open_question' => !$testQuestion->question->isClosedQuestion(),
+                            //                'discuss' => $testQuestion->discuss,
+                        ]];
+            });
+
+            $pValues = PValueRepository::getPValuesForQuestion($orderList->pluck('question_id')->toArray())
+                ->keyBy('question_id');
+
+            return $orderList->mapWithKeys(function ($item, $key) use (&$coLearningIndex, &$testIndex, &$pValues) {
+
+                return [$item['question_id'] => [
+                    'colearning_index' => ($item['question_type'] !== 'InfoscreenQuestion' && !$item['carousel_question']) ? ++$coLearningIndex : null,
+                    'test_index' => ++$testIndex,
+                    ...$item,
+                    'p_value' => ($item['question_type'] !== 'InfoscreenQuestion' && !$item['carousel_question'])
+                        ? $pValues->get($item['question_id'])?->p_value
+                        : null,
+                ]];
+            })->toArray();
+        });
     }
 
     public function canDuplicate()
@@ -965,7 +1035,7 @@ class Test extends BaseModel
     }
 
 
-    public function maxScore($ignoreQuestions = [])
+    public function maxScore($ignoreQuestions = []): float
     {
         if (is_null($ignoreQuestions)) {
             $ignoreQuestions = [];
@@ -1314,7 +1384,7 @@ class Test extends BaseModel
                         function ($item) use ($addPropertyCallback, $groupQuestion) {
                             $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
                             if (is_callable($addPropertyCallback)) {
-                                $addPropertyCallback($item);
+                                $addPropertyCallback($item, $groupQuestion);
                             }
                             return $item->question;
                         }
@@ -1326,5 +1396,65 @@ class Test extends BaseModel
                 return collect([$testQuestion->question]);
             })
             ->values();
+    }
+
+    public function getBaseSubjectLanguage(string $column = 'wsc_lang'): null|string|WscLanguage
+    {
+        return BaseSubject::join('subjects', 'subjects.base_subject_id', '=', 'base_subjects.id')
+            ->join('tests', 'tests.subject_id', '=', 'subjects.id')
+            ->where('tests.id', $this->getKey())
+            ->value('base_subjects.' . $column);
+    }
+
+    private static function questionInTestQuery(Collection $types): Builder
+    {
+        return DB::query()
+            ->from('questions as q1')
+            ->join('test_questions as tq1', 'q1.id', '=', 'tq1.question_id')
+            ->whereIn('q1.type', $types);
+    }
+
+    private static function subQuestionInTestQuery(Collection $types): Builder
+    {
+        return DB::query()
+            ->from('questions as q2')
+            ->join('group_question_questions as gqq', 'gqq.question_id', '=', 'q2.id')
+            ->join('test_questions as tq2', 'gqq.group_question_id', '=', 'tq2.question_id')
+            ->whereIn('q2.type', $types);
+    }
+
+    public static function getIdsOfTestsThatContainSpecificQuestions(
+        $question,
+        ...$questions
+    ): Builder {
+        $types = collect([$question])->concat($questions)->map(fn($type) => class_basename($type));
+
+        return DB::query()
+            ->distinct()
+            ->fromSub(
+                static::questionInTestQuery($types)
+                    ->select('tq1.test_id')
+                    ->union(static::subQuestionInTestQuery($types)->select('tq2.test_id')),
+                'tests_containing_questions'
+            );
+    }
+
+    public function containsSpecificQuestionTypes($question, ...$questions): bool
+    {
+        $types = collect([$question])->concat($questions)->map(fn($type) => class_basename($type));
+
+        return DB::query()
+            ->fromSub(
+                static::questionInTestQuery($types)
+                    ->select('q1.id')
+                    ->where('tq1.test_id', $this->getKey())
+                    ->union(
+                        static::subQuestionInTestQuery($types)
+                            ->select('tq2.test_id')
+                            ->where('tq2.test_id', $this->getKey())
+                    ),
+                'question_type_in_test'
+            )
+            ->exists();
     }
 }

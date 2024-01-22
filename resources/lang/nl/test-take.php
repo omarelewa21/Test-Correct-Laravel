@@ -111,6 +111,7 @@ return [
     'Resultaten publiceren'                                                                                                                            => 'Resultaten publiceren',
     'standardize_tooltip'                                                                                                                              => 'Kies je normering en pas deze eventueel aan. Onderstaande cijfers worden direct aangepast op de normering.',
     'show_grade_tooltip'                                                                                                                               => '',
+    'Vraagtype'                                                                                                                                        => 'Vraag type',
     'Gem score'                                                                                                                                        => 'Gem. score',
     'Max score'                                                                                                                                        => 'Max. score',
     'Overslaan'                                                                                                                                        => 'Overslaan',
@@ -128,6 +129,9 @@ return [
     'Naar nakijken'                                                                                                                                    => 'Naar nakijken',
     're assess test text'                                                                                                                              => 'Weet je zeker dat je wil nakijken? De wijzigingen die je maakt kunnen van invloed zijn op de resultaten. Het kan zijn dat je daarna opnieuw moet kijken naar ‘resultaten instellen’ en eventueel opnieuw de resultaten moet publiceren.',
     'Naar CO-Learning'                                                                                                                                 => 'Naar CO-Learning',
-    're discuss test text'                                                                                                                             => 'Weet je zeker dat je wil bespreken met CO-Learning? De student beoordelingen die je hieruit voortkomen kunnen andere inzichten geven op jouw beoordelingen. Het is niet nodig om deze te verwerken als je dit niet wil. Als je al een CO-Learning sessie hebt afgerond, dan zal deze sessie deze overschrijven. Je kan CO-Learning ook als tool gebruiken om na te bespreken in de klas als de toetsresultaten al zijn gepubliceerd.',
-    'Afname is niet mogelijk'                                                                                                                          => 'Afname is niet mogelijk'
+    'CO-Learning niet mogelijk met alleen carrousel vragen'                                                                                            => 'CO-Learning niet mogelijk met alleen carrousel vragen',
+    'grades'                                                                                                                                           => 'Cijfers',
+    're discuss test text'                                                                                                                             => 'Als je al een sessie hebt afgerond, dan wordt deze overschreden. Scores kunnen hierdoor veranderen, maar cijfers blijven ongewijzigd als je ze niet opnieuw publiceert.',
+    'Afname is niet mogelijk'                                                                                                                          => 'Afname is niet mogelijk',
+    'amount_of_words'                                                                                                                                  => 'Aantal woorden:',
 ];

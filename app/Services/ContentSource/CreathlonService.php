@@ -3,7 +3,6 @@
 namespace tcCore\Services\ContentSource;
 
 use Illuminate\Support\Facades\Auth;
-use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Test;
 use tcCore\TestAuthor;
 use tcCore\User;
@@ -39,7 +38,7 @@ class CreathlonService extends ContentSourceService
 
     protected static function testsAvailableForUser(User $user): bool
     {
-        return (new static)->itemBankFiltered(filters: [], sorting: [], forUser: $user)->exists();
+        return (new static())->itemBankFiltered(forUser: $user)->exists();
     }
 
     protected static function allowedForUser(User $user): bool
@@ -69,7 +68,7 @@ class CreathlonService extends ContentSourceService
         return TestAuthor::addOrRestoreAuthor($test, self::getSchoolAuthor()->getKey());
     }
 
-    private static function inSchool(User $user)
+    private static function inSchool(User $user): bool
     {
         return $user->schoolLocation?->customer_code === config('custom.creathlon_school_customercode');
     }

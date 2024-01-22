@@ -75,4 +75,18 @@ class AuthController extends Controller
 
         return \Response::make($url);
     }
+
+    public function getLaravelEntreeUrl(Request $request)
+    {
+        $baseUrl = config('app.base_url');
+        $entreeRoute = route('redirect-to-entree',[],false);
+
+        if (Str::endsWith($baseUrl, '/')) {
+            $baseUrl = Str::replaceLast('/', '', $baseUrl);
+        }
+
+        $url['url'] = sprintf('%s%s', $baseUrl, $entreeRoute);
+
+        return \Response::make($url);
+    }
 }

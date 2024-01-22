@@ -27,7 +27,7 @@
 @section('clear-filters-button')
     <x-button.text class="ml-auto text-base"
                           size="sm"
-                          wire:click="clearFilters()"
+                          wire:click="clearFilters(true)"
                           x-on:click="$dispatch('enable-loading-grid');document.getElementById('testbank-{{ $this->openTab }}-active-filters').innerHTML = '';"
                           :disabled="!$this->hasActiveFilters()"
     >

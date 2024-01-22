@@ -4,9 +4,12 @@ namespace Unit\Services\ContentSource;
 
 
 use tcCore\BaseSubject;
+use tcCore\Factories\FactoryWordList;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolThiemeMeulenhoff;
+use tcCore\Http\Enums\SchoolLocationFeatureSetting;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
+use tcCore\WordList;
 use Tests\ScenarioLoader;
 use Tests\TestCase;
 
@@ -60,11 +63,11 @@ class ThiemeMeulenhoffServiceTest extends TestCase
     public function it_can_return_all_feature_settings()
     {
         $this->assertEquals(collect([
-            'allow_tm_biology',
-            'allow_tm_geography',
-            'allow_tm_dutch',
-            'allow_tm_english',
-            'allow_tm_french',
+            SchoolLocationFeatureSetting::ALLOW_TM_BIOLOGY,
+            SchoolLocationFeatureSetting::ALLOW_TM_GEOGRAPHY,
+            SchoolLocationFeatureSetting::ALLOW_TM_DUTCH,
+            SchoolLocationFeatureSetting::ALLOW_TM_ENGLISH,
+            SchoolLocationFeatureSetting::ALLOW_TM_FRENCH,
         ]), ThiemeMeulenhoffService::getAllFeatureSettings());
     }
 
@@ -171,7 +174,7 @@ class ThiemeMeulenhoffServiceTest extends TestCase
 
         $this->assertInstanceOf(
             \tcCore\Test::class,
-            (new ThiemeMeulenhoffService)->itemBankFiltered(filters:[], sorting:[], forUser:$teacher)->where('name', 'test-ThiemeMeulenhoff-Nederlands')->first()
+            (new ThiemeMeulenhoffService)->itemBankFiltered( forUser: $teacher, filters: [], sorting: [])->where('name', 'test-ThiemeMeulenhoff-Nederlands')->first()
         );
     }
 
@@ -179,5 +182,43 @@ class ThiemeMeulenhoffServiceTest extends TestCase
     public function it_has_a_tab_order()
     {
           $this->assertEquals(700, ThiemeMeulenhoffService::$order);
+    }
+    /** @test */
+    public function can_show_word_lists_when_all_conditions_are_met()
+    {
+        $listName = class_basename(ThiemeMeulenhoffService::class).' WordList';
+        $this->createWordListForSource($listName);
+        $teacher = ScenarioLoader::get('teacherOne');
+        auth()->login($teacher);
+
+        $this->assertEquals(
+            $teacher->subjects()->first()->base_subject_id,
+            BaseSubject::DUTCH
+        );
+
+        $this->assertInstanceOf(
+            WordList::class,
+            (new ThiemeMeulenhoffService())->wordListFiltered(forUser: $teacher)
+                ->where('name', $listName)
+                ->first()
+        );
+    }
+
+    private function createWordListForSource(string $name): WordList
+    {
+        $subject = ScenarioLoader::get('school_locations')->where('customer_code', ThiemeMeulenhoffService::getCustomerCode())
+            ->first()
+            ->schoolLocationSections
+            ->where('demo', false)
+            ->first()
+            ->section
+            ->subjects
+            ->where('base_subject_id', BaseSubject::DUTCH)
+            ->first();
+
+        return FactoryWordList::createWordList(
+            ThiemeMeulenhoffService::getSchoolAuthor(),
+            ['subject_id' => $subject->getKey(), 'name' => $name]
+        );
     }
 }

@@ -32,6 +32,11 @@ abstract class TestTake extends TCComponent
 
     public function mount(TestTakeModel $testTake): void
     {
+        // we need to add a guard to determine if you are allowed to see this test take
+        // with the help of the isAllowedToView method of the test take model
+        // as per TCP-3479 the exam coordinator is allowed to view a test take once rated or when planned
+        Gate::authorize('isAllowedToViewTestTake',[$testTake]);
+
         $this->testTakeUuid = $testTake->uuid;
         $this->setTestTake($testTake);
         $this->fillGridData();
@@ -82,7 +87,7 @@ abstract class TestTake extends TCComponent
 
     public function leavingPresenceChannel($event): void
     {
-        $this->handlePresenceEventUpdate(collect($event)->where('student', true)->pluck('uuid'));
+        $this->handlePresenceEventUpdate($this->activeParticipantUuids->reject(fn ($uuid) => $uuid === $event['uuid']));
     }
 
     private function handlePresenceEventUpdate(Collection $presentUserUuids): void
@@ -210,7 +215,7 @@ abstract class TestTake extends TCComponent
                 [
                     [
                         'title' => __('test-take.Beschikbaar tot'),
-                        'data'  => $this->testTake->time_end->format('d-m-Y'),
+                        'data'  => $this->testTake->time_end?->format('d-m-Y') ?? '-',
                     ]
                 ]
 

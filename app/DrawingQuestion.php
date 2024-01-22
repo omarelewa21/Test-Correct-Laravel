@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -197,7 +198,8 @@ class DrawingQuestion extends Question implements QuestionInterface {
         return $question;
     }
 
-    public function canCheckAnswer() {
+    public function canCreateSystemRatingForAnswer($answer): bool
+    {
         return false;
     }
 
@@ -265,8 +267,23 @@ class DrawingQuestion extends Question implements QuestionInterface {
                 '=',
                 'test_questions.test_id'
             )
+            ->leftJoin(
+                'group_questions',
+                'test_questions.question_id',
+                '=',
+                'group_questions.id',
+            )
+            ->leftJoin(
+                'group_question_questions',
+                'group_question_questions.group_question_id',
+                '=',
+                'group_questions.id'
+            )
             ->where('test_participants.user_id', $user->getKey())
-            ->where('test_questions.question_id', $this->getKey())
+            ->where(function ($query) {
+                $query->where('test_questions.question_id', $this->getKey())
+                    ->orWhere('group_question_questions.question_id', '=', $this->getKey());
+            })
             ->where(function ($query) {
                 $query->where('test_takes.show_results', '>', now())
                       ->orWhere('test_takes.test_take_status_id', '=', TestTakeStatus::STATUS_DISCUSSING);

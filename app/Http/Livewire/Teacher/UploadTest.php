@@ -99,6 +99,7 @@ class UploadTest extends TCComponent
     public function updatedTestInfoPlannedAt($value)
     {
         $this->showDateWarning = Carbon::parse($value)->isBefore(Carbon::parse($this->minimumTakeDate)->addDays(7));
+        $this->plannedAt =  Carbon::parse($value . ' 00:00:00');
     }
 
     public function render()
@@ -313,12 +314,14 @@ class UploadTest extends TCComponent
             array_merge(
                 $parentFileManagement->toArray(),
                 [
-                    'id'        => $childId,
-                    'uuid'      => Uuid::uuid4(),
-                    'origname'  => $upload->getClientOriginalName(),
-                    'name'      => $storageFileName,
-                    'parent_id' => $parentFileManagement->id,
-                ])
+                    'id'         => $childId,
+                    'uuid'       => Uuid::uuid4(),
+                    'origname'   => $upload->getClientOriginalName(),
+                    'name'       => $storageFileName,
+                    'parent_id'  => $parentFileManagement->id,
+                    'planned_at' => $parentFileManagement->planned_at,
+                ]
+            )
         );
     }
 

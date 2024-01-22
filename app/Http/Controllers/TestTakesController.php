@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use tcCore\Answer;
 use tcCore\AnswerRating;
 use tcCore\DiscussingParentQuestion;
 use tcCore\Events\CoLearningForceTakenAway;
@@ -20,6 +22,7 @@ use tcCore\Http\Requests\NormalizeTestTakeRequest;
 use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\Question;
 use tcCore\SchoolClass;
+use tcCore\Services\GradesService;
 use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestTake;
@@ -41,7 +44,7 @@ class TestTakesController extends Controller
     private function hasOpenQuestion($test_id)
     {
         return !!QuestionGatherer::getQuestionsOfTest($test_id, true)->search(function (Question $question) {
-            return !$question->canCheckAnswer();
+            return !$question->isClosedQuestion();
         });
     }
 
@@ -56,14 +59,10 @@ class TestTakesController extends Controller
         $testTakes = TestTake::filtered($request->get('filter', []), $request->get('order', []))
             ->with([
                 'test',
-                'test.subject' => function ($query) {
-                    $query->withTrashed();
-                },
+                'test.subject' => fn($query) => $query->withTrashed(),
                 'test.author',
                 'retakeTestTake',
-                'user'         => function ($query) {
-                    $query->withTrashed();
-                },
+                'user'         => fn($query) => $query->withTrashed(),
                 'testTakeStatus',
                 'invigilatorUsers',
                 'testTakeCode'
@@ -640,14 +639,14 @@ class TestTakesController extends Controller
         ]);
         $testTake->test->append('has_pdf_attachments');
 
-        if ($testTake->test_take_status_id === TestTakeStatus::STATUS_DISCUSSING) {
+        if ($testTake->hasStatusDiscussing()) {
             $this->hydrateTestTakeWithHasNextQuestionAttribute($testTake);
             $hasNextQuestion = isset($testTake['has_next_question']) ? $testTake['has_next_question'] : false;
         }
 
         $testTakeResponse = $this->showGeneric($testTake, $request);
 
-        if ($testTake->test_take_status_id === TestTakeStatus::STATUS_DISCUSSING) {
+        if ($testTake->hasStatusDiscussing()) {
             $testTakeResponse['has_next_question'] = $hasNextQuestion;
         }
 
@@ -862,7 +861,12 @@ class TestTakesController extends Controller
         return Response::make($normalize->testTake, 200);
     }
 
-    public function export(TestTake $testTake)
+    /**
+     * Exports the test take RTTI values to a csv file
+     * @param TestTake $testTake
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function exportRttiCsvFile(TestTake $testTake)
     {
         $questions = QuestionGatherer::getQuestionsOfTest($testTake->getAttribute('test_id'), true);
 
@@ -997,7 +1001,7 @@ class TestTakesController extends Controller
                             break;
                     }
                 } else {
-                    $row[] = '-';
+                    $row[] = 'X';
                 }
             }
 
@@ -1067,6 +1071,22 @@ class TestTakesController extends Controller
         $export = new TestTakesExport($sheet);
 
         return Excel::download($export, 'export.csv');
+    }
+
+    /**
+     * Exports the test take grades to a csv file
+     * @param TestTake $testTake
+     * @return BinaryFileResponse
+     */
+    public function exportGradesCsvFile(TestTake $testTake)
+    {
+        $sheet = GradesService::getForTestTake($testTake);
+
+        return Excel::download(
+            new TestTakesExport($sheet->toArray()),
+            fileName: __('teacher.export_gradelist_csv_filename'),
+            writerType: \Maatwebsite\Excel\Excel::CSV,
+        );
     }
 
     /**
@@ -1262,7 +1282,7 @@ class TestTakesController extends Controller
 
         $temporaryLogin = TemporaryLogin::createWithOptionsForUser('app_details', request()->get('app_details'), auth()->user());
 
-        return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($temporaryLogin->uuid, route('teacher.preview.test_take', $testTake->uuid, false));
+        return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($temporaryLogin->uuid, route('teacher.preview.test_take_answers_pdf', $testTake->uuid, false));
 
     }
 

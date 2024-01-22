@@ -103,7 +103,7 @@ return [
     'cannot_review_test'                                       => 'Toets is niet in te zien',
     'teacher_introduction_title'                               => 'Introductie van de docent',
     'teacher_introduction_long'                                => 'Introductie van de docent wordt zichtbaar zodra de toets gemaakt kan worden. Wacht op de docent.',
-    'teacher_introduction_unavailable'                         => 'De docent heeft geen introductie tekst achtergelaten.',
+    'teacher_introduction_unavailable'                         => 'De docent heeft geen introductietekst achtergelaten.',
     'standard'                                                 => 'Standaard',
     'retake'                                                   => 'Inhaaltoets',
     'dashboard'                                                => 'Dashboard',
@@ -133,6 +133,7 @@ return [
     'participant_already_taken'                                => 'Dit gastprofiel is reeds gekozen.',
     'please_choose_a_different_participant'                    => 'Kies een ander gastprofiel.',
     'not_allowed_to_test_in_browser'                           => 'Het is niet toegestaan om deze toets in de browser te maken. Gebruik de Test-Correct app om deze toets te maken.',
+    'not_allowed_to_do_co_learning_in_browser'                 => 'Het is niet toegestaan om deze test te bespreken in de browser. Gebruik hiervoor de Test-Correct app.',
     'to_review_until'                                          => 'Inzien t/m',
     'cant_review_anymore'                                      => 'Inzien niet meer mogelijk',
     'reviewing_time_has_expired'                               => 'De mogelijkheid tot inzien van de toets is verlopen.',
@@ -210,4 +211,9 @@ return [
     'info'                                                     => 'Info',
     'Verder in Test-Correct app'                               => 'Verder in Test-Correct app',
     'Deleted student'                                          => 'Verwijderde student',
+    'starting_not_possible'                                    => 'Toets starten niet mogelijk',
+    'Er is iets misgegaan met het ophalen van de vragen'       => 'Er is iets misgegaan met het ophalen van de vragen',
+    'Probeer opnieuw'                                          => 'Probeer opnieuw',
+    'Geen internetverbinding'                                   => 'Geen internetverbinding',
+    'Geen internetverbinding uitleg'                            => 'Wacht tot deze hersteld is om door te gaan naar de volgende vraag. Je kan je huidige vraag beantwoorden, maar deze wordt pas opgeslagen wanneer je internetverbinding weer terug is.'
 ];

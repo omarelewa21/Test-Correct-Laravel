@@ -4,9 +4,11 @@ namespace Tests\Unit\Services\ContentSource;
 
 
 use tcCore\BaseSubject;
+use tcCore\Factories\FactoryWordList;
 use tcCore\FactoryScenarios\FactoryScenarioSchoolNationalItemBank;
 use tcCore\Services\ContentSource\NationalItemBankService;
 use tcCore\Services\ContentSource\ThiemeMeulenhoffService;
+use tcCore\WordList;
 use Tests\ScenarioLoader;
 use Tests\TestCase;
 
@@ -133,7 +135,7 @@ class NationalItembankServiceTest extends TestCase
 
         $this->assertInstanceOf(
             \tcCore\Test::class,
-            (new NationalItemBankService )->itemBankFiltered(filters:[], sorting:[], forUser: $teacher)
+            (new NationalItemBankService )->itemBankFiltered( forUser: $teacher, filters: [], sorting: [])
                 ->where('name', 'test-TBNI-Nederlands')
                 ->first()
         );
@@ -143,5 +145,44 @@ class NationalItembankServiceTest extends TestCase
     public function it_has_a_tab_order()
     {
         $this->assertEquals(400, NationalItemBankService::$order);
+    }
+
+    /** @test */
+    public function can_show_word_lists_when_all_conditions_are_met()
+    {
+        $listName = class_basename(NationalItemBankService::class).' WordList';
+        $this->createWordListForSource($listName);
+        $teacher = ScenarioLoader::get('teacherOne');
+        auth()->login($teacher);
+
+        $this->assertEquals(
+            $teacher->subjects()->first()->base_subject_id,
+            BaseSubject::DUTCH
+        );
+
+        $this->assertInstanceOf(
+            WordList::class,
+            (new NationalItemBankService())->wordListFiltered(forUser: $teacher)
+                ->where('name', $listName)
+                ->first()
+        );
+    }
+
+    private function createWordListForSource(string $name): WordList
+    {
+        $subject = ScenarioLoader::get('school_locations')->where('customer_code', config('custom.national_item_bank_school_customercode'))
+            ->first()
+            ->schoolLocationSections
+            ->where('demo', false)
+            ->first()
+            ->section
+            ->subjects
+            ->where('base_subject_id', BaseSubject::DUTCH)
+            ->first();
+
+        return FactoryWordList::createWordList(
+            NationalItemBankService::getSchoolAuthor(),
+            ['subject_id' => $subject->getKey(), 'name' => $name]
+        );
     }
 }

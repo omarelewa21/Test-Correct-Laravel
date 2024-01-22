@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Teacher;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Livewire\TCModalComponent;
 use tcCore\Test;
@@ -43,6 +44,10 @@ class PublishTestModal extends TCModalComponent
     private function handleErrorsInTest()
     {
         $test = Test::findByUuid($this->testUuid);
+        if(!Gate::allows('canViewTestDetails',[$test])){
+            $this->forceClose()->closeModal();
+            return;
+        }
         $duplicateIds = $test->getDuplicateQuestionIds();
         if (filled($duplicateIds)) {
             $this->handleDuplicateIdsErrors($test, $duplicateIds);
@@ -133,6 +138,10 @@ class PublishTestModal extends TCModalComponent
     private function handleNotEqualScoresErrors(Test $test): void
     {
         $carouselsWithUnequalScores = $this->getGroupQuestionNamesWithUnequalSubQuestionScores($test);
-        $this->testErrors[__('test.carousel_unequal_scores')] = trans_choice('cms.carousel_subquestions_scores_differ_with_names', $carouselsWithUnequalScores->toArray(), ['questions' => $this->getJoinedValuesAsString($carouselsWithUnequalScores)]);
+        $this->testErrors[__('test.carousel_unequal_scores')] = trans_choice(
+            'cms.carousel_subquestions_scores_differ_with_names',
+            $carouselsWithUnequalScores->toArray(),
+            ['questions' => $this->getJoinedValuesAsString($carouselsWithUnequalScores)]
+        );
     }
 }

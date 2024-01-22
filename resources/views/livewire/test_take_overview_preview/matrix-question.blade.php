@@ -1,6 +1,10 @@
 <x-partials.answer-model-question-container :number="$number" :question="$question" :answer="$answer">
     <div class="w-full">
-        <div class="children-block-pdf">{!! $question->converted_question_html  !!}</div>
+        <div class="children-block-pdf">
+            @if($showQuestionText)
+                {!! $question->converted_question_html  !!}
+            @endif
+        </div>
         <div class="mt-4 flex">
             <table class="border-collapse question-no-break-matrix matrix-table">
                 <thead>

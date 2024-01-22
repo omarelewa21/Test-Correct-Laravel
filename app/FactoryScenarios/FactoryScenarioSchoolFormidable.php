@@ -53,6 +53,10 @@ class FactoryScenarioSchoolFormidable extends FactoryScenarioSchool
         SchoolLocationCreator::createFormidableSchool($factory);
         SchoolLocationCreator::createSimpleSchoolWithOneTeacher($factory);
 
+        $school_location = $factory->teacher_one->schoolLocation;
+        $school_location->allow_formidable = true;
+        $school_location->save();
+
         return $factory;
     }
 

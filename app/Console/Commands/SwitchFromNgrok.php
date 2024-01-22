@@ -23,7 +23,7 @@ class SwitchFromNgrok extends Command
      *
      * @var string
      */
-    protected $description = 'Adds text2speech to user, dev utility only';
+    protected $description = 'switch from ngrok using id';
 
     /**
      * Create a new command instance.

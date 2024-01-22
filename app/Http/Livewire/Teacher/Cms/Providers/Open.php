@@ -2,6 +2,10 @@
 
 namespace tcCore\Http\Livewire\Teacher\Cms\Providers;
 
+use tcCore\UserFeatureSetting;
+use Illuminate\Support\Facades\Auth;
+use tcCore\Http\Interfaces\QuestionCms;
+
 class Open extends TypeProvider
 {
     protected $questionOptions = [
@@ -17,7 +21,8 @@ class Open extends TypeProvider
         return 'open-question';
     }
 
-    public function updatedQuestionRestrictWordAmount(bool $value) {
+    public function updatedQuestionRestrictWordAmount(bool $value)
+    {
         if ($value && !$this->instance->question['max_words']) {
             $this->instance->question['max_words'] = 50;
         }
@@ -34,6 +39,20 @@ class Open extends TypeProvider
     {
         if ($name == 'question.answer' && clean($this->instance->question['answer']) == clean($value)) {
             $this->instance->registerDirty = false;
+        }
+    }
+
+    public function preparePropertyBag()
+    {
+        $featureSettings = UserFeatureSetting::getAll(Auth::user());
+        foreach ($this->questionOptions as $key => $value) {
+            if ($key == 'spell_check_available' && !settings()->canUseCmsWscWriteDownToggle()) {
+                $this->instance->question['spell_check_available'] = false;
+            } elseif (isset($featureSettings[$key . '_default']) && !isset($featureSettings[$key])) {
+                $this->instance->question[$key] = $featureSettings[$key . '_default'];
+            } else {
+                $this->instance->question[$key] = $value;
+            }
         }
     }
 }

@@ -2,8 +2,12 @@
 
 namespace tcCore\Services\ContentSource;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use tcCore\Test;
 use tcCore\User;
+use tcCore\Word;
+use tcCore\WordList;
 
 abstract class ContentSourceService
 {
@@ -23,10 +27,9 @@ abstract class ContentSourceService
      *
      * @return string
      */
-    public static final function isAvailableForUser(User $user): bool
+    final public static function isAvailableForUser(User $user, string $context = 'test'): bool
     {
-        return static::allowedForUser($user)
-            && static::testsAvailableForUser($user);
+        return static::allowedForUser($user) && static::contextItemAvailableForUser($user, $context);
     }
 
     /**
@@ -62,6 +65,11 @@ abstract class ContentSourceService
      */
     abstract protected static function testsAvailableForUser(User $user): bool;
 
+    protected static function wordListsAvailableForUser(User $user): bool
+    {
+        return (new static())->wordListFiltered($user)->exists();
+    }
+
     /**
      * Get whether the content source is allowed for the user.
      *
@@ -75,15 +83,15 @@ abstract class ContentSourceService
         return 'not_' . static::getPublishScope();
     }
 
-    public  function itemBankFiltered($filters = [], $sorting = [], User $forUser): \Illuminate\Database\Eloquent\Builder
+    public function itemBankFiltered(User $forUser, $filters = [], $sorting = []): \Illuminate\Database\Eloquent\Builder
     {
-        return (new Test)->contentSourceFiltered(
+        return (new Test())->contentSourceFiltered(
             static::getPublishScope(),
             static::getCustomerCode(),
             Test::query(),
+            $forUser,
             $filters,
             $sorting,
-            $forUser
         );
     }
 
@@ -111,5 +119,36 @@ abstract class ContentSourceService
     public static function getSchoolAuthor(): User|null
     {
         return null;
+    }
+
+    public function wordListFiltered(User $forUser, $filters = [], $sorting = []): Builder
+    {
+        return WordList::contentSourceFiltered(
+            $forUser,
+            Arr::wrap(static::getCustomerCode()),
+            $filters,
+            $sorting,
+        );
+    }
+
+    public static function contextItemAvailableForUser(User $user, string $context): bool
+    {
+        return match ($context) {
+            'test'             => static::testsAvailableForUser($user),
+            'wordList', 'word' => static::wordListsAvailableForUser($user),
+            default            => false
+        };
+    }
+
+
+    public  function wordFiltered(User $forUser, $filters = [], $sorting = []): Builder
+    {
+        return Word::contentSourceFiltered(
+            $forUser,
+            Arr::wrap(static::getCustomerCode()),
+            $filters,
+            $sorting
+        )
+            ->whereNull('word_id');
     }
 }

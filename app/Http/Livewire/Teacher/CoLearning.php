@@ -6,6 +6,7 @@ use Illuminate\Routing\Redirector;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
 use tcCore\AnswerRating;
@@ -26,17 +27,20 @@ use tcCore\Http\Livewire\TCComponent;
 use tcCore\Http\Middleware\AfterResponse;
 use tcCore\MatchingQuestion;
 use tcCore\MultipleChoiceQuestion;
+use tcCore\Question;
+use tcCore\TestParticipant;
 use tcCore\TestTake;
+use tcCore\TestTakeQuestion;
 use tcCore\TestTakeStatus;
+use tcCore\Traits\CanSetUpCoLearning;
 use tcCore\View\Components\CompletionQuestionConvertedHtml;
 
 class CoLearning extends TCComponent implements CollapsableHeader
 {
-    const DISCUSSION_TYPE_ALL = 'ALL';
-    const DISCUSSION_TYPE_OPEN_ONLY = 'OPEN_ONLY';
+    use CanSetUpCoLearning;
 
     //start screen properties
-    public ?bool $coLearningHasBeenStarted = true;
+    public bool $coLearningHasBeenStarted = true;
     public bool $headerCollapsed = false;
     public bool $coLearningRestart = false;
 
@@ -46,8 +50,6 @@ class CoLearning extends TCComponent implements CollapsableHeader
     private $discussingQuestion;
 
     public $group;
-
-    public bool $openOnly;
 
     //TestParticipant properties
     public $testParticipants;
@@ -71,12 +73,10 @@ class CoLearning extends TCComponent implements CollapsableHeader
     public int $lastQuestionId;
     public int $questionCount;
 
-    public int $questionCountFiltered;
-    public int $questionIndex; //order all question types but excluding not discussed questions
-    public int $questionIndexAsInTest; //order including not discussed questions
-    public int $questionIndexOpenOnly; //order exclusing not discussed questions and non-open questions
-
-    public ?Collection $activeDrawingAnswerDimensions;
+    public int $questionCountFiltered; // filtered question count (only discussed questions)
+    public int $questionIndex; // filtered question index (only discussed questions)
+    public int $questionIndexAsInTest; // unfiltered question index (as in test)
+    public int $discussedQuestionsCount;
 
     protected $queryString = [
         'coLearningHasBeenStarted' => ['except' => true, 'as' => 'started']
@@ -112,12 +112,21 @@ class CoLearning extends TCComponent implements CollapsableHeader
 
     public function toggleStudentEnableQuestionText(bool $boolean)
     {
+        //if question text is disabled, also disable answer model and self pacing navigation
+        if(!$boolean) {
+            $this->testTake->enable_answer_model_colearning = $boolean;
+            $this->testTake->enable_student_navigation_colearning = $boolean;
+        }
         $this->testTake->enable_question_text_colearning = $boolean;
         $this->testTake->save();
     }
 
     public function toggleStudentEnableAnswerModel(bool $boolean)
     {
+        //if answer model is enabled, also disable self pacing navigation
+        if(!$boolean) {
+            $this->testTake->enable_student_navigation_colearning = $boolean;
+        }
         $this->testTake->enable_answer_model_colearning = $boolean;
         $this->testTake->save();
     }
@@ -125,6 +134,12 @@ class CoLearning extends TCComponent implements CollapsableHeader
     public function toggleStudentEnableNavigation(bool $boolean)
     {
         $this->testTake->enable_student_navigation_colearning = $boolean;
+        $this->testTake->save();
+    }
+
+    public function toggleStudentAllowBrowserAccess(bool $boolean)
+    {
+        $this->testTake->allow_inbrowser_colearning = $boolean;
         $this->testTake->save();
     }
 
@@ -141,13 +156,19 @@ class CoLearning extends TCComponent implements CollapsableHeader
 
     public function mount(TestTake $test_take)
     {
+        Gate::authorize('isAllowedToViewTestTake',[$test_take, false, false ]);
+
         $this->testTakeUuid = $test_take->uuid;
 
         $this->setTestTake();
 
         $this->redirectIfNotAllowed();
 
-        $this->getStaticNavigationData();
+        $this->getStaticNavigationDataAndRedirectIfNoAvailableQuestions();
+
+        if ($this->testTakeHasNotYetBeenStartedBefore() || !$this->coLearningHasBeenStarted) {
+            $this->getSetUpData(true);
+        }
 
         if ($this->testTakeIsBeingRestarted()) {
             $this->coLearningRestart = true;
@@ -180,6 +201,21 @@ class CoLearning extends TCComponent implements CollapsableHeader
             return;
         }
         $this->getTestParticipantsData();
+
+        if ($this->activeAnswerRating) {
+            $discussingAnswerRatingQuestionId = AnswerRating::whereIn(
+                'answer_ratings.id',
+                TestParticipant::select(
+                    'discussing_answer_rating_id'
+                )->where(['user_id' => $this->activeAnswerRating->user_id, 'test_take_id' => $this->testTake->id])
+            )
+                ->join('answers', 'answers.id', '=', 'answer_ratings.answer_id')
+                ->first()
+                ->question_id;
+            if ($discussingAnswerRatingQuestionId !== $this->activeAnswerRating->answer->question_id) {
+                $this->resetActiveAnswer();
+            }
+        }
     }
 
     public function render()
@@ -188,24 +224,11 @@ class CoLearning extends TCComponent implements CollapsableHeader
             ->layout('layouts.co-learning-teacher');
     }
 
-    public function startCoLearningSession($discussionType) : bool|Redirector
+    public function startCoLearningSession() : bool|Redirector
     {
-        if (!in_array($discussionType, [self::DISCUSSION_TYPE_OPEN_ONLY, self::DISCUSSION_TYPE_ALL])) {
-            throw new \Exception('Wrong discussion type');
-        }
-
         $testTakeUpdateData = [];
-        $resetProgress = $discussionType != $this->testTake->discussion_type;
         if ($this->testTakeStatusNeedsToBeUpdated()) {
             $testTakeUpdateData['test_take_status_id'] = TestTakeStatus::STATUS_DISCUSSING;
-        }
-        if ($this->discussionTypeNeedsToBeUpdated($discussionType)) {
-            $testTakeUpdateData['discussion_type'] = $discussionType;
-        }
-        if ($resetProgress) {
-            $testTakeUpdateData['discussing_question_id'] = null;
-            $testTakeUpdateData['is_discussed'] = 0;
-            $this->deleteStudentAnswerRatings();
         }
         if (!empty($testTakeUpdateData)) {
             $this->testTake->update($testTakeUpdateData);
@@ -219,14 +242,14 @@ class CoLearning extends TCComponent implements CollapsableHeader
             $this->discussingQuestion = $this->testTake->discussingQuestion()->first();
         }
 
-        if(!settings()->allowNewCoLearningTeacher(auth()->user())) {
+        if (!settings()->allowNewCoLearningTeacher(auth()->user())) {
             return CakeRedirectHelper::redirectToCake('test_takes.discussion', $this->testTake->uuid);
         }
 
         //finally set bool to true
         $this->coLearningHasBeenStarted = true;
         $this->headerCollapsed = true;
-        $this->getStaticNavigationData();
+        $this->getStaticNavigationDataAndRedirectIfNoAvailableQuestions();
         $this->refreshComponentData();
 
         return $this->coLearningHasBeenStarted;
@@ -246,7 +269,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
 
         return TestTake::redirectToDetail(
             testTakeUuid: $this->testTake->uuid,
-            returnRoute : Str::replaceFirst(config('app.base_url'), '', Livewire::originalUrl()),
+            returnRoute: Str::replaceFirst(config('app.base_url'), '', Livewire::originalUrl()),
         );
     }
 
@@ -262,6 +285,8 @@ class CoLearning extends TCComponent implements CollapsableHeader
     /* start sidebar methods */
     public function goToNextQuestion()
     {
+        $this->setTestTakeQuestionDiscussed();
+
         $this->nextDiscussionQuestion();
         $this->getNavigationData();
 
@@ -270,25 +295,12 @@ class CoLearning extends TCComponent implements CollapsableHeader
 
     public function goToPreviousQuestion()
     {
+        $this->setTestTakeQuestionDiscussed();
+
         if (!$this->updateDiscussingQuestionIdOnTestTake()) {
             return false;
         }
 
-        $discussingQuestion = $this->testTake->discussingQuestion()->first();
-
-        $this->testTake->discussingParentQuestions()->delete();
-
-        if ($discussingQuestion?->is_subquestion) {
-            $discussingQuestionId = $discussingQuestion->getKey();
-
-            $groupQuestionId = $this->getGroupQuestionIdForSubQuestion($discussingQuestionId);
-
-            $discussingParentQuestion = new DiscussingParentQuestion();
-            $discussingParentQuestion->group_question_id = $groupQuestionId;
-            $discussingParentQuestion->level = 1;
-
-            $this->testTake->discussingParentQuestions()->save($discussingParentQuestion);
-        }
         $this->getNavigationData();
 
         $this->refreshComponentData();
@@ -321,8 +333,6 @@ class CoLearning extends TCComponent implements CollapsableHeader
         $this->activeAnswerText = null;
 
         $this->activeAnswerAnsweredStatus = null;
-
-        $this->activeDrawingAnswerDimensions = null;
     }
 
     /* end sidebar methods */
@@ -444,8 +454,8 @@ class CoLearning extends TCComponent implements CollapsableHeader
                 $testParticipant->uuid => [
                     'abnormalitiesStatus' => AbnormalitiesStatus::get(
                         testParticipantAbnormalities: $testParticipant->abnormalities,
-                        averageAbnormalitiesAmount  : $abnormalitiesAverage,
-                        enoughDataAvailable         : $answersRatedByTestParticipant >= 4,
+                        averageAbnormalitiesAmount: $abnormalitiesAverage,
+                        enoughDataAvailable: $answersRatedByTestParticipant >= 4,
                     )
                 ]
             ]);
@@ -540,7 +550,6 @@ class CoLearning extends TCComponent implements CollapsableHeader
     protected function getNavigationData()
     {
         $this->questionIndex = 0;
-        $this->questionIndexOpenOnly = 0;
 
         if (!isset($this->testTake->discussing_question_id)) {
             return false;
@@ -549,33 +558,31 @@ class CoLearning extends TCComponent implements CollapsableHeader
         if ($this->questionsOrderList->get($this->testTake->discussing_question_id)) {
             $this->questionIndex = $this->questionsOrderList->get($this->testTake->discussing_question_id)['order'];
             $this->questionIndexAsInTest = $this->questionsOrderList->get($this->testTake->discussing_question_id)['order_in_test'];
-            $this->questionIndexOpenOnly = $this->questionsOrderList->get(
-                $this->testTake->discussing_question_id
-            )['order_open_only'] ?: $this->questionIndexOpenOnly;
         }
     }
 
-    protected function getStaticNavigationData()
+    protected function getStaticNavigationDataAndRedirectIfNoAvailableQuestions(): Redirector|null
     {
-        $this->openOnly = $this->testTake->discussion_type === self::DISCUSSION_TYPE_OPEN_ONLY;
-
         $this->questionsOrderList = $this->getQuestionList();
 
         $this->questionCount = $this->questionsOrderList->count('id');
+        $this->discussedQuestionsCount = $this->questionsOrderList
+            ->filter(fn($question) => isset($question['discussed']) && (bool)$question['discussed'])
+            ->count();
 
         //filter questions that have 'discuss in class' on false
-        $this->questionsOrderList = $this->questionsOrderList->filter(fn($item) => (bool)$item['discuss'] );
-
-        if ($this->testTake->discussion_type === self::DISCUSSION_TYPE_OPEN_ONLY) {
-            $this->questionsOrderList = $this->questionsOrderList->filter(fn($item) => $item['question_type'] === 'OPEN'
-            );
-        }
+        $this->questionsOrderList = $this->questionsOrderList->filter(fn($item) => (bool)$item['discuss']);
         $this->questionCountFiltered = $this->questionsOrderList->count('id');
+
+        if(!$this->questionCountFiltered){
+            return $this->redirectBack();
+        }
 
         $this->firstQuestionId = $this->questionsOrderList->sortBy('order')->first()['id'];
         $this->lastQuestionId = $this->questionsOrderList->sortBy('order')->last()['id'];
 
         $this->getNavigationData();
+        return null;
     }
 
     private function convertCompletionQuestionToHtml(?Collection $answers = null)
@@ -594,7 +601,9 @@ class CoLearning extends TCComponent implements CollapsableHeader
         $this->removeChangesFromTestTakeModel();
 
         if ($this->previousQuestionId !== null) {
-            return $this->testTake->update(['discussing_question_id' => $this->previousQuestionId]);
+            $this->testTake->update(['discussing_question_id' => $this->previousQuestionId]);
+            $this->testTake->refresh();
+            return true;
         }
 
         return false;
@@ -631,7 +640,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
                 // [ 0 => [ 0 => 'answer', 1 => 'answer']]
                 return collect(
                     json_decode(
-                        json       : $this->activeAnswerRating->answer->json,
+                        json: $this->activeAnswerRating->answer->json,
                         associative: true
                     )
                 )->mapWithKeys(function ($answer, $tag) {
@@ -671,7 +680,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
         }
 
         $array = json_decode(
-            json       : $this->activeAnswerRating->answer->json,
+            json: $this->activeAnswerRating->answer->json,
             associative: true
         );
 
@@ -702,14 +711,14 @@ class CoLearning extends TCComponent implements CollapsableHeader
     private function redirectIfNotAllowed(): Redirector|null
     {
         if (!in_array(
-            $this->testTake->test_take_status_id,
-            [
-                TestTakeStatus::STATUS_TAKEN,
-                TestTakeStatus::STATUS_DISCUSSING,
-                TestTakeStatus::STATUS_DISCUSSED,
-                TestTakeStatus::STATUS_RATED,
-            ]
-        )) {
+                $this->testTake->test_take_status_id,
+                [
+                    TestTakeStatus::STATUS_TAKEN,
+                    TestTakeStatus::STATUS_DISCUSSING,
+                    TestTakeStatus::STATUS_DISCUSSED,
+                    TestTakeStatus::STATUS_RATED,
+                ]
+            )) {
             return redirect()->route('teacher.test-takes', ['stage' => 'taken']);
         }
         return null;
@@ -719,25 +728,18 @@ class CoLearning extends TCComponent implements CollapsableHeader
     {
         return $this->coLearningHasBeenStarted === false
             && $this->testTake->discussing_question_id !== null
-            && $this->testTake->discussion_type !== null
             && $this->testTake->test_take_status_id >= TestTakeStatus::STATUS_TAKEN;
     }
 
     private function testTakeHasNotYetBeenStartedBefore(): bool
     {
         return $this->testTake->discussing_question_id === null
-            || $this->testTake->discussion_type === null
-            || $this->testTake->test_take_status_id === TestTakeStatus::STATUS_TAKEN;
+            || $this->testTake->hasStatusTaken();
     }
 
     private function testTakeStatusNeedsToBeUpdated(): bool
     {
-        return $this->testTake->test_take_status_id !== TestTakeStatus::STATUS_DISCUSSING;
-    }
-
-    private function discussionTypeNeedsToBeUpdated(string $testTakeDiscussionType): bool
-    {
-        return $this->testTake->discussion_type !== $testTakeDiscussionType;
+        return !$this->testTake->hasStatusDiscussing();
     }
 
     private function deleteStudentAnswerRatings()
@@ -747,14 +749,37 @@ class CoLearning extends TCComponent implements CollapsableHeader
             ->delete();
     }
 
-    public function handleHeaderCollapse($args) : bool
+    public function handleHeaderCollapse($args): bool
     {
-        return $this->startCoLearningSession($args['discussionType']);
+        return $this->startCoLearningSession();
     }
 
     private function getQuestionList()
     {
-        return collect($this->testTake->test->getQuestionOrderListWithDiscussionType());
+        $testTakeQuestions = $this->getTestTakeQuestions()
+            ?->keyBy('question_id');
+
+        $orderList = collect($this->testTake->test->getQuestionOrderListWithDiscussionType());
+
+        if($testTakeQuestions->isEmpty()) {
+            return $orderList;
+            $order = 1;
+            return $orderList->map(function ($question) use (&$order) {
+                $question['order'] = $order++;
+                $question['discussed'] = false;
+                return $question;
+            });;
+        }
+
+        //filters questions that are not checked at start screen
+        // recalculates order of questionList
+        $order = 1;
+        return $orderList->filter(fn($question) => $testTakeQuestions->has($question['id']))
+        ->map(function ($question) use (&$order, $testTakeQuestions) {
+            $question['order'] = $order++;
+            $question['discussed'] = (bool) $testTakeQuestions->get($question['id'])->discussed;
+            return $question;
+        });
     }
 
     private function setTestTake()
@@ -777,7 +802,7 @@ class CoLearning extends TCComponent implements CollapsableHeader
         $this->testTake = $this->testTake->refresh();
         $this->testTake->testParticipants->load(['answers.answerRatings' => fn($query) => $query->where('type', 'STUDENT')]);
         $this->discussingQuestion = $this->testTake->discussingQuestion()->first();
-        if($this->discussingQuestion) {
+        if ($this->discussingQuestion) {
             $this->group = $this->discussingQuestion->getGroupQuestion($this->testTake);
         }
     }
@@ -786,9 +811,20 @@ class CoLearning extends TCComponent implements CollapsableHeader
     {
         $this->resetActiveAnswer();
         $this->discussingQuestion = $this->testTake->discussingQuestion()->first();
+
         $this->group = $this->discussingQuestion->getGroupQuestion($this->testTake);
         $this->getTestParticipantsData();
         $this->testParticipants->map(fn($participant) => $participant->syncedWithCurrentQuestion = false);
+    }
+
+    private function setTestTakeQuestionDiscussed()
+    {
+        $discussingTestTakeQuestion = $this->testTake->testTakeQuestions->where('question_id', $this->discussingQuestion->id)->first();
+        if($discussingTestTakeQuestion) {
+            if (!$discussingTestTakeQuestion->discussed) {
+                $discussingTestTakeQuestion->update(['discussed' => true]);
+            }
+        }
     }
 
     private function getDisplayableQuestionText()
@@ -798,4 +834,5 @@ class CoLearning extends TCComponent implements CollapsableHeader
         }
         return $this->discussingQuestion->converted_question_html;
     }
+
 }

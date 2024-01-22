@@ -33,7 +33,7 @@ class PreviewAnswerModelController extends Controller
         // todo add check or failure when $current out of bounds $data;
         $styling = $this->getCustomStylingFromQuestions($data);
 //        $styling = $styling.$this->getAppCssForPdf();
-//        return view('test-answer-model-overview',compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling']));
+//        return view('test-answer-model-overview',compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling', 'test']));
         $titleForPdfPage = __('Antwoord model').' '.$test->name.' '.Carbon::now()->format('d-m-Y H:i');
         view()->share('titleForPdfPage',$titleForPdfPage);
         ini_set('max_execution_time', '90');
